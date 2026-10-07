@@ -1,0 +1,473 @@
+@startuml
+!define PENGINE_COLOR #LightBlue
+!define PSIM_COLOR #LightGreen
+!define TRIGGER_COLOR #LightCoral
+!define UTILS_COLOR #LightYellow
+' ========== MODULE PENGINE (Rendu et Audio) ==========
+package "PEngine (Rendu/Audio)" PENGINE_COLOR {
+class App {
+-bool isRunning
+-Config config
+-Render render
+-Audio audio
+-Menu menu
+-Game game
++Init(argc, argv)
++Run()
++Display()
++Idle()
++Keyboard(key)
++Reshape(w, h)
+}
+class Render {
+-Camera camera
+-Terrain terrain
+-Texture textures[]
+-Model models[]
+-VBuffer vbuffers[]
+-FXManager fxManager+Init()
++DrawScene()
++SetupCamera()
++DrawTerrain()
++DrawFoliage()
++DrawVehicles()
++DrawParticles()
++DrawHUD()
++DrawMenu()
+}
+class Camera {
+-Vector3 position
+-Vector3 target
+-Vector3 up
+-float fov
+-float aspect
+-float nearPlane
+-float farPlane
+-int mode // 0: cockpit, 1: external, 2: chase
++Setup()
++Update(mode)
++GetViewMatrix()
++GetProjectionMatrix()
+}
+class Terrain {
+-HeightMap heightMap
+-ColorMap colorMap
+-TerrainMap terrainMap
+-RoadMap roadMap
+-int tileSize
+-float horizontalScale
+-float verticalScale
+-VBO meshVBO
+-VBO textureVBO
++Load(levelFile)
++BuildMesh()
++ApplyLOD()
++Draw()
++GetHeight(x, z)+GetTerrainType(x, z)
+}
+class Texture {
+-GLuint textureID
+-int width
+-int height
+-int channels
++Load(filename)
++Bind()
++Free()
+}
+class Model {
+-GLuint vboID
+-int vertexCount
+-Material material
++Load(filename)
++Draw()
++Free()
+}
+class VBuffer {
+-GLuint vboID
+-int size
+-int type
++Create(data, size, type)
++Draw()
++Free()
+}
+class FXManager {
+-list<ParticleSystem> systems
+-list<Particle> particles
++AddEffect(name)
++Update(dt)
++Draw()
++CreateRain(intensity)
++CreateSnow(intensity)
++CreateDust(position)
+}class Particle {
+-Vector3 position
+-Vector3 velocity
+-float life
+-float maxLife
+-Color color
+-float size
++Update(dt)
++IsDead()
+}
+class ParticleSystem {
+-string name
+-int particleCount
+-float emissionRate
+-float lifetime
+-Vector3 spawnArea
+-Vector3 initialVelocity
++Emit()
++Update(dt)
+}
+class Audio {
+-ALCdevice device
+-ALCcontext context
+-ALuint sources[]
+-ALuint buffers[]
+-Listener listener
++Init()
++LoadSound(filename)
++PlaySound(source, buffer)
++StopSound(source)
++UpdateListener(camera)
++SetVolume(volume)
+}
+class Config {
+-map<string, string> params
++Load(filename)
++GetInt(key)+GetFloat(key)
++GetString(key)
++GetBool(key)
+}
+class Util {
++Random(min, max)
++Clamp(value, min, max)
++Lerp(a, b, t)
++StringSplit(str, delimiter)
++QuaternionFromEuler(x, y, z)
+}
+}
+' ========== MODULE PSIM (Physique) ==========
+package "PSim (Physique)" PSIM_COLOR {
+class Vehicle {
+-float mass
+-float inertia
+-Vector3 position
+-Quaternion orientation
+-Vector3 velocity
+-Vector3 angularVelocity
+-Wheel wheels[4]
+-Engine engine
+-Damage damage
+-Control control
+-float speed
+-float rpm
++Load(vehicleFile)
++Update(dt, control)
++ApplyEngineForce(throttle)
++ApplyBrakeForce(brake)
++ApplySteering(steering)
++ApplyHandbrake(handbrake)
++GetSpeed()
++GetRPM()
++GetPosition()
++GetOrientation()
+}class Wheel {
+-Vector3 position
+-float radius
+-float springK
+-float dampingD
+-float mu
+-float drive
+-float steer
+-float brakeForce
+-float rotationAngle
+-float slip
+-Vector3 contactPoint
++CalculateForce(dt, terrain, vehicle)
++GetNormalForce()
++GetFrictionForce()
++GetSlip()
++UpdateVisual()
+}
+class Engine {
+-float rpm
+-float torque
+-float powerCurve[]
+-float inertia
+-float maxRPM
++Update(dt, throttle)
++GetTorque()
++GetRPM()
++GetPower()
+}
+class Damage {
+-float frontDamage
+-float rearDamage
+-float leftDamage
+-float rightDamage
+-float totalDamage
+-bool isDestroyed
++ApplyImpact(force, point)
++UpdatePerformance()+GetDamageTexture()
++Repair()
+}
+class RigidBody {
+-float mass
+-Vector3 position
+-Quaternion orientation
+-Vector3 velocity
+-Vector3 angularVelocity
+-Matrix3 inertiaTensor
++ApplyForce(force)
++ApplyTorque(torque)
++Update(dt)
++GetInverseMass()
+}
+class Collision {
++Raycast(origin, direction, maxDist)
++SphereIntersect(center, radius, point)
++BoxIntersect(min, max, point)
++TriangleIntersect(v1, v2, v3, point)
++ResolveCollision(body1, body2, normal, penetration)
+}
+class PhysicsWorld {
+-list<RigidBody> bodies
+-Vector3 gravity
+-float airDensity
+-float timeStep
++AddBody(body)
++RemoveBody(body)
++Update(dt)
++GetGravity()
++SetGravity(gravity)
+}
+}
+' ========== MODULE TRIGGER (Logique du Jeu) ==========
+package "Trigger (Logique du Jeu)" TRIGGER_COLOR {class MainApp {
++main()
++Run()
+}
+class Game {
+-Vehicle playerVehicle
+-Vehicle ghostVehicle
+-Terrain currentTerrain
+-vector<Checkpoint> checkpoints
+-vector<CodriverCP> codriverCPs
+-int currentCP
+-float raceTime
+-float bestLapTime
+-int laps
+-int maxLaps
+-float targetTime
+-bool isRacing
+-bool isFinished
+-Event currentEvent
+-Level currentLevel
++LoadLevel(levelFile)
++StartRace()
++Update(dt)
++Draw()
++CheckCheckpoints()
++FinishRace()
++GetRaceTime()
++GetLapTime()
+}
+class Event {
+-string name
+-string author
+-bool locked
+-vector<string> levelFiles
+-vector<string> unlockFiles
+-vector<Vehicle> availableVehicles
++Load(eventFile)
++IsCompleted()
++Unlock()+GetNextLevel()
+}
+class Level {
+-string name
+-string comment
+-string author
+-string description
+-string screenshot
+-string minimap
+-Terrain terrain
+-Weather weather
+-vector<string> vehicleOptions
+-Race race
++Load(levelFile)
+}
+class Race {
+-Vector2 startPosition
+-float startOrientation
+-float targetTime
+-float coordScale
+-vector<Vector2> checkpoints
+-vector<CodriverCP> codriverCPs
+-int laps
++Load(raceNode)
+}
+class Checkpoint {
+-Vector2 coordinates
+-bool isActive
+-bool isPassed
++Check(vehiclePos)
++Activate()
++Deactivate()
+}
+class CodriverCP {
+-Vector2 coordinates
+-string notes
+-string type // left, right, straight, jump, etc.-string severity // easy, medium, hard, square, hairpin
+-float distance
++Load(coords, notes)
++GetIcon()
++GetAudio()
+}
+class Menu {
+-int currentScreen
+-vector<MenuItem> items
+-int selectedItem
+-Event selectedEvent
+-Vehicle selectedVehicle
+-Level selectedLevel
++Update(dt)
++Draw()
++HandleKey(key)
++Navigate(direction)
++Select()
++Back()
+}
+class MenuItem {
+-string label
+-string action
+-bool enabled
+-bool selected
++Draw()
++Execute()
+}
+class Control {
+-float throttle
+-float brake
+-float steering
+-bool handbrake
+-bool recover
+-bool recoverAtCheckpoint
+-bool pause
+-bool showMap
+-bool showUI-int cameraMode
++Update()
++GetThrottle()
++GetBrake()
++GetSteering()
++GetHandbrake()
+}
+class Ghost {
+-vector<Vector3> positions
+-vector<Quaternion> orientations
+-vector<float> times
+-int currentFrame
+-bool isRecording
+-bool isPlaying
++StartRecording()
++StopRecording()
++StartPlayback()
++Update(dt)
++Draw()
++Save(filename)
++Load(filename)
+}
+class Option {
+-string playerName
+-float engineVolume
+-float sfxVolume
+-float codriverVolume
+-string codriverName
+-string speedUnit
+-float drivingAssist
+-bool fullscreen
+-int width
+-int height
+-string stereoMode
++Load()
++Save()
++Apply()
+}class Score {
+-string playerName
+-string levelName
+-float time
+-float bestTime
+-float lapTimes[]
+-int position
++Save()
++Load()
++Update(time)
++GetBestTime()
+}
+class Weather {
+-string cloudTexture
+-float cloudScrollRate
+-Color fogColor
+-float fogDensity
+-float fogDensitySky
+-float rainIntensity
+-float snowFall
+-float temperature
++Load(weatherNode)
++Update(dt)
++Apply()
+}
+}
+' ========== RELATIONSHIPS ==========
+' PEngine relationships
+App --> Render
+App --> Audio
+App --> Menu
+App --> Game
+App --> Config
+Render --> Camera
+Render --> Terrain
+Render --> Texture
+Render --> Model
+Render --> VBufferRender --> FXManager
+FXManager --> ParticleSystem
+ParticleSystem --> Particle
+Terrain --> Texture
+Model --> Texture
+Config ..> Util
+' PSim relationships
+Vehicle --> Wheel
+Vehicle --> Engine
+Vehicle --> Damage
+Vehicle --> RigidBody
+RigidBody --> Collision
+PhysicsWorld --> RigidBody
+Vehicle ..> Control
+Wheel ..> Terrain
+Wheel ..> Collision
+' Trigger relationships
+Game --> Vehicle
+Game --> Terrain
+Game --> Checkpoint
+Game --> CodriverCP
+Game --> Event
+Game --> Level
+Game --> Ghost
+Game --> Score
+Level --> Terrain
+Level --> Weather
+Level --> Race
+Race --> Checkpoint
+Race --> CodriverCP
+Menu --> Event
+Menu --> Vehicle
+Menu --> Level
+MainApp --> App
+Control ..> Vehicle
+Ghost --> Vehicle
+' Cross-module dependencies
+Game --> RenderGame --> Audio
+Game --> PhysicsWorld
+Menu --> Render
+Menu --> Audio
+@enduml

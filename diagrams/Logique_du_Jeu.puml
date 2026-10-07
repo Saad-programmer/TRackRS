@@ -1,0 +1,154 @@
+@startuml
+!define TRIGGER_COLOR #LightCoral
+class Game {
+-Vehicle playerVehicle
+-Vehicle ghostVehicle
+-Terrain currentTerrain
+-vector<Checkpoint> checkpoints
+-vector<CodriverCP> codriverCPs
+-int currentCP
+-float raceTime
+-float bestLapTime
+-int laps
+-int maxLaps
+-float targetTime
+-bool isRacing
+-bool isFinished
+-bool isPaused
+-Event currentEvent
+-Level currentLevel
+-Score currentScore
++LoadLevel(levelFile)
++StartRace()
++Update(dt)
++Draw()+Pause()
++Resume()
++CheckCheckpoints()
++FinishRace()
++GetRaceTime()
++GetLapTime()
++GetPosition()
++GetTotalCheckpoints()
+}
+class Checkpoint {
+-Vector2 coordinates
+-int index
+-bool isActive
+-bool isPassed
+-float radius
++Check(vehiclePos)
++Activate()
++Deactivate()
++IsPassed()
++IsActive()
+}
+class CodriverCP {
+-Vector2 coordinates
+-string notes
+-string type
+-string severity
+-float distance
+-bool isTriggered
+-bool isPlayed
++Trigger()
++GetIcon()
++GetAudioFile()
++GetDistanceTo(vehiclePos)
+}
+class Race {
+-Vector2 startPosition
+-float startOrientation
+-float targetTime-float coordScale
+-vector<Checkpoint> checkpoints
+-vector<CodriverCP> codriverCPs
+-int laps
++Load(raceNode)
++GetStartPosition()
++GetStartOrientation()
++GetCheckpoints()
++GetCodriverCPs()
+}
+class Event {
+-string name
+-string author
+-bool locked
+-vector<string> levelFiles
+-vector<string> unlockFiles
+-vector<Vehicle> availableVehicles
+-int currentLevelIndex
+-bool completed
++Load(eventFile)
++IsCompleted()
++Unlock()
++GetNextLevel()
++GetLevel(index)
++GetAvailableVehicles()
++IsLocked()
+}
+class Level {
+-string name
+-string comment
+-string author
+-string description
+-string screenshot
+-string minimap
+-Terrain terrain
+-Weather weather
+-Race race
+-vector<string> vehicleOptions
++Load(levelFile)+GetName()
++GetDescription()
++GetTerrain()
++GetWeather()
++GetRace()
++GetVehicleOptions()
+}
+class Score {
+-string playerName
+-string levelName
+-float time
+-float bestTime
+-float lapTimes[10]
+-int position
+-int totalPlayers
++Save()
++Load()
++Update(time)
++GetBestTime()
++GetPosition()
++GetTotalPlayers()
++AddLapTime(time)
++GetLapTime(index)
+}
+class Ghost {
+-vector<Vector3> positions
+-vector<Quaternion> orientations
+-vector<float> times
+-int currentFrame
+-bool isRecording
+-bool isPlaying
+-float playbackTime
+-string ghostFile
++StartRecording()
++StopRecording()
++StartPlayback()
++Update(dt)
++Draw()
++Save(filename)+Load(filename)
++IsRecording()
++IsPlaying()
++GetPositionAt(time)
+}
+Game --> Checkpoint
+Game --> CodriverCP
+Game --> Race
+Game --> Event
+Game --> Level
+Game --> Score
+Game --> Ghost
+Level --> Race
+Event --> Level
+Race --> Checkpoint
+Race --> CodriverCP
+Ghost --> Vehicle
+@enduml

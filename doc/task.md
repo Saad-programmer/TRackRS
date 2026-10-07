@@ -1,0 +1,4 @@
+- [x] Create packaging script `build_deb.sh` for Linux
+- [x] Create `installer.nsi` script for Windows
+- [x] Execute `build_deb.sh` to generate the Linux installer
+- [x] Verify the contents of the generated `.deb package`

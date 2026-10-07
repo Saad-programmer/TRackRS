@@ -1,0 +1,23 @@
+# Build outputs
+*.o
+*.d
+*~
+/bin/trackrs
+
+# Generated Debian packages
+/*.deb
+/trackrs-demo_*/
+
+# Local media used for testing or promotion
+/inVideo.mp4
+/bin/inVideo.mp4
+/intro.mp3
+/intro.mp4
+/YouCut_*.mp4
+
+# Local document exports and generated repository dump
+/Doc.docx
+/Doc.odt
+/Doc.pdf
+/Untitled*.odt
+/repomix-output.xml

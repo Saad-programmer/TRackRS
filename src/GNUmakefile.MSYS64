@@ -1,0 +1,184 @@
+#
+# TrackRS GNUmakefile.MSYS64 for MSYS2 users
+# Creator: Saad AIT YAHIA - @github: Saad-programmer
+#
+# This is a version of GNUmakefile.MSYS for Windows 64-bit builds.
+#
+# TODO:
+# 	Unify both into a single one
+#
+
+# standard GNU and custom variables
+DISTNAME        := trackrs
+DISTVER         := 0.6.7
+DISTDIR         := $(DISTNAME)-$(DISTVER)
+DISTARC         := $(DISTDIR)-win64.zip
+TR_BINDIR       := ../bin
+TR_EXENAME      := trackrs-x64.exe
+TR_EXEFILE      := $(TR_BINDIR)/$(TR_EXENAME)
+TR_DLLFILES     :=                      \
+    $(TR_BINDIR)/glew32.dll             \
+    $(TR_BINDIR)/libjpeg-8.dll          \
+    $(TR_BINDIR)/libphysfs.dll          \
+    $(TR_BINDIR)/libpng16-16.dll        \
+    $(TR_BINDIR)/libalut-0.dll          \
+    $(TR_BINDIR)/libopenal-1.dll        \
+    \
+    $(TR_BINDIR)/libavif.dll            \
+    $(TR_BINDIR)/libjxl.dll             \
+    $(TR_BINDIR)/libtiff-5.dll          \
+    $(TR_BINDIR)/libwebpdemux-2.dll     \
+    $(TR_BINDIR)/libwebp-7.dll          \
+    $(TR_BINDIR)/libaom.dll             \
+    $(TR_BINDIR)/libdav1d.dll           \
+    $(TR_BINDIR)/libyuv.dll             \
+    $(TR_BINDIR)/libbrotlicommon.dll    \
+    $(TR_BINDIR)/libbrotlidec.dll       \
+    $(TR_BINDIR)/libbrotlienc.dll       \
+    $(TR_BINDIR)/libhwy.dll             \
+    $(TR_BINDIR)/libdeflate.dll         \
+    $(TR_BINDIR)/libjbig-0.dll          \
+    $(TR_BINDIR)/libLerc.dll            \
+    $(TR_BINDIR)/liblzma-5.dll          \
+    $(TR_BINDIR)/libzstd.dll            \
+    $(TR_BINDIR)/liblcms2-2.dll         \
+    \
+    $(TR_BINDIR)/libtinyxml2.dll        \
+    $(TR_BINDIR)/SDL2.dll               \
+    $(TR_BINDIR)/SDL2_image.dll         \
+    $(TR_BINDIR)/zlib1.dll              \
+    $(TR_BINDIR)/libgcc_s_seh-1.dll     \
+    $(TR_BINDIR)/libwinpthread-1.dll    \
+    $(TR_BINDIR)/libstdc++-6.dll
+PROJDIRS        := PEngine PSim Trigger
+SRCFILES        := $(sort $(shell find $(PROJDIRS) -type f -name "*.cpp"))
+OBJFILES        := $(patsubst %.cpp, %.o, $(SRCFILES))
+DEPFILES        := $(patsubst %.cpp, %.d, $(SRCFILES))
+WARNINGS        ?= -Wall -Wextra -pedantic
+OPTIMS          ?= -march=native -mtune=native -Ofast
+MODENV          ?= -m64
+DMACROS         := -DNDEBUG -DWIN32 -DPACKAGE_VERSION=\"$(DISTVER)\"
+# You can choose between 'ucrt64' and 'mingw64' here.
+FLAVOUR         := 'ucrt64'
+INCDIRS         :=                  \
+    -I'./include'
+LIBDIRS         :=                  \
+    -L"/$(FLAVOUR)/bin"
+CXXFLAGS        ?= -std=c++11 $(MODENV) $(WARNINGS) $(OPTIMS)
+CPPFLAGS        ?= $(DMACROS) $(INCDIRS)
+EXTRA_LIBS      := -lmingw32 -lSDL2main -lopengl32 -lglew32 -lSDL2 -lSDL2_image -lphysfs -ltinyxml2 -lopenal -lalut
+LDFLAGS         ?= $(MODENV) $(LIBDIRS) $(EXTRA_LIBS)
+
+#
+# phony targets, whose names aren't names of resulting files
+#
+# NOTE that several "standard" targets are missing; here
+# `all` is `build` because I always felt "all" was a bad name,
+# while the others I had either no time or no incentive to implement
+#
+.PHONY: build printvars dist clean winclean copydlls
+
+# builds the executable and copies the .DLL files
+build: printvars $(TR_EXEFILE) copydlls
+
+#
+# prints the variables that the user can change;
+# if VAR is in the list, then the user can change it by running:
+#
+#   VAR="new value" make [target]
+#
+# examples:
+#   OPTIMS="-O0 -g" make
+#   prefix="/usr" exec_prefix="/usr" make install
+#
+printvars:
+	@printf "\ncurrent values of user-set variables:\n"
+	@printf "\tOPTIMS       ?= %s\n" "$(OPTIMS)"
+	@printf "\tMODENV       ?= %s\n" "$(MODENV)"
+	@printf "\tWARNINGS     ?= %s\n" "$(WARNINGS)"
+	@printf "\n"
+	@printf "resulting values of build variables:\n"
+	@printf "\tCXXFLAGS     ?= %s\n" "$(CXXFLAGS)"
+	@printf "\tCPPFLAGS     ?= %s\n" "$(CPPFLAGS)"
+	@printf "\tLDFLAGS      ?= %s\n" "$(LDFLAGS)"
+	@printf "\n"
+
+#
+# creates a .ZIP archive for redistribution
+#
+# NOTE that this fails if the directory we're in isn't named $(DISTDIR) however
+# this is by design: it's meant to enforce directory naming consistency and
+# awareness of the $(DISTVER) variable, which you must update for each release!
+#
+# NOTE that this target builds the game if it wasn't already and then performs
+# a light clean, suitable for Windows users most of which prefer to have a
+# working game out-of-the-box despite having downloaded the .ZIP archive instead
+# of the Trigger Rally installer
+#
+# NOTE that this target requires the "msys-zip" bin package to be installed
+#
+dist: build winclean
+	@printf "\nzip -> \"../../%s\"\n" "$(DISTARC)"
+	@cd ../..; \
+		zip --recurse-paths --quiet "$(DISTARC)" "$(DISTDIR)"
+	@printf "md5sum -> \"../../%s.md5\"\n\n" "$(DISTARC)"
+	@cd ../..; \
+		md5sum "$(DISTARC)" > "$(DISTARC).md5"
+
+# links the object files into the executable
+$(TR_EXEFILE): $(OBJFILES)
+	@printf "%s" $(CXX)
+	@for file in $(OBJFILES); do \
+		printf "\t%s\n" $$file; \
+		done
+	@printf "\t-> %s\n" $@
+	@$(CXX) -o $@ $(OBJFILES) $(LDFLAGS)
+
+#
+# removes object files, dependency files, .DLL files, executable and
+# backup files (such as "func.cpp~")
+#
+clean:
+	-@$(RM) --verbose \
+		$(OBJFILES) \
+		$(DEPFILES) \
+		$(TR_DLLFILES) \
+		$(TR_EXEFILE) \
+		$(shell find -type f -name "*~")
+
+#
+# removes object files, dependency files and backup files (such as "func.cpp~")
+#
+# NOTE that the .DLL files and the game executable are not cleaned
+#
+winclean:
+	-@$(RM) --verbose \
+		$(OBJFILES) \
+		$(DEPFILES) \
+		$(shell find -type f -name "*~")
+
+#
+# includes dependency files; these files are needed to speed up
+# the build process by excluding the compilation of object files
+# which are already up-to-date
+#
+-include $(DEPFILES)
+
+#
+# compiles source files to object files
+#
+# GNUmakefile.MSYS64 was added as a dependency in order to trigger a rebuild
+# if this makefile is edited
+#
+%.o: %.cpp GNUmakefile.MSYS64
+	@printf "%s\t%s -> %s\n" $(CXX) $< $@
+	@$(CXX) $(CXXFLAGS) $(CPPFLAGS) -MMD -MP -c $< -o $@
+
+#
+# the following target handles the copying of .DLL files to the binary directory
+#
+
+copydlls: $(TR_DLLFILES)
+
+$(TR_BINDIR)/%.dll:
+	@cp --verbose /$(FLAVOUR)/bin/$*.dll $(TR_BINDIR)
