@@ -1,4 +1,27 @@
 <div align="center">
+  <img src="logo.jpeg" alt="TrackRS Logo" width="400" />
+  
+  <h1>🏁 TrackRS</h1>
+  
+  <h3>A fast-paced, single-player 3D rally racing game written in C++ / OpenGL</h3>
+  
+  <p>
+    <a href="doc/COPYING.txt"><img src="https://img.shields.io/badge/License-GPL%20v2-blue.svg" alt="License: GPL v2"></a>
+    <img src="https://img.shields.io/badge/language-C%2B%2B11-00599C.svg" alt="Language">
+    <img src="https://img.shields.io/badge/graphics-OpenGL%20%2B%20GLEW-5586A4.svg" alt="Graphics">
+    <img src="https://img.shields.io/badge/platforms-Linux%20%7C%20Windows-lightgrey.svg" alt="Platforms">
+    <img src="https://img.shields.io/badge/version-0.6.7-orange.svg" alt="Version">
+    <img src="https://img.shields.io/badge/maps-132%20standalone%20%2B%2097%20event%20stages-brightgreen.svg" alt="Maps">
+  </p>
+
+  <p><strong>Drift. Listen to your co-driver. Beat the clock.</strong></p>
+
+  <p><em>Creator: Saad AIT YAHIA — <a href="https://github.com/Saad-programmer">@Saad-programmer</a></em></p>
+</div>
+
+---
+
+<div align="center">
 
 # 🏁 TrackRS
 
