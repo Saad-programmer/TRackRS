@@ -1,0 +1,9 @@
+[Desktop Entry]
+Name=TrackRS
+Name[de]=TrackRS
+GenericName=Rally Racing Game
+GenericName[de]=Rally Rennspiel
+Type=Application
+Exec=trackrs
+Icon=trackrs
+Categories=Game;SportsGame;
