@@ -19,26 +19,6 @@
   <p><em>Creator: Saad AIT YAHIA — <a href="https://github.com/Saad-programmer">@Saad-programmer</a></em></p>
 </div>
 
----
-
-<div align="center">
-
-# 🏁 TrackRS
-
-### A fast-paced, single-player 3D rally racing game written in C++ / OpenGL
-
-[![License: GPL v2](https://img.shields.io/badge/License-GPL%20v2-blue.svg)](doc/COPYING.txt)
-![Language](https://img.shields.io/badge/language-C%2B%2B11-00599C.svg)
-![Graphics](https://img.shields.io/badge/graphics-OpenGL%20%2B%20GLEW-5586A4.svg)
-![Platforms](https://img.shields.io/badge/platforms-Linux%20%7C%20Windows-lightgrey.svg)
-![Version](https://img.shields.io/badge/version-0.6.7-orange.svg)
-![Maps](https://img.shields.io/badge/maps-132%20standalone%20%2B%2097%20event%20stages-brightgreen.svg)
-
-**Drift. Listen to your co-driver. Beat the clock.**
-
-*Creator: Saad AIT YAHIA — [@Saad-programmer](https://github.com/Saad-programmer)*
-
-</div>
 
 ---
 
