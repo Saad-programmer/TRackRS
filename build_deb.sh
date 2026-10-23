@@ -44,7 +44,7 @@ cp -r data/* "$PKG_DIR/usr/local/share/games/trackrs/"
 # Copy shortcut file and icon
 echo "Setting up shortcuts and icons..."
 cp data/metainfo/trackrs.desktop "$PKG_DIR/usr/share/applications/trackrs.desktop"
-cp data/icon/trigger-256.png "$PKG_DIR/usr/share/pixmaps/trackrs.png"
+cp data/icon/logo.png "$PKG_DIR/usr/share/pixmaps/trackrs.png"
 
 # Adjust desktop shortcut Exec path if needed
 sed -i 's/Exec=trackrs/Exec=\/usr\/local\/games\/trackrs/' "$PKG_DIR/usr/share/applications/trackrs.desktop"

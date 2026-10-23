@@ -1490,40 +1490,103 @@ bool Gui::getDefaultAction(int &data1, int &data2)
   return true;
 }
 
+static void drawMoroccanStar(float cx, float cy, float r, const vec4f &color) {
+  glDisable(GL_TEXTURE_2D);
+  glEnable(GL_BLEND);
+  glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+  glColor4fv(color);
+  glLineWidth(1.5f);
+
+  glBegin(GL_LINE_LOOP);
+  for (int i = 0; i < 4; ++i) {
+    float angle = (float)i * PI / 2.0f;
+    glVertex2f(cx + r * cosf(angle), cy + r * sinf(angle));
+  }
+  glEnd();
+
+  glBegin(GL_LINE_LOOP);
+  for (int i = 0; i < 4; ++i) {
+    float angle = (float)i * PI / 2.0f + PI / 4.0f;
+    glVertex2f(cx + r * cosf(angle), cy + r * sinf(angle));
+  }
+  glEnd();
+}
+
 void Gui::render()
 {
+  bool has_left_menu = false;
+  for (const auto &w : widget) {
+    if (w.selectable && w.pos.x < 100.0f) {
+      has_left_menu = true;
+      break;
+    }
+  }
+
+  if (has_left_menu) {
+    glDisable(GL_TEXTURE_2D);
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+    glColor4f(0.08f, 0.04f, 0.03f, 0.55f);
+    glBegin(GL_QUADS);
+    glVertex2f(35.0f, 75.0f);
+    glVertex2f(310.0f, 75.0f);
+    glVertex2f(310.0f, 470.0f);
+    glVertex2f(35.0f, 470.0f);
+    glEnd();
+
+    glLineWidth(2.0f);
+    glColor4f(0.851f, 0.643f, 0.255f, 0.40f);
+    glBegin(GL_LINE_LOOP);
+    glVertex2f(35.0f, 75.0f);
+    glVertex2f(310.0f, 75.0f);
+    glVertex2f(310.0f, 470.0f);
+    glVertex2f(35.0f, 470.0f);
+    glEnd();
+
+    drawMoroccanStar(35.0f, 470.0f, 4.0f, vec4f(0.851f, 0.643f, 0.255f, 0.5f));
+    drawMoroccanStar(310.0f, 470.0f, 4.0f, vec4f(0.851f, 0.643f, 0.255f, 0.5f));
+    drawMoroccanStar(310.0f, 75.0f, 4.0f, vec4f(0.851f, 0.643f, 0.255f, 0.5f));
+    drawMoroccanStar(35.0f, 75.0f, 4.0f, vec4f(0.851f, 0.643f, 0.255f, 0.5f));
+
+    glEnable(GL_TEXTURE_2D);
+  }
+
   for (unsigned int i = 0; i < widget.size(); i++) {
 
     switch(widget[i].type) {
     case GWT_LABEL: {
-      vec4f colc;
+      vec4f colc = widget[i].colnormal;
       uint32 flags = PTEXT_HZA_LEFT | PTEXT_VTA_BOTTOM;
       vec2f ctr = widget[i].pos;
-
-      if (widget[i].selectable && !widget[i].selected) {
-        colc = INTERP(widget[i].colnormal, widget[i].colhover, widget[i].glow);
-      } else if (widget[i].clickable) {
-        colc = INTERP(widget[i].colclick, widget[i].colhover, widget[i].glow);
-      } else {
-        colc = widget[i].colnormal;
-      }
+      float shift_x = 0.0f;
 
       if (widget[i].text == "TrackRS") {
          glPushMatrix();
          glTranslatef(15.0f, ctr.y - 12.0f, 0.0f);
          glScalef(55.0f, 55.0f, 1.0f);
+         glEnable(GL_TEXTURE_2D);
          fonttex->bind();
-         glColor4f(0.1f, 0.0f, 0.05f, 0.8f);
+         glColor4f(0.10f, 0.05f, 0.02f, 0.9f);
          ssRender->drawText(widget[i].text, flags);
          glPopMatrix();
 
          glPushMatrix();
          glTranslatef(10.0f, ctr.y - 10.0f, 0.0f);
          glScalef(55.0f, 55.0f, 1.0f);
+         glEnable(GL_TEXTURE_2D);
          fonttex->bind();
-         float pulse = 0.5f + 0.5f * sinf((float)SDL_GetTicks() / 300.0f);
-         glColor4f(1.0f, 0.2f + 0.2f * pulse, 0.0f, 1.0f);
+         glColor4f(0.98f, 0.85f, 0.35f, 1.0f);
          ssRender->drawText(widget[i].text, flags);
+         glPopMatrix();
+
+         glPushMatrix();
+         glTranslatef(12.0f, ctr.y - 32.0f, 0.0f);
+         glScalef(13.0f, 13.0f, 1.0f);
+         glEnable(GL_TEXTURE_2D);
+         fonttex->bind();
+         glColor4f(0.90f, 0.90f, 0.95f, 0.9f);
+         ssRender->drawText("MERZOUGA DUNE STAGE - ERG CHEBBI, MOROCCO", flags);
          glPopMatrix();
 
          glDisable(GL_TEXTURE_2D);
@@ -1531,97 +1594,55 @@ void Gui::render()
          glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
          
          glBegin(GL_QUADS);
-         glColor4f(1.0f, 0.2f, 0.0f, 0.9f);
-         glVertex2f(10.0f, ctr.y - 20.0f);
-         glColor4f(1.0f, 0.6f, 0.0f, 0.5f);
-         glVertex2f(300.0f, ctr.y - 20.0f);
-         glColor4f(1.0f, 0.6f, 0.0f, 0.0f);
-         glVertex2f(450.0f, ctr.y - 24.0f);
-         glColor4f(1.0f, 0.2f, 0.0f, 0.9f);
-         glVertex2f(10.0f, ctr.y - 24.0f);
+         glColor4f(0.98f, 0.85f, 0.35f, 0.9f);
+         glVertex2f(10.0f, ctr.y - 38.0f);
+         glColor4f(0.85f, 0.55f, 0.20f, 0.7f);
+         glVertex2f(340.0f, ctr.y - 38.0f);
+         glColor4f(0.85f, 0.55f, 0.20f, 0.0f);
+         glVertex2f(440.0f, ctr.y - 40.0f);
+         glColor4f(0.98f, 0.85f, 0.35f, 0.9f);
+         glVertex2f(10.0f, ctr.y - 40.0f);
          glEnd();
          
          glEnable(GL_TEXTURE_2D);
+         drawMoroccanStar(355.0f, ctr.y - 38.0f, 6.0f, vec4f(0.98f, 0.85f, 0.35f, 0.9f));
          continue;
       }
 
-      if ((int)i == defwidget)
-        colc += vec4f(0.1f, -0.1f, -0.1f, 0.0f) * sinf(defflash);
+      if (widget[i].selectable) {
+        colc = INTERP(widget[i].colnormal, widget[i].colhover, widget[i].glow);
+        shift_x = 22.0f * widget[i].glow;
+
+        if (widget[i].glow > 0.01f) {
+          glDisable(GL_TEXTURE_2D);
+          glEnable(GL_BLEND);
+          glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+          glColor4f(0.98f, 0.85f, 0.35f, 0.15f * widget[i].glow);
+          glBegin(GL_QUADS);
+          glVertex2f(ctr.x + shift_x - 14.0f, ctr.y - 10.0f);
+          glVertex2f(ctr.x + shift_x + 230.0f, ctr.y - 10.0f);
+          glVertex2f(ctr.x + shift_x + 230.0f, ctr.y + 26.0f);
+          glVertex2f(ctr.x + shift_x - 14.0f, ctr.y + 26.0f);
+          glEnd();
+
+          glLineWidth(3.0f);
+          glColor4f(0.98f, 0.85f, 0.35f, 0.90f * widget[i].glow);
+          glBegin(GL_LINES);
+          glVertex2f(ctr.x + shift_x - 14.0f, ctr.y - 10.0f);
+          glVertex2f(ctr.x + shift_x - 14.0f, ctr.y + 26.0f);
+          glEnd();
+
+          glEnable(GL_TEXTURE_2D);
+          drawMoroccanStar(ctr.x + shift_x - 26.0f, ctr.y + 8.0f, 5.0f, vec4f(0.98f, 0.85f, 0.35f, widget[i].glow));
+        }
+      }
 
       if (widget[i].selectable && widget[i].selected)
         flags |= PTEXT_HIGHLIGHT;
 
-      float shift_x = 0.0f;
-      if (widget[i].clickable && widget[i].glow > 0.0f) {
-        shift_x = widget[i].glow * 12.0f;
-      }
-
       glPushMatrix();
       glTranslatef(ctr.x + shift_x, ctr.y, 0.0f);
-
-      bool is_centered = (flags & PTEXT_HZA_CENTER) != 0;
-
-      if (widget[i].clickable && widget[i].glow > 0.01f) {
-        glDisable(GL_TEXTURE_2D);
-        glEnable(GL_BLEND);
-        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-        
-        float alpha = widget[i].glow * 0.32f;
-        glBegin(GL_QUADS);
-        if (is_centered) {
-          glColor4f(0.9f, 0.25f, 0.0f, 0.0f);
-          glVertex2f(-220.0f, 25.0f * widget[i].fontsize * 0.05f);
-          glColor4f(0.9f, 0.35f, 0.0f, alpha);
-          glVertex2f(0.0f, 25.0f * widget[i].fontsize * 0.05f);
-          glColor4f(0.9f, 0.5f, 0.0f, 0.0f);
-          glVertex2f(220.0f, -5.0f * widget[i].fontsize * 0.05f);
-          glColor4f(0.9f, 0.35f, 0.0f, alpha);
-          glVertex2f(0.0f, -5.0f * widget[i].fontsize * 0.05f);
-        } else {
-          glColor4f(0.9f, 0.35f, 0.0f, alpha);
-          glVertex2f(-20.0f, 25.0f * widget[i].fontsize * 0.05f);
-          glColor4f(0.9f, 0.5f, 0.0f, alpha * 0.3f);
-          glVertex2f(350.0f, 25.0f * widget[i].fontsize * 0.05f);
-          glColor4f(0.9f, 0.5f, 0.0f, 0.0f);
-          glVertex2f(450.0f, -5.0f * widget[i].fontsize * 0.05f);
-          glColor4f(0.9f, 0.35f, 0.0f, alpha);
-          glVertex2f(-30.0f, -5.0f * widget[i].fontsize * 0.05f);
-        }
-        glEnd();
-
-        float time_sec = (float)SDL_GetTicks() / 1000.0f;
-        float arrow_size = 5.0f * widget[i].fontsize * 0.05f;
-        float arrow_y = 8.0f * widget[i].fontsize * 0.05f;
-
-        if (is_centered) {
-          float est_w = widget[i].text.length() * widget[i].fontsize * 0.28f;
-          float arrow_pulse_l = -est_w - 18.0f - 3.0f * sinf(time_sec * 8.0f);
-          glBegin(GL_TRIANGLES);
-          glColor4f(1.0f, 0.5f, 0.0f, widget[i].glow);
-          glVertex2f(arrow_pulse_l - arrow_size, arrow_y + arrow_size);
-          glVertex2f(arrow_pulse_l, arrow_y);
-          glVertex2f(arrow_pulse_l - arrow_size, arrow_y - arrow_size);
-          glEnd();
-
-          float arrow_pulse_r = est_w + 18.0f + 3.0f * sinf(time_sec * 8.0f);
-          glBegin(GL_TRIANGLES);
-          glColor4f(1.0f, 0.5f, 0.0f, widget[i].glow);
-          glVertex2f(arrow_pulse_r + arrow_size, arrow_y + arrow_size);
-          glVertex2f(arrow_pulse_r, arrow_y);
-          glVertex2f(arrow_pulse_r + arrow_size, arrow_y - arrow_size);
-          glEnd();
-        } else {
-          float arrow_pulse = -20.0f + 3.0f * sinf(time_sec * 8.0f);
-          glBegin(GL_TRIANGLES);
-          glColor4f(1.0f, 0.5f, 0.0f, widget[i].glow);
-          glVertex2f(arrow_pulse - arrow_size, arrow_y + arrow_size);
-          glVertex2f(arrow_pulse, arrow_y);
-          glVertex2f(arrow_pulse - arrow_size, arrow_y - arrow_size);
-          glEnd();
-        }
-        
-        glEnable(GL_TEXTURE_2D);
-      }
 
       if (widget[i].text.length() > 0 &&
           (widget[i].colnormal.x == colors.header.x &&
@@ -1639,10 +1660,13 @@ void Gui::render()
          glVertex2f(200.0f, -10.0f);
          glEnd();
          glEnable(GL_TEXTURE_2D);
+        drawMoroccanStar(365.0f, -6.0f, 4.0f, vec4f(colors.header.x, colors.header.y, colors.header.z, 0.8f));
       }
 
-      glScalef(widget[i].fontsize, widget[i].fontsize, 1.0f);
+      float current_fontsize = widget[i].fontsize * (widget[i].selectable ? (1.0f + 0.06f * widget[i].glow) : 1.0f);
+      glScalef(current_fontsize, current_fontsize, 1.0f);
 
+      glEnable(GL_TEXTURE_2D);
       fonttex->bind();
 
       glColor4fv(colc);
@@ -1659,8 +1683,7 @@ void Gui::render()
         glEnable(GL_BLEND);
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
         
-        // 1. Semi-transparent dark background panel
-        glColor4f(0.02f, 0.04f, 0.08f, 0.65f);
+        glColor4f(0.14f, 0.08f, 0.06f, 0.85f);
         glBegin(GL_QUADS);
         glVertex2f(min.x, min.y);
         glVertex2f(max.x, min.y);
@@ -1668,13 +1691,12 @@ void Gui::render()
         glVertex2f(min.x, max.y);
         glEnd();
         
-        // 2. Neon/silver thin outline border
-        glLineWidth(1.5f);
+        glLineWidth(2.0f);
         if (widget[i].clickable && widget[i].glow > 0.01f) {
           float pulse = 0.7f + 0.3f * sinf((float)SDL_GetTicks() / 150.0f);
-          glColor4f(1.0f, 0.55f, 0.0f, widget[i].glow * pulse);
+          glColor4f(0.95f, 0.80f, 0.40f, widget[i].glow * pulse);
         } else {
-          glColor4f(0.35f, 0.4f, 0.45f, 0.4f);
+          glColor4f(0.851f, 0.643f, 0.255f, 0.5f);
         }
         
         glBegin(GL_LINE_LOOP);
@@ -1683,6 +1705,21 @@ void Gui::render()
         glVertex2f(max.x, max.y);
         glVertex2f(min.x, max.y);
         glEnd();
+
+        glLineWidth(1.0f);
+        glColor4f(0.851f, 0.643f, 0.255f, 0.25f);
+        glBegin(GL_LINE_LOOP);
+        glVertex2f(min.x + 4.0f, min.y + 4.0f);
+        glVertex2f(max.x - 4.0f, min.y + 4.0f);
+        glVertex2f(max.x - 4.0f, max.y - 4.0f);
+        glVertex2f(min.x + 4.0f, max.y - 4.0f);
+        glEnd();
+
+        vec4f star_col = vec4f(0.851f, 0.643f, 0.255f, 0.6f);
+        drawMoroccanStar(min.x + 8.0f, min.y + 8.0f, 4.0f, star_col);
+        drawMoroccanStar(max.x - 8.0f, min.y + 8.0f, 4.0f, star_col);
+        drawMoroccanStar(max.x - 8.0f, max.y - 8.0f, 4.0f, star_col);
+        drawMoroccanStar(min.x + 8.0f, max.y - 8.0f, 4.0f, star_col);
         
         glEnable(GL_TEXTURE_2D);
       }

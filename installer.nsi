@@ -16,8 +16,8 @@ RequestExecutionLevel admin
 ; Modern UI 2
 !include "MUI2.nsh"
 !define MUI_ABORTWARNING
-!define MUI_ICON "data\icon\trigger-rally-win.ico"
-!define MUI_UNICON "data\icon\trigger-rally-win.ico"
+!define MUI_ICON "data\icon\trackrs.ico"
+!define MUI_UNICON "data\icon\trackrs.ico"
 
 ; Pages
 !insertmacro MUI_PAGE_WELCOME
@@ -53,7 +53,7 @@ Section "Install"
   ; Registry keys for Add/Remove Programs
   WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${APP_NAME}" "DisplayName" "${APP_NAME}"
   WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${APP_NAME}" "UninstallString" '"$INSTDIR\uninstall.exe"'
-  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${APP_NAME}" "DisplayIcon" '"$INSTDIR\trackrs.exe"'
+  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${APP_NAME}" "DisplayIcon" '"$INSTDIR\data\icon\trackrs.ico"'
   WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${APP_NAME}" "Publisher" "${COMP_NAME}"
   WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${APP_NAME}" "DisplayVersion" "${VERSION}"
   
@@ -62,9 +62,9 @@ Section "Install"
   
   ; Create shortcuts
   CreateDirectory "$SMPROGRAMS\${APP_NAME}"
-  CreateShortcut "$SMPROGRAMS\${APP_NAME}\${APP_NAME}.lnk" "$INSTDIR\trackrs.exe" "" "$INSTDIR\trackrs.exe" 0
+  CreateShortcut "$SMPROGRAMS\${APP_NAME}\${APP_NAME}.lnk" "$INSTDIR\trackrs.exe" "" "$INSTDIR\data\icon\trackrs.ico" 0
   CreateShortcut "$SMPROGRAMS\${APP_NAME}\Uninstall ${APP_NAME}.lnk" "$INSTDIR\uninstall.exe"
-  CreateShortcut "$DESKTOP\${APP_NAME}.lnk" "$INSTDIR\trackrs.exe" "" "$INSTDIR\trackrs.exe" 0
+  CreateShortcut "$DESKTOP\${APP_NAME}.lnk" "$INSTDIR\trackrs.exe" "" "$INSTDIR\data\icon\trackrs.ico" 0
 SectionEnd
 
 Section "Uninstall"

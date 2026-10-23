@@ -6,6 +6,7 @@
 #include "physfs_utils.h"
 #include "render.h"
 #include "subsys.h"
+#include <SDL2/SDL_image.h>
 
 #ifdef WIN32
 #define WIN32_LEAN_AND_MEAN
@@ -370,6 +371,18 @@ int PApp::run(int argc, char *argv[])
       PUtil::outLog() << "PhysFS: " << physfs_getErrorString() << std::endl;
     }
     return 1;
+  }
+
+  PHYSFS_file *iconFile = PHYSFS_openRead("icon/logo.png");
+  if (iconFile) {
+    SDL_RWops *iconOps = PUtil::allocPhysFSops(iconFile);
+    if (iconOps) {
+      SDL_Surface *icon = IMG_Load_RW(iconOps, 1);
+      if (icon) {
+        SDL_SetWindowIcon(screen, icon);
+        SDL_FreeSurface(icon);
+      }
+    }
   }
   
   context = SDL_GL_CreateContext(screen);
