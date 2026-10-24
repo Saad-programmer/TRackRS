@@ -1,0 +1,60 @@
+<?xml version="1.0" ?>
+<vehicle
+	name="Evo Rally"
+	class="WRC"
+	type="car">
+
+	<genparams
+		mass="1230.0"
+		wheelmodel="evo_rally_wheel.obj"
+		wheelscale="0.0333" />
+
+	<ctrlparams
+		speedrate="15.0"
+		turnspeedrate="0.0, 0.0, 10.0" />
+
+	<drivesystem>
+		<!-- WRC-spec 2.0L turbo 4G63T, 34mm restrictor: ~300 bhp @ 5500 rpm, ~550 Nm @ 3500 rpm.
+		     Power curve is flat from 4000 to 7500 rpm; the 2000 rpm floor is high because the anti-lag keeps the turbo spooled. -->
+		<engine powerscale="32000">
+			<powerpoint rpm="2000" power="0.35" />
+			<powerpoint rpm="3000" power="0.74" />
+			<powerpoint rpm="4000" power="0.97" />
+			<powerpoint rpm="5500" power="1.00" />
+			<powerpoint rpm="6500" power="1.00" />
+			<powerpoint rpm="7500" power="0.93" />
+			<powerpoint rpm="8000" power="0.0" />
+		</engine>
+
+		<!-- 5-speed sequential, rally ratios. Speed at 8000 rpm: 57 / 85 / 119 / 158 / 199 km/h -->
+		<gearbox>
+			<gear absolute="0.056" />
+			<gear relative="1.48" />
+			<gear relative="1.40" />
+			<gear relative="1.33" />
+			<gear relative="1.26" />
+		</gearbox>
+	</drivesystem>
+
+	<part
+		name="body"
+		pos="0.0, -0.13, -0.50"
+		orientation="1.0, 0.0, 0.0, 0.0"
+		model="evo_rally.obj"
+		scale="0.01">
+
+		<!-- AWD, static 40:60 front/rear split (sum of drive = 2.0, same as the Cordo).
+		     dampening MUST stay <= ~18000: the game integrates suspension with an explicit step (dt=0.005, x0.02) that diverges above ~20000. -->
+		<wheel drive="0.4" steer="0.85" brake1="280.0" pos="0.746, 1.311, 0.34" radius="0.34" force="60000.0" dampening="17000.0" friction="0.018"/>
+		<wheel drive="0.4" steer="0.85" brake1="280.0" pos="-0.746, 1.311, 0.34" radius="0.34" force="60000.0" dampening="17000.0" friction="0.018"/>
+		<wheel drive="0.6" steer="0.0" brake1="140.0" pos="0.768, -1.311, 0.34" radius="0.34" force="49000.0" dampening="17000.0" brake2="1400.0" friction="0.018"/>
+		<wheel drive="0.6" steer="0.0" brake1="140.0" pos="-0.768, -1.311, 0.34" radius="0.34" force="49000.0" dampening="17000.0" brake2="1400.0" friction="0.018"/>
+
+		<clip type="body" pos="1.17, 2.12, 1.64" force="424000.0" dampening="42500.0" />
+		<clip type="body" pos="-1.17, 2.12, 1.64" force="424000.0" dampening="42500.0" />
+		<clip type="body" pos="1.17, -0.98, 1.64" force="424000.0" dampening="141000.0" />
+		<clip type="body" pos="-1.17, -0.98, 1.64" force="424000.0" dampening="141000.0" />
+
+	</part>
+
+</vehicle>

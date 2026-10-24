@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component type="desktop">
+  <id>org.trackrs.TrackRS</id>
+  <metadata_license>CC0-1.0</metadata_license>
+  <project_license>GPL-2.0-or-later</project_license>
+  <name>TrackRS</name>
+  <summary>Single-player 3D rally racing demo</summary>
+  <developer>
+    <name>Saad AIT YAHIA</name>
+  </developer>
+  <launchable type="desktop-id">trackrs.desktop</launchable>
+  <description>
+    <p>
+      TrackRS is a single-player 3D rally racing game with vehicle physics, varied terrain and weather, and co-driver pace notes. This demo package features the Ahead map. The game code is licensed under GNU GPL version 2 or later; bundled game data may have separate licenses and attributions. See the installed copyright and credits documentation before redistributing.
+    </p>
+  </description>
+  <screenshots>
+    <screenshot type="default">
+      <caption>Ahead rally stage</caption>
+      <image>https://raw.githubusercontent.com/Saad-programmer/trackrs/main/data/maps/ahead/ss.png</image>
+    </screenshot>
+    <screenshot>
+      <caption>Lazy Hills rally stage</caption>
+      <image>https://raw.githubusercontent.com/Saad-programmer/trackrs/main/data/maps/lazyhills/ss.png</image>
+    </screenshot>
+    <screenshot>
+      <caption>Authentic rally stage</caption>
+      <image>https://raw.githubusercontent.com/Saad-programmer/trackrs/main/data/maps/authentic/ss.png</image>
+    </screenshot>
+    <screenshot>
+      <caption>Trigger Cup rally stage</caption>
+      <image>https://raw.githubusercontent.com/Saad-programmer/trackrs/main/data/events/01-triggercup/far/ss.png</image>
+    </screenshot>
+  </screenshots>
+  <url type="homepage">https://github.com/Saad-programmer/trackrs</url>
+</component>

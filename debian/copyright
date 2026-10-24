@@ -1,0 +1,43 @@
+Format: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
+Upstream-Name: TrackRS
+Source: https://github.com/Saad-programmer/trackrs
+
+Files: src/*
+Copyright: TrackRS contributors; see source file notices
+License: GPL-2.0-or-later
+
+Files: data/*
+Copyright: Individual authors and contributors; see doc/DATA_AUTHORS.txt
+License: Various
+ The files under data/ do not all share one license. Their authors and
+ license/source information are listed in doc/DATA_AUTHORS.txt. Some entries
+ are marked "unlicensed" there; this package notice does not grant permission
+ to redistribute those files. The Debian build excludes plugin archives
+ explicitly marked unlicensed in that file. Review the source credit list and
+ confirm rights for any other assets before distributing this package.
+
+Files: doc/COPYING.txt
+Copyright: Free Software Foundation, Inc.
+License: GPL-2.0-or-later
+ This is the complete GNU General Public License, version 2. The project
+ states that covered code is available under version 2 or, at the recipient's
+ option, any later version. The license text is also installed as
+ /usr/share/doc/trackrs-demo/COPYING.txt.
+
+Files: debian/copyright
+Copyright: TrackRS packaging contributors
+License: GPL-2.0-or-later
+
+Comment:
+ This notice summarizes the licensing information available in the upstream
+ source. It does not replace per-file notices, grant rights in third-party
+ works, or constitute a legal opinion. Under GPL section 2(a), distributors
+ of modified covered files must retain prominent notices stating that the
+ files were changed and the date of the change. Preserve other notices and
+ provide recipients the applicable license terms. The build excludes these
+ plugin archives pending license clarification: event-rscup.zip,
+ event-westernchallenge.zip, map-crossmountain.zip, map-ghats.zip,
+ map-greengrounds.zip, map-helicoil.zip, map-icypeak.zip, map-monza.zip,
+ map-mountainpass.zip, map-pulp.zip, map-roundhouse.zip, map-santa.zip,
+ map-serpentine.zip, map-snowlevel.zip, map-snowyhills.zip, map-tea.zip,
+ and map-tobago.zip.

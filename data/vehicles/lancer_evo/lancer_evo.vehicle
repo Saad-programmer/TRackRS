@@ -1,0 +1,65 @@
+<?xml version="1.0" ?>
+<vehicle
+	name="Lancer Evo"
+	class="Kit-Car"
+	type="car">
+
+	<!-- Mitsubishi Lancer Evolution, WRC/Group A rally spec.
+	     Real data: 1230 kg, 2.0L 4G63T turbo (34 mm restrictor) ~300 bhp @ 5500 rpm,
+	     ~520 Nm @ 3250 rpm, limiter ~8000 rpm, 5-speed sequential, permanent AWD.
+	     Body mesh is the original blend scaled to real size (4.37 x 1.82 x 1.45 m),
+	     origin = middle of the wheelbase, 0.48 m above the ground. -->
+	<genparams
+		mass="1230.0"
+		wheelmodel="lancer_evo_wheel.obj"
+		wheelscale="0.0333" />
+
+	<ctrlparams
+		speedrate="15.0"
+		turnspeedrate="0.0, 0.0, 10.0" />
+
+	<drivesystem>
+		<!-- Normalised power curve (power, not torque): the 34 mm restrictor gives a
+		     strong mid-range, peak at 5500 rpm, falling to the 8000 rpm limiter. -->
+		<engine powerscale="26000">
+			<powerpoint rpm="2000" power="0.45" />
+			<powerpoint rpm="3500" power="0.80" />
+			<powerpoint rpm="5500" power="1.0" />
+			<powerpoint rpm="7000" power="0.93" />
+			<powerpoint rpm="7500" power="0.80" />
+			<powerpoint rpm="8000" power="0.0" />
+		</engine>
+
+		<!-- wheel rev per engine rev. At the 8000 rpm limiter (R = 0.33 m):
+		     1st ~80, 2nd ~112, 3rd ~148, 4th ~185, 5th ~220 km/h -->
+		<gearbox>
+			<gear absolute="0.0801" />
+			<gear relative="1.40" />
+			<gear relative="1.32" />
+			<gear relative="1.25" />
+			<gear relative="1.19" />
+		</gearbox>
+	</drivesystem>
+
+	<part
+		name="body"
+		pos="0.0, 0.0, 0.0"
+		orientation="1.0, 0.0, 0.0, 0.0"
+		model="lancer_evo.obj"
+		scale="0.01">
+
+		<!-- AWD: drive shares add up to 2.0 like the example car; 45:55 front:rear bias
+		     (Evo ACD/AYC lets the rear push, so the car rotates instead of understeering) -->
+		<wheel drive="0.45" steer="0.85" brake1="280.0" pos="0.74, 1.28, -0.15" radius="0.33" force="58000.0" dampening="27000.0" friction="0.018"/>
+		<wheel drive="0.45" steer="0.85" brake1="280.0" pos="-0.74, 1.28, -0.15" radius="0.33" force="58000.0" dampening="27000.0" friction="0.018"/>
+		<wheel drive="0.55" steer="0.0" brake1="140.0" pos="0.74, -1.28, -0.15" radius="0.33" force="58000.0" dampening="27000.0" brake2="1400.0" friction="0.018"/>
+		<wheel drive="0.55" steer="0.0" brake1="140.0" pos="-0.74, -1.28, -0.15" radius="0.33" force="58000.0" dampening="27000.0" brake2="1400.0" friction="0.018"/>
+
+		<clip type="body" pos="1.1, 1.9, 1.1" force="420000.0" dampening="42000.0" />
+		<clip type="body" pos="-1.1, 1.9, 1.1" force="420000.0" dampening="42000.0" />
+		<clip type="body" pos="1.1, -1.2, 1.1" force="420000.0" dampening="140000.0" />
+		<clip type="body" pos="-1.1, -1.2, 1.1" force="420000.0" dampening="140000.0" />
+
+	</part>
+
+</vehicle>

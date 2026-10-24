@@ -21,3 +21,10 @@
 /Doc.pdf
 /Untitled*.odt
 /repomix-output.xml
+
+# LibreOffice lock files
+.~lock.*
+
+# Manuels / captures temporaires
+*.docx
+Screenshot*.png

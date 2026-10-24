@@ -79,6 +79,12 @@ bool TriggerGame::loadVehicles()
             // load it
             PVehicleType *vt = sim->loadVehicleType(vefi, app->getSSModel());
 
+            if (vt == nullptr)
+            {
+                PUtil::outLog() << "Warning: failed to load vehicle from \"" << vefi << "\"\n";
+                continue;
+            }
+
             // if the vehicle is locked
             if (app->isVehicleLocked(vefi) && !app->isUnlockedByPlayer(vefi))
             {
@@ -91,10 +97,7 @@ bool TriggerGame::loadVehicles()
             }
 
             // push it
-            if (vt != nullptr)
                 vehiclechoices.push_back(vt);
-            else
-                PUtil::outLog() << "Warning: failed to load vehicle from \"" << vefi << "\"\n";
         }
     }
     // if no vehicle is available

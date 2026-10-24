@@ -469,6 +469,11 @@ bool PVehicleType::load(const std::string &filename, PSSModel &ssModel)
           "\" references non-existant parent \"" << part[i].parentname << "\"\n";
     }
   }
+
+  if (part.empty() || part[0].model == nullptr) {
+    PUtil::outLog() << "Load failed: vehicle has no body model: " << filename << "\n";
+    return false;
+  }
   
 	// compute road holding average
 	// and count number of driving wheels in the meantime
