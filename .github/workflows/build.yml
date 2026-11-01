@@ -35,24 +35,50 @@ jobs:
             build/${{ matrix.preset }}/bin
   windows-msvc:
     runs-on: windows-2022
+    env:
+      VCPKG_DEFAULT_BINARY_CACHE: ${{ runner.temp }}/trackrs-vcpkg-cache
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - id: dependency-cache
+        uses: actions/cache/restore@0057852bfaa89a56745cba8c7296529d2fc39830
+        with:
+          path: ${{ runner.temp }}/trackrs-vcpkg-cache
+          key: windows-vcpkg-${{ hashFiles('vcpkg.json') }}
       - name: Pinned dependency registry
         shell: pwsh
         run: |
+          New-Item -ItemType Directory -Force "$env:VCPKG_DEFAULT_BINARY_CACHE" | Out-Null
           git clone https://github.com/microsoft/vcpkg.git "${{ runner.temp }}/trackrs-vcpkg"
           git -C "${{ runner.temp }}/trackrs-vcpkg" checkout 9a5dfef5d1a0438a7d24856a85bd60f309d355e9
           & "${{ runner.temp }}/trackrs-vcpkg/bootstrap-vcpkg.bat" -disableMetrics
       - name: Configure
         shell: pwsh
         run: cmake -S . -B build/windows -G "Visual Studio 17 2022" -A x64 "-DCMAKE_TOOLCHAIN_FILE=${{ runner.temp }}/trackrs-vcpkg/scripts/buildsystems/vcpkg.cmake" -DVCPKG_TARGET_TRIPLET=x64-windows
-      - run: cmake --build build/windows --config Release --parallel 2
+      - uses: actions/cache/save@0057852bfaa89a56745cba8c7296529d2fc39830
+        if: steps.dependency-cache.outputs.cache-hit != 'true'
+        with:
+          path: ${{ runner.temp }}/trackrs-vcpkg-cache
+          key: windows-vcpkg-${{ hashFiles('vcpkg.json') }}
+      - name: Build with compiler diagnostics
+        shell: pwsh
+        run: |
+          cmake --build build/windows --config Release --parallel 2 2>&1 | Tee-Object -FilePath build/windows/build.log
+          $buildExit = $LASTEXITCODE
+          if ($buildExit -ne 0) {
+            Get-Content build/windows/build.log | Select-String 'error C[0-9]+|fatal error|error LNK[0-9]+' | Select-Object -First 15 | ForEach-Object {
+              $message = $_.Line.Replace('%', '%25').Replace("`r", '%0D').Replace("`n", '%0A')
+              Write-Output "::error::$message"
+            }
+          }
+          exit $buildExit
       - run: ctest --test-dir build/windows -C Release --output-on-failure
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         if: always()
         with:
           name: windows-msvc
-          path: build/windows/bin
+          path: |
+            build/windows/bin
+            build/windows/build.log
   windows-mingw:
     runs-on: windows-2022
     steps:
