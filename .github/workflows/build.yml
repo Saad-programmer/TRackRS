@@ -24,7 +24,7 @@ jobs:
           LIBGL_ALWAYS_SOFTWARE: "1"
           ALSOFT_DRIVERS: "null"
         run: |
-          xvfb-run -a python3 tests/run_baselines.py --binary build/${{ matrix.preset }}/bin/trackrs --output build/results --quick
+          xvfb-run -a -s '-screen 0 640x480x24' python3 tests/run_baselines.py --binary build/${{ matrix.preset }}/bin/trackrs --output build/results --quick
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         if: always()
         with:
