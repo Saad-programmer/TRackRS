@@ -79,6 +79,10 @@ def main():
             report = json.loads(stem.with_suffix(".json").read_text())
             if report["ticks"] != frames or report["samples"] != frames - 1:
                 raise RuntimeError(f"wrong work count: {stage}")
+            if (report["draw_calls"] <= 0 or report["triangles"] <= 0 or
+                    report["passes"]["terrain"]["calls"] != frames - 1 or
+                    report["passes"]["mesh_submit"]["calls"] <= 0):
+                raise RuntimeError(f"missing render measurements: {stage}")
             hashes.append(stem.with_suffix(".hash").read_text().strip())
             if hashes[-1] != report["state_hash"]:
                 raise RuntimeError("hash/report mismatch")

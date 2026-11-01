@@ -1,0 +1,9 @@
+{
+  "source_commit": "4d1863c6d7e6919ab63663e4ce93b03cfc92dde5",
+  "binary_sha256": "973893c113989a6a1f3b07a0f4d11f4b2a09d2c834f53284279b74fd4ef25aa2",
+  "compiler": "GCC 14.2.0",
+  "flags": "C++17, Release -O3, -ffp-contract=off; native optimizations OFF",
+  "scenario_ticks": 1250,
+  "step_seconds": 0.004,
+  "capture_notes": "Serial, no competing local build/render workload. llvmpipe measurements include instrumentation and the legacy glFinish. Not reference hardware results. Later portability-only changes replace SDL_Rect designated syntax and align struct declarations; no timing improvement is claimed."
+}

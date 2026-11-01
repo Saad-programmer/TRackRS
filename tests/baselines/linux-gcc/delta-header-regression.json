@@ -1,0 +1,7 @@
+{
+  "stage": "deltarevised",
+  "ticks": 1250,
+  "original_vs_corrected_header": "identical simulation and framebuffer",
+  "state_hash": "a05f1baa4107d9f1",
+  "ppm_sha256": "8ee4a1ba45b9d757749fae2dde6319bd91b47b6ca1a834d4622cfb372cb0366c"
+}

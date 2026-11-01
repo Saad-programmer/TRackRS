@@ -127,14 +127,11 @@ Of course, you're expected to read the "build_readme.txt" file provided with the
   libjpeg                       http://ijg.org/
   libpng                        http://libpng.org/pub/png/libpng.html
   zlib                          http://zlib.net/
-  FMOD Studio API 1.06.XX       http://www.fmod.org/browse-studio-api/#FMODStudio106
   ----------------------------------------------------
 
-If you're using Visual Studio you're on your own for the time being, sorry.
-That said, it shouldn't be too difficult to build the aforementioned dev libraries after
-you read their ReadMe files (some may provide Solution files, while others may support NMAKE)
-and then create a TrackRS C++11 Solution in which you include all the source files
-from the "trackrs-VERSION\src\" folder.
+The current Windows audio backend uses OpenAL and ALUT.
+For the CMake MSVC/MinGW workflow and its validation status, see docs/BUILDING.md.
+The version tables below are historical upstream build records.
 
 ------------------------
 4. Packaging for Windows
@@ -180,7 +177,6 @@ TrackRS 0.6.6.1 Win32/Win64
   libpng                        1.6.36
   PhysFS                        3.0.1
   zlib                          1.2.11
-  FMOD Studio API Windows       1.06.20
   -------------------------------------
 
 -------------------------------
@@ -201,7 +197,6 @@ TrackRS 0.6.5 Win32/Win64
   libpng                        1.6.26
   PhysFS                        2.0.3
   zlib                          1.2.8
-  FMOD Studio API Windows       1.06.20
   -------------------------------------
 
 -------------------------
@@ -221,7 +216,6 @@ TrackRS 0.6.4 Win32
   libpng                        1.6.21
   PhysFS                        2.0.3
   zlib                          1.2.8
-  FMOD Studio API Windows       1.06.20
   -------------------------------------
 
 -------------------------
@@ -241,5 +235,4 @@ TrackRS 0.6.3 Win32
   libpng                        1.6.17
   PhysFS                        2.0.3
   zlib                          1.2.8
-  FMOD Studio API Windows       1.06.02
   -------------------------------------

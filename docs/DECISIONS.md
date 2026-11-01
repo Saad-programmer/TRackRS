@@ -27,3 +27,10 @@ Decision: remove only generated repository dumps; retain unique documentation an
 Consequences: documentation consolidation is deferred until links and attribution can migrate safely.
 Evidence: no tracked dependency files exist in this checkout despite the brief's older count.
 Status: accepted.
+
+## ADR-005 — Make CMake startup compatible with existing profiles
+Context: old profiles use ../data; CMake outputs the executable deeper in build/.
+Decision: try configured content first, then the checkout data only when none mounted.
+Consequences: valid custom data keeps precedence; the legacy Make build is unchanged.
+Evidence: normal interactive menu launch with the existing 0.6.x profile succeeded.
+Status: accepted.

@@ -68,6 +68,9 @@ It checks the actual 250 Hz update count, rolling body-state hash, output files,
 and exact framebuffer equality on the same renderer. It does not substitute a
 toy simulation. The selected terrain maps collectively cover legacy material
 types; the short scripted route does not contact every material.
+When Python is available, CTest also verifies all baseline files remain present,
+parses the 256 legacy XML definitions and CRC-checks all 25 plugin archives.
+That static content check is distinct from driving every stage.
 
 Use `--quick` for the Ahead smoke check, `--frames N` for a longer run, or
 `--compare <previous manifest.json>` to detect a change against a previous
@@ -94,6 +97,15 @@ stage-loading frame is excluded. Queries synchronize the GPU, so these
 are instrumented software-renderer baselines, not reference-hardware
 performance claims. Portable VRAM measurement is unavailable here and
 is explicitly `null`; missing GPU timings are also `null`.
+
+To collect all three reference scenarios serially, with no competing local
+build/render work:
+
+```sh
+LIBGL_ALWAYS_SOFTWARE=1 ALSOFT_DRIVERS=null xvfb-run -a \
+  python3 tests/run_benchmarks.py --binary build/linux-release/bin/trackrs \
+  --output build/benchmarks
+```
 
 LeakSanitizer on this cloud image reports 108,124 bytes in 481 Mesa GLX
 allocations, reproduced by `tests/driver_probe.cpp` without TrackRS.

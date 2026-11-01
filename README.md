@@ -271,7 +271,10 @@ Windows builds use MSYS2 and the makefiles `src/GNUmakefile.MSYS` (32-bit) and `
 | CMake | <https://cmake.org/download/> |
 | TrackRS build scripts | <https://sourceforge.net/projects/trigger-rally/files/devkit/build_scripts/> |
 
-You also need the Windows development libraries: GLEW, PhysFS, SDL2, SDL2_image, TinyXML-2, libjpeg, libpng, zlib and the FMOD Studio API 1.06.xx. Read the `build_readme.txt` shipped with the build scripts. Visual Studio is not officially supported.
+The current Windows audio backend uses OpenAL and ALUT. The legacy MSYS2 build
+also needs GLEW, PhysFS, SDL2, SDL2_image, TinyXML-2, libjpeg, libpng and zlib.
+For the new MSVC/MinGW CMake builds and their current validation status, see
+[docs/BUILDING.md](docs/BUILDING.md).
 
 Toolchain versions used for the last documented Windows release (0.6.6.1): MSYS2 20180531, GCC 8.2.1 (64-bit) / 7.4.0 (32-bit), CMake 3.13.4, NSIS 3.04, GLEW 2.1.0, SDL2 2.0.9, SDL2_image 2.0.4, TinyXML-2 7.0.1, libjpeg 9c, libpng 1.6.36, PhysFS 3.0.1, zlib 1.2.11. The 32-bit binary was built with `OPTIMS="-march=i686 -mtune=generic -O2" make build`.
 
@@ -781,7 +784,7 @@ Files under `data/` have **different authors and licences** (GPL, CC0, CC-BY 3.0
 
 - **TrackRS creator & maintainer:** Saad AIT YAHIA — [@Saad-programmer](https://github.com/Saad-programmer)
 - **Original project:** *Trigger Rally*, on which TrackRS is based, and its contributors, including map authors **Onsemeliot**, **Andrei Bondor** and **Richard Langridge**, plus the many others listed in `DATA_AUTHORS.txt`.
-- **Libraries:** SDL2, SDL2_image, GLEW, OpenAL, ALUT, PhysFS, TinyXML-2, and FMOD (Windows builds).
+- **Libraries:** SDL2, SDL2_image, GLEW, OpenAL, ALUT, PhysFS, and TinyXML-2.
 
 ### Links
 
