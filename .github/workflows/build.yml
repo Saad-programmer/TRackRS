@@ -71,7 +71,16 @@ jobs:
             }
           }
           exit $buildExit
-      - run: ctest --test-dir build/windows -C Release --output-on-failure
+      - name: Tests with failure annotations
+        shell: pwsh
+        run: |
+          ctest --test-dir build/windows -C Release --output-on-failure 2>&1 | Tee-Object -FilePath build/windows/ctest.log
+          $testExit = $LASTEXITCODE
+          if ($testExit -ne 0) {
+            $message = (Get-Content -Raw build/windows/ctest.log).Replace('%', '%25').Replace("`r", '%0D').Replace("`n", '%0A')
+            Write-Output "::error::$message"
+          }
+          exit $testExit
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         if: always()
         with:
@@ -79,6 +88,7 @@ jobs:
           path: |
             build/windows/bin
             build/windows/build.log
+            build/windows/ctest.log
   windows-mingw:
     runs-on: windows-2022
     steps:
