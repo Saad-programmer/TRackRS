@@ -43,6 +43,14 @@ void MainApp::config()
             break;
         }
 
+#ifdef TRACKRS_BUILD_DATA_DIR
+    // An existing 0.6.x profile may still use "../data". CMake puts the binary
+    // deeper in the build tree, so use source content only if no valid pack mounted.
+    if (!PHYSFS_exists("/textures/splash/loading.png") &&
+        !PHYSFS_mount(TRACKRS_BUILD_DATA_DIR, nullptr, 1))
+        throw MakePException("Cannot mount CMake build-tree data directory");
+#endif
+
     if (cfg.getCopydefplayers())
         copyDefaultPlayers();
 

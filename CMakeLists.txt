@@ -36,6 +36,8 @@ foreach(dep IN ITEMS SDL2 SDL2_image GLEW physfs openal alut tinyxml2)
 endforeach()
 file(GLOB_RECURSE TRACKRS_SOURCES CONFIGURE_DEPENDS src/PEngine/*.cpp src/PSim/*.cpp src/Trigger/*.cpp)
 add_executable(trackrs ${TRACKRS_SOURCES})
+set_property(SOURCE src/Trigger/main.cpp APPEND PROPERTY COMPILE_DEFINITIONS
+  TRACKRS_BUILD_DATA_DIR="${CMAKE_SOURCE_DIR}/data")
 target_include_directories(trackrs PRIVATE src/include ${TRACKRS_INCLUDES})
 target_link_libraries(trackrs PRIVATE ${TRACKRS_LIBRARIES} OpenGL::GL Threads::Threads)
 target_compile_definitions(trackrs PRIVATE SDL_MAIN_HANDLED PACKAGE_VERSION="${PROJECT_VERSION}")

@@ -26,6 +26,9 @@ compiler defaults without fast-math or native-only instructions. Opt into
 machine-specific instructions with `-DTRACKRS_NATIVE=ON`. ASan+UBSan and TSan
 have separate configure/build/test presets; never combine their runtimes.
 Legacy warnings are enabled and recorded, not treated as clean.
+If an existing profile has only the old relative `../data` path, the CMake
+build falls back to this checkout's data after all configured paths fail.
+Valid user content paths keep their priority.
 
 The cloud machine uses a rootless prefix: first source
 `/workspace/trackrs-env/activate.sh`, add
