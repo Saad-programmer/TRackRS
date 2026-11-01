@@ -25,6 +25,7 @@ void PSSRender::tick(float delta, const vec3f &eyepos, const mat44f &eyeori, con
 
 void PSSRender::render(PParticleSystem *psys)
 {
+  validation::PassScope timing("particles");
   vec3f pushx = makevec3f(cam_orimat.row[0]);
   vec3f pushy = makevec3f(cam_orimat.row[1]);
   vec3f vert;
@@ -68,6 +69,7 @@ void PSSRender::render(PParticleSystem *psys)
 
 void PSSRender::drawModel(PModel &model, PSSEffect &ssEffect, PSSTexture &ssTexture)
 {
+  validation::PassScope timing("mesh_submit");
   for (std::vector<PMesh>::iterator mesh = model.mesh.begin();
     mesh != model.mesh.end();
     mesh++) {
@@ -229,6 +231,7 @@ void PSSRender::drawModel(PModel &model, PSSEffect &ssEffect, PSSTexture &ssText
 ///
 void PSSRender::drawText(const std::string &text, uint32 flags)
 {
+  validation::PassScope timing("ui_text");
     // FIXME: what the aspect should be...
     const GLfloat font_aspect = 8.0f / 12.0f;
     // FIXME: what the aspect must be, because of the menu...

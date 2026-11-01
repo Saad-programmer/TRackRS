@@ -5,6 +5,7 @@
 #include <functional>
 #include <iomanip>
 #include <istream>
+#include <iostream>
 #include <limits>
 #include <ostream>
 #include <regex>

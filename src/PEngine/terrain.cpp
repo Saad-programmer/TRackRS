@@ -741,6 +741,7 @@ PTerrainTile *PTerrain::getTile(int tilex, int tiley)
 
 void PTerrain::render(const vec3f &campos, const mat44f &camorim)
 {
+  validation::PassScope timing("terrain");
   float blah = camorim.row[0][0]; blah = blah; // unused
 
   // increase all lru counters

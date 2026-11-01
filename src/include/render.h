@@ -159,7 +159,7 @@ public:
       return data[i];
   }
 
-  void swap (PImage &other) throw ()
+  void swap (PImage &other) noexcept
   {
     { uint8 *tmp = data; data = other.data; other.data = tmp; }
     { int tmp = cx; cx = other.cx; other.cx = tmp; }

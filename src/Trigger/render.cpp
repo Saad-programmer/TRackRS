@@ -71,6 +71,7 @@ void drawBlades(float radius, float ang, float trace)
 
 void MainApp::renderWater()
 {
+    validation::PassScope timing("water");
     tex_water->bind();
     {
         float tgens[] = { 0.5,0,0,0 };
@@ -134,6 +135,7 @@ void MainApp::renderWater()
 
 void MainApp::renderSky(const mat44f &cammat)
 {
+    validation::PassScope timing("sky");
     glFogf(GL_FOG_DENSITY, game->weather.fog.density_sky);
     glDepthRange(0.999,1.0);
     glDisable(GL_CULL_FACE);

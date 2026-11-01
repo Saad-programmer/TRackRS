@@ -6,7 +6,9 @@
 #include "physfs_utils.h"
 #include "render.h"
 #include "subsys.h"
+#include "validation.h"
 #include <SDL2/SDL_image.h>
+#include <fstream>
 
 #ifdef WIN32
 #define WIN32_LEAN_AND_MEAN
@@ -275,7 +277,7 @@ int PApp::run(int argc, char *argv[])
     }
   }
 
-  srand(SDL_GetTicks());
+  srand(validation::run.options.enabled ? validation::run.options.seed : SDL_GetTicks());
   
   PUtil::outLog() << "Create window and set video mode" << std::endl;
 #if 0
@@ -569,15 +571,23 @@ int PApp::run(int argc, char *argv[])
 
   PUtil::outLog() << "Initialisation complete, entering main loop" << std::endl;
 
-  srand(rand() + SDL_GetTicks());
+  srand(validation::run.options.enabled ? validation::run.options.seed : rand() + SDL_GetTicks());
 
   bool active = true, repaint = true, axis_down = false;
   uint32 curtime = SDL_GetTicks() - 1;
 
   while (1) {
+    const auto validationFrameStart = validation::run.options.enabled ? SDL_GetPerformanceCounter() : 0;
+    const bool validationWasStarted = validation::run.started;
+    validation::run.capture = validationWasStarted;
+    validation::run.frameDraws = validation::run.frameTriangles = 0;
+    double validationCpuMs = 0;
+    GLuint validationQuery = 0;
     SDL_Event event;
 
     while ( SDL_PollEvent(&event) ) {
+      if (validation::run.options.enabled && event.type != SDL_QUIT)
+        continue;
       switch(event.type) {
       
       // Using ACTIVEEVENT only seems to cause trouble.
@@ -665,15 +675,19 @@ int PApp::run(int argc, char *argv[])
     if (1) {//if (active) {
       uint32 timepassed = nowtime - curtime;
       if (timepassed > 100) timepassed = 100;
-      if (timepassed > 0) {
-        float delta = (float)timepassed * 0.001 * TIMESCALE;
+      if (timepassed > 0 || validation::run.options.enabled) {
+        float delta = validation::run.options.enabled ? 0.004f : (float)timepassed * 0.001 * TIMESCALE;
 
+        const auto validationUpdateStart = validation::run.options.enabled ? SDL_GetPerformanceCounter() : 0;
         tick(delta);
 
         for (std::list<PSubsystem *>::iterator i = sslist.begin();
           i != sslist.end(); ++i) {
           (*i)->tick(delta, cam_pos, cam_orimat, cam_linvel);
         }
+        if (validation::run.options.enabled)
+          validationCpuMs = 1000.0 * static_cast<double>(SDL_GetPerformanceCounter() - validationUpdateStart) /
+              static_cast<double>(SDL_GetPerformanceFrequency());
       }
     }
 
@@ -685,10 +699,56 @@ int PApp::run(int argc, char *argv[])
       switch (stereo) {
         
       case StereoNone: // Normal, non-stereo rendering
-        
+        if (validationWasStarted && GLEW_ARB_timer_query) {
+          glGenQueries(1, &validationQuery);
+          glBeginQuery(GL_TIME_ELAPSED, validationQuery);
+        }
         render(0.0f);
+        if (validationQuery) glEndQuery(GL_TIME_ELAPSED);
+        if (validation::run.complete && !validation::run.options.screenshot.empty()) {
+          // Capture the back buffer BEFORE swapping; the legacy F12 path reads it after swap.
+          std::vector<unsigned char> pixels(static_cast<std::size_t>(cx) * static_cast<std::size_t>(cy) * 3);
+          glPixelStorei(GL_PACK_ALIGNMENT, 1);
+          glReadBuffer(GL_BACK);
+          glReadPixels(0, 0, cx, cy, GL_RGB, GL_UNSIGNED_BYTE, pixels.data());
+          std::ofstream out(validation::run.options.screenshot, std::ios::binary);
+          out << "P6\n" << cx << ' ' << cy << "\n255\n";
+          for (int y = cy - 1; y >= 0; --y)
+            out.write(reinterpret_cast<const char*>(pixels.data() + static_cast<std::size_t>(y * cx * 3)), cx * 3);
+          out.close();
+          if (!out) { validation::run.result = 1; requestExit(); }
+        }
         glFlush();
         SDL_GL_SwapWindow(screen);
+        if (validationWasStarted) {
+          // MainApp's existing glFinish has completed this frame. Collect all
+          // pass timestamps here rather than stalling after each scope.
+          for (const auto& query : validation::run.queries) {
+            GLuint64 a = 0, b = 0;
+            glGetQueryObjectui64v(query.begin, GL_QUERY_RESULT, &a);
+            glGetQueryObjectui64v(query.end, GL_QUERY_RESULT, &b);
+            query.pass->gpu.push_back(static_cast<double>(b - a) / 1000000.0);
+            const GLuint pair[] = {query.begin, query.end};
+            glDeleteQueries(2, pair);
+          }
+          validation::run.queries.clear();
+          if (validationQuery) {
+            GLuint64 ns = 0;
+            glGetQueryObjectui64v(validationQuery, GL_QUERY_RESULT, &ns);
+            validation::run.gpu.push_back(static_cast<double>(ns) / 1000000.0);
+            glDeleteQueries(1, &validationQuery);
+          }
+          validation::run.frames.push_back(1000.0 * static_cast<double>(SDL_GetPerformanceCounter() - validationFrameStart) /
+              static_cast<double>(SDL_GetPerformanceFrequency()));
+          validation::run.cpu.push_back(validationCpuMs);
+          validation::run.draws.push_back(validation::run.frameDraws);
+          validation::run.triangles.push_back(validation::run.frameTriangles);
+          if (validation::run.complete) {
+            try { validation::writeResults(); }
+            catch (const std::exception& e) { PUtil::outLog() << e.what() << std::endl; validation::run.result = 1; }
+            requestExit();
+          }
+        }
         break;
         
       case StereoQuadBuffer: // Hardware quad buffer stereo
@@ -845,6 +905,7 @@ void PApp::grabMouse(bool grab)
 
 void PApp::drawModel(PModel &model, float alpha)
 {
+  validation::PassScope timing("mesh_submit");
   for (std::vector<PMesh>::iterator mesh = model.mesh.begin();
     mesh != model.mesh.end();
     ++mesh) {

@@ -1,3 +1,8 @@
+> **Reality 0.7 migration:** the current work adds a C++17/CMake safety net around
+> the legacy engine. See [build and validation instructions](docs/BUILDING.md) and
+> [Phase 0 status](docs/reports/PHASE_0.md). Modern rendering and simulation phases
+> are not yet complete.
+
 <div align="center">
   <img src="logo.jpeg" alt="TrackRS Logo" width="400" />
   

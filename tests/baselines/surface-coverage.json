@@ -1,0 +1,85 @@
+{
+  "note": "Types present in selected terrain maps; not a claim that scripted driving contacts every type.",
+  "stages": {
+    "ahead": [
+      "FineGravel",
+      "LooseEarth",
+      "RoughGravel"
+    ],
+    "aegyptian": [
+      "FirmSand",
+      "LooseSand",
+      "RoughGravel"
+    ],
+    "greenland": [
+      "Grass",
+      "PressedEarth",
+      "Shrubbery"
+    ],
+    "mudbath": [
+      "MoistEarth",
+      "Mud"
+    ],
+    "april": [
+      "CountryRoad",
+      "DeepWater",
+      "FineGravel",
+      "Grass",
+      "MoistEarth",
+      "Mud",
+      "RoughGravel"
+    ],
+    "ancient": [
+      "Grass",
+      "RoughGravel"
+    ],
+    "coastline": [
+      "DeepWater",
+      "FineGravel",
+      "Grass",
+      "RoughGravel"
+    ],
+    "country": [
+      "CountryRoad",
+      "DeepWater",
+      "Grass",
+      "LooseEarth",
+      "RoughGravel"
+    ],
+    "darkbushes": [
+      "MoistEarth",
+      "Mud"
+    ],
+    "barren": [
+      "FineGravel",
+      "LooseSand",
+      "RoughGravel"
+    ],
+    "altitude": [
+      "DeepSnow",
+      "FineGravel",
+      "Grass",
+      "LooseEarth",
+      "PressedEarth",
+      "RoughGravel"
+    ],
+    "arizonachase": [
+      "CountryRoad",
+      "FineGravel",
+      "Grass",
+      "LooseSand",
+      "PressedEarth",
+      "RoughGravel"
+    ],
+    "glacier": [
+      "DeepSnow",
+      "Grass",
+      "Ice",
+      "LooseEarth",
+      "PressedEarth",
+      "RacingTarmac",
+      "SlipperyRoad"
+    ]
+  },
+  "uncovered_materials": []
+}

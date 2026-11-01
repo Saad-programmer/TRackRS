@@ -3,6 +3,7 @@
 #include "main.h"
 #include "physfs_utils.h"
 #include "vehicle.h"
+#include "validation.h"
 
 #include <SDL2/SDL_main.h>
 #include <SDL2/SDL_thread.h>
@@ -18,7 +19,14 @@ void MainApp::config()
 
     cfg.loadConfig();
     setScreenMode(cfg.getVideoCx(), cfg.getVideoCy(), cfg.getVideoFullscreen());
+    if (validation::run.options.enabled) {
+        setScreenMode(640, 480, false);
+        setStereoMode(StereoNone);
+    }
     calcScreenRatios();
+    if (validation::run.options.enabled && !validation::run.options.data.empty() &&
+        !PHYSFS_mount(validation::run.options.data.c_str(), nullptr, 0))
+        throw MakePException("Cannot mount validation --data-dir");
 
     if (cfg.getDatadirs().empty())
         throw MakePException("Data directory paths are empty: check your trackrs.config file.");
@@ -768,7 +776,8 @@ void MainApp::endGame(Gamefinish state)
     audinst_intro->play();
   }
 
-  finishRace(state, coursetime);
+  if (!validation::run.options.enabled)
+    finishRace(state, coursetime);
 }
 
 ///
@@ -802,6 +811,31 @@ void MainApp::calcScreenRatios()
 
 void MainApp::tick(float delta)
 {
+    if (validation::run.options.enabled && appstate == AS_LEVEL_SCREEN && !validation::run.started) {
+        const auto begin = SDL_GetPerformanceCounter();
+        if (!startGame(validation::run.options.stage)) {
+            validation::run.result = 1;
+            requestExit();
+            return;
+        }
+        const std::string path = "/vehicles/" + validation::run.options.vehicle + "/" +
+            validation::run.options.vehicle + ".vehicle";
+        auto* type = game->sim->loadVehicleType(path, getSSModel());
+        if (!type || !game->vehicle.empty()) {
+            PUtil::outLog() << "Validation requires an available vehicle and a stage without pre-spawned vehicles\n";
+            validation::run.result = 1;
+            requestExit();
+            return;
+        }
+        game->chooseVehicle(type);
+        initAudio();
+        appstate = AS_IN_GAME;
+        validation::run.started = true;
+        validation::run.loadMs = 1000.0 * static_cast<double>(SDL_GetPerformanceCounter() - begin) /
+            static_cast<double>(SDL_GetPerformanceFrequency());
+        validation::run.renderer = reinterpret_cast<const char*>(glGetString(GL_RENDERER));
+        SDL_GL_SetSwapInterval(0);
+    }
     getSSAudio().tick();
 
     if (audinst_intro) {
@@ -972,7 +1006,32 @@ void MainApp::tickStateGame(float delta)
   //PULLTOWARD(vehic->ctrl.aim.x, 0.0, delta * 2.0);
   //PULLTOWARD(vehic->ctrl.aim.y, 0.0, delta * 2.0);
 
+  if (validation::run.options.enabled) {
+      const auto input = validation::inputAt(validation::run.inputs, validation::run.ticks);
+      vehic->ctrl.setZero();
+      vehic->ctrl.throttle = input.throttle;
+      vehic->ctrl.turn.z = input.steering;
+      vehic->ctrl.brake1 = input.brake;
+      vehic->ctrl.brake2 = input.handbrake;
+  }
   game->tick(delta);
+  if (validation::run.options.enabled) {
+      try {
+          auto& hash = validation::run.hash;
+          const auto p = vehic->body->getPosition();
+          const auto q = vehic->body->getOrientation();
+          const auto v = vehic->body->getLinearVel();
+          const auto w = vehic->body->getAngularVel();
+          for (float value : {p.x, p.y, p.z, q.x, q.y, q.z, q.w, v.x, v.y, v.z, w.x, w.y, w.z})
+              validation::hashFloat(hash, value);
+          if (++validation::run.ticks >= validation::run.options.frames)
+              validation::run.complete = true;
+      } catch (const std::exception& e) {
+          PUtil::outLog() << e.what() << std::endl;
+          validation::run.result = 1;
+          requestExit();
+      }
+  }
 
   // Record ghost car (assumes first vehicle is player vehicle)
   if (cfg.getEnableGhost() && game->vehicle[0]) {
@@ -1687,6 +1746,33 @@ static bool fileExists(const std::string &path) {
 
 int main(int argc, char *argv[])
 {
+    try {
+        validation::run.options = validation::parse(argc, argv);
+        if (validation::run.options.help) {
+            std::cout << "TrackRS --headless|--benchmark --stage <id|virtual.level> --vehicle <id>\n"
+                << "  --data-dir <data directory>\n"
+                << "  --frames <250-Hz ticks> --seed <integer> --replay <csv>\n"
+                << "  --dump-state <hash-file> --json <report.json> --screenshot <image.ppm>\n"
+                << "Headless mode uses a real OpenGL context; run under Xvfb on headless Linux.\n";
+            return 0;
+        }
+        if (validation::run.options.enabled) {
+            validation::run.inputs = validation::readReplay(validation::run.options.replay);
+            validation::run.frames.reserve(validation::run.options.frames);
+            validation::run.cpu.reserve(validation::run.options.frames);
+            validation::run.gpu.reserve(validation::run.options.frames);
+            validation::run.draws.reserve(validation::run.options.frames);
+            validation::run.triangles.reserve(validation::run.options.frames);
+            validation::run.queries.reserve(128);
+            for (const char* name : {"terrain", "sky", "water", "mesh_submit", "particles", "ui_text"}) {
+                auto& pass = validation::run.passes[name];
+                pass.cpu.reserve(validation::run.options.frames * 32);
+                pass.gpu.reserve(validation::run.options.frames * 32);
+            }
+        }
+#ifdef SDL_MAIN_HANDLED
+        SDL_SetMainReady();
+#endif
     std::string video_path = "";
     if (fileExists("inVideo.mp4")) {
       video_path = "inVideo.mp4";
@@ -1696,11 +1782,18 @@ int main(int argc, char *argv[])
       video_path = "../inVideo.mp4";
     }
 
-    if (!video_path.empty()) {
+    if (!video_path.empty() && !validation::run.options.enabled) {
       std::string cmd = "ffplay -fs -autoexit -noborder -loglevel quiet \"" + video_path + "\"";
       int ret = std::system(cmd.c_str());
       (void)ret;
     }
 
-    return MainApp("TrackRS", ".trackrs").run(argc, argv);
+    const int result = MainApp("TrackRS", ".trackrs").run(argc, argv);
+    if (validation::run.options.enabled && (!validation::run.complete || validation::run.result))
+        return 1;
+    return result;
+    } catch (const std::exception& e) {
+        std::cerr << "TrackRS: " << e.what() << '\n';
+        return 1;
+    }
 }

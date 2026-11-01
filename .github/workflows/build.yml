@@ -1,0 +1,79 @@
+name: Engine safety net
+on: [push, pull_request, workflow_dispatch]
+permissions:
+  contents: read
+jobs:
+  linux:
+    runs-on: ubuntu-24.04
+    strategy:
+      fail-fast: false
+      matrix:
+        compiler: [g++, clang++]
+        preset: [linux-release, linux-debug-asan]
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - name: Dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ninja-build libsdl2-dev libsdl2-image-dev libglew-dev libopenal-dev libalut-dev libtinyxml2-dev libphysfs-dev libgl1-mesa-dev libglu1-mesa-dev xvfb xauth
+      - run: cmake --preset ${{ matrix.preset }} -DCMAKE_CXX_COMPILER=${{ matrix.compiler }}
+      - run: cmake --build --preset ${{ matrix.preset }} -j2
+      - run: ctest --preset ${{ matrix.preset }}
+      - name: Replay determinism
+        env:
+          LIBGL_ALWAYS_SOFTWARE: "1"
+          ALSOFT_DRIVERS: "null"
+        run: |
+          xvfb-run -a python3 tests/run_baselines.py --binary build/${{ matrix.preset }}/bin/trackrs --output build/results --quick
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        if: always()
+        with:
+          name: linux-${{ matrix.compiler }}-${{ matrix.preset }}
+          path: |
+            build/results
+            build/${{ matrix.preset }}/Testing
+            build/${{ matrix.preset }}/bin
+  windows-msvc:
+    runs-on: windows-2022
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - name: Pinned dependency registry
+        shell: pwsh
+        run: |
+          git clone https://github.com/microsoft/vcpkg.git "${{ runner.temp }}/trackrs-vcpkg"
+          git -C "${{ runner.temp }}/trackrs-vcpkg" checkout 9a5dfef5d1a0438a7d24856a85bd60f309d355e9
+          & "${{ runner.temp }}/trackrs-vcpkg/bootstrap-vcpkg.bat" -disableMetrics
+      - name: Configure
+        shell: pwsh
+        run: cmake -S . -B build/windows -G "Visual Studio 17 2022" -A x64 "-DCMAKE_TOOLCHAIN_FILE=${{ runner.temp }}/trackrs-vcpkg/scripts/buildsystems/vcpkg.cmake" -DVCPKG_TARGET_TRIPLET=x64-windows
+      - run: cmake --build build/windows --config Release --parallel 2
+      - run: ctest --test-dir build/windows -C Release --output-on-failure
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        if: always()
+        with:
+          name: windows-msvc
+          path: build/windows/bin
+  windows-mingw:
+    runs-on: windows-2022
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - uses: msys2/setup-msys2@ec48f7c5447b3140e2b088413ae3a55687bccb6e
+        with:
+          msystem: UCRT64
+          update: true
+          install: >-
+            mingw-w64-ucrt-x86_64-gcc mingw-w64-ucrt-x86_64-cmake
+            mingw-w64-ucrt-x86_64-ninja mingw-w64-ucrt-x86_64-SDL2
+            mingw-w64-ucrt-x86_64-SDL2_image mingw-w64-ucrt-x86_64-glew
+            mingw-w64-ucrt-x86_64-openal mingw-w64-ucrt-x86_64-freealut
+            mingw-w64-ucrt-x86_64-physfs mingw-w64-ucrt-x86_64-tinyxml2
+      - shell: msys2 {0}
+        run: |
+          cmake --preset win-mingw-release
+          cmake --build --preset win-mingw-release -j2
+          ctest --preset win-mingw-release
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        if: always()
+        with:
+          name: windows-mingw
+          path: build/win-mingw-release/bin

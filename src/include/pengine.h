@@ -18,6 +18,7 @@
 #include <physfs.h>
 
 #include <GL/glew.h>
+#include "legacy_metrics.h"
 
 #include <tinyxml2.h>
 using namespace tinyxml2;

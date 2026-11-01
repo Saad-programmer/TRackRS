@@ -1,0 +1,26 @@
+{
+  "version": 2,
+  "cmakeMinimumRequired": {"major": 3, "minor": 20, "patch": 0},
+  "configurePresets": [
+    {"name": "base", "hidden": true, "generator": "Ninja", "binaryDir": "${sourceDir}/build/${presetName}", "cacheVariables": {"BUILD_TESTING": "ON"}},
+    {"name": "linux-release", "inherits": "base", "cacheVariables": {"CMAKE_BUILD_TYPE": "Release"}},
+    {"name": "linux-debug-asan", "inherits": "base", "cacheVariables": {"CMAKE_BUILD_TYPE": "Debug", "TRACKRS_SANITIZER": "address,undefined"}},
+    {"name": "linux-debug-tsan", "inherits": "base", "cacheVariables": {"CMAKE_BUILD_TYPE": "Debug", "TRACKRS_SANITIZER": "thread"}},
+    {"name": "win-msvc-release", "inherits": "base", "cacheVariables": {"CMAKE_BUILD_TYPE": "Release"}},
+    {"name": "win-mingw-release", "inherits": "base", "cacheVariables": {"CMAKE_BUILD_TYPE": "Release", "CMAKE_CXX_COMPILER": "g++"}}
+  ],
+  "buildPresets": [
+    {"name": "linux-release", "configurePreset": "linux-release"},
+    {"name": "linux-debug-asan", "configurePreset": "linux-debug-asan"},
+    {"name": "linux-debug-tsan", "configurePreset": "linux-debug-tsan"},
+    {"name": "win-msvc-release", "configurePreset": "win-msvc-release"},
+    {"name": "win-mingw-release", "configurePreset": "win-mingw-release"}
+  ],
+  "testPresets": [
+    {"name": "linux-release", "configurePreset": "linux-release", "output": {"outputOnFailure": true}},
+    {"name": "linux-debug-asan", "configurePreset": "linux-debug-asan", "output": {"outputOnFailure": true}},
+    {"name": "linux-debug-tsan", "configurePreset": "linux-debug-tsan", "output": {"outputOnFailure": true}},
+    {"name": "win-msvc-release", "configurePreset": "win-msvc-release", "output": {"outputOnFailure": true}},
+    {"name": "win-mingw-release", "configurePreset": "win-mingw-release", "output": {"outputOnFailure": true}}
+  ]
+}

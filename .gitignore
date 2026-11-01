@@ -1,4 +1,6 @@
 # Build outputs
+/build/
+/tests/__pycache__/
 *.o
 *.d
 *~

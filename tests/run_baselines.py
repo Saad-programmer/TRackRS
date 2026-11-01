@@ -1,0 +1,104 @@
+#!/usr/bin/env python3
+"""Run real legacy stages twice in isolated profiles; fail on errors or hash drift.
+
+Owns only the requested output directory and temporary profiles. Runs scenarios
+serially on the caller's GL display; no network and no third-party Python modules.
+"""
+import argparse
+import hashlib
+import json
+import os
+from pathlib import Path
+import struct
+import subprocess
+import tempfile
+import zlib
+
+ROOT = Path(__file__).resolve().parents[1]
+STAGES = ["ahead", "aegyptian", "greenland", "mudbath", "april", "ancient",
+          "coastline", "country", "darkbushes", "barren", "altitude", "arizonachase", "glacier"]
+CARS = ["cordo_kitcar", "evo_wrc", "fox_super500"]
+
+
+def png_from_ppm(source, target):
+    with source.open("rb") as f:
+        if f.readline() != b"P6\n":
+            raise ValueError("unexpected framebuffer format")
+        width, height = map(int, f.readline().split())
+        if f.readline() != b"255\n":
+            raise ValueError("unexpected framebuffer depth")
+        rgb = f.read()
+    if len(rgb) != width * height * 3 or len(set(rgb)) < 16:
+        raise ValueError("empty, truncated or blank framebuffer")
+    def chunk(kind, data):
+        return struct.pack(">I", len(data)) + kind + data + struct.pack(">I", zlib.crc32(kind + data))
+    rows = b"".join(b"\0" + rgb[y * width * 3:(y + 1) * width * 3] for y in range(height))
+    target.write_bytes(b"\x89PNG\r\n\x1a\n" +
+                       chunk(b"IHDR", struct.pack(">IIBBBBB", width, height, 8, 2, 0, 0, 0)) +
+                       chunk(b"IDAT", zlib.compress(rows, 9)) + chunk(b"IEND", b""))
+    return hashlib.sha256(rgb).hexdigest()
+
+
+def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--binary", type=Path, required=True)
+    parser.add_argument("--output", type=Path, required=True)
+    parser.add_argument("--quick", action="store_true")
+    parser.add_argument("--frames", type=int)
+    parser.add_argument("--stages", nargs="+", choices=STAGES, help="run a selected subset")
+    parser.add_argument("--compare", type=Path, help="previous run manifest, same build/platform only")
+    args = parser.parse_args()
+    args.binary = args.binary.resolve()
+    args.output.mkdir(parents=True, exist_ok=True)
+    (args.output / "manifest.json").unlink(missing_ok=True)
+    frames = args.frames or (1250 if args.quick else 1500)
+    if frames < 2:
+        parser.error("--frames must be at least 2")
+    cases = args.stages or (STAGES[:1] if args.quick else STAGES)
+    reports = []
+    for i, stage in enumerate(cases):
+        car = CARS[i % len(CARS)]
+        hashes, images = [], []
+        for repeat in range(2):
+            stem = args.output / f"{stage}-{repeat}"
+            with tempfile.TemporaryDirectory(prefix="trackrs-profile-") as profile:
+                env = dict(os.environ, XDG_DATA_HOME=profile, ALSOFT_DRIVERS="null", LIBGL_ALWAYS_SOFTWARE="1")
+                command = [str(args.binary), "--headless", "--data-dir", str(ROOT / "data"),
+                           "--stage", stage, "--vehicle", car, "--frames", str(frames),
+                           "--replay", str(ROOT / "tests/replays/baseline.csv"),
+                           "--dump-state", str(stem.with_suffix(".hash").resolve()),
+                           "--json", str(stem.with_suffix(".json").resolve())]
+                if i < 8:
+                    command += ["--screenshot", str(stem.with_suffix(".ppm").resolve())]
+                # Never accept stale output after a failed or zero-work run.
+                for ext in (".hash", ".json", ".ppm", ".png"):
+                    stem.with_suffix(ext).unlink(missing_ok=True)
+                with stem.with_suffix(".log").open("w") as log:
+                    subprocess.run(command, cwd=ROOT, env=env, stdout=log, stderr=subprocess.STDOUT,
+                                   timeout=600, check=True)
+            report = json.loads(stem.with_suffix(".json").read_text())
+            if report["ticks"] != frames or report["samples"] != frames - 1:
+                raise RuntimeError(f"wrong work count: {stage}")
+            hashes.append(stem.with_suffix(".hash").read_text().strip())
+            if hashes[-1] != report["state_hash"]:
+                raise RuntimeError("hash/report mismatch")
+            if i < 8:
+                images.append(png_from_ppm(stem.with_suffix(".ppm"), stem.with_suffix(".png")))
+                stem.with_suffix(".ppm").unlink()
+        if hashes[0] != hashes[1]:
+            raise RuntimeError(f"non-deterministic physics: {stage}: {hashes}")
+        if images and images[0] != images[1]:
+            raise RuntimeError(f"non-deterministic framebuffer: {stage}: {images}")
+        reports.append({"stage": stage, "vehicle": car, "ticks": frames, "state_hash": hashes[0],
+                        "framebuffer_sha256": images[0] if images else None})
+        print(f"PASS {stage}/{car}: {frames} ticks, hash {hashes[0]}", flush=True)
+    if args.compare:
+        previous = json.loads(args.compare.read_text())
+        if previous["scenarios"] != reports:
+            raise RuntimeError("baseline regression: scenario state/framebuffer changed")
+    summary = {"schema": "trackrs.legacy-baselines/1", "repeat_count": 2, "scenarios": reports}
+    (args.output / "manifest.json").write_text(json.dumps(summary, indent=2) + "\n")
+
+
+if __name__ == "__main__":
+    main()
