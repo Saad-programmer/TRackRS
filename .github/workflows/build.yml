@@ -97,9 +97,24 @@ jobs:
         run: |
           cmake --preset win-mingw-release
           cmake --build --preset win-mingw-release -j2
-          ctest --preset win-mingw-release
+      - name: Tests with failure annotations
+        shell: msys2 {0}
+        run: |
+          test_status=0
+          ctest --preset win-mingw-release > build/win-mingw-release/ctest.log 2>&1 || test_status=$?
+          cat build/win-mingw-release/ctest.log
+          if [ "$test_status" -ne 0 ]; then
+            message=$(<build/win-mingw-release/ctest.log)
+            message=${message//'%'/'%25'}
+            message=${message//$'\r'/'%0D'}
+            message=${message//$'\n'/'%0A'}
+            printf '::error::%s\n' "$message"
+          fi
+          exit "$test_status"
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         if: always()
         with:
           name: windows-mingw
-          path: build/win-mingw-release/bin
+          path: |
+            build/win-mingw-release/bin
+            build/win-mingw-release/ctest.log

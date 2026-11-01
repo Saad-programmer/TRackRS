@@ -7,7 +7,7 @@
 #include "config.h"
 
 class Gui;
-class GuiWidget;
+struct GuiWidget;
 
 ///
 /// @brief Options menu

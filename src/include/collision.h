@@ -4,7 +4,7 @@
 #include "psim.h"
 #include "vehicle.h"
 
-class PTerrainFoliage;
+struct PTerrainFoliage;
 
 ///
 /// @brief Handling of collisions with world objects

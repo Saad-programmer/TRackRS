@@ -19,7 +19,7 @@ class PSim;
 class PTerrain;
 class PVehicle;
 class PVehicleType;
-class PVehicleTypePart;
+struct PVehicleTypePart;
 
 ///
 /// @brief This struct stores a checkpoint
