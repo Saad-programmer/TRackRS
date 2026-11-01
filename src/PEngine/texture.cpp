@@ -657,8 +657,8 @@ void PTexture::scaleImage(GLuint format,
 
 	//std::cout << "Resize!" << width_in << " " << width_out << " " << height_in << " " << height_out << std::endl;
 
-    SDL_Rect srcrect = {.x = 0, .y = 0, .w = width_in, .h = height_in};
-    SDL_Rect dstrect = {.x = 0, .y = 0, .w = width_out, .h = height_out};
+    SDL_Rect srcrect = {0, 0, width_in, height_in};
+    SDL_Rect dstrect = {0, 0, width_out, height_out};
     SDL_Surface* src = SDL_CreateRGBSurfaceFrom((void*)data_in, width_in, height_in, depth, pitch_in, rm, gm, bm, am);
     SDL_Surface* dst = SDL_CreateRGBSurfaceFrom(data_out, width_out, height_out, depth, pitch_out, rm, gm, bm, am);
 
