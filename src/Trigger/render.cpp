@@ -1,3 +1,6 @@
+#include "../../engine/renderer/renderer.h"
+#include "../../engine/core/interpolation.h"
+#include "validation.h"
 // Creator: Saad AIT YAHIA - @github: Saad-programmer
 #include "damage.h"
 #include "main.h"
@@ -866,10 +869,25 @@ void MainApp::renderStateGame(float eyetranslation)
         if (!renderowncar && v == 0) continue;
 
         PVehicle *vehic = game->vehicle[v];
+        glPushMatrix();
+        if (!validation::run.options.enabled) {
+            const float alpha = game->sim->interpolationAlpha();
+            const auto& previous = vehic->body->previous();
+            const auto currentPosition = vehic->body->getPosition();
+            const auto position = previous.getPosition() + (currentPosition - previous.getPosition()) * alpha;
+            const auto a = previous.getOrientation(), b = vehic->body->getOrientation();
+            const auto q = trackrs::interpolateRotation({a.x,a.y,a.z,a.w}, {b.x,b.y,b.z,b.w}, alpha);
+            const auto orientation = quatf(q[0],q[1],q[2],q[3]).getMatrix().transpose();
+            glTranslatef(position.x, position.y, position.z);
+            glMultMatrixf(orientation);
+            glMultMatrixf(vehic->body->getOrientationMatrix());
+            glTranslatef(-currentPosition.x, -currentPosition.y, -currentPosition.z);
+        }
         for (unsigned int i=0; i<vehic->part.size(); ++i)
         {
-            renderVehiclePart(*vehic->type, vehic->part[i], vehic->type->part[i], 1.0f);
+            trackrs::Renderer::vehiclePart(*this, *vehic->type, vehic->part[i], vehic->type->part[i], 1.0f);
         }
+        glPopMatrix();
     }
 
     glDisable(GL_LIGHTING);
@@ -899,7 +917,7 @@ void MainApp::renderStateGame(float eyetranslation)
         // However, the assumption is, that the model of the first part is relevant.
         for (unsigned int i = 0; i < game->vehiclechoices.size(); ++i) {
           if (game->vehiclechoices[i]->getName() == vehiclename) {
-            renderVehiclePart(*game->vehiclechoices[i], vehiclepart,
+            trackrs::Renderer::vehiclePart(*this, *game->vehiclechoices[i], vehiclepart,
                 game->vehiclechoices[i]->part[0], 0.5f);
             break;
           }
@@ -1203,7 +1221,7 @@ void MainApp::renderStateGame(float eyetranslation)
         renderWater();
 
     if (psys_dirt != nullptr) // cfg_dirteffect == false
-        getSSRender().render(psys_dirt);
+        getSSRender().render(psys_dirt.get());
 
     glDepthMask(GL_TRUE);
     glBlendFunc(GL_ONE,GL_ZERO);
@@ -1910,47 +1928,4 @@ void MainApp::renderDamageIndicatorGroup()
     renderDamageIndicator(
         tex_damage_rear_right, hratio * 45.0f/50.0f - 0.025f, -vratio * 32.5f/50.0f - 0.032f, 0.025f, 0.032f,
         part.damage.getDamage(PDamage::DamageSide::DamageRearRight));
-}
-
-void MainApp::renderVehiclePart(const PVehicleType &type, const PVehiclePart &part,
-    const PVehicleTypePart &typepart, float alpha)
-{
-    if (typepart.model)
-    {
-        glPushMatrix();
-
-        vec3f vpos = part.ref_world.getPosition();
-        glTranslatef(vpos.x, vpos.y, vpos.z);
-
-        mat44f vorim = part.ref_world.getInverseOrientationMatrix();
-        glMultMatrixf(vorim);
-
-        float scale = typepart.scale;
-        glScalef(scale,scale,scale);
-
-        drawModel(*typepart.model, alpha);
-
-        glPopMatrix();
-    }
-
-    if (type.wheelmodel)
-    {
-        for (unsigned int i=0; i<typepart.wheel.size(); ++i)
-        {
-            glPushMatrix();
-
-            vec3f wpos = part.wheel[i].ref_world.getPosition();
-            glTranslatef(wpos.x,wpos.y,wpos.z);
-
-            mat44f worim = part.wheel[i].ref_world.getInverseOrientationMatrix();
-            glMultMatrixf(worim);
-
-            float scale = type.wheelscale * typepart.wheel[i].radius;
-            glScalef(scale,scale,scale);
-
-            drawModel(*type.wheelmodel, alpha);
-
-            glPopMatrix();
-        }
-    }
 }

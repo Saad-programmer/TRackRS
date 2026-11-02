@@ -44,8 +44,8 @@ TriggerGame::TriggerGame(MainApp *parent):
 
 TriggerGame::~TriggerGame()
 {
-	if (sim) delete sim;
-	if (terrain) delete terrain;
+
+
 }
 
 ///
@@ -64,7 +64,7 @@ bool TriggerGame::loadVehicles()
 
     // if no simulation instance exists, create a new one
     if (sim == nullptr)
-        sim = new PSim();
+        sim = std::make_unique<PSim>();
 
     // find names of all vehicle types
     const std::list<std::string> vehiclefiles = PUtil::findFiles("/vehicles", ".vehicle");
@@ -125,7 +125,7 @@ bool TriggerGame::loadLevel(const std::string &filename)
 
 	// create a new PSim if there is no one
 	if (sim == nullptr)
-		sim = new PSim();
+		sim = std::make_unique<PSim>();
   
 	// set default values
 	sim->setGravity(DEF_GRAVITY);
@@ -154,6 +154,11 @@ bool TriggerGame::loadLevel(const std::string &filename)
 	XMLDocument xmlfile;
 	XMLElement *rootelem = PUtil::loadRootElement(xmlfile, filename, "level");
 	if (!rootelem) return false;
+    std::uint64_t seed = trackrs::stageSeed(filename);
+    rootelem->QueryUnsigned64Attribute("stage_seed", &seed);
+    if (validation::run.options.enabled) seed ^= validation::run.options.seed;
+    stageRng.reseed(seed, 3);
+    sim->setStageSeed(seed);
   
 	const char *val;
   
@@ -170,15 +175,15 @@ bool TriggerGame::loadLevel(const std::string &filename)
 		{
 			try
 			{
-				terrain = new PTerrain (walk, filename, app->getSSTexture (), rigidity,
-				    app->cfg.getFoliage(), app->cfg.getRoadsigns());
+				terrain = std::make_unique<PTerrain>(walk, filename, app->getSSTexture(), rigidity,
+                    app->cfg.getFoliage(), app->cfg.getRoadsigns());
 			}
 			catch (PException &e)
 			{
 				PUtil::outLog () << "Terrain problem: " << e.what () << std::endl;
 				return false;
 			}
-			sim->setTerrain(terrain);
+			sim->setTerrain(terrain.get());
 		}
 //
 // TODO: delete this code soon
@@ -403,7 +408,7 @@ bool TriggerGame::loadLevel(const std::string &filename)
 		}
 	}
   
-	srand(1000);
+	// The stage-owned stream was seeded from stage_seed at load.
   
 	// if there are no checkpoints
 	if (checkpt.size() == 0)
@@ -414,15 +419,15 @@ bool TriggerGame::loadLevel(const std::string &filename)
     
 		temp1.resize(cpsize);
     
-		float ang = randm11 * PI;
+		float ang = stageRng.symmetric() * PI;
     
-		temp1[0] = vec2f(cosf(ang),sinf(ang)) * (100.0f + rand01 * 300.0f);
+		temp1[0] = vec2f(cosf(ang),sinf(ang)) * (100.0f + stageRng.unit() * 300.0f);
     
 		for (int i=1; i<cpsize; i++)
 		{
-			ang += randm11 * (PI * 0.3f);
+			ang += stageRng.symmetric() * (PI * 0.3f);
       
-			temp1[i] = temp1[i-1] + vec2f(cosf(ang),sinf(ang)) * (100.0f + rand01 * 300.0f);
+			temp1[i] = temp1[i-1] + vec2f(cosf(ang),sinf(ang)) * (100.0f + stageRng.unit() * 300.0f);
 		}
     
 		checkpt.resize(cpsize, vec3f::zero());
@@ -678,7 +683,7 @@ void TriggerGame::tick(float delta)
     if (correction >= PI) { correction -= PI*2.0f; if (correction >= PI) correction -= PI*2.0f; }
     if (correction < -PI) { correction += PI*2.0f; if (correction < -PI) correction += PI*2.0f; }
     
-    vehic->ctrl.turn.z = correction * 2.0f + randm11 * 0.2f;
+    vehic->ctrl.turn.z = correction * 2.0f + stageRng.symmetric() * 0.2f;
     
     vehic->ctrl.throttle = 1.0f - fabsf(correction) * 0.8f;
     if (vehic->ctrl.throttle < 0.1f)

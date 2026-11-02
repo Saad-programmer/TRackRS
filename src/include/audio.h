@@ -3,6 +3,9 @@
 
 #include "subsys.h"
 
+#ifndef USE_OPENAL
+#define USE_OPENAL
+#endif
 #if defined( USE_OPENAL )
 #define INCLUDE_OPENAL_HEADER
 #endif

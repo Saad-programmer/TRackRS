@@ -336,7 +336,7 @@ void PParticleSystem::addParticle(const vec3f &pos, const vec3f &linvel)
   part.back().linvel = linvel;
   part.back().life = 1.0;
 
-  float ang = randm11 * PI;
+  float ang = particleRng.symmetric() * PI;
   part.back().orix = vec2f(cos(ang),sin(ang));
   part.back().oriy = vec2f(-sin(ang),cos(ang));
 }

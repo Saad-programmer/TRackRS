@@ -3,6 +3,7 @@
 
 #include "subsys.h"
 #include "vmath.h"
+#include "../../engine/core/fixed_step.h"
 
 class PSim;
 class PSSModel;
@@ -67,6 +68,10 @@ public:
 /// @todo: intelligent friction calculation
 ///
 class PRigidBody : public PReferenceFrame {
+  PReferenceFrame previousFrame;
+public:
+  const PReferenceFrame& previous() const noexcept { return previousFrame; }
+  void capturePrevious() { previousFrame = *this; }
 private:
   // the gravity vector
   const vec3f &gravity;
@@ -126,16 +131,19 @@ private:
   PResourceList<PVehicleType> vtypelist;
 
   // the various bodyes inside the simulation
-  std::vector<PRigidBody *> body;
+  std::vector<std::unique_ptr<PRigidBody>> body;
 
   // the various vehicles inside the simulation
-  std::vector<PVehicle *> vehicle;
+  std::vector<std::unique_ptr<PVehicle>> vehicle;
+  trackrs::FixedStep stepper;
+  std::uint64_t stageSeed = 1000;
 
   // the gravity vector
   vec3f gravity;
   
 public:
-  PSim();
+  explicit PSim(float step = .004f);
+  void setStageSeed(std::uint64_t seed) noexcept { stageSeed = seed; }
   ~PSim();
 
   inline void setTerrain(PTerrain *new_terrain) { terrain = new_terrain; }
@@ -156,4 +164,5 @@ public:
 
   // Step the simulation delta seconds
   void tick(float delta);
+  float interpolationAlpha() const noexcept { return stepper.alpha(); }
 };

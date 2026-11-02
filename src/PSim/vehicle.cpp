@@ -1207,7 +1207,9 @@ void PVehicle::tick(const float& delta)
           wheel.bumplast = wheel.bumpnext;
           wheel.bumptravel -= (int)wheel.bumptravel;
 
-          wheel.bumpnext = randm11 * rand01 * typewheel.radius * 0.1f;
+          const float bumpSign = physicsRng.symmetric();
+          const float bumpMagnitude = physicsRng.unit();
+          wheel.bumpnext = bumpSign * bumpMagnitude * typewheel.radius * 0.1f;
         }
 
         // how much wheel is below the ground along the normal

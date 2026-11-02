@@ -1,3 +1,4 @@
+#include "../../engine/core/pcg32.h"
 // Creator: Saad AIT YAHIA - @github: Saad-programmer
 #pragma once
 
@@ -22,6 +23,7 @@ struct PParticle_s {
 };
 
 class PParticleSystem {
+  trackrs::Pcg32 particleRng;
 protected:
   float colorstart[4],colorend[4];
   float startsize, endsize;
@@ -473,46 +475,7 @@ public:
     /// @returns Whether or not the point is on the road.
     /// @retval true        If no roadmap was loaded.
     ///
-    bool isOnRoad(float px, float py, float ms) const
-    {
-        if (bitmap.empty())
-            return true;
-
-        if (px >= ms)
-        {
-            do
-                px -= ms;
-            while (px > ms);
-        }
-        else
-        if (px < 0)
-        {
-            do
-                px += ms;
-            while (px < 0);
-        }
-
-        if (py >= ms)
-        {
-            do
-                py -= ms;
-            while (py > ms);
-        }
-        else
-        if (py < 0)
-        {
-            do
-                py += ms;
-            while (py < 0);
-        }
-
-        long int x = std::lround(px * bx / ms);
-        long int y = std::lround(py * by / ms);
-
-        CLAMP_UPPER(x, bx - 1);
-        CLAMP_UPPER(y, by - 1);
-        return bitmap.at(y * bx + x);
-    }
+    bool isOnRoad(float px, float py, float ms) const;
 
 private:
 
@@ -553,8 +516,9 @@ public:
   int sprite_count = 1;
 };
 
-class PTerrain // TODO: make this RAII conformant
+class PTerrain
 {
+  std::uint64_t foliageSeed = 0;
 protected:
   bool loaded;
 
@@ -590,39 +554,7 @@ protected:
 
   PTerrainTile *getTile(int x, int y);
 
-  float getInterp(float x, float y, float *data) {
-    x *= scale_hz_inv;
-    int xi = (int)x;
-    if (x < 0.0) xi--;
-    x -= (float)xi;
-    int xiw = xi & totmask, xiw2 = (xiw+1) & totmask;
-
-    y *= scale_hz_inv;
-    int yi = (int)y;
-    if (y < 0.0) yi--;
-    y -= (float)yi;
-    int yiw = yi & totmask, yiw2 = (yiw+1) & totmask;
-
-    const int cx = totsize;
-
-    float xv1,xv2;
-    if (y > 0.0) {
-      if (y < 1.0) {
-        if (x < y) {
-          xv1 = data[yiw*cx+xiw];
-          xv2 = INTERP(data[yiw2*cx+xiw],data[yiw2*cx+xiw2],x/y);
-        } else {
-          xv1 = INTERP(data[yiw*cx+xiw],data[yiw*cx+xiw2],(x-y)/(1.0-y));
-          xv2 = data[yiw2*cx+xiw2];
-        }
-        return INTERP(xv1,xv2,y);
-      } else {
-        return INTERP(data[yiw2*cx+xiw],data[yiw2*cx+xiw2],x);
-      }
-    } else {
-      return INTERP(data[yiw*cx+xiw],data[yiw*cx+xiw2],x);
-    }
-  }
+  float getInterp(float x, float y, float *data);
 
 public:
   PTerrain(XMLElement *element, const std::string &filepath, PSSTexture &ssTexture,
@@ -665,169 +597,13 @@ public:
     /// @param [in] pos   Position in the terrain.
     /// @returns Color in OpenGL-style RGB.
     ///
-    vec3f getCmapColor(const vec3f &pos) const
-    {
-        vec3f r;
-#if 0
-        const float ms = getMapSize();
-        float px = pos.x;
-        float py = pos.y;
-#else
-        const int ms = static_cast<int> (getMapSize());
-        int px = static_cast<int> (pos.x);
-        int py = static_cast<int> (pos.y);
-#endif
-        if (px >= ms)
-        {
-            do
-                px -= ms;
-            while (px > ms);
-        }
-        else
-        if (px < 0)
-        {
-            do
-                px += ms;
-            while (px < 0);
-        }
-
-        if (py >= ms)
-        {
-            do
-                py -= ms;
-            while (py > ms);
-        }
-        else
-        if (py < 0)
-        {
-            do
-                py += ms;
-            while (py < 0);
-        }
-
-        long int x = std::lround(px * cmap.getcx() / getMapSize());
-        long int y = std::lround(py * cmap.getcy() / getMapSize());
-
-        CLAMP_UPPER(x, cmap.getcx() - 1);
-        CLAMP_UPPER(y, cmap.getcy() - 1);
-        r.x = cmap.getByte((y * cmap.getcx() + x) * cmap.getcc() + 0) / 255.0f;
-        r.y = cmap.getByte((y * cmap.getcx() + x) * cmap.getcc() + 1) / 255.0f;
-        r.z = cmap.getByte((y * cmap.getcx() + x) * cmap.getcc() + 2) / 255.0f;
-        return r;
-    }
-
-    ///
-    /// @brief Returns the road surface type corresponding to the given position
-    ///  in the terrain.
-    /// @note The height component Z is ignored.
-    /// @todo Should remove paranoid clampings?
-    /// @todo Should actually measure performance of float vs int. (int should be intrinsecally faster)
-    /// @param [in] pos   Position in the terrain.
-    /// @returns Terrain type.
-    ///
-    TerrainType getRoadSurface(const vec3f &pos) const
-    {
-        if (tmap.getData() == nullptr)
-            return TerrainType::Unknown;
-#if 0
-        const float ms = getMapSize();
-        float px = pos.x;
-        float py = pos.y;
-#else
-        const int ms = static_cast<int> (getMapSize());
-        int px = static_cast<int> (pos.x);
-        int py = static_cast<int> (pos.y);
-#endif
-        if (px >= ms)
-        {
-            do
-                px -= ms;
-            while (px > ms);
-        }
-        else
-        if (px < 0)
-        {
-            do
-                px += ms;
-            while (px < 0);
-        }
-
-        if (py >= ms)
-        {
-            do
-                py -= ms;
-            while (py > ms);
-        }
-        else
-        if (py < 0)
-        {
-            do
-                py += ms;
-            while (py < 0);
-        }
-
-        long int x = std::lround(px * tmap.getcx() / getMapSize());
-        long int y = std::lround(py * tmap.getcy() / getMapSize());
-        rgbcolor temp;
-
-        CLAMP_UPPER(x, tmap.getcx() - 1);
-        CLAMP_UPPER(y, tmap.getcy() - 1);
-        temp.r = tmap.getByte((y * tmap.getcx() + x) * tmap.getcc() + 0);
-        temp.g = tmap.getByte((y * tmap.getcx() + x) * tmap.getcc() + 1);
-        temp.b = tmap.getByte((y * tmap.getcx() + x) * tmap.getcc() + 2);
-        return PUtil::decideRoadSurface(temp);
-    }
+    vec3f getCmapColor(const vec3f &pos) const;
+    TerrainType getRoadSurface(const vec3f &pos) const;
 
   ///
   /// @brief get the information about a contact point (its coordinates and normal) with the ground
   ///
-  void getContactInfo(ContactInfo &tci) {
-
-    float x = tci.pos.x * scale_hz_inv;
-    // int part of x
-    int xi = (int)x;
-    if (x < 0.0) xi--;
-    // x is the decimal part
-    x -= (float)xi;
-    int xiw = xi & totmask, xiw2 = (xi+1) & totmask;
-
-    float y = tci.pos.y * scale_hz_inv;
-    int yi = (int)y;
-    if (y < 0.0) yi--;
-    y -= (float)yi;
-    int yiw = yi & totmask, yiw2 = (yi+1) & totmask;
-
-    float *data = &hmap[0];
-    const int cx = totsize;
-
-    float xv1,xv2;
-    if (y > 0.0) {
-      if (y < 1.0) {
-        if (x < y) {
-          tci.normal.x = data[yiw2*cx+xiw] - data[yiw2*cx+xiw2];
-          tci.normal.y = data[yiw*cx+xiw] - data[yiw2*cx+xiw];
-          xv1 = data[yiw*cx+xiw];
-          xv2 = INTERP(data[yiw2*cx+xiw],data[yiw2*cx+xiw2],x/y);
-        } else {
-          tci.normal.x = data[yiw*cx+xiw] - data[yiw*cx+xiw2];
-          tci.normal.y = data[yiw*cx+xiw2] - data[yiw2*cx+xiw2];
-          xv1 = INTERP(data[yiw*cx+xiw],data[yiw*cx+xiw2],(x-y)/(1.0-y));
-          xv2 = data[yiw2*cx+xiw2];
-        }
-        tci.pos.z = INTERP(xv1,xv2,y);
-      } else {
-        tci.normal.x = data[yiw2*cx+xiw] - data[yiw2*cx+xiw2];
-        tci.normal.y = data[yiw*cx+xiw] - data[yiw2*cx+xiw];
-        tci.pos.z = INTERP(data[yiw2*cx+xiw],data[yiw2*cx+xiw2],x);
-      }
-    } else {
-      tci.normal.x = data[yiw*cx+xiw] - data[yiw*cx+xiw2];
-      tci.normal.y = data[yiw*cx+xiw2] - data[yiw2*cx+xiw2];
-      tci.pos.z = INTERP(data[yiw*cx+xiw],data[yiw*cx+xiw2],x);
-    }
-    tci.normal.z = scale_hz;
-    tci.normal.normalize();
-  }
+  void getContactInfo(ContactInfo &tci);
 
   float getHeight(float x, float y) {
     return getInterp(x, y, &hmap[0]);

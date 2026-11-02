@@ -1,11 +1,12 @@
 // Creator: Saad AIT YAHIA - @github: Saad-programmer
 #pragma once
 
-#include "codriver.h"
+#include "pengine.h"
+#include "codriver_config.h"
 #include <list>
 #include <string>
 
-class MainApp;
+class PApp;
 
 ///
 /// @brief Loading and storing of configuration settings
@@ -73,7 +74,7 @@ public:
     UserControl map[ActionCount];
   };
 
-  PConfig(MainApp *app);
+  PConfig(PApp *app);
   void loadConfig();
   void storeConfig();
 
@@ -125,7 +126,7 @@ private:
   PConfig(const PConfig&);
   PConfig& operator=(const PConfig&);
 
-  MainApp *mainapp;         ///< Used to some change settings in load function
+  PApp *mainapp;         ///< Used to some change settings in load function
 
   XMLDocument xmlfile;      ///< In-memory copy of config file
   XMLElement *rootelem;     ///< Root element of XML config file

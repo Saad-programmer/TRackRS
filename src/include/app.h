@@ -59,6 +59,9 @@ class PApp
         bool reqRGB, reqAlpha, reqDepth, reqStencil;
         bool grabinput;
 
+        float textureAnisotropy = 1;
+        int swapInterval = 1;
+        unsigned frameCap = 120;
         StereoMode stereo;
         float stereoEyeTranslation;
 
@@ -82,6 +85,9 @@ class PApp
         vec3f cam_linvel;
 
     public:
+        float getTextureAnisotropy() const noexcept { return textureAnisotropy; }
+        void setTextureAnisotropy(float value) noexcept { textureAnisotropy = value; }
+        void setFramePacing(int interval, unsigned cap) noexcept { swapInterval = interval; frameCap = cap; }
         PApp(const std::string &title = "PGame", const std::string &name = ".pgame");
 
         virtual ~PApp()
@@ -224,7 +230,10 @@ class PApp
 
         void grabMouse(bool grab = true);
 
+    public:
         void drawModel(PModel &model, float alpha);
+    protected:
+        void captureScreenshot();
 
         void stereoGLProject(float xmin, float xmax, float ymin, float ymax, float znear, float zfar, float zzps, float dist, float eye);
         void stereoFrustum(float xmin, float xmax, float ymin, float ymax, float znear, float zfar, float zzps, float eye);

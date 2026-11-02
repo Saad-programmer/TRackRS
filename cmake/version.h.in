@@ -1,0 +1,3 @@
+// Generated from project(VERSION); do not edit.
+#pragma once
+#define TRACKRS_VERSION "@PROJECT_VERSION@"

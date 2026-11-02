@@ -5,6 +5,7 @@
 #include "vmath.h"
 #include <string>
 #include <vector>
+#include <memory>
 
 class PApp;
 
@@ -32,7 +33,7 @@ class PResourceList
 {
 private:
 
-	std::vector<T *> reslist;
+	std::vector<std::unique_ptr<T>> reslist;
 
 public:
 
@@ -43,23 +44,21 @@ public:
 
 	T * add(T *newresource)
 	{
-		reslist.push_back(newresource);
+		std::unique_ptr<T> owner(newresource);
+		reslist.push_back(std::move(owner));
 		return newresource;
 	}
 
 	T * find(const std::string &name)
 	{
-		for (T *res: reslist)
+		for (const auto &res: reslist)
 			if (name == res->getName())
-				return res;
+				return res.get();
 		return nullptr;
 	}
 
 	void clear()
 	{
-		for (T *res: reslist)
-			delete res;
-
 		reslist.clear();
 	}
 };

@@ -1,6 +1,7 @@
 // Creator: Saad AIT YAHIA - @github: Saad-programmer
 #include "exception.h"
-#include "main.h"
+#include "app.h"
+#include "render.h"
 #include "pengine.h"
 #include "physfs_utils.h"
 #include <SDL2/SDL_image.h>
@@ -27,7 +28,7 @@ PTexture *PSSTexture::loadTexture(const std::string &name, bool genMipmaps, bool
   if (!tex) {
     try
     {
-      GLfloat cfgAnisotropy = static_cast<MainApp &>(app).cfg.getAnisotropy();
+      GLfloat cfgAnisotropy = app.getTextureAnisotropy();
       tex = new PTexture(name, cfgAnisotropy, genMipmaps, clamp);
     }
     catch (PException &e)

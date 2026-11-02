@@ -1,7 +1,10 @@
+#include <sstream>
 // Creator: Saad AIT YAHIA - @github: Saad-programmer
 #include "exception.h"
-#include "main.h"
+#include "render.h"
+#include "rigidity.h"
 #include "pengine.h"
+#include "../../engine/core/wrap.h"
 
 PTerrain::~PTerrain ()
 {
@@ -24,6 +27,10 @@ PTerrain::PTerrain (XMLElement *element, const std::string &filepath, PSSTexture
     loaded (false), rigidity(rigidity)
 {
   unload();
+  foliageSeed = trackrs::stageSeed(filepath);
+  if (auto* level = element->Parent()->ToElement())
+    level->QueryUnsigned64Attribute("stage_seed", &foliageSeed);
+  if (validation::run.options.enabled) foliageSeed ^= validation::run.options.seed;
 
   std::string heightmap, colormap, terrainmap, roadmap, foliagemap, hudmap;
 
@@ -527,7 +534,9 @@ PTerrainTile *PTerrain::getTile(int tilex, int tiley)
 
   // Create foliage
 
-  srand(1);
+  const auto tileSeed = foliageSeed ^ (static_cast<std::uint64_t>(static_cast<std::uint32_t>(tilex)) << 32u)
+                                    ^ static_cast<std::uint32_t>(tiley);
+  trackrs::Pcg32 tileRng(tileSeed, 11);
 
   tileptr->foliage.resize(foliageband.size());
 
@@ -539,22 +548,23 @@ PTerrainTile *PTerrain::getTile(int tilex, int tiley)
 
     for (int i = 0; i < foliageband[b].trycount; i++) {
       float rigidityvalue = 0.0f;
+      const float sampleX = tileRng.unit(), sampleY = tileRng.unit();
       vec2f ftry = vec2f(
-        (float)((tileptr->posx * tilesize) + rand01 * tilesize) * scale_hz,
-        (float)((tileptr->posy * tilesize) + rand01 * tilesize) * scale_hz);
+        (float)((tileptr->posx * tilesize) + sampleX * tilesize) * scale_hz,
+        (float)((tileptr->posy * tilesize) + sampleY * tilesize) * scale_hz);
 
       float fol = getFoliageLevel(ftry.x, ftry.y);
 
-      if ((1.0 - fabs((fol - foliageband[b].middle) / foliageband[b].range)) < rand01) continue;
+      if ((1.0 - fabs((fol - foliageband[b].middle) / foliageband[b].range)) < tileRng.unit()) continue;
 
       tileptr->foliage[b].inst.push_back(PTerrainFoliage());
       tileptr->foliage[b].inst.back().pos.x = ftry.x;
       tileptr->foliage[b].inst.back().pos.y = ftry.y;
       tileptr->foliage[b].inst.back().pos.z = getHeight(ftry.x, ftry.y);
-      tileptr->foliage[b].inst.back().ang = rand01 * PI*2.0f;
-      //tileptr->foliage[b].inst.back().scale = (1.0f + fol * 0.5f) * (rand01 * rand01 + 0.5) * 1.4;
-      //tileptr->foliage[b].inst.back().scale = (foliageband[b].scalemin + fol * 0.5f) * (rand01 * rand01 + 0.5) * foliageband[b].scalemax;
-      tileptr->foliage[b].inst.back().scale = (foliageband[b].scale + fol * 0.5f) * (rand01 * rand01 + 0.5) * 1.4;
+      tileptr->foliage[b].inst.back().ang = tileRng.unit() * PI*2.0f;
+      //tileptr->foliage[b].inst.back().scale = (1.0f + fol * 0.5f) * (tileRng.unit() * tileRng.unit() + 0.5) * 1.4;
+      //tileptr->foliage[b].inst.back().scale = (foliageband[b].scalemin + fol * 0.5f) * (tileRng.unit() * tileRng.unit() + 0.5) * foliageband[b].scalemax;
+      tileptr->foliage[b].inst.back().scale = (foliageband[b].scale + fol * 0.5f) * (tileRng.unit() * tileRng.unit() + 0.5) * 1.4;
 
       rigidityvalue = rigidity.getRigidity(foliageband[b].sprite_tex->getName());
       if (rigidityvalue != 0.0f) {
@@ -965,3 +975,102 @@ void PTerrain::drawSplat(float x, float y, float scale, float angle)
 
 
 
+
+// Integer-world quantization remains intentional for legacy colour/material maps;
+// wrapping precedes floor so negative fractions and exact periods are correct.
+bool RoadMap::isOnRoad(float px, float py, float ms) const {
+  if (bitmap.empty()) return true;
+  const int x = trackrs::mapSample(px, ms, bx);
+  const int y = trackrs::mapSample(py, ms, by);
+  return bitmap.at(static_cast<std::size_t>(y) * static_cast<std::size_t>(bx) + static_cast<std::size_t>(x));
+}
+vec3f PTerrain::getCmapColor(const vec3f& pos) const {
+  const int x = trackrs::mapSample(pos.x, getMapSize(), cmap.getcx(), true);
+  const int y = trackrs::mapSample(pos.y, getMapSize(), cmap.getcy(), true);
+  const int index = (y * cmap.getcx() + x) * cmap.getcc();
+  return vec3f(cmap.getByte(index) / 255.0f, cmap.getByte(index + 1) / 255.0f,
+               cmap.getByte(index + 2) / 255.0f);
+}
+TerrainType PTerrain::getRoadSurface(const vec3f& pos) const {
+  if (!tmap.getData()) return TerrainType::Unknown;
+  const int x = trackrs::mapSample(pos.x, getMapSize(), tmap.getcx(), true);
+  const int y = trackrs::mapSample(pos.y, getMapSize(), tmap.getcy(), true);
+  const int index = (y * tmap.getcx() + x) * tmap.getcc();
+  return PUtil::decideRoadSurface(rgbcolor(tmap.getByte(index), tmap.getByte(index + 1), tmap.getByte(index + 2)));
+}
+
+float PTerrain::getInterp(float x, float y, float *data) {
+    x *= scale_hz_inv;
+    const auto cellX = trackrs::periodicCell(x, totsize);
+    x = cellX.fraction;
+    const int xiw = cellX.index, xiw2 = (xiw + 1) & totmask;
+
+    y *= scale_hz_inv;
+    const auto cellY = trackrs::periodicCell(y, totsize);
+    y = cellY.fraction;
+    const int yiw = cellY.index, yiw2 = (yiw + 1) & totmask;
+
+    const int cx = totsize;
+
+    float xv1,xv2;
+    if (y > 0.0) {
+      if (y < 1.0) {
+        if (x < y) {
+          xv1 = data[yiw*cx+xiw];
+          xv2 = INTERP(data[yiw2*cx+xiw],data[yiw2*cx+xiw2],x/y);
+        } else {
+          xv1 = INTERP(data[yiw*cx+xiw],data[yiw*cx+xiw2],(x-y)/(1.0-y));
+          xv2 = data[yiw2*cx+xiw2];
+        }
+        return INTERP(xv1,xv2,y);
+      } else {
+        return INTERP(data[yiw2*cx+xiw],data[yiw2*cx+xiw2],x);
+      }
+    } else {
+      return INTERP(data[yiw*cx+xiw],data[yiw*cx+xiw2],x);
+    }
+  }
+
+void PTerrain::getContactInfo(ContactInfo &tci) {
+
+    float x = tci.pos.x * scale_hz_inv;
+    const auto cellX = trackrs::periodicCell(x, totsize);
+    x = cellX.fraction;
+    const int xiw = cellX.index, xiw2 = (xiw + 1) & totmask;
+
+    float y = tci.pos.y * scale_hz_inv;
+    const auto cellY = trackrs::periodicCell(y, totsize);
+    y = cellY.fraction;
+    const int yiw = cellY.index, yiw2 = (yiw + 1) & totmask;
+
+    float *data = &hmap[0];
+    const int cx = totsize;
+
+    float xv1,xv2;
+    if (y > 0.0) {
+      if (y < 1.0) {
+        if (x < y) {
+          tci.normal.x = data[yiw2*cx+xiw] - data[yiw2*cx+xiw2];
+          tci.normal.y = data[yiw*cx+xiw] - data[yiw2*cx+xiw];
+          xv1 = data[yiw*cx+xiw];
+          xv2 = INTERP(data[yiw2*cx+xiw],data[yiw2*cx+xiw2],x/y);
+        } else {
+          tci.normal.x = data[yiw*cx+xiw] - data[yiw*cx+xiw2];
+          tci.normal.y = data[yiw*cx+xiw2] - data[yiw2*cx+xiw2];
+          xv1 = INTERP(data[yiw*cx+xiw],data[yiw*cx+xiw2],(x-y)/(1.0-y));
+          xv2 = data[yiw2*cx+xiw2];
+        }
+        tci.pos.z = INTERP(xv1,xv2,y);
+      } else {
+        tci.normal.x = data[yiw2*cx+xiw] - data[yiw2*cx+xiw2];
+        tci.normal.y = data[yiw*cx+xiw] - data[yiw2*cx+xiw];
+        tci.pos.z = INTERP(data[yiw2*cx+xiw],data[yiw2*cx+xiw2],x);
+      }
+    } else {
+      tci.normal.x = data[yiw*cx+xiw] - data[yiw*cx+xiw2];
+      tci.normal.y = data[yiw*cx+xiw2] - data[yiw2*cx+xiw2];
+      tci.pos.z = INTERP(data[yiw*cx+xiw],data[yiw*cx+xiw2],x);
+    }
+    tci.normal.z = scale_hz;
+    tci.normal.normalize();
+  }

@@ -41,9 +41,8 @@ PModel *PSSModel::loadModel(const std::string &name)
 
 
 
-char *strtok2(char *input)
+static char *nextAseToken(char *input, char *&inputstore)
 {
-  static char *inputstore = nullptr;
 
   if (input != nullptr) inputstore = input;
 
@@ -325,6 +324,7 @@ void PModel::loadASE (const std::string &filename, float globalScale)
 
   char buff[1000],buff2[1000],buff3[1000];
   std::vector<char*> tok;
+  char* tokenCursor = nullptr;
 
   int unknowndepth = 0;
 
@@ -332,10 +332,10 @@ void PModel::loadASE (const std::string &filename, float globalScale)
     { \
       char *thistok; \
       tok.clear(); \
-      thistok = strtok2(buff); \
+      thistok = nextAseToken(buff, tokenCursor); \
       while (thistok) { \
         tok.push_back(thistok); \
-        thistok = strtok2(NULL); \
+        thistok = nextAseToken(nullptr, tokenCursor); \
       } \
     } \
     if (!tok.size()) continue; \
@@ -352,7 +352,7 @@ void PModel::loadASE (const std::string &filename, float globalScale)
       if (!strcmp(tok[0],"*MATERIAL_LIST")) {
         dcon_printf("*MATERIAL_LIST<br>\n");
         while (PUtil::fgets2(buff,1000,pfile)) {
-          strcpy(buff2,buff);
+          std::copy(std::begin(buff), std::end(buff), std::begin(buff2));
           TOKENIZE_LINE_AND_CHECK
           if (!strcmp(tok[0],"}")) break;
 #if 0
@@ -363,13 +363,13 @@ void PModel::loadASE (const std::string &filename, float globalScale)
             if (matind < 0) continue;
             if (matind >= matlist.size()) matlist.resize(matind+1);
             while (fgets2(buff,1000,pfile)) {
-              strcpy(buff2,buff);
+              std::copy(std::begin(buff), std::end(buff), std::begin(buff2));
               TOKENIZE_LINE_AND_CHECK
               if (!strcmp(tok[0],"}")) break;
               if (!strcmp(tok[0],"*MAP_DIFFUSE")) {
                 dcon_printf("*MAP_DIFFUSE<br>\n");
                 while (fgets2(buff,1000,pfile)) {
-                  strcpy(buff2,buff);
+                  std::copy(std::begin(buff), std::end(buff), std::begin(buff2));
                   TOKENIZE_LINE_AND_CHECK
                   if (!strcmp(tok[0],"}")) break;
                   if (sscanf(buff2," *BITMAP \"%[^\"]\"",buff3) == 1) {
@@ -400,7 +400,7 @@ void PModel::loadASE (const std::string &filename, float globalScale)
         tm[3] = vec3f::zero();
 #define DO_TM2(v) (vec3f((v)*tm[0],(v)*tm[1],(v)*tm[2]))
         while (PUtil::fgets2(buff,1000,pfile)) {
-          strcpy(buff2,buff);
+          std::copy(std::begin(buff), std::end(buff), std::begin(buff2));
           TOKENIZE_LINE_AND_CHECK
           if (!strcmp(tok[0],"}")) break;
           if (tok.size() == 2 && !strcmp(tok[1],"{")) {
@@ -417,7 +417,7 @@ void PModel::loadASE (const std::string &filename, float globalScale)
                     unsigned int vnum;
                     vec3f vpos;
                     while (PUtil::fgets2(buff,1000,pfile)) {
-                      strcpy(buff2,buff);
+                      std::copy(std::begin(buff), std::end(buff), std::begin(buff2));
                       TOKENIZE_LINE_AND_CHECK
                       if (!strcmp(tok[0],"}")) break;
                       // TODO: check if intentional " *MESH_VERTEX %i %f %f %f"
@@ -430,7 +430,7 @@ void PModel::loadASE (const std::string &filename, float globalScale)
                     unsigned int vnum;
                     vec2f vco;
                     while (PUtil::fgets2(buff,1000,pfile)) {
-                      strcpy(buff2,buff);
+                      std::copy(std::begin(buff), std::end(buff), std::begin(buff2));
                       TOKENIZE_LINE_AND_CHECK
                       if (!strcmp(tok[0],"}")) break;
                       // TODO: check if intentional " *MESH_TVERT %i %f %f"
@@ -445,7 +445,7 @@ void PModel::loadASE (const std::string &filename, float globalScale)
                     unsigned int fnum;
                     int fvt[3];
                     while (PUtil::fgets2(buff,1000,pfile)) {
-                      strcpy(buff2,buff);
+                      std::copy(std::begin(buff), std::end(buff), std::begin(buff2));
                       TOKENIZE_LINE_AND_CHECK
                       if (!strcmp(tok[0],"}")) break;
                       // TODO: check if intentional " *MESH_FACE %i: A: %i B: %i C: %i"
@@ -461,7 +461,7 @@ void PModel::loadASE (const std::string &filename, float globalScale)
                     unsigned int fnum;
                     int fvt[3];
                     while (PUtil::fgets2(buff,1000,pfile)) {
-                      strcpy(buff2,buff);
+                      std::copy(std::begin(buff), std::end(buff), std::begin(buff2));
                       TOKENIZE_LINE_AND_CHECK
                       if (!strcmp(tok[0],"}")) break;
                       // TODO: check if intentional " *MESH_TFACE %i %i %i %i"
@@ -477,7 +477,7 @@ void PModel::loadASE (const std::string &filename, float globalScale)
                     unsigned int fnum, vnum;
                     vec3f nrm;
                     while (PUtil::fgets2(buff,1000,pfile)) {
-                      strcpy(buff2,buff);
+                      std::copy(std::begin(buff), std::end(buff), std::begin(buff2));
                       TOKENIZE_LINE_AND_CHECK
                       if (!strcmp(tok[0],"}")) break;
                       // TODO: check if intentional " *MESH_FACENORMAL %i %f %f %f"
@@ -518,7 +518,7 @@ void PModel::loadASE (const std::string &filename, float globalScale)
             } else if (!strcmp(tok[0],"*NODE_TM")) {
               dcon_printf("*NODE_TM<br>\n");
               while (PUtil::fgets2(buff,1000,pfile)) {
-                strcpy(buff2,buff);
+                std::copy(std::begin(buff), std::end(buff), std::begin(buff2));
                 TOKENIZE_LINE_AND_CHECK
                 if (!strcmp(tok[0],"}")) {
                   // end of NODE_TM, do some processing

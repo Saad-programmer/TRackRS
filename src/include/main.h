@@ -1,3 +1,5 @@
+#include "../../engine/core/edition_policy.h"
+#include "../../engine/core/pcg32.h"
 // Creator: Saad AIT YAHIA - @github: Saad-programmer
 #pragma once
 
@@ -101,12 +103,13 @@ private:
 	MainApp *app;
 
 	// simulation context
-	PSim *sim;
+	std::unique_ptr<PSim> sim;
 
 	// current state of the race
 	Gamestate gamestate;
 
 	int randomseed;
+    trackrs::Pcg32 stageRng;
 
 	// the vehicles
 	std::vector<PVehicle *> vehicle;
@@ -115,7 +118,7 @@ private:
 	PVehicle *uservehicle;
 
 	// the terrain
-	PTerrain *terrain;
+	std::unique_ptr<PTerrain> terrain;
 
 	// Checkpoints
 	std::vector<CheckPoint> checkpt;
@@ -222,15 +225,14 @@ public:
 #include "menu.h"
 
 
-#define AS_LOAD_1           1
-#define AS_LOAD_2           2
-#define AS_LOAD_3           3
-#define AS_LEVEL_SCREEN     10
-#define AS_CHOOSE_VEHICLE   11
-#define AS_IN_GAME          12
-#define AS_END_SCREEN       13
-
-
+#include "../../engine/application/game_state.h"
+inline constexpr auto AS_LOAD_1 = trackrs::AppState::Load1;
+inline constexpr auto AS_LOAD_2 = trackrs::AppState::Load2;
+inline constexpr auto AS_LOAD_3 = trackrs::AppState::Load3;
+inline constexpr auto AS_LEVEL_SCREEN = trackrs::AppState::Menu;
+inline constexpr auto AS_CHOOSE_VEHICLE = trackrs::AppState::ChooseVehicle;
+inline constexpr auto AS_IN_GAME = trackrs::AppState::Race;
+inline constexpr auto AS_END_SCREEN = trackrs::AppState::End;
 
 struct TriggerLevel {
 	std::string filename, name, description, comment, author, targettime, targettimeshort;
@@ -291,8 +293,10 @@ struct SnowFlake
 /// @brief this class is the whole Trigger Rally game. Create a MainApp object is the only thing main() does
 ///
 class MainApp : public PApp {
+    trackrs::EditionPolicy editionPolicy;
+    trackrs::Pcg32 effectsRng;
 private:
-	int appstate;
+	trackrs::GameStateMachine appstate;
 
 	// TODO: use `aspect` instead of these?
 	// TODO: type should be GLdouble instead of double
@@ -364,7 +368,7 @@ private:
 	RaceData race_data;
 	std::vector<TimeEntry> current_times;
 
-	TriggerGame *game;
+	std::unique_ptr<TriggerGame> game;
 
 	PVehicleType *vt_tank;
 
@@ -398,7 +402,7 @@ private:
 	std::unordered_map<std::string, PTexture *> tex_codriversigns;
 	std::unordered_map<std::string, PAudioSample *> aud_codriverwords;
 
-	DirtParticleSystem *psys_dirt;
+	std::unique_ptr<DirtParticleSystem> psys_dirt;
 
 	// Tones
 	PAudioSample *aud_engine,
@@ -410,9 +414,9 @@ private:
 				*aud_intro;
 
 	// Audio instances
-	PAudioInstance *audinst_engine, *audinst_wind, *audinst_gravel, *audinst_intro;
+	std::unique_ptr<PAudioInstance> audinst_engine, audinst_wind, audinst_gravel, audinst_intro;
 
-	std::vector<PAudioInstance *> audinst;
+	std::vector<std::unique_ptr<PAudioInstance>> audinst;
 
 	float cloudscroll;
 
@@ -527,8 +531,6 @@ public:
 	void renderDamageIndicator(
 	    const PTexture *texture, float posx, float posy, float scalex, float scaley, float damage);
 	void renderDamageIndicatorGroup();
-	void renderVehiclePart(const PVehicleType &type, const PVehiclePart &part,
-	    const PVehicleTypePart &typepart, float alpha);
 
 	void keyEvent(const SDL_KeyboardEvent &ke);
 	void mouseMoveEvent(int dx, int dy);

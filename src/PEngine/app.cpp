@@ -1,3 +1,11 @@
+#include "../../engine/core/frame_pacer.h"
+#include <memory>
+#include <sstream>
+#if __has_include("trackrs_version.h")
+#include "trackrs_version.h"
+#else
+#define TRACKRS_VERSION PACKAGE_VERSION
+#endif
 // Creator: Saad AIT YAHIA - @github: Saad-programmer
 #include "app.h"
 #include "audio.h"
@@ -191,7 +199,7 @@ int PApp::run(int argc, char *argv[])
 {
   PUtil::outLog() << apptitle << " init" << std::endl;
   
-  PUtil::outLog() << "Build: " << PACKAGE_VERSION << " on " << __DATE__ << " at " << __TIME__ << std::endl;
+  PUtil::outLog() << "Build: " << TRACKRS_VERSION << " on " << __DATE__ << " at " << __TIME__ << std::endl;
   
   if (exit_requested) {
     PUtil::outLog() << "Exit requested" << std::endl;
@@ -277,7 +285,6 @@ int PApp::run(int argc, char *argv[])
     }
   }
 
-  srand(validation::run.options.enabled ? validation::run.options.seed : SDL_GetTicks());
   
   PUtil::outLog() << "Create window and set video mode" << std::endl;
 #if 0
@@ -500,15 +507,15 @@ int PApp::run(int argc, char *argv[])
     break;
   }
 
-  std::list<PSubsystem *> sslist;
+  std::vector<std::unique_ptr<PSubsystem>> sslist;
 
   try
   {
-    sslist.push_back(ssrdr = new PSSRender(*this));
-    sslist.push_back(sstex = new PSSTexture(*this));
-    sslist.push_back(ssfx = new PSSEffect(*this));
-    sslist.push_back(ssmod = new PSSModel(*this));
-    sslist.push_back(ssaud = new PSSAudio(*this));
+    sslist.emplace_back(ssrdr = new PSSRender(*this));
+    sslist.emplace_back(sstex = new PSSTexture(*this));
+    sslist.emplace_back(ssfx = new PSSEffect(*this));
+    sslist.emplace_back(ssmod = new PSSModel(*this));
+    sslist.emplace_back(ssaud = new PSSAudio(*this));
   }
   catch (PException &e)
   {
@@ -516,7 +523,6 @@ int PApp::run(int argc, char *argv[])
     
     while (!sslist.empty())
     {
-      delete sslist.back();
       sslist.pop_back();
     }
 
@@ -543,7 +549,6 @@ int PApp::run(int argc, char *argv[])
     PUtil::outLog() << "App load failed: " << e.what () << std::endl;
 
     while (!sslist.empty()) {
-      delete sslist.back();
       sslist.pop_back();
     }
 
@@ -571,12 +576,17 @@ int PApp::run(int argc, char *argv[])
 
   PUtil::outLog() << "Initialisation complete, entering main loop" << std::endl;
 
-  srand(validation::run.options.enabled ? validation::run.options.seed : rand() + SDL_GetTicks());
 
   bool active = true, repaint = true, axis_down = false;
-  uint32 curtime = SDL_GetTicks() - 1;
+  const double frequency = static_cast<double>(SDL_GetPerformanceFrequency());
+  Uint64 curtime = SDL_GetPerformanceCounter();
+  trackrs::FramePacer pacer;
+  const int requestedInterval = validation::run.options.enabled ? 0 : swapInterval;
+  if (SDL_GL_SetSwapInterval(requestedInterval) != 0 && requestedInterval == -1)
+    SDL_GL_SetSwapInterval(1);
 
   while (1) {
+    pacer.begin();
     const auto validationFrameStart = validation::run.options.enabled ? SDL_GetPerformanceCounter() : 0;
     const bool validationWasStarted = validation::run.started;
     validation::run.capture = validationWasStarted;
@@ -670,21 +680,17 @@ int PApp::run(int argc, char *argv[])
 
 #define TIMESCALE 1.0
 
-    uint32 nowtime = SDL_GetTicks();
+    const Uint64 nowtime = SDL_GetPerformanceCounter();
 
     if (1) {//if (active) {
-      uint32 timepassed = nowtime - curtime;
-      if (timepassed > 100) timepassed = 100;
+      const double timepassed = std::min(static_cast<double>(nowtime - curtime) / frequency, 0.1);
       if (timepassed > 0 || validation::run.options.enabled) {
-        float delta = validation::run.options.enabled ? 0.004f : (float)timepassed * 0.001 * TIMESCALE;
+        float delta = validation::run.options.enabled ? 0.004f : static_cast<float>(timepassed * TIMESCALE);
 
         const auto validationUpdateStart = validation::run.options.enabled ? SDL_GetPerformanceCounter() : 0;
         tick(delta);
 
-        for (std::list<PSubsystem *>::iterator i = sslist.begin();
-          i != sslist.end(); ++i) {
-          (*i)->tick(delta, cam_pos, cam_orimat, cam_linvel);
-        }
+        for (auto& subsystem : sslist) subsystem->tick(delta, cam_pos, cam_orimat, cam_linvel);
         if (validation::run.options.enabled)
           validationCpuMs = 1000.0 * static_cast<double>(SDL_GetPerformanceCounter() - validationUpdateStart) /
               static_cast<double>(SDL_GetPerformanceFrequency());
@@ -718,7 +724,7 @@ int PApp::run(int argc, char *argv[])
           out.close();
           if (!out) { validation::run.result = 1; requestExit(); }
         }
-        glFlush();
+        if (screenshot_requested) captureScreenshot();
         SDL_GL_SwapWindow(screen);
         if (validationWasStarted) {
           // MainApp's existing glFinish has completed this frame. Collect all
@@ -755,12 +761,11 @@ int PApp::run(int argc, char *argv[])
         
         glDrawBuffer(GL_BACK_LEFT);
         render(-stereoEyeTranslation);
-        glFlush();
         
         glDrawBuffer(GL_BACK_RIGHT);
         render(stereoEyeTranslation);
-        glFlush();
         
+        if (screenshot_requested) captureScreenshot();
         SDL_GL_SwapWindow(screen);
         break;
         
@@ -773,12 +778,11 @@ int PApp::run(int argc, char *argv[])
         
         glColorMask(GL_TRUE, GL_FALSE, GL_FALSE, GL_TRUE);
         render(-stereoEyeTranslation);
-        glFlush();
         
         glColorMask(GL_FALSE, GL_FALSE, GL_TRUE, GL_TRUE);
         render(stereoEyeTranslation);
-        glFlush();
         
+        if (screenshot_requested) captureScreenshot();
         SDL_GL_SwapWindow(screen);
         break;
         
@@ -791,12 +795,11 @@ int PApp::run(int argc, char *argv[])
         
         glColorMask(GL_TRUE, GL_FALSE, GL_FALSE, GL_TRUE);
         render(-stereoEyeTranslation);
-        glFlush();
         
         glColorMask(GL_FALSE, GL_TRUE, GL_FALSE, GL_TRUE);
         render(stereoEyeTranslation);
-        glFlush();
         
+        if (screenshot_requested) captureScreenshot();
         SDL_GL_SwapWindow(screen);
         break;
         
@@ -804,12 +807,11 @@ int PApp::run(int argc, char *argv[])
         
         glColorMask(GL_TRUE, GL_FALSE, GL_FALSE, GL_TRUE);
         render(-stereoEyeTranslation);
-        glFlush();
         
         glColorMask(GL_FALSE, GL_TRUE, GL_TRUE, GL_TRUE);
         render(stereoEyeTranslation);
-        glFlush();
         
+        if (screenshot_requested) captureScreenshot();
         SDL_GL_SwapWindow(screen);
         break;
         
@@ -817,54 +819,24 @@ int PApp::run(int argc, char *argv[])
         
         glColorMask(GL_TRUE, GL_TRUE, GL_FALSE, GL_TRUE);
         render(-stereoEyeTranslation);
-        glFlush();
         
         glColorMask(GL_FALSE, GL_FALSE, GL_TRUE, GL_TRUE);
         render(stereoEyeTranslation);
-        glFlush();
         
+        if (screenshot_requested) captureScreenshot();
         SDL_GL_SwapWindow(screen);
         break;
       }
       repaint = false;
       
-      if (screenshot_requested) {
-        glReadBuffer(GL_FRONT);
-        unsigned char *data1 = new unsigned char[cx*(cy+1)*3];
-        glReadPixels(0, 0, cx, cy, GL_RGB, GL_UNSIGNED_BYTE, data1);
-        glReadBuffer(GL_BACK);
-        const int rowsize = cx * 3;
-        for(int i = 0; i < cy/2; ++i) {
-          memcpy(&data1[(cy) * rowsize], &data1[(cy-1-i) * rowsize], rowsize);
-          memcpy(&data1[(cy-1-i) * rowsize], &data1[(i) * rowsize], rowsize);
-          memcpy(&data1[(i) * rowsize], &data1[(cy) * rowsize], rowsize);
-          //memset(&data1[(i) * rowsize], 128, rowsize);
-        }
-        char buff[200];
-        sprintf(buff, "P6\n"
-          "# CREATOR: Trigger PNM Screenshot\n"
-          "%i %i\n255\n", cx, cy);
-        char filename[100];
-        sprintf(filename, "screen-%09u.ppm", SDL_GetTicks());
-        PUtil::outLog() << "Writing screenshot \"" << filename << "\"" << std::endl;
-        PHYSFS_file* pfile = PHYSFS_openWrite(filename);
-        if (pfile) {
-          physfs_write(pfile, buff, sizeof(char), strlen(buff));
-          physfs_write(pfile, data1, sizeof(char), cx*cy*3);
-          PHYSFS_close(pfile);
-        } else {
-          PUtil::outLog() << "Screenshot write failed" << std::endl;
-          PUtil::outLog() << "PhysFS: " << physfs_getErrorString() << std::endl;
-        }
-        delete[] data1;
-        screenshot_requested = false;
-      }
+
       
     } else {
       SDL_WaitEvent(nullptr);
     }
 
     if (exit_requested) break;
+    if (!validation::run.options.enabled) pacer.wait(frameCap);
   }
 
   PUtil::outLog() << "Exit requested" << std::endl;
@@ -872,7 +844,6 @@ int PApp::run(int argc, char *argv[])
   unload();
   
   while (!sslist.empty()) {
-    delete sslist.back();
     sslist.pop_back();
   }
   
@@ -1034,3 +1005,31 @@ float PApp::getCtrlActionBackValue()
 int PApp::getVehicleCurrentGear() {
   return 0;
 }
+
+void PApp::captureScreenshot() {
+        glReadBuffer(GL_BACK);
+        std::vector<unsigned char> pixels(static_cast<std::size_t>(cx) * (cy + 1) * 3);
+        auto* data1 = pixels.data();
+        glReadPixels(0, 0, cx, cy, GL_RGB, GL_UNSIGNED_BYTE, data1);
+        glReadBuffer(GL_BACK);
+        const int rowsize = cx * 3;
+        for(int i = 0; i < cy/2; ++i) {
+          memcpy(&data1[(cy) * rowsize], &data1[(cy-1-i) * rowsize], rowsize);
+          memcpy(&data1[(cy-1-i) * rowsize], &data1[(i) * rowsize], rowsize);
+          memcpy(&data1[(i) * rowsize], &data1[(cy) * rowsize], rowsize);
+          //memset(&data1[(i) * rowsize], 128, rowsize);
+        }
+        const std::string header = "P6\n# CREATOR: TrackRS\n" + std::to_string(cx) + " " + std::to_string(cy) + "\n255\n";
+        const std::string filename = "screen-" + std::to_string(SDL_GetTicks()) + ".ppm";
+        PUtil::outLog() << "Writing screenshot \"" << filename << "\"" << std::endl;
+        PHYSFS_file* pfile = PHYSFS_openWrite(filename.c_str());
+        if (pfile) {
+          physfs_write(pfile, header.data(), sizeof(char), header.size());
+          physfs_write(pfile, data1, sizeof(char), cx*cy*3);
+          PHYSFS_close(pfile);
+        } else {
+          PUtil::outLog() << "Screenshot write failed" << std::endl;
+          PUtil::outLog() << "PhysFS: " << physfs_getErrorString() << std::endl;
+        }
+        screenshot_requested = false;
+      }

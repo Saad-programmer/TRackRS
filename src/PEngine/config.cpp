@@ -1,7 +1,7 @@
 // Creator: Saad AIT YAHIA - @github: Saad-programmer
 #include "config.h"
 #include "exception.h"
-#include "main.h"
+#include "app.h"
 #include "pengine.h"
 #include "vehicle.h"
 
@@ -9,7 +9,7 @@
 /// @brief Constructor without functionality
 /// @param [in] app Used by load function to change a few settings
 ///
-PConfig::PConfig(MainApp *app) :
+PConfig::PConfig(PApp *app) :
     mainapp(app),
     rootelem(NULL),
     cfgfilename("")
@@ -150,6 +150,14 @@ void PConfig::loadConfig()
     else
     if (!strcmp(walk->Value(), "video")) {
 
+        int interval = 1;
+        unsigned cap = 120;
+        if (const char* mode = walk->Attribute("vsync")) {
+            if (std::string(mode) == "off") interval = 0;
+            else if (std::string(mode) == "adaptive") interval = -1;
+        }
+        walk->QueryUnsignedAttribute("framecap", &cap);
+        mainapp->setFramePacing(interval, std::min(cap, 1000u));
         val = walk->Attribute("automatic");
 
         if (val != nullptr && std::string(val) == "yes")

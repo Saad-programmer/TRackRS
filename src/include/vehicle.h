@@ -289,6 +289,9 @@ struct PVehiclePart {
 /// @brief store a vehicle instance
 ///
 class PVehicle {
+  trackrs::Pcg32 physicsRng;
+public:
+  void seedRandom(std::uint64_t seed) { physicsRng.reseed(seed, 7); }
   
 public:
   // physic simulation information

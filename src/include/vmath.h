@@ -1,3 +1,4 @@
+#include "../../engine/core/pcg32.h"
 // Creator: Saad AIT YAHIA - @github: Saad-programmer
 #pragma once
 
@@ -10,8 +11,6 @@
 #define RADIANS(a) ((a)*PI/180.0)
 #define DEGREES(a) ((a)*180.0/PI)
 
-#define rand01 ((float)rand() / (float)RAND_MAX)
-#define randm11 (2.0f * (float)rand() / (float)RAND_MAX - 1.0f)
 
 #define MAX(a,b) (((a) >= (b)) ? (a) : (b))
 #define MIN(a,b) (((a) <= (b)) ? (a) : (b))
@@ -81,10 +80,9 @@ public:
 
   static const vec2<T> zero () { return vec2<T>(0,0); }
 
-  static vec2<T> rand() {
+  static vec2<T> random(trackrs::Pcg32& rng) {
     vec2<T> ret;
-    do { ret=vec2<T>((T)2 * (T)::rand() / (T)RAND_MAX - (T)1,
-            (T)2 * (T)::rand() / (T)RAND_MAX - (T)1); }
+    do { ret.x = static_cast<T>(rng.symmetric()); ret.y = static_cast<T>(rng.symmetric()); }
     while (ret.lengthsq() > (T)1);
     return ret;
   }
@@ -152,11 +150,9 @@ public:
 
   static vec3<T> zero () { return vec3<T>(0,0,0); }
 
-  static vec3<T> rand() {
+  static vec3<T> random(trackrs::Pcg32& rng) {
     vec3<T> ret;
-    do { ret=vec3<T>((T)2 * (T)::rand() / (T)RAND_MAX - (T)1,
-            (T)2 * (T)::rand() / (T)RAND_MAX - (T)1,
-            (T)2 * (T)::rand() / (T)RAND_MAX - (T)1); }
+    do { ret.x = static_cast<T>(rng.symmetric()); ret.y = static_cast<T>(rng.symmetric()); ret.z = static_cast<T>(rng.symmetric()); }
     while (ret.lengthsq() > (T)1);
     return ret;
   }
@@ -578,13 +574,10 @@ public:
 
   static quat<T> identity () { return quat<T>(0,0,0,1); }
 
-  static quat<T> rand() {
+  static quat<T> random(trackrs::Pcg32& rng) {
     quat<T> ret;
     float lengthsq;
-    do { ret=quat<T>((T)2 * (T)::rand() / (T)RAND_MAX - (T)1,
-            (T)2 * (T)::rand() / (T)RAND_MAX - (T)1,
-            (T)2 * (T)::rand() / (T)RAND_MAX - (T)1,
-            (T)2 * (T)::rand() / (T)RAND_MAX - (T)1);
+    do { ret.x = static_cast<T>(rng.symmetric()); ret.y = static_cast<T>(rng.symmetric()); ret.z = static_cast<T>(rng.symmetric()); ret.w = static_cast<T>(rng.symmetric());
       lengthsq = ret.x*ret.x + ret.y*ret.y + ret.z*ret.z + ret.w*ret.w;
     } while (lengthsq > (T)1 || lengthsq <= (T)0);
     float mult = (T)1 / (T)sqrt(lengthsq);

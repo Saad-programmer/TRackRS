@@ -6,7 +6,7 @@
 ///
 /// @brief constructor
 ///
-PSim::PSim() : terrain(nullptr), gravity(vec3f::zero())
+PSim::PSim(float step) : terrain(nullptr), stepper(step), gravity(vec3f::zero())
 {
 }
 
@@ -28,13 +28,14 @@ PVehicleType *PSim::loadVehicleType(const std::string &filename, PSSModel &ssMod
 {
   PVehicleType *vtype = vtypelist.find(filename);
   if (!vtype) {
-    vtype = new PVehicleType();
+    auto owner = std::make_unique<PVehicleType>();
+    vtype = owner.get();
     if (!vtype->load(filename, ssModel)) {
       if (PUtil::isDebugLevel(DEBUGLEVEL_ENDUSER))
         PUtil::outLog() << "Failed to load " << filename << "\n";
       return nullptr;
     }
-    vtypelist.add(vtype);
+    vtypelist.add(owner.release());
   }
   return vtype;
 }
@@ -45,9 +46,9 @@ PVehicleType *PSim::loadVehicleType(const std::string &filename, PSSModel &ssMod
 ///
 PRigidBody *PSim::createRigidBody()
 {
-  PRigidBody *newbody = new PRigidBody(gravity);
-
-  body.push_back(newbody);
+  auto owner = std::make_unique<PRigidBody>(gravity);
+  PRigidBody *newbody = owner.get();
+  body.push_back(std::move(owner));
 
   return newbody;
 }
@@ -98,7 +99,8 @@ PVehicle *PSim::createVehicle(PVehicleType *type, const vec3f &pos, const quatf 
 {
   if (!type) return nullptr;
 
-  PVehicle *newvehicle = new PVehicle(*this, type);
+  auto owner = std::make_unique<PVehicle>(*this, type);
+  PVehicle *newvehicle = owner.get();
 
   vec3f vpos = pos;
   if (terrain) vpos.z += terrain->getHeight(vpos.x, vpos.y);
@@ -107,9 +109,11 @@ PVehicle *PSim::createVehicle(PVehicleType *type, const vec3f &pos, const quatf 
   newvehicle->getBody().setOrientation(ori);
   newvehicle->getBody().updateMatrices();
 
+  newvehicle->getBody().capturePrevious();
+  newvehicle->seedRandom(stageSeed ^ vehicle.size());
   newvehicle->updateParts();
 
-  vehicle.push_back(newvehicle);
+  vehicle.push_back(std::move(owner));
   return newvehicle;
 }
 
@@ -118,18 +122,11 @@ PVehicle *PSim::createVehicle(PVehicleType *type, const vec3f &pos, const quatf 
 ///
 void PSim::clear()
 {
-  // clear bodies
-  for (unsigned int i=0; i<body.size(); ++i)
-    delete body[i];
-  body.clear();
-
-  // clear vehicles
-  for (unsigned int i=0; i<vehicle.size(); ++i)
-    delete vehicle[i];
+  // Vehicle observers refer to bodies/types, so destroy them first.
   vehicle.clear();
-
-  // clear vehicle types
+  body.clear();
   vtypelist.clear();
+  stepper.reset();
 }
 
 ///
@@ -138,41 +135,10 @@ void PSim::clear()
 ///
 void PSim::tick(float delta)
 {
-	if (delta <= 0.0) return;
-
-	/*
-	 * old code that uses variable step size
-	 * 
-	// Find a new timeslice similar to 0.005 so we can do an int number (num) of equal ticks in the delta interval
-	float timeslice = 0.005;
-	int num = (int)(delta / timeslice) + 1;
-	timeslice = delta / (float)num;
-	// do 'num' ticks each of 'timeslice' length
-	for (int timestep=0; timestep<num; ++timestep) {
-	*/
-	
-	// size of a step
-	const float timeslice = 0.004;
-
-	// how much time remains to simulate
-	static float t = 0;
-	t += delta;
-	
-	while(t >= timeslice)
-	{
-		// update time
-		t -= timeslice;
-		
-		// tick for vehicles
-		for (unsigned int i=0; i<vehicle.size(); ++i)
-			vehicle[i]->tick(timeslice);
-		
-		// tick for rigid bodies
-		for (unsigned int i=0; i<body.size(); ++i)
-			body[i]->tick(timeslice);
-		
-		// Update vehicles parts
-		for (unsigned int i=0; i<vehicle.size(); ++i)
-			vehicle[i]->updateParts();
-	}
+  stepper.advance(delta, [this](float timeslice) {
+    for (auto& b : body) b->capturePrevious();
+    for (auto& v : vehicle) v->tick(timeslice);
+    for (auto& b : body) b->tick(timeslice);
+    for (auto& v : vehicle) v->updateParts();
+  });
 }

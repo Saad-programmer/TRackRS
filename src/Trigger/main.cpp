@@ -12,12 +12,14 @@
 #include <regex>
 #include <fstream>
 #include <cstdlib>
+#include <filesystem>
 
 void MainApp::config()
 {
     PUtil::setDebugLevel(DEBUGLEVEL_DEVELOPER);// serve pour 
 
     cfg.loadConfig();
+    setTextureAnisotropy(cfg.getAnisotropy());
     setScreenMode(cfg.getVideoCx(), cfg.getVideoCy(), cfg.getVideoFullscreen());
     if (validation::run.options.enabled) {
         setScreenMode(640, 480, false);
@@ -31,7 +33,9 @@ void MainApp::config()
     if (cfg.getDatadirs().empty())
         throw MakePException("Data directory paths are empty: check your trackrs.config file.");
 
-    for (const std::string &datadir: cfg.getDatadirs())
+    for (const std::string &configured: cfg.getDatadirs()) {
+        const auto path = std::filesystem::path(configured);
+        const std::string datadir = (path.is_absolute() ? path : std::filesystem::path(PHYSFS_getBaseDir()) / path).lexically_normal().string();
         if (PHYSFS_mount(datadir.c_str(), NULL, 1) == 0)
         {
             PUtil::outLog() << "Failed to add PhysFS search directory \"" << datadir << "\"" << std::endl
@@ -43,6 +47,7 @@ void MainApp::config()
             break;
         }
 
+    }
 #ifdef TRACKRS_BUILD_DATA_DIR
     // An existing 0.6.x profile may still use "../data". CMake puts the binary
     // deeper in the build tree, so use source content only if no valid pack mounted.
@@ -50,6 +55,14 @@ void MainApp::config()
         !PHYSFS_mount(TRACKRS_BUILD_DATA_DIR, nullptr, 1))
         throw MakePException("Cannot mount CMake build-tree data directory");
 #endif
+
+    XMLDocument policyDocument;
+    auto* policy = PUtil::loadRootElement(policyDocument, "/policy/edition.xml", "edition");
+    if (!policy || !policy->Attribute("mode")) throw MakePException("Missing edition policy");
+    editionPolicy.edition = trackrs::EditionPolicy::parse(policy->Attribute("mode"));
+    editionPolicy.demoStages.clear();
+    for (auto* stage = policy->FirstChildElement("stage"); stage; stage = stage->NextSiblingElement("stage"))
+        if (const char* path = stage->Attribute("path")) editionPolicy.demoStages.insert(path);
 
     if (cfg.getCopydefplayers())
         copyDefaultPlayers();
@@ -78,7 +91,6 @@ void MainApp::load()
   game = nullptr;
 
   // use PUtil, not boost
-  //std::string buff = boost::str(boost::format("textures/splash/splash%u.jpg") % ((rand() % 3) + 1));
   //if (!(tex_splash_screen = getSSTexture().loadTexture(buff))) return false;
 
   if (!(tex_loading_screen = getSSTexture().loadTexture("/textures/splash/loading.png")))
@@ -420,7 +432,7 @@ bool MainApp::loadAll()
 
     loadCodrivername();
 
-    audinst_intro = new PAudioInstance(aud_intro, true);
+    audinst_intro = std::make_unique<PAudioInstance>(aud_intro, true);
     audinst_intro->setGain(0.5f * cfg.getVolumeSfx());
     audinst_intro->play();
   }
@@ -462,7 +474,7 @@ bool MainApp::loadAll()
 
     if (cfg.getDirteffect())
     {
-        psys_dirt = new DirtParticleSystem();
+        psys_dirt = std::make_unique<DirtParticleSystem>();
         psys_dirt->setColorStart(0.5f, 0.4f, 0.2f, 1.0f);
         psys_dirt->setColorEnd(0.5f, 0.4f, 0.2f, 0.0f);
         psys_dirt->setSize(0.1f, 0.5f);
@@ -572,11 +584,11 @@ void MainApp::unload()
   endGame(Gamefinish::not_finished);
 
   if (audinst_intro) {
-    delete audinst_intro;
+    audinst_intro.reset();
     audinst_intro = nullptr;
   }
 
-  delete psys_dirt;
+  psys_dirt.reset();
 }
 
 ///
@@ -585,6 +597,7 @@ void MainApp::unload()
 ///
 bool MainApp::startGame(const std::string &filename)
 {
+  if (!validation::run.options.enabled && !editionPolicy.stage(filename)) return false;
   PUtil::outLog() << "Starting level \"" << filename << "\"" << std::endl;
 
   if (audinst_intro) {
@@ -594,8 +607,9 @@ bool MainApp::startGame(const std::string &filename)
   // mouse is grabbed during the race
   grabMouse(true);
 
+  effectsRng.reseed(trackrs::stageSeed(filename) ^ (validation::run.options.enabled ? validation::run.options.seed : 0), 5);
   // the game
-  game = new TriggerGame(this);
+  game = std::make_unique<TriggerGame>(this);
 
   // load vehicles
   if (!game->loadVehicles())
@@ -672,62 +686,6 @@ bool MainApp::startGame(const std::string &filename)
 /// @note Codriver voice unaffected.
 /// @param to       State to switch to (true is on, false is off).
 ///
-void MainApp::toggleSounds(bool to)
-{
-    if (cfg.getEnableSound())
-    {
-        if (audinst_engine != nullptr)
-        {
-            if (!to)
-            {
-                audinst_engine->setGain(0.0f);
-                audinst_engine->play();
-            }
-        }
-
-        if (audinst_wind != nullptr)
-        {
-            if (!to)
-            {
-                audinst_wind->setGain(0.0f);
-                audinst_wind->play();
-            }
-        }
-
-        if (audinst_gravel != nullptr)
-        {
-            if (!to)
-            {
-                audinst_gravel->setGain(0.0f);
-                audinst_gravel->play();
-            }
-        }
-    }
-}
-
-///
-/// @brief Initialize game sounds instances
-///
-void MainApp::initAudio()
-{
-  if (cfg.getEnableSound()) {
-	// engine sound
-    audinst_engine = new PAudioInstance(aud_engine, true);
-    audinst_engine->setGain(0.0);
-    audinst_engine->play();
-
-	// wind sound
-    audinst_wind = new PAudioInstance(aud_wind, true);
-    audinst_wind->setGain(0.0);
-    audinst_wind->play();
-
-	// terrain sound
-    audinst_gravel = new PAudioInstance(aud_gravel, true);
-    audinst_gravel->setGain(0.0);
-    audinst_gravel->play();
-  }
-}
-
 void MainApp::endGame(Gamefinish state)
 {
   float coursetime = (state == Gamefinish::not_finished) ? 0.0f :
@@ -756,28 +714,24 @@ void MainApp::endGame(Gamefinish state)
   }
 
   if (audinst_engine) {
-    delete audinst_engine;
+    audinst_engine.reset();
     audinst_engine = nullptr;
   }
 
   if (audinst_wind) {
-    delete audinst_wind;
+    audinst_wind.reset();
     audinst_wind = nullptr;
   }
 
   if (audinst_gravel) {
-    delete audinst_gravel;
+    audinst_gravel.reset();
     audinst_gravel = nullptr;
   }
 
-  for (unsigned int i=0; i<audinst.size(); i++) {
-    delete audinst[i];
-  }
   audinst.clear();
 
   if (game) {
-    delete game;
-    game = nullptr;
+    game.reset();
   }
 
   if (audinst_intro) {
@@ -815,87 +769,6 @@ void MainApp::calcScreenRatios()
         hratio = 1.0;
         vratio = 1.0;
     }
-}
-
-void MainApp::tick(float delta)
-{
-    if (validation::run.options.enabled && appstate == AS_LEVEL_SCREEN && !validation::run.started) {
-        const auto begin = SDL_GetPerformanceCounter();
-        if (!startGame(validation::run.options.stage)) {
-            validation::run.result = 1;
-            requestExit();
-            return;
-        }
-        const std::string path = "/vehicles/" + validation::run.options.vehicle + "/" +
-            validation::run.options.vehicle + ".vehicle";
-        auto* type = game->sim->loadVehicleType(path, getSSModel());
-        if (!type || !game->vehicle.empty()) {
-            PUtil::outLog() << "Validation requires an available vehicle and a stage without pre-spawned vehicles\n";
-            validation::run.result = 1;
-            requestExit();
-            return;
-        }
-        game->chooseVehicle(type);
-        initAudio();
-        appstate = AS_IN_GAME;
-        validation::run.started = true;
-        validation::run.loadMs = 1000.0 * static_cast<double>(SDL_GetPerformanceCounter() - begin) /
-            static_cast<double>(SDL_GetPerformanceFrequency());
-        validation::run.renderer = reinterpret_cast<const char*>(glGetString(GL_RENDERER));
-        SDL_GL_SetSwapInterval(0);
-    }
-    getSSAudio().tick();
-
-    if (audinst_intro) {
-      audinst_intro->setGain(0.5f * cfg.getVolumeSfx());
-    }
-
-    menu_time += delta;
-
-  switch (appstate) {
-  case AS_LOAD_1:
-    splashtimeout -= delta;
-    if (--loadscreencount <= 0)
-      appstate = AS_LOAD_2;
-    break;
-  case AS_LOAD_2:
-    splashtimeout -= delta;
-    if (!loadAll()) {
-      requestExit();
-      return;
-    }
-    appstate = AS_LOAD_3;
-    break;
-  case AS_LOAD_3:
-    splashtimeout -= delta;
-    if (splashtimeout <= 0.0f)
-      levelScreenAction(AA_INIT, 0);
-    break;
-
-  case AS_LEVEL_SCREEN:
-    tickStateLevel(delta);
-    break;
-
-  case AS_CHOOSE_VEHICLE:
-    tickStateChoose(delta);
-    break;
-
-  case AS_IN_GAME:
-      if (!pauserace)
-        tickStateGame(delta);
-    break;
-
-  case AS_END_SCREEN:
-    splashtimeout += delta * 0.04f;
-    if (splashtimeout >= 1.0f)
-      requestExit();
-    break;
-  }
-}
-
-void MainApp::tickStateChoose(float delta)
-{
-  choose_spin += delta * 2.0f;
 }
 
 void MainApp::tickCalculateFps(float delta)
@@ -1081,7 +954,7 @@ void MainApp::tickStateGame(float delta)
     }
     else
       for (unsigned int k=0; k<game->vehicle[i]->part[j].wheel.size(); k++) {
-        if (rand01 * 20.0f < game->vehicle[i]->part[j].wheel[k].dirtthrow)
+        if (effectsRng.unit() * 20.0f < game->vehicle[i]->part[j].wheel[k].dirtthrow)
         {
             const vec3f dirtpos = game->vehicle[i]->part[j].wheel[k].dirtthrowpos;
             const vec3f dirtvec = game->vehicle[i]->part[j].wheel[k].dirtthrowvec;
@@ -1098,7 +971,7 @@ void MainApp::tickStateGame(float delta)
             psys_dirt->setColorEnd(dirtcolor.x, dirtcolor.y, dirtcolor.z, 0.0f);
             psys_dirt->setSize(di.startsize, di.endsize);
             psys_dirt->setDecay(di.decay);
-            psys_dirt->addParticle(dirtpos, dirtvec /*+ vec3f::rand() * 10.0f*/);
+            psys_dirt->addParticle(dirtpos, dirtvec /*+ vec3f::random(effectsRng) * 10.0f*/);
         }
       }
     }
@@ -1334,16 +1207,16 @@ void MainApp::tickStateGame(float delta)
       {
         case 1: // Shift up
         {
-            audinst.push_back(new PAudioInstance(aud_shiftup));
-            audinst.back()->setPitch(0.7f + randm11*0.02f);
+            audinst.push_back(std::make_unique<PAudioInstance>(aud_shiftup));
+            audinst.back()->setPitch(0.7f + effectsRng.symmetric()*0.02f);
             audinst.back()->setGain(1.0f * cfg.getVolumeSfx());
             audinst.back()->play();
             break;
         }
         case -1: // Shift down
         {
-            audinst.push_back(new PAudioInstance(aud_shiftdown));
-            audinst.back()->setPitch(0.8f + randm11*0.12f);
+            audinst.push_back(std::make_unique<PAudioInstance>(aud_shiftdown));
+            audinst.back()->setPitch(0.8f + effectsRng.symmetric()*0.12f);
             audinst.back()->setGain(1.0f * cfg.getVolumeSfx());
             audinst.back()->play();
             break;
@@ -1356,22 +1229,21 @@ void MainApp::tickStateGame(float delta)
     if (crashnoise_timeout <= 0.0f) {
       float crashlevel = vehic->getCrashNoiseLevel();
       if (crashlevel > 0.0f) {
-        audinst.push_back(new PAudioInstance(aud_crash1));
-        audinst.back()->setPitch(1.0f + randm11*0.02f);
+        audinst.push_back(std::make_unique<PAudioInstance>(aud_crash1));
+        audinst.back()->setPitch(1.0f + effectsRng.symmetric()*0.02f);
         audinst.back()->setGain(logf(1.0f + crashlevel) * cfg.getVolumeSfx());
         audinst.back()->play();
 
         if (haptic != nullptr)
           SDL_HapticRumblePlay(haptic, crashlevel * 0.2f, MAX(1000, (unsigned int)(crashlevel * 20.0f)));
       }
-      crashnoise_timeout = rand01 * 0.1f + 0.01f;
+      crashnoise_timeout = effectsRng.unit() * 0.1f + 0.01f;
     } else {
       crashnoise_timeout -= delta;
     }
 
     for (unsigned int i=0; i<audinst.size(); i++) {
       if (!audinst[i]->isPlaying()) {
-        delete audinst[i];
         audinst.erase(audinst.begin() + i);
         i--;
         continue;
@@ -1394,18 +1266,18 @@ void MainApp::tickStateGame(float delta)
   // randomised number of drops calculation
   float numdrops = game->weather.precip.rain * delta;
   int inumdrops = (int)numdrops;
-  if (rand01 < numdrops - inumdrops) inumdrops++;
+  if (effectsRng.unit() < numdrops - inumdrops) inumdrops++;
   for (int i=0; i<inumdrops; i++) {
     rain.push_back(RainDrop());
     rain.back().drop_pt = vec3f(campos.x,campos.y,0);
     rain.back().drop_pt += camvel * RAIN_START_LIFE;
-    rain.back().drop_pt += vec3f::rand() * RAIN_POS_RANDOM;
+    rain.back().drop_pt += vec3f::random(effectsRng) * RAIN_POS_RANDOM;
     rain.back().drop_pt.z = game->terrain->getHeight(rain.back().drop_pt.x, rain.back().drop_pt.y);
 
     if (game->water.enabled && rain.back().drop_pt.z < game->water.height)
         rain.back().drop_pt.z = game->water.height;
 
-    rain.back().drop_vect = def_drop_vect + vec3f::rand() * RAIN_VEL_RANDOM;
+    rain.back().drop_vect = def_drop_vect + vec3f::random(effectsRng) * RAIN_VEL_RANDOM;
     rain.back().life = RAIN_START_LIFE;
   }
 
@@ -1434,19 +1306,19 @@ void MainApp::tickStateGame(float delta)
   // randomised number of flakes calculation
   float numflakes = game->weather.precip.snowfall * delta;
   int inumflakes = (int)numflakes;
-  if (rand01 < numflakes - inumflakes) inumflakes++;
+  if (effectsRng.unit() < numflakes - inumflakes) inumflakes++;
   for (int i=0; i<inumflakes; i++) {
     snowfall.push_back(SnowFlake());
     snowfall.back().drop_pt = vec3f(campos.x,campos.y,0);
     snowfall.back().drop_pt += camvel * SNOWFALL_START_LIFE / 2;
-    snowfall.back().drop_pt += vec3f::rand() * SNOWFALL_POS_RANDOM;
+    snowfall.back().drop_pt += vec3f::random(effectsRng) * SNOWFALL_POS_RANDOM;
     snowfall.back().drop_pt.z = game->terrain->getHeight(snowfall.back().drop_pt.x, snowfall.back().drop_pt.y);
 
     if (game->water.enabled && snowfall.back().drop_pt.z < game->water.height)
         snowfall.back().drop_pt.z = game->water.height;
 
-    snowfall.back().drop_vect = def_drop_vect + vec3f::rand() * SNOWFALL_VEL_RANDOM;
-    snowfall.back().life = SNOWFALL_START_LIFE * rand01;
+    snowfall.back().drop_vect = def_drop_vect + vec3f::random(effectsRng) * SNOWFALL_VEL_RANDOM;
+    snowfall.back().life = SNOWFALL_START_LIFE * effectsRng.unit();
   }
 
   // update life and delete dead snowflakes
@@ -1747,11 +1619,6 @@ int MainApp::getVehicleCurrentGear() {
   return game->vehicle.front()->getCurrentGear();
 }
 
-static bool fileExists(const std::string &path) {
-  std::ifstream f(path.c_str());
-  return f.good();
-}
-
 int main(int argc, char *argv[])
 {
     try {
@@ -1781,21 +1648,6 @@ int main(int argc, char *argv[])
 #ifdef SDL_MAIN_HANDLED
         SDL_SetMainReady();
 #endif
-    std::string video_path = "";
-    if (fileExists("inVideo.mp4")) {
-      video_path = "inVideo.mp4";
-    } else if (fileExists("bin/inVideo.mp4")) {
-      video_path = "bin/inVideo.mp4";
-    } else if (fileExists("../inVideo.mp4")) {
-      video_path = "../inVideo.mp4";
-    }
-
-    if (!video_path.empty() && !validation::run.options.enabled) {
-      std::string cmd = "ffplay -fs -autoexit -noborder -loglevel quiet \"" + video_path + "\"";
-      int ret = std::system(cmd.c_str());
-      (void)ret;
-    }
-
     const int result = MainApp("TrackRS", ".trackrs").run(argc, argv);
     if (validation::run.options.enabled && (!validation::run.complete || validation::run.result))
         return 1;
