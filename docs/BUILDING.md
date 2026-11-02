@@ -196,3 +196,11 @@ Each cycle runs 2,500 real-game ticks (10 simulated seconds) including load,
 rendering, replay and teardown. The loop runs until at least 600 wall seconds;
 slow cycles may exceed that target. Mesa worker threading is disabled only for
 TSan; no TrackRS race suppressions are used. Raw native diagnostics are retained.
+
+
+Optional intro playback uses the vendored MIT pl_mpeg decoder, with MPEG-1 video
+and MP2 audio in `data/intro.mpg` (64 MiB input limit). Playback stays inside the
+SDL window, queues PCM through SDL audio, and any key/mouse click skips. Missing
+or invalid media falls back to the existing splash. The player launches no
+external process; MP4/ffplay are not used. Test with `movie-decoder` and, under
+Xvfb with xdotool, `python3 tests/test_intro.py --binary build/linux-release/bin/trackrs --output build/intro-test`.

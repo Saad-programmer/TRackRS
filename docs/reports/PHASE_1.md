@@ -10,6 +10,29 @@ before `phase-0-done` was pushed. The allocation-origin policy in ADR 006 remain
 unchanged: audited Mesa allocations may have TrackRS callers; TrackRS-origin leaks
 remain fatal. `lsan.supp` is deliberately not a native any-frame suppression file.
 
+## Requested Phase 1 status audit
+
+This table assesses the Phase 1 deliverables, not later rendering features in the
+master defect descriptions. No **Partial** dependency is carried into 2a.
+R-12 was Partial (static fallback only); commit `9d1eab2` closes that gap.
+
+| Item | Status | Implementation commit(s) | Test / evidence |
+| --- | --- | --- | --- |
+| R-07 | Done | `4e16945`, `732c575` | `tools/pacing_probe.cpp`; retained uncapped/capped JSON: 240 frames in 2.004 s, 18.5 ms CPU. Vsync off/on/adaptive and fallback are in PApp. Stereo multiview is Deferred to renderer migration, not claimed here. |
+| R-08 | Done | `732c575`, `fb19301`, `9d1eab2` | `core-primitives`: independent accumulators, bounded catch-up, quaternion and **position + rotation pose interpolation**, endpoints and unchanged input snapshots. `renderStateGame` uses `interpolatePose` and applies its transform only during rendering; physics transforms are never overwritten. Validation intentionally uses exact current poses. |
+| R-09 | Done | `732c575` | CMake release build/CI and the three Make forwarding entry points; default compile commands contain O3/ffp-contract=off and no Ofast/native. `-march=native` exists only behind the explicit OFF-by-default `TRACKRS_NATIVE` option. |
+| R-11 | Done | `fb19301`, `430c25d` | `core-primitives` edition/schema/vehicle-unlock cases; isolated demo/full/dev SDL UI runs and retained screenshots, including a populated full event list. |
+| R-12 | Done | `732c575`, `9d1eab2` | No production `std::system` or ffplay invocation remains. **pl_mpeg is now the in-process MPEG-1/MP2 replacement**; `movie-decoder` tests generated RGB/PCM and rejects invalid input. `tests/test_intro.py` passed real in-window playback and Escape skip. Missing/invalid optional media retains the licensed splash. |
+| R-13 | Done | `4e16945`, `732c575`, `430c25d` | PCG reference-vector tests, independent streams, ASan leak canary and 705.8 s ASan/860.0 s TSan soaks; all 13 legacy-RNG A/B hashes restore exactly. clang-tidy unsafe-string canary is rejected. |
+| R-14 | Done | `4e16945`, `732c575` | `core-primitives` **wrapCoord/mapSample/periodicCell unit tests** cover zero, exact positive/negative multiples, negative fractions, distant coordinates and invalid periods/nonfinite input; 13-stage A/B isolates these fixes from RNG drift. |
+| R-15 | Done | `732c575`, `eebf705`, `b5e76eb`, `430c25d` | GCC/Clang/MSVC/MinGW CI, DEB/ZIP/AppImage/NSIS creation, ZIP/AppImage real render smoke, strict version-parser tests. |
+| R-16 | Done | `732c575`, `430c25d` | `module-layering`, actual forbidden-include canary, and configure/build with BUILD_TESTING=OFF. Core/Platform/Renderer/UI/Audio/World/Sim compile separately; application scene composition is explicitly retained until renderer migration. |
+
+The pl_mpeg fixture is generated test content, not a new promotional asset. Put a
+licensed MPEG-1 program stream at `data/intro.mpg` to enable playback; MP4 is not a
+supported pl_mpeg input. No external player is launched. The existing Phase 1 tag
+is historical and is not rewritten by this audit addendum.
+
 ## Delivered behavior
 
 | Defect | Phase 1 result |
@@ -19,7 +42,7 @@ remain fatal. `lsan.supp` is deliberately not a native any-frame suppression fil
 | R-09 | All Make entry points use CMake; release uses O3, no fast-math, `ffp-contract=off`, x86-64-v2 on x86-64; native instructions opt in, supported LTO enabled. |
 | R-10 | Audited, not fabricated: the snapshot has nine fictional and two additional vehicle definitions, with existing meshes. Car Definition v2/calibration remains the explicitly scheduled Phase 4 work. |
 | R-11 | JSON `trackrs.edition/1` policy: demo path allowlist, full installed-content access with championship locks, dev unlock bypass. One policy API also governs vehicle unlocks. |
-| R-12 | Removed the shell command and external ffplay process. Existing licensed splash is displayed inside SDL/GL and its remaining delay is skippable after loading. |
+| R-12 | Removed the shell command and external ffplay process. pl_mpeg decodes optional MPEG-1/MP2 inside SDL/GL with skippable playback; the licensed splash remains the fallback. |
 | R-13 | Owned subsystem/resource/simulation/game/terrain/particle/audio lifetimes; failed vehicle-type loads release allocations; PCG streams replace all libc RNG calls; ASE token state is per load; unsafe C copies/formatting removed and clang-tidy rejects an unsafe-string canary. LTO also exposed and fixed an inconsistent OpenAL sample class layout. |
 | R-14 | Shared bounded wrapping/cell sampling handles exact multiples, negative fractions and distant coordinates; large color/road/surface/height bodies moved out of render.h. |
 | R-15 | Single CMake project version generates runtime header, appdata, package metadata and README badge output; DEB/ZIP/AppImage/NSIS use a shared install layout and existing license exclusions. Windows packages include resolved non-system DLLs. |
