@@ -1,0 +1,5 @@
+Checks: '-*,clang-analyzer-*,bugprone-*,performance-*,modernize-use-nullptr'
+WarningsAsErrors: '*'
+HeaderFilterRegex: 'engine/(core|application|renderer)/.*'
+CheckOptions:
+  bugprone-unsafe-functions.ReportMoreUnsafeFunctions: true
