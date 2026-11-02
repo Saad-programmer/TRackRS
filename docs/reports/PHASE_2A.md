@@ -110,6 +110,7 @@ run and `phase-2a-done` tag.**
 
 The final publication also fixes the pre-existing Pages failure: Jekyll 3.10
 interpreted the master prompt's literal C++ `{{...}}` initializers as Liquid.
-`docs/_config.yml` disables Liquid for that file only, preserving the specification
-text and normal Markdown rendering. This is a documentation build fix, not a
-renderer gate expansion.
+Jekyll 3.10 ignores the newer `render_with_liquid: false` setting, so
+`docs/_config.yml` excludes only this repository specification from Pages
+compilation. Its text remains unchanged and accessible in Git. This is a
+documentation build fix, not a renderer gate expansion.
