@@ -25,12 +25,17 @@ jobs:
           ALSOFT_DRIVERS: "null"
         run: |
           xvfb-run -a -s '-screen 0 640x480x24' python3 tests/run_baselines.py --binary build/${{ matrix.preset }}/bin/trackrs --output build/results --quick
+      - name: Audited ASan integration
+        if: matrix.preset == 'linux-debug-asan'
+        run: |
+          xvfb-run -a -s '-screen 0 640x480x24' python3 tests/run_asan.py --binary build/${{ matrix.preset }}/bin/trackrs --output build/asan-audit
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         if: always()
         with:
           name: linux-${{ matrix.compiler }}-${{ matrix.preset }}
           path: |
             build/results
+            build/asan-audit
             build/${{ matrix.preset }}/Testing
             build/${{ matrix.preset }}/bin
   windows-msvc:

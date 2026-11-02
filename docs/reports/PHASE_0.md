@@ -1,10 +1,10 @@
-# Phase 0 — executable safety net (gate open)
+# Phase 0 — accepted safety net; closure verification
 
-The safety-net implementation is prepared and verified on the platforms below.
-The Reality 0.7 engine migration is not complete. No `phase-0-done` or 0.7 release
-tag has been created, and phases 1–9 have not started. The remaining current-image
-render-sanitizer limitation is documented below; the latest Linux CI matrix
-is still queued/running, while both Windows jobs have passed.
+The user accepted Phase 0 and approved audited Mesa-origin allocations with
+TrackRS present only as callers. The local full-stack ASan integration passes
+that policy, retaining native leak reports and rejecting application-origin leaks.
+The closure commit must pass the full CI matrix before `phase-0-done` is tagged.
+Phases 1–9 have not started in this snapshot.
 
 ## Delivered
 
@@ -90,12 +90,17 @@ not reference-hardware performance claims or an asserted speedup.
   check also exposed Delta Revised’s invalid XML version declaration; its corrected
   header produces exactly the original simulation hash and framebuffer.
   [Verified Windows CI](https://github.com/Saad-programmer/TRackRS/actions/runs/41363622922).
-- TODO(PHASE-0): the current cloud GLX driver reports 108,124 leaked bytes in 481
-  allocations, reproduced exactly by `tests/driver_probe.cpp` without TrackRS.
-  SDL's offscreen driver was also tried and still reported a smaller external
-  allocation leak. No leak suppression or disabled sanitizer was used. CI's
-  Ubuntu renderer passes the ASan integration run; this cloud-driver limitation
-  remains distinct from those passing results.
+- The current cloud GLX driver reports 108,124 bytes in 481 allocations. Full
+  unwinding resolves them to two Mesa allocation PCs and a specific ELF build ID.
+  The user-approved `lsan.supp` policy accepts only those origins through
+  `tests/run_asan.py`; it is deliberately not a native any-frame suppression file.
+  TrackRS-origin leaks, driver callbacks allocating in TrackRS, unknown PCs/builds,
+  unresolved origins and all other sanitizer errors remain fatal. Eight adversarial
+  policy tests and a real application-leak canary verify this boundary.
+- The audited 1,500-tick ASan run preserves `8bf21a75413742fd`, native exit status
+  23 and all raw stacks. Its explicit accepted-driver total is 108,124 bytes;
+  no application-origin leak or other sanitizer error was accepted. See
+  `tests/baselines/linux-gcc/asan-origin-audit.json` and ADR-006.
 - The cloud sandbox's ptrace restrictions prevent LeakSanitizer introspection;
   CPU sanitizer checks pass when executed outside that sandbox.
 - Reference GPUs, hardware audio and stereo are unverified. No GTX 1060/UHD 620/

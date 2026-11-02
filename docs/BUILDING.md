@@ -109,8 +109,22 @@ LIBGL_ALWAYS_SOFTWARE=1 ALSOFT_DRIVERS=null xvfb-run -a \
 
 LeakSanitizer on this cloud image reports 108,124 bytes in 481 Mesa GLX
 allocations, reproduced by `tests/driver_probe.cpp` without TrackRS.
-The sanitizer is not disabled or suppressed. Reports distinguish this
-driver failure from the passing CPU-only sanitizer checks.
+Run the audited integration check with:
+
+```sh
+xvfb-run -a -s '-screen 0 640x480x24' python3 tests/run_asan.py \
+  --binary build/linux-debug-asan/bin/trackrs --output build/asan-audit
+```
+
+Native leak detection remains enabled with full allocation stacks. The runner
+retains raw reports and accepts only the two allocation PCs in the exact system
+Mesa build listed in `lsan.supp`. TrackRS-origin allocations remain fatal even
+when a driver is a caller; unknown driver builds/callsites also fail closed.
+`lsan.supp` is an origin-policy file for this runner, **not** a native LSan
+suppression file. Do not pass it to `LSAN_OPTIONS`: native LSan matches any
+frame and cannot enforce the allocation-origin restriction. CTest includes
+adversarial callback fixtures and a real intentional application-leak canary.
+See ADR-006 in `docs/DECISIONS.md` for the user-approved policy clarification.
 
 Invalid input, missing stages/vehicles, non-finite state, output-write errors,
 and incomplete runs return nonzero. The runner enforces a timeout, preserves

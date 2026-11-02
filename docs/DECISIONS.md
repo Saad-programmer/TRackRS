@@ -34,3 +34,10 @@ Decision: try configured content first, then the checkout data only when none mo
 Consequences: valid custom data keeps precedence; the legacy Make build is unchanged.
 Evidence: normal interactive menu launch with the existing 0.6.x profile succeeded.
 Status: accepted.
+
+## ADR-006 — Audit driver allocation origins without hiding application leaks
+Context: native LSan matches any frame; full Mesa stacks include TrackRS callers.
+Decision: use lsan.supp as an exact driver-build/allocation-PC origin policy in tests/run_asan.py, never as native suppressions.
+Consequences: the first post-allocator frame must be the audited system Mesa module; callbacks, unknown origins and other sanitizer errors fail.
+Evidence: retain full unsuppressed logs/status, verify all reported byte/object totals, and test real application leaks plus driver-callback fixtures.
+Status: accepted by the user; Mesa-origin allocations may have TrackRS caller frames.

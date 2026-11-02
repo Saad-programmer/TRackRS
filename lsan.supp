@@ -1,0 +1,5 @@
+# Audited allocation-origin policy for tests/run_asan.py.
+# NOT a native LSAN_OPTIONS suppression file: native matching is any-frame.
+# Match only these two audited allocation PCs in this exact system-driver build.
+driver-origin:libGLX_mesa.so.0+0x38538@bf78ba17851731a2b44a35894165b350073fbf4a
+driver-origin:libGLX_mesa.so.0+0x3452e@bf78ba17851731a2b44a35894165b350073fbf4a
