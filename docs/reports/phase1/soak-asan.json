@@ -1,7 +1,7 @@
 {
   "sanitizer": "asan",
   "requested_wall_seconds": 600,
-  "elapsed_wall_seconds": 852.912732239005,
+  "elapsed_wall_seconds": 705.8123639719997,
   "simulated_seconds": 20.0,
   "cycles": [
     {

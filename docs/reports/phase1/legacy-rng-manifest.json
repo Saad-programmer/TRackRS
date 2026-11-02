@@ -1,0 +1,97 @@
+{
+  "schema": "trackrs.legacy-baselines/1",
+  "repeat_count": 1,
+  "scenarios": [
+    {
+      "stage": "ahead",
+      "vehicle": "cordo_kitcar",
+      "ticks": 1500,
+      "state_hash": "8bf21a75413742fd",
+      "framebuffer_sha256": "5a75eaf5767a64204cf2f94a21b43295eec7e845d30608e109661191df4a0557"
+    },
+    {
+      "stage": "aegyptian",
+      "vehicle": "evo_wrc",
+      "ticks": 1500,
+      "state_hash": "8f375462ee59fca0",
+      "framebuffer_sha256": "564e82c21b814f59606315206b9ae40772067b19a0078d4f7516311c84097f78"
+    },
+    {
+      "stage": "greenland",
+      "vehicle": "fox_super500",
+      "ticks": 1500,
+      "state_hash": "2cb4462eecf85584",
+      "framebuffer_sha256": "627d0171f2a8e84a1176856b3d9d1bf2fd99ca50e7c1c27880b42d72bd4d0abf"
+    },
+    {
+      "stage": "mudbath",
+      "vehicle": "cordo_kitcar",
+      "ticks": 1500,
+      "state_hash": "6376dec7d8f03b57",
+      "framebuffer_sha256": "8d3462a20a645cbbee95d2dff03aa55f5bfb32263d42141fb3e70774608c9160"
+    },
+    {
+      "stage": "april",
+      "vehicle": "evo_wrc",
+      "ticks": 1500,
+      "state_hash": "476ee9b721ac8e9e",
+      "framebuffer_sha256": "c8ee2937d8f79ae9ef7bdca0658e319f433ee5497d78e0fb7ea75b9e31d66572"
+    },
+    {
+      "stage": "ancient",
+      "vehicle": "fox_super500",
+      "ticks": 1500,
+      "state_hash": "65d15b0ed754f2f8",
+      "framebuffer_sha256": "a8206c970bbc313955137771b49ae7a511bf291c3883adc80d3e6c9f663bd601"
+    },
+    {
+      "stage": "coastline",
+      "vehicle": "cordo_kitcar",
+      "ticks": 1500,
+      "state_hash": "e71e7d78e0f815b6",
+      "framebuffer_sha256": "0ffefa8fd446ebd218cc7f44595f9dee952fc1b6f6178a10314b7b92d9b873b7"
+    },
+    {
+      "stage": "country",
+      "vehicle": "evo_wrc",
+      "ticks": 1500,
+      "state_hash": "7ff5c5f0fe9b19f4",
+      "framebuffer_sha256": "4d3f86b6f7a86f7d519fcd4a69803aee3496d0e335a10c26d7dce945bea7af54"
+    },
+    {
+      "stage": "darkbushes",
+      "vehicle": "fox_super500",
+      "ticks": 1500,
+      "state_hash": "367a39c224d54ab8",
+      "framebuffer_sha256": null
+    },
+    {
+      "stage": "barren",
+      "vehicle": "cordo_kitcar",
+      "ticks": 1500,
+      "state_hash": "00de95e24be1a73b",
+      "framebuffer_sha256": null
+    },
+    {
+      "stage": "altitude",
+      "vehicle": "evo_wrc",
+      "ticks": 1500,
+      "state_hash": "c965c6916b2d3676",
+      "framebuffer_sha256": null
+    },
+    {
+      "stage": "arizonachase",
+      "vehicle": "fox_super500",
+      "ticks": 1500,
+      "state_hash": "c1567463257d03f3",
+      "framebuffer_sha256": null
+    },
+    {
+      "stage": "glacier",
+      "vehicle": "cordo_kitcar",
+      "ticks": 1500,
+      "state_hash": "5800b5cffe9ae60c",
+      "framebuffer_sha256": null
+    }
+  ]
+}

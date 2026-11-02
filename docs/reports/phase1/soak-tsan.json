@@ -1,13 +1,18 @@
 {
   "sanitizer": "thread",
   "requested_wall_seconds": 600,
-  "elapsed_wall_seconds": 746.7321552100038,
-  "simulated_seconds": 10.0,
+  "elapsed_wall_seconds": 860.0443409389991,
+  "simulated_seconds": 20.0,
   "cycles": [
     {
       "stage": "ahead",
       "ticks": 2500,
       "state_hash": "b61575c53cc83831"
+    },
+    {
+      "stage": "greenland",
+      "ticks": 2500,
+      "state_hash": "56ccfc055f8ac28e"
     }
   ],
   "application_errors": 0

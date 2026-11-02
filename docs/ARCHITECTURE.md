@@ -51,3 +51,19 @@ Follow the supplied phase gates before moving responsibilities into
 `engine/`, `sim/`, `game/`, `ui/` and `content/`. Preserve the recorded legacy
 hashes/screenshots, explain intentional changes, and maintain the original
 loaders behind adapters as the new renderer and schemas are introduced.
+
+## Phase 1 component boundary
+
+CMake compiles `trackrs_core`, `trackrs_platform`, `trackrs_renderer`, `trackrs_ui`,
+`trackrs_audio`, `trackrs_world` and `trackrs_sim` independently, then links the
+application's `src/Trigger` composition. Header-only Core primitives have CPU-only
+unit tests; the typed application state and edition JSON loader sit above Core.
+Renderer consumes borrowed vehicle snapshots; interpolation does not mutate Sim.
+The platform configuration host is PApp, without a MainApp downcast.
+
+`tests/check_layering.py` follows transitive local headers. Core cannot include
+other project layers; engine components cannot include the application/game
+layer. CMake runs this at configure and every game build, including when tests
+are disabled. UI widgets moved out of application menu composition; application
+state dispatch and audio logic have separate sources. Legacy World/Sim/render
+interfaces still share compatibility headers; this is not a completed modern RHI.
