@@ -23,7 +23,7 @@ jobs:
         if: matrix.compiler == 'clang++' && matrix.preset == 'linux-release'
         run: |
           clang-tidy tests/core_lint.cpp -- -std=c++17 -I.
-          clang-tidy engine/rhi/rhi.cpp engine/rhi/core_device.cpp engine/media/movie.cpp -p build/${{ matrix.preset }}
+          python3 tests/run_production_lint.py --database build/${{ matrix.preset }}
       - name: Distribution packages
         if: matrix.compiler == 'g++' && matrix.preset == 'linux-release'
         run: cpack --config build/${{ matrix.preset }}/CPackConfig.cmake -G 'DEB;ZIP'
