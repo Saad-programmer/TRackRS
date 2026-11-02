@@ -17,7 +17,7 @@
 // The PhysicsFS game file system
 #include <physfs.h>
 
-#include <GL/glew.h>
+#include <glad/gl.h>
 #include "legacy_metrics.h"
 
 #include <tinyxml2.h>

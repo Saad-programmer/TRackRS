@@ -69,3 +69,18 @@ Context: The uninstrumented Mesa llvmpipe worker mutex produced a native TSan re
 Decision: Run TSan's real-game soak with `LP_NUM_THREADS=0`, without race suppressions; keep native ASan origin auditing unchanged. Add stable SDL_image/ALUT/PhysFS runtime package dependencies alongside shlibdeps.
 Consequence: TrackRS threads remain instrumented. Soak reports distinguish wall time from fixed-step simulated time; no performance claim is made from concurrent software-rendered verification.
 Packaging: All formats share the existing unlicensed-plugin exclusion list, generated project version and relative data layout; AppImage tools and runtime are checksum-pinned.
+
+## ADR-011: staged core presentation bridge (Phase 2a)
+
+The gates require core context/RHI infrastructure before immediate-mode migration,
+while legacy content must remain playable at every gate. The visible SDL window
+therefore requests a debug GL 3.3 core context and verifies its actual profile.
+A hidden shared compatibility context temporarily renders the existing scene;
+one GPU copy and a core shader/UBO pass present each eye. Captures read the core
+framebuffer. This adds synchronization/context-switch overhead and requires
+KHR_debug plus core/compatibility sharing. No silent fallback is allowed.
+
+The alternative of running immediate mode in the visible context would not meet
+the core-context gate. Rewriting geometry now would cross the 2b gate. Retire the
+bridge during 2b after content and side-by-side screenshot review. No PBR, KTX2,
+IBL or mesh-importer work belongs to 2a.

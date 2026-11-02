@@ -70,7 +70,7 @@ def main():
                            "--replay", str(ROOT / "tests/replays/baseline.csv"),
                            "--dump-state", str(stem.with_suffix(".hash").resolve()),
                            "--json", str(stem.with_suffix(".json").resolve())]
-                if i < 8:
+                if STAGES.index(stage) < 8:
                     command += ["--screenshot", str(stem.with_suffix(".ppm").resolve())]
                 # Never accept stale output after a failed or zero-work run.
                 for ext in (".hash", ".json", ".ppm", ".png"):
@@ -88,7 +88,7 @@ def main():
             hashes.append(stem.with_suffix(".hash").read_text().strip())
             if hashes[-1] != report["state_hash"]:
                 raise RuntimeError("hash/report mismatch")
-            if i < 8:
+            if STAGES.index(stage) < 8:
                 images.append(png_from_ppm(stem.with_suffix(".ppm"), stem.with_suffix(".png")))
                 stem.with_suffix(".ppm").unlink()
         if len(set(hashes)) != 1:

@@ -2,7 +2,7 @@
 #include "pengine.h"
 #include "vbuffer.h"
 
-#define USE_VBO_ARB (GLEW_ARB_vertex_buffer_object)
+#define USE_VBO_ARB ((GLAD_GL_VERSION_1_5 || GLAD_GL_ARB_vertex_buffer_object))
 //#define USE_VBO_ARB (false)
 
 // emulation of GL buffer binding functionality
@@ -19,7 +19,7 @@ PVBuffer::~PVBuffer()
 void PVBuffer::unload()
 {
     if (USE_VBO_ARB) {
-        if (buffid) glDeleteBuffersARB(1, &buffid);
+        if (buffid) glDeleteBuffers(1, &buffid);
         buffid = 0;
     } else {
         if (buffer) delete[] buffer;
@@ -38,14 +38,14 @@ bool PVBuffer::create(int buffsize, contenttype type, usagemode usage, const voi
         switch (type) {
         default:
         case VertexContent:
-            target = GL_ARRAY_BUFFER_ARB;
+            target = GL_ARRAY_BUFFER;
             break;
         case IndexContent:
-            target = GL_ELEMENT_ARRAY_BUFFER_ARB;
+            target = GL_ELEMENT_ARRAY_BUFFER;
             break;
         }
 
-        glGenBuffersARB(1, &buffid);
+        glGenBuffers(1, &buffid);
         bind();
 
         GLenum gl_usage;
@@ -68,7 +68,7 @@ bool PVBuffer::create(int buffsize, contenttype type, usagemode usage, const voi
         //glGetIntegerv(GL_ARRAY_BUFFER_BINDING_ARB,&getter);
         //con_printf("bufferdata with object %i bound\n",getter);
 
-        glBufferDataARB(target, buffsize, data, gl_usage);
+        glBufferData(target, buffsize, data, gl_usage);
 
         unbind();
 
@@ -112,7 +112,7 @@ void PVBuffer::update(int offset, int buffsize, const void *data)
 {
     if (USE_VBO_ARB) {
         bind();
-        glBufferSubDataARB(target, offset, buffsize, data);
+        glBufferSubData(target, offset, buffsize, data);
         unbind();
     } else {
         memcpy(buffer + offset, data, buffsize);
@@ -131,7 +131,7 @@ uint8 *PVBuffer::getPointer(int offset)
 void PVBuffer::bind()
 {
     if (USE_VBO_ARB) {
-        glBindBufferARB(target, buffid);
+        glBindBuffer(target, buffid);
     } else {
         // don't bind if buffer hasn't been allocated
         //switch (pr_type) {
@@ -145,8 +145,8 @@ void PVBuffer::bind()
 void PVBuffer::unbind()
 {
     if (USE_VBO_ARB) {
-        glBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
-        glBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, 0);
+        glBindBuffer(GL_ARRAY_BUFFER, 0);
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
     } else {
         //bound = nullptr;
         //boundelem = nullptr;

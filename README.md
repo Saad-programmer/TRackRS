@@ -13,7 +13,7 @@
   <p>
     <a href="doc/COPYING.txt"><img src="https://img.shields.io/badge/License-GPL%20v2-blue.svg" alt="License: GPL v2"></a>
     <img src="https://img.shields.io/badge/language-C%2B%2B11-00599C.svg" alt="Language">
-    <img src="https://img.shields.io/badge/graphics-OpenGL%20%2B%20GLEW-5586A4.svg" alt="Graphics">
+    <img src="https://img.shields.io/badge/graphics-OpenGL%20%2B%20glad-5586A4.svg" alt="Graphics">
     <img src="https://img.shields.io/badge/platforms-Linux%20%7C%20Windows-lightgrey.svg" alt="Platforms">
     <img src="docs/version.svg" alt="Version">
     <img src="https://img.shields.io/badge/maps-132%20standalone%20%2B%2097%20event%20stages-brightgreen.svg" alt="Maps">
@@ -200,7 +200,7 @@ Build `trackrs.exe` with MSYS2 (see [Windows build](#windows)), then compile `in
 |---|---|---|---|
 | GL | OpenGL rendering | `libgl1-mesa-dev` | `mesa-libGL-devel` |
 | GLU | OpenGL utilities | `libglu1-mesa-dev` | `mesa-libGLU-devel` |
-| GLEW | OpenGL extension loading | `libglew-dev` | `glew-devel` |
+| glad 2.0.8 | Vendored OpenGL loader | bundled | bundled |
 | OpenAL | 3D audio | `libopenal-dev` | `openal-soft-devel` |
 | ALUT | OpenAL utility toolkit | `libalut-dev` | `freealut-devel` |
 | PhysFS | Virtual filesystem | `libphysfs-dev` | `physfs-devel` |
@@ -270,7 +270,7 @@ Windows builds use MSYS2 and the makefiles `src/GNUmakefile.MSYS` (32-bit) and `
 | TrackRS build scripts | <https://sourceforge.net/projects/trigger-rally/files/devkit/build_scripts/> |
 
 The current Windows audio backend uses OpenAL and ALUT. The legacy MSYS2 build
-also needs GLEW, PhysFS, SDL2, SDL2_image, TinyXML-2, libjpeg, libpng and zlib.
+also needs PhysFS, SDL2, SDL2_image, TinyXML-2, libjpeg, libpng and zlib.
 For the new MSVC/MinGW CMake builds and their current validation status, see
 [docs/BUILDING.md](docs/BUILDING.md).
 
@@ -479,7 +479,7 @@ The C++ code is split into three layers. Each depends only on the ones below it.
 │  fxman · audio · config · rigidity · physfs_rw · util ·   │
 │  vmath                                                    │
 └───────────────────────────────────────────────────────────┘
-        External: SDL2 · OpenGL/GLEW · OpenAL/ALUT · PhysFS · TinyXML-2
+        External: SDL2 · OpenGL/glad · OpenAL/ALUT · PhysFS · TinyXML-2
 ```
 
 Full PlantUML class diagrams are in [`diagrams/`](diagrams/).
@@ -689,8 +689,9 @@ championship locks. This access policy is separate from asset redistribution rig
 
 ### Intro video
 
-The game opens its own SDL/GL window and uses the bundled loading splash as
-its intro fallback. Any key skips the remaining splash delay after loading.
+The game opens its own SDL/GL window. Optional `data/intro.mpg` plays MPEG-1
+video/MP2 audio in-window through vendored pl_mpeg; missing or invalid media uses
+the bundled loading splash. No external player is launched. Any key skips the remaining splash delay after loading.
 There is no external video player or shell command.
 
 ### Menu music
@@ -774,7 +775,7 @@ Files under `data/` have **different authors and licences** (GPL, CC0, CC-BY 3.0
 
 - **TrackRS creator & maintainer:** Saad AIT YAHIA — [@Saad-programmer](https://github.com/Saad-programmer)
 - **Original project:** *Trigger Rally*, on which TrackRS is based, and its contributors, including map authors **Onsemeliot**, **Andrei Bondor** and **Richard Langridge**, plus the many others listed in `DATA_AUTHORS.txt`.
-- **Libraries:** SDL2, SDL2_image, GLEW, OpenAL, ALUT, PhysFS, and TinyXML-2.
+- **Libraries:** SDL2, SDL2_image, glad, OpenAL, ALUT, PhysFS, and TinyXML-2.
 
 ### Links
 

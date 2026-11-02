@@ -7,12 +7,12 @@ checks. This branch does not yet implement the modern renderer or new physics.
 ## Linux
 
 Install CMake 3.20+, Ninja, Python 3.9+ (for mandatory layering checks), a C++17 compiler, and the development packages listed
-in the README (SDL2, SDL2_image, GLEW, OpenGL, OpenAL, ALUT, PhysFS, TinyXML-2).
+in the README (SDL2, SDL2_image, glad (vendored), OpenGL, OpenAL, ALUT, PhysFS, TinyXML-2).
 For Debian/Ubuntu:
 
 ```sh
 sudo apt-get install build-essential cmake ninja-build libsdl2-dev libsdl2-image-dev \
-  libglew-dev libopenal-dev libalut-dev libtinyxml2-dev libphysfs-dev \
+  libopenal-dev libalut-dev libtinyxml2-dev libphysfs-dev \
   libgl1-mesa-dev libglu1-mesa-dev libglm-dev nlohmann-json3-dev xvfb xauth
 cmake --preset linux-release
 cmake --build --preset linux-release -j4
@@ -204,3 +204,20 @@ SDL window, queues PCM through SDL audio, and any key/mouse click skips. Missing
 or invalid media falls back to the existing splash. The player launches no
 external process; MP4/ffplay are not used. Test with `movie-decoder` and, under
 Xvfb with xdotool, `python3 tests/test_intro.py --binary build/linux-release/bin/trackrs --output build/intro-test`.
+
+### Phase 2a core rendering requirements
+
+The visible window requires OpenGL 3.3 core and KHR_debug. glad 2.0.8 is vendored;
+no GLEW or loader generator is needed to build. Until 2b, the driver must also
+support a shared compatibility context for legacy drawing. Startup fails with a
+diagnostic if either context or sharing is unavailable.
+
+Presentation shaders live in `data/shaders/core`. Interactive runs poll edits
+every 250 ms, retain the last valid linked program on errors, and watch included
+files. Includes must stay inside the shader root; compile-time define permutations
+are supported by the RHI API. Validation runs disable hot reload.
+
+Run `xvfb-run -a python3 tests/run_rhi.py --binary build/linux-release/bin/rhi_tests
+--output build/rhi-gate` for the core integration test (put the command on one
+line). Add `--asan` with the ASan build; the existing exact-origin Mesa audit
+policy remains unchanged. See [the report](reports/PHASE_2A.md).

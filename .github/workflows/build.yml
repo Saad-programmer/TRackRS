@@ -15,7 +15,7 @@ jobs:
       - name: Dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y ninja-build libsdl2-dev libsdl2-image-dev libglew-dev libopenal-dev libalut-dev libtinyxml2-dev libphysfs-dev libgl1-mesa-dev libglu1-mesa-dev xvfb xauth clang-tidy libglm-dev nlohmann-json3-dev
+          sudo apt-get install -y ninja-build libsdl2-dev libsdl2-image-dev libopenal-dev libalut-dev libtinyxml2-dev libphysfs-dev libgl1-mesa-dev libglu1-mesa-dev xvfb xauth xdotool clang-tidy libglm-dev nlohmann-json3-dev
       - run: cmake --preset ${{ matrix.preset }} -DCMAKE_CXX_COMPILER=${{ matrix.compiler }}
       - run: cmake --build --preset ${{ matrix.preset }} -j2
       - run: ctest --preset ${{ matrix.preset }}
@@ -35,6 +35,16 @@ jobs:
           echo '617aa77314d57c8b8e4fae9c3f0b35af7b30d5529cb69e98f64f92510ed98a46  build/runtime-x86_64' | sha256sum -c
           chmod +x build/linuxdeploy-x86_64.AppImage
           LDAI_RUNTIME_FILE="$PWD/build/runtime-x86_64" LINUXDEPLOY="$PWD/build/linuxdeploy-x86_64.AppImage" cmake --build --preset linux-release --target appimage
+      - name: Core RHI integration
+        env:
+          LIBGL_ALWAYS_SOFTWARE: "1"
+        run: |
+          sanitizer_args=()
+          if [ '${{ matrix.preset }}' = 'linux-debug-asan' ]; then sanitizer_args+=(--asan); fi
+          xvfb-run -a -s '-screen 0 640x480x24' python3 tests/run_rhi.py --binary build/${{ matrix.preset }}/bin/rhi_tests --output build/rhi-gate "${sanitizer_args[@]}"
+      - name: In-window intro playback and skip
+        if: matrix.compiler == 'g++' && matrix.preset == 'linux-release'
+        run: xvfb-run -a -s '-screen 0 640x480x24' python3 tests/test_intro.py --binary build/linux-release/bin/trackrs --output build/intro-proof
       - name: Replay determinism
         env:
           LIBGL_ALWAYS_SOFTWARE: "1"
@@ -55,6 +65,8 @@ jobs:
             *.zip
             build/linux-release/*.AppImage
             build/asan-audit
+            build/rhi-gate
+            build/intro-proof
             build/${{ matrix.preset }}/Testing
             build/${{ matrix.preset }}/bin
   windows-msvc:
@@ -129,7 +141,7 @@ jobs:
           install: >-
             mingw-w64-ucrt-x86_64-gcc mingw-w64-ucrt-x86_64-cmake
             mingw-w64-ucrt-x86_64-ninja mingw-w64-ucrt-x86_64-SDL2
-            mingw-w64-ucrt-x86_64-SDL2_image mingw-w64-ucrt-x86_64-glew
+            mingw-w64-ucrt-x86_64-SDL2_image
             mingw-w64-ucrt-x86_64-openal mingw-w64-ucrt-x86_64-freealut
             mingw-w64-ucrt-x86_64-physfs mingw-w64-ucrt-x86_64-tinyxml2
             mingw-w64-ucrt-x86_64-glm mingw-w64-ucrt-x86_64-nlohmann-json

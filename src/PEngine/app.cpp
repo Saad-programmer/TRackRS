@@ -1,3 +1,5 @@
+#include "../../engine/rhi/core_device.h"
+#include <filesystem>
 #include "../../engine/core/frame_pacer.h"
 #include <memory>
 #include <sstream>
@@ -287,12 +289,11 @@ int PApp::run(int argc, char *argv[])
 
   
   PUtil::outLog() << "Create window and set video mode" << std::endl;
-#if 0
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_COMPATIBILITY);
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 2);
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 0);
-    SDL_GL_SetAttribute(SDL_GL_ACCELERATED_VISUAL, 1);
-#endif
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 3);
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_FLAGS, SDL_GL_CONTEXT_DEBUG_FLAG);
+    SDL_GL_SetAttribute(SDL_GL_SHARE_WITH_CURRENT_CONTEXT, 0);
   SDL_GL_SetAttribute( SDL_GL_DOUBLEBUFFER, 1 );
   
   if (reqRGB) {
@@ -400,7 +401,7 @@ int PApp::run(int argc, char *argv[])
     {
         PUtil::outLog() << "Failed to create OpenGL context for game window\n";
         PUtil::outLog() << "SDL error: " << SDL_GetError() << std::endl;
-        SDL_DestroyWindow(screen);
+        destroyGraphics();
         SDL_Quit();
 
         if (PHYSFS_deinit() == 0)
@@ -422,8 +423,7 @@ int PApp::run(int argc, char *argv[])
     sdl_joy[i].sdl_joystick = SDL_JoystickOpen(i);
     if (sdl_joy[i].sdl_joystick == nullptr) {
       PUtil::outLog() << "failed to open joystick" << std::endl;
-      SDL_GL_DeleteContext(context);
-      SDL_DestroyWindow(screen);
+      destroyGraphics();
       SDL_Quit();
       if (PHYSFS_deinit() == 0) {
         PUtil::outLog() << "PhysFS: " << physfs_getErrorString() << std::endl;
@@ -463,21 +463,19 @@ int PApp::run(int argc, char *argv[])
   
   SDL_JoystickEventState(SDL_ENABLE);
   
-  int err = glewInit();
-
-  if (err != GLEW_OK) {
-    PUtil::outLog() << "GLEW failed to initialise: " << glewGetErrorString(err) << std::endl;
-    SDL_GL_DeleteContext(context);
-    SDL_DestroyWindow(screen);
-    SDL_Quit();
-    if (PHYSFS_deinit() == 0) {
-      PUtil::outLog() << "PhysFS: " << physfs_getErrorString() << std::endl;
-    }
-    return 1;
+  if (!gladLoadGL(reinterpret_cast<GLADloadfunc>(SDL_GL_GetProcAddress))) {
+    PUtil::outLog() << "glad failed to load OpenGL\n";
+    destroyGraphics(); SDL_Quit(); return 1;
   }
-
-  PUtil::outLog() << "GLEW initialized" << std::endl;
-  
+  try {
+    const char* directory = PHYSFS_getRealDir("/shaders/core/present.vert");
+    if (!directory) throw std::runtime_error("Missing core presentation shaders");
+    rhiDevice = std::make_unique<trackrs::rhi::CoreDevice>(screen,context,cx,cy,
+        std::filesystem::u8path(directory)/"shaders/core",!validation::run.options.enabled);
+  } catch (const std::exception& error) {
+    PUtil::outLog() << "Core RHI startup failed: " << error.what() << '\n';
+    destroyGraphics(); SDL_Quit(); PHYSFS_deinit(); return 1;
+  }
   PUtil::outLog() << "Graphics: " <<
     glGetString(GL_VENDOR) << " " << glGetString(GL_RENDERER) << std::endl;
   
@@ -526,8 +524,7 @@ int PApp::run(int argc, char *argv[])
       sslist.pop_back();
     }
 
-    SDL_GL_DeleteContext(context);
-    SDL_DestroyWindow(screen);
+    destroyGraphics();
     SDL_Quit();
 
     if (PHYSFS_deinit() == 0)
@@ -552,8 +549,7 @@ int PApp::run(int argc, char *argv[])
       sslist.pop_back();
     }
 
-    SDL_GL_DeleteContext(context);
-    SDL_DestroyWindow(screen);
+    destroyGraphics();
     SDL_Quit();
 
     if (PHYSFS_deinit() == 0) {
@@ -583,8 +579,7 @@ int PApp::run(int argc, char *argv[])
   Uint64 curtime = SDL_GetPerformanceCounter();
   trackrs::FramePacer pacer;
   const int requestedInterval = validation::run.options.enabled ? 0 : swapInterval;
-  if (SDL_GL_SetSwapInterval(requestedInterval) != 0 && requestedInterval == -1)
-    SDL_GL_SetSwapInterval(1);
+  rhiDevice->setSwapInterval(requestedInterval);
 
   while (1) {
     pacer.begin();
@@ -706,27 +701,13 @@ int PApp::run(int argc, char *argv[])
       switch (stereo) {
         
       case StereoNone: // Normal, non-stereo rendering
-        if (validationWasStarted && GLEW_ARB_timer_query) {
+        if (validationWasStarted && (GLAD_GL_VERSION_3_3 || GLAD_GL_ARB_timer_query)) {
           glGenQueries(1, &validationQuery);
           glBeginQuery(GL_TIME_ELAPSED, validationQuery);
         }
         render(0.0f);
         if (validationQuery) glEndQuery(GL_TIME_ELAPSED);
-        if (validation::run.complete && !validation::run.options.screenshot.empty()) {
-          // Capture the back buffer BEFORE swapping; the legacy F12 path reads it after swap.
-          std::vector<unsigned char> pixels(static_cast<std::size_t>(cx) * static_cast<std::size_t>(cy) * 3);
-          glPixelStorei(GL_PACK_ALIGNMENT, 1);
-          glReadBuffer(GL_BACK);
-          glReadPixels(0, 0, cx, cy, GL_RGB, GL_UNSIGNED_BYTE, pixels.data());
-          std::ofstream out(validation::run.options.screenshot, std::ios::binary);
-          out << "P6\n" << cx << ' ' << cy << "\n255\n";
-          for (int y = cy - 1; y >= 0; --y)
-            out.write(reinterpret_cast<const char*>(pixels.data() + static_cast<std::size_t>(y * cx * 3)), cx * 3);
-          out.close();
-          if (!out) { validation::run.result = 1; requestExit(); }
-        }
-        if (screenshot_requested) captureScreenshot();
-        SDL_GL_SwapWindow(screen);
+        presentFrame();
         if (validationWasStarted) {
           // MainApp's existing glFinish has completed this frame. Collect all
           // pass timestamps here rather than stalling after each scope.
@@ -766,8 +747,7 @@ int PApp::run(int argc, char *argv[])
         glDrawBuffer(GL_BACK_RIGHT);
         render(stereoEyeTranslation);
         
-        if (screenshot_requested) captureScreenshot();
-        SDL_GL_SwapWindow(screen);
+        presentFrame();
         break;
         
       case StereoRedBlue: // Red-blue anaglyph stereo
@@ -783,8 +763,7 @@ int PApp::run(int argc, char *argv[])
         glColorMask(GL_FALSE, GL_FALSE, GL_TRUE, GL_TRUE);
         render(stereoEyeTranslation);
         
-        if (screenshot_requested) captureScreenshot();
-        SDL_GL_SwapWindow(screen);
+        presentFrame();
         break;
         
       case StereoRedGreen: // Red-green anaglyph stereo
@@ -800,8 +779,7 @@ int PApp::run(int argc, char *argv[])
         glColorMask(GL_FALSE, GL_TRUE, GL_FALSE, GL_TRUE);
         render(stereoEyeTranslation);
         
-        if (screenshot_requested) captureScreenshot();
-        SDL_GL_SwapWindow(screen);
+        presentFrame();
         break;
         
       case StereoRedCyan: // Red-cyan anaglyph stereo
@@ -812,8 +790,7 @@ int PApp::run(int argc, char *argv[])
         glColorMask(GL_FALSE, GL_TRUE, GL_TRUE, GL_TRUE);
         render(stereoEyeTranslation);
         
-        if (screenshot_requested) captureScreenshot();
-        SDL_GL_SwapWindow(screen);
+        presentFrame();
         break;
         
       case StereoYellowBlue: // Yellow-blue anaglyph stereo
@@ -824,8 +801,7 @@ int PApp::run(int argc, char *argv[])
         glColorMask(GL_FALSE, GL_FALSE, GL_TRUE, GL_TRUE);
         render(stereoEyeTranslation);
         
-        if (screenshot_requested) captureScreenshot();
-        SDL_GL_SwapWindow(screen);
+        presentFrame();
         break;
       }
       repaint = false;
@@ -852,8 +828,7 @@ int PApp::run(int argc, char *argv[])
   //SDL_SetWindowGrab(screen, SDL_FALSE);
   SDL_ShowCursor(SDL_ENABLE);
   
-    SDL_GL_DeleteContext(context);
-    SDL_DestroyWindow(screen);
+    destroyGraphics();
     SDL_Quit();
   
   best_times.savePlayer();
@@ -1034,3 +1009,33 @@ void PApp::captureScreenshot() {
         }
         screenshot_requested = false;
       }
+
+PApp::~PApp() { destroyGraphics(); }
+void PApp::destroyGraphics() {
+    rhiDevice.reset();
+    if(context)SDL_GL_DeleteContext(context);
+    if(screen)SDL_DestroyWindow(screen);
+    context=nullptr;screen=nullptr;
+}
+void PApp::presentFrame() {
+    rhiDevice->present([this] {
+        captureValidationScreenshot();
+        if(screenshot_requested)captureScreenshot();
+    });
+}
+void PApp::captureValidationScreenshot() {
+        if (validation::run.complete && !validation::run.options.screenshot.empty()) {
+          // Capture the back buffer BEFORE swapping; the legacy F12 path reads it after swap.
+          std::vector<unsigned char> pixels(static_cast<std::size_t>(cx) * static_cast<std::size_t>(cy) * 3);
+          glPixelStorei(GL_PACK_ALIGNMENT, 1);
+          glReadBuffer(GL_BACK);
+          glReadPixels(0, 0, cx, cy, GL_RGB, GL_UNSIGNED_BYTE, pixels.data());
+          std::ofstream out(validation::run.options.screenshot, std::ios::binary);
+          out << "P6\n" << cx << ' ' << cy << "\n255\n";
+          for (int y = cy - 1; y >= 0; --y)
+            out.write(reinterpret_cast<const char*>(pixels.data() + static_cast<std::size_t>(y * cx * 3)), cx * 3);
+          out.close();
+          if (!out) { validation::run.result = 1; requestExit(); }
+        }
+
+}

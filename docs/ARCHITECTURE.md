@@ -1,6 +1,7 @@
 # Engine baseline and migration boundary
 
-The current executable is still the 0.6.7 compatibility renderer and simulation.
+The visible window uses a GL 3.3 core presentation renderer. Until gate 2b,
+legacy scene rendering runs in a hidden, shared compatibility context.
 The Reality target architecture is specified in CODEX_MASTER_PROMPT.md; the
 directories and features described there are a migration target, not a claim
 about implemented systems.
@@ -19,8 +20,8 @@ about implemented systems.
   and plugin archives. The existing loaders remain the source of runtime behavior.
 
 The PApp loop owns the window/context and legacy subsystems. MainApp loads
-TriggerGame, which owns PSim and PTerrain. No ownership refactor, new content-pack
-schema, GL core conversion, or new vehicle dynamics has been introduced yet.
+TriggerGame, which owns PSim and PTerrain. The Phase 1 module ownership and fixed-step changes are recorded below.
+Phase 2a adds core presentation without changing legacy content or vehicle dynamics.
 
 ## Phase 0 seams
 
@@ -67,3 +68,21 @@ layer. CMake runs this at configure and every game build, including when tests
 are disabled. UI widgets moved out of application menu composition; application
 state dispatch and audio logic have separate sources. Legacy World/Sim/render
 interfaces still share compatibility headers; this is not a completed modern RHI.
+
+## Phase 2a presentation boundary
+
+`engine/rhi` owns shader programs, uniform buffers, cached core state and the
+core/compatibility context bridge. PApp owns CoreDevice and destroys it before
+the visible SDL context. Legacy GL objects are loaded and drawn with the hidden
+compatibility context current. Each completed eye is copied to a shared RGBA8
+texture, synchronized, and presented by a core VAO/fullscreen triangle. Readback
+for validation and F12 occurs on the visible core framebuffer before swap.
+
+KHR_debug is required and installed on both contexts; unexpected API errors are
+fatal. Shader reload failures keep the last valid program, including its checked
+UBO/sampler interface. Interactive file polling includes dependencies and bounded
+root-contained includes; validation disables reload. Frame UBO binding 0 carries
+the presentation extent. This bridge preserves the accepted golden pixels while
+2b remains responsible for replacing every immediate-mode draw site.
+
+See [the gate report](reports/PHASE_2A.md) for evidence and limitations.

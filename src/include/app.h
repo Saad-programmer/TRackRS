@@ -1,3 +1,5 @@
+#include <memory>
+namespace trackrs::rhi { class CoreDevice; }
 // Creator: Saad AIT YAHIA - @github: Saad-programmer
 /*
  This file serves 
@@ -45,8 +47,9 @@ class PApp
     private:
         std::string appname, apptitle;
 
-        SDL_Window *screen; // TODO: rename this to "window" maybe
-        SDL_GLContext context;
+        SDL_Window *screen = nullptr; // TODO: rename this to "window" maybe
+        SDL_GLContext context = nullptr;
+        std::unique_ptr<trackrs::rhi::CoreDevice> rhiDevice;
         
         /// Attempts to set fullscreen at native resolution.
         bool autoVideo = false;
@@ -88,11 +91,9 @@ class PApp
         float getTextureAnisotropy() const noexcept { return textureAnisotropy; }
         void setTextureAnisotropy(float value) noexcept { textureAnisotropy = value; }
         void setFramePacing(int interval, unsigned cap) noexcept { swapInterval = interval; frameCap = cap; }
+        virtual ~PApp();
         PApp(const std::string &title = "PGame", const std::string &name = ".pgame");
 
-        virtual ~PApp()
-        {
-        }
 
         int run(int argc, char *argv[]);
 
@@ -235,6 +236,9 @@ class PApp
     protected:
         void captureScreenshot();
         void playIntro();
+        void presentFrame();
+        void destroyGraphics();
+        void captureValidationScreenshot();
 
         void stereoGLProject(float xmin, float xmax, float ymin, float ymax, float znear, float zfar, float zzps, float dist, float eye);
         void stereoFrustum(float xmin, float xmax, float ymin, float ymax, float znear, float zfar, float zzps, float eye);

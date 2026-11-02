@@ -2,7 +2,7 @@
 #pragma once
 
 #include "vmath.h"
-#include <GL/glew.h>
+#include <glad/gl.h>
 
 #define BUFFER_OFFSET(i) ((char *)nullptr + (i))
 

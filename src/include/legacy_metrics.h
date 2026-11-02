@@ -7,7 +7,7 @@
  * Immediate-mode counters count submitted primitives (including degenerates).
  */
 #include "validation.h"
-#include <GL/glew.h>
+#include <glad/gl.h>
 #include <SDL2/SDL.h>
 namespace validation {
 inline std::uint64_t triangleCount(GLenum mode, unsigned n) {
@@ -55,7 +55,7 @@ public:
         if (!run.capture) return;
         pass = &run.passes.at(name);
         beginCpu = SDL_GetPerformanceCounter();
-        if (GLEW_ARB_timer_query) {
+        if ((GLAD_GL_VERSION_3_3 || GLAD_GL_ARB_timer_query)) {
             glGenQueries(2, queries);
             glQueryCounter(queries[0], GL_TIMESTAMP);
         }
@@ -74,12 +74,16 @@ public:
     PassScope& operator=(const PassScope&) = delete;
 };
 }
-// All submission forms currently present in the legacy tree. Forwarders above
-// are compiled before these macros, so the real GL entry points remain intact.
+// GLAD aliases are replaced only after the forwarders bind actual entry points.
+#undef glBegin
+#undef glEnd
+#undef glVertex2f
+#undef glVertex3f
+#undef glVertex3fv
+#undef glDrawRangeElements
 #define glBegin validation::begin
 #define glEnd validation::end
 #define glVertex2f validation::vertex2
 #define glVertex3f validation::vertex3
 #define glVertex3fv validation::vertex3v
-#undef glDrawRangeElements
 #define glDrawRangeElements validation::drawRange

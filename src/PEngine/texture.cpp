@@ -210,7 +210,7 @@ void PTexture::load (PImage &img, GLfloat cfgAnisotropy, bool genMipmaps, bool c
   if (genMipmaps) {
 #ifdef USE_GEN_MIPMAPS
 
-    glTexParameteri(textarget, GL_GENERATE_MIPMAP_SGIS, GL_TRUE);
+    glTexParameteri(textarget, GL_GENERATE_MIPMAP, GL_TRUE);
 
     glTexImage2D(GL_TEXTURE_2D,0,fmt2,
       newcx,newcy,
@@ -334,7 +334,7 @@ void PTexture::loadPiece(PImage &img, int offx, int offy, int sizex, int sizey, 
 
 #ifdef USE_GEN_MIPMAPS
   if (genMipmaps)
-    glTexParameteri(textarget, GL_GENERATE_MIPMAP_SGIS, GL_TRUE);
+    glTexParameteri(textarget, GL_GENERATE_MIPMAP, GL_TRUE);
 #endif
 
   glTexImage2D(GL_TEXTURE_2D,0,fmt2,
@@ -425,7 +425,7 @@ void PTexture::loadAlpha(PImage &img, bool genMipmaps, bool clamp)
   if (genMipmaps) {
 #ifdef USE_GEN_MIPMAPS
 
-    glTexParameteri(textarget, GL_GENERATE_MIPMAP_SGIS, GL_TRUE);
+    glTexParameteri(textarget, GL_GENERATE_MIPMAP, GL_TRUE);
 
     glTexImage2D(GL_TEXTURE_2D,0,fmt2,
       newcx,newcy,
@@ -552,7 +552,7 @@ void PTexture::loadCubeMap(const std::string &filenamePrefix, const std::string 
     if (genMipmaps) {
 #ifdef USE_GEN_MIPMAPS
 
-      glTexParameteri(textarget, GL_GENERATE_MIPMAP_SGIS, GL_TRUE);
+      glTexParameteri(textarget, GL_GENERATE_MIPMAP, GL_TRUE);
 
       glTexImage2D(sidetarget[side],0,fmt2,
         newcx,newcy,
