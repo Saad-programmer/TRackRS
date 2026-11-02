@@ -1,0 +1,1151 @@
+{
+  "standalone": [
+    {
+      "name": "aegyptian",
+      "collection": "Standalone",
+      "path": "data/maps/aegyptian/aegyptian.level"
+    },
+    {
+      "name": "ahead",
+      "collection": "Standalone",
+      "path": "data/maps/ahead/ahead.level"
+    },
+    {
+      "name": "alignster",
+      "collection": "Standalone",
+      "path": "data/maps/alignster/alignster.level"
+    },
+    {
+      "name": "altitude",
+      "collection": "Standalone",
+      "path": "data/maps/altitude/altitude.level"
+    },
+    {
+      "name": "ancient",
+      "collection": "Standalone",
+      "path": "data/maps/ancient/ancient.level"
+    },
+    {
+      "name": "april",
+      "collection": "Standalone",
+      "path": "data/maps/april/april.level"
+    },
+    {
+      "name": "arizonachase",
+      "collection": "Standalone",
+      "path": "data/maps/arizonachase/arizonachase.level"
+    },
+    {
+      "name": "authentic",
+      "collection": "Standalone",
+      "path": "data/maps/authentic/authentic.level"
+    },
+    {
+      "name": "banned",
+      "collection": "Standalone",
+      "path": "data/maps/banned/banned.level"
+    },
+    {
+      "name": "barren",
+      "collection": "Standalone",
+      "path": "data/maps/barren/barren.level"
+    },
+    {
+      "name": "bender",
+      "collection": "Standalone",
+      "path": "data/maps/bender/bender.level"
+    },
+    {
+      "name": "between",
+      "collection": "Standalone",
+      "path": "data/maps/between/between.level"
+    },
+    {
+      "name": "bitethedust",
+      "collection": "Standalone",
+      "path": "data/maps/bitethedust/bitethedust.level"
+    },
+    {
+      "name": "bliss",
+      "collection": "Standalone",
+      "path": "data/maps/bliss/bliss.level"
+    },
+    {
+      "name": "bluenoon",
+      "collection": "Standalone",
+      "path": "data/maps/bluenoon/bluenoon.level"
+    },
+    {
+      "name": "blunt",
+      "collection": "Standalone",
+      "path": "data/maps/blunt/blunt.level"
+    },
+    {
+      "name": "bool",
+      "collection": "Standalone",
+      "path": "data/maps/bool/bool.level"
+    },
+    {
+      "name": "brittania",
+      "collection": "Standalone",
+      "path": "data/maps/brittania/brittania.level"
+    },
+    {
+      "name": "bunnykingdom",
+      "collection": "Standalone",
+      "path": "data/maps/bunnykingdom/bunnykingdom.level"
+    },
+    {
+      "name": "castlerock",
+      "collection": "Standalone",
+      "path": "data/maps/castlerock/castlerock.level"
+    },
+    {
+      "name": "cheeky",
+      "collection": "Standalone",
+      "path": "data/maps/cheeky/cheeky.level"
+    },
+    {
+      "name": "coastline",
+      "collection": "Standalone",
+      "path": "data/maps/coastline/coastline.level"
+    },
+    {
+      "name": "coffee",
+      "collection": "Standalone",
+      "path": "data/maps/coffee/coffee.level"
+    },
+    {
+      "name": "constrained",
+      "collection": "Standalone",
+      "path": "data/maps/constrained/constrained.level"
+    },
+    {
+      "name": "country",
+      "collection": "Standalone",
+      "path": "data/maps/country/country.level"
+    },
+    {
+      "name": "cracks",
+      "collection": "Standalone",
+      "path": "data/maps/cracks/cracks.level"
+    },
+    {
+      "name": "crooked",
+      "collection": "Standalone",
+      "path": "data/maps/crooked/crooked.level"
+    },
+    {
+      "name": "cutthrough",
+      "collection": "Standalone",
+      "path": "data/maps/cutthrough/cutthrough.level"
+    },
+    {
+      "name": "darkbushes",
+      "collection": "Standalone",
+      "path": "data/maps/darkbushes/darkbushes.level"
+    },
+    {
+      "name": "dashing",
+      "collection": "Standalone",
+      "path": "data/maps/dashing/dashing.level"
+    },
+    {
+      "name": "dashingoffroad",
+      "collection": "Standalone",
+      "path": "data/maps/dashing/dashingoffroad.level"
+    },
+    {
+      "name": "deep",
+      "collection": "Standalone",
+      "path": "data/maps/deep/deep.level"
+    },
+    {
+      "name": "deltarevised",
+      "collection": "Standalone",
+      "path": "data/maps/deltarevised/deltarevised.level"
+    },
+    {
+      "name": "derivative",
+      "collection": "Standalone",
+      "path": "data/maps/derivative/derivative.level"
+    },
+    {
+      "name": "devious",
+      "collection": "Standalone",
+      "path": "data/maps/devious/devious.level"
+    },
+    {
+      "name": "doomed",
+      "collection": "Standalone",
+      "path": "data/maps/doomed/doomed.level"
+    },
+    {
+      "name": "dry",
+      "collection": "Standalone",
+      "path": "data/maps/dry/dry.level"
+    },
+    {
+      "name": "duned",
+      "collection": "Standalone",
+      "path": "data/maps/duned/duned.level"
+    },
+    {
+      "name": "dusthopper",
+      "collection": "Standalone",
+      "path": "data/maps/dusthopper/dusthopper.level"
+    },
+    {
+      "name": "dusty",
+      "collection": "Standalone",
+      "path": "data/maps/dusty/dusty.level"
+    },
+    {
+      "name": "edge",
+      "collection": "Standalone",
+      "path": "data/maps/edge/edge.level"
+    },
+    {
+      "name": "eversnake",
+      "collection": "Standalone",
+      "path": "data/maps/eversnake/eversnake.level"
+    },
+    {
+      "name": "faint",
+      "collection": "Standalone",
+      "path": "data/maps/faint/faint.level"
+    },
+    {
+      "name": "fineline",
+      "collection": "Standalone",
+      "path": "data/maps/fineline/fineline.level"
+    },
+    {
+      "name": "fire",
+      "collection": "Standalone",
+      "path": "data/maps/fire/fire.level"
+    },
+    {
+      "name": "forced",
+      "collection": "Standalone",
+      "path": "data/maps/forced/forced.level"
+    },
+    {
+      "name": "foreign",
+      "collection": "Standalone",
+      "path": "data/maps/foreign/foreign.level"
+    },
+    {
+      "name": "frozen",
+      "collection": "Standalone",
+      "path": "data/maps/frozen/frozen.level"
+    },
+    {
+      "name": "galewarning",
+      "collection": "Standalone",
+      "path": "data/maps/galewarning/galewarning.level"
+    },
+    {
+      "name": "gardendare",
+      "collection": "Standalone",
+      "path": "data/maps/gardendare/gardendare.level"
+    },
+    {
+      "name": "glacier",
+      "collection": "Standalone",
+      "path": "data/maps/glacier/glacier.level"
+    },
+    {
+      "name": "grass",
+      "collection": "Standalone",
+      "path": "data/maps/grass/grass.level"
+    },
+    {
+      "name": "greengroundsrevised",
+      "collection": "Standalone",
+      "path": "data/maps/greengroundsrevised/greengroundsrevised.level"
+    },
+    {
+      "name": "greenland",
+      "collection": "Standalone",
+      "path": "data/maps/greenland/greenland.level"
+    },
+    {
+      "name": "grim",
+      "collection": "Standalone",
+      "path": "data/maps/grim/grim.level"
+    },
+    {
+      "name": "hazy",
+      "collection": "Standalone",
+      "path": "data/maps/hazy/hazy.level"
+    },
+    {
+      "name": "highland",
+      "collection": "Standalone",
+      "path": "data/maps/highland/highland.level"
+    },
+    {
+      "name": "holiday",
+      "collection": "Standalone",
+      "path": "data/maps/holiday/holiday.level"
+    },
+    {
+      "name": "humid",
+      "collection": "Standalone",
+      "path": "data/maps/humid/humid.level"
+    },
+    {
+      "name": "iced",
+      "collection": "Standalone",
+      "path": "data/maps/iced/iced.level"
+    },
+    {
+      "name": "iconic",
+      "collection": "Standalone",
+      "path": "data/maps/iconic/iconic.level"
+    },
+    {
+      "name": "jeopardy",
+      "collection": "Standalone",
+      "path": "data/maps/jeopardy/jeopardy.level"
+    },
+    {
+      "name": "jumpy",
+      "collection": "Standalone",
+      "path": "data/maps/jumpy/jumpy.level"
+    },
+    {
+      "name": "jupiter",
+      "collection": "Standalone",
+      "path": "data/maps/jupiter/jupiter.level"
+    },
+    {
+      "name": "keeper",
+      "collection": "Standalone",
+      "path": "data/maps/keeper/keeper.level"
+    },
+    {
+      "name": "kraut",
+      "collection": "Standalone",
+      "path": "data/maps/kraut/kraut.level"
+    },
+    {
+      "name": "lazyhills",
+      "collection": "Standalone",
+      "path": "data/maps/lazyhills/lazyhills.level"
+    },
+    {
+      "name": "leaves",
+      "collection": "Standalone",
+      "path": "data/maps/leaves/leaves.level"
+    },
+    {
+      "name": "littleisland",
+      "collection": "Standalone",
+      "path": "data/maps/littleisland/littleisland.level"
+    },
+    {
+      "name": "march",
+      "collection": "Standalone",
+      "path": "data/maps/march/march.level"
+    },
+    {
+      "name": "mist",
+      "collection": "Standalone",
+      "path": "data/maps/mist/mist.level"
+    },
+    {
+      "name": "monotonous",
+      "collection": "Standalone",
+      "path": "data/maps/monotonous/monotonous.level"
+    },
+    {
+      "name": "mud",
+      "collection": "Standalone",
+      "path": "data/maps/mud/mud.level"
+    },
+    {
+      "name": "mudbath",
+      "collection": "Standalone",
+      "path": "data/maps/mudbath/mudbath.level"
+    },
+    {
+      "name": "narrowvalley",
+      "collection": "Standalone",
+      "path": "data/maps/narrowvalley/narrowvalley.level"
+    },
+    {
+      "name": "nightly",
+      "collection": "Standalone",
+      "path": "data/maps/nightly/nightly.level"
+    },
+    {
+      "name": "northern",
+      "collection": "Standalone",
+      "path": "data/maps/northern/northern.level"
+    },
+    {
+      "name": "offgrid",
+      "collection": "Standalone",
+      "path": "data/maps/offgrid/offgrid.level"
+    },
+    {
+      "name": "offroad",
+      "collection": "Standalone",
+      "path": "data/maps/offroad/offroad.level"
+    },
+    {
+      "name": "oldbis",
+      "collection": "Standalone",
+      "path": "data/maps/old/oldbis.level"
+    },
+    {
+      "name": "oldquinquies",
+      "collection": "Standalone",
+      "path": "data/maps/old/oldquinquies.level"
+    },
+    {
+      "name": "oldsexies",
+      "collection": "Standalone",
+      "path": "data/maps/old/oldsexies.level"
+    },
+    {
+      "name": "orange",
+      "collection": "Standalone",
+      "path": "data/maps/orange/orange.level"
+    },
+    {
+      "name": "ozon",
+      "collection": "Standalone",
+      "path": "data/maps/ozon/ozon.level"
+    },
+    {
+      "name": "palmbeach",
+      "collection": "Standalone",
+      "path": "data/maps/palmbeach/palmbeach.level"
+    },
+    {
+      "name": "pathfinder",
+      "collection": "Standalone",
+      "path": "data/maps/pathfinder/pathfinder.level"
+    },
+    {
+      "name": "pistolrevised",
+      "collection": "Standalone",
+      "path": "data/maps/pistolrevised/pistolrevised.level"
+    },
+    {
+      "name": "puddles",
+      "collection": "Standalone",
+      "path": "data/maps/puddles/puddles.level"
+    },
+    {
+      "name": "purerocks",
+      "collection": "Standalone",
+      "path": "data/maps/purerocks/purerocks.level"
+    },
+    {
+      "name": "quickie",
+      "collection": "Standalone",
+      "path": "data/maps/quickie/quickie.level"
+    },
+    {
+      "name": "quintessence",
+      "collection": "Standalone",
+      "path": "data/maps/quintessence/quintessence.level"
+    },
+    {
+      "name": "redrock",
+      "collection": "Standalone",
+      "path": "data/maps/redrock/redrock.level"
+    },
+    {
+      "name": "remote",
+      "collection": "Standalone",
+      "path": "data/maps/remote/remote.level"
+    },
+    {
+      "name": "ripe",
+      "collection": "Standalone",
+      "path": "data/maps/ripe/ripe.level"
+    },
+    {
+      "name": "rough",
+      "collection": "Standalone",
+      "path": "data/maps/rough/rough.level"
+    },
+    {
+      "name": "routine",
+      "collection": "Standalone",
+      "path": "data/maps/routine/routine.level"
+    },
+    {
+      "name": "rugged",
+      "collection": "Standalone",
+      "path": "data/maps/rugged/rugged.level"
+    },
+    {
+      "name": "rural",
+      "collection": "Standalone",
+      "path": "data/maps/rural/rural.level"
+    },
+    {
+      "name": "sandstorm",
+      "collection": "Standalone",
+      "path": "data/maps/sandstorm/sandstorm.level"
+    },
+    {
+      "name": "shallow",
+      "collection": "Standalone",
+      "path": "data/maps/shallow/shallow.level"
+    },
+    {
+      "name": "sheltered",
+      "collection": "Standalone",
+      "path": "data/maps/sheltered/sheltered.level"
+    },
+    {
+      "name": "slip",
+      "collection": "Standalone",
+      "path": "data/maps/slip/slip.level"
+    },
+    {
+      "name": "slipstream",
+      "collection": "Standalone",
+      "path": "data/maps/slipstream/slipstream.level"
+    },
+    {
+      "name": "smallswirl",
+      "collection": "Standalone",
+      "path": "data/maps/smallswirl/smallswirl.level"
+    },
+    {
+      "name": "snowdrift",
+      "collection": "Standalone",
+      "path": "data/maps/snowdrift/snowdrift.level"
+    },
+    {
+      "name": "soaked",
+      "collection": "Standalone",
+      "path": "data/maps/soaked/soaked.level"
+    },
+    {
+      "name": "softbelt",
+      "collection": "Standalone",
+      "path": "data/maps/softbelt/softbelt.level"
+    },
+    {
+      "name": "speedbreaker",
+      "collection": "Standalone",
+      "path": "data/maps/speedbreaker/speedbreaker.level"
+    },
+    {
+      "name": "steep",
+      "collection": "Standalone",
+      "path": "data/maps/steep/steep.level"
+    },
+    {
+      "name": "stoned",
+      "collection": "Standalone",
+      "path": "data/maps/stoned/stoned.level"
+    },
+    {
+      "name": "stretch",
+      "collection": "Standalone",
+      "path": "data/maps/stretch/stretch.level"
+    },
+    {
+      "name": "sunday",
+      "collection": "Standalone",
+      "path": "data/maps/sunday/sunday.level"
+    },
+    {
+      "name": "sunset",
+      "collection": "Standalone",
+      "path": "data/maps/sunset/sunset.level"
+    },
+    {
+      "name": "swamp",
+      "collection": "Standalone",
+      "path": "data/maps/swamp/swamp.level"
+    },
+    {
+      "name": "swiftly",
+      "collection": "Standalone",
+      "path": "data/maps/swiftly/swiftly.level"
+    },
+    {
+      "name": "tightcut",
+      "collection": "Standalone",
+      "path": "data/maps/tightcut/tightcut.level"
+    },
+    {
+      "name": "treeline",
+      "collection": "Standalone",
+      "path": "data/maps/treeline/treeline.level"
+    },
+    {
+      "name": "tropic",
+      "collection": "Standalone",
+      "path": "data/maps/tropic/tropic.level"
+    },
+    {
+      "name": "ulterior",
+      "collection": "Standalone",
+      "path": "data/maps/ulterior/ulterior.level"
+    },
+    {
+      "name": "unleashed",
+      "collection": "Standalone",
+      "path": "data/maps/unleashed/unleashed.level"
+    },
+    {
+      "name": "vasttrough",
+      "collection": "Standalone",
+      "path": "data/maps/vasttrough/vasttrough.level"
+    },
+    {
+      "name": "vital",
+      "collection": "Standalone",
+      "path": "data/maps/vital/vital.level"
+    },
+    {
+      "name": "wetbushland",
+      "collection": "Standalone",
+      "path": "data/maps/wetbushland/wetbushland.level"
+    },
+    {
+      "name": "whiteblend",
+      "collection": "Standalone",
+      "path": "data/maps/whiteblend/whiteblend.level"
+    },
+    {
+      "name": "wildmeadow",
+      "collection": "Standalone",
+      "path": "data/maps/wildmeadow/wildmeadow.level"
+    },
+    {
+      "name": "woodtrail",
+      "collection": "Standalone",
+      "path": "data/maps/woodtrail/woodtrail.level"
+    },
+    {
+      "name": "xerxes",
+      "collection": "Standalone",
+      "path": "data/maps/xerxes/xerxes.level"
+    },
+    {
+      "name": "xing",
+      "collection": "Standalone",
+      "path": "data/maps/xing/xing.level"
+    },
+    {
+      "name": "xmas",
+      "collection": "Standalone",
+      "path": "data/maps/xmas/xmas.level"
+    },
+    {
+      "name": "yearzero",
+      "collection": "Standalone",
+      "path": "data/maps/yearzero/yearzero.level"
+    },
+    {
+      "name": "zampano",
+      "collection": "Standalone",
+      "path": "data/maps/zampano/zampano.level"
+    },
+    {
+      "name": "zone",
+      "collection": "Standalone",
+      "path": "data/maps/zone/zone.level"
+    }
+  ],
+  "events": [
+    {
+      "name": "far",
+      "collection": "Triggercup",
+      "path": "data/events/01-triggercup/far/far.level"
+    },
+    {
+      "name": "leap",
+      "collection": "Triggercup",
+      "path": "data/events/01-triggercup/leap/leap.level"
+    },
+    {
+      "name": "monkey",
+      "collection": "Triggercup",
+      "path": "data/events/01-triggercup/monkey/monkey.level"
+    },
+    {
+      "name": "old",
+      "collection": "Triggercup",
+      "path": "data/events/01-triggercup/old/old.level"
+    },
+    {
+      "name": "operation",
+      "collection": "Triggercup",
+      "path": "data/events/01-triggercup/operation/operation.level"
+    },
+    {
+      "name": "warmup",
+      "collection": "Triggercup",
+      "path": "data/events/01-triggercup/warmup/warmup.level"
+    },
+    {
+      "name": "dawn",
+      "collection": "Alps",
+      "path": "data/events/02-alps/dawn/dawn.level"
+    },
+    {
+      "name": "forest",
+      "collection": "Alps",
+      "path": "data/events/02-alps/forest/forest.level"
+    },
+    {
+      "name": "green",
+      "collection": "Alps",
+      "path": "data/events/02-alps/green/green.level"
+    },
+    {
+      "name": "lake",
+      "collection": "Alps",
+      "path": "data/events/02-alps/lake/lake.level"
+    },
+    {
+      "name": "maze",
+      "collection": "Alps",
+      "path": "data/events/02-alps/maze/maze.level"
+    },
+    {
+      "name": "mountain",
+      "collection": "Alps",
+      "path": "data/events/02-alps/mountain/mountain.level"
+    },
+    {
+      "name": "rocky",
+      "collection": "Alps",
+      "path": "data/events/02-alps/rocky/rocky.level"
+    },
+    {
+      "name": "crossing",
+      "collection": "Highstakes",
+      "path": "data/events/03-highstakes/crossing/crossing.level"
+    },
+    {
+      "name": "endless",
+      "collection": "Highstakes",
+      "path": "data/events/03-highstakes/endless/endless.level"
+    },
+    {
+      "name": "highpass",
+      "collection": "Highstakes",
+      "path": "data/events/03-highstakes/highpass/highpass.level"
+    },
+    {
+      "name": "sky",
+      "collection": "Highstakes",
+      "path": "data/events/03-highstakes/sky/sky.level"
+    },
+    {
+      "name": "tricky",
+      "collection": "Highstakes",
+      "path": "data/events/03-highstakes/tricky/tricky.level"
+    },
+    {
+      "name": "daybreak",
+      "collection": "Chasing",
+      "path": "data/events/04-chasing/daybreak/daybreak.level"
+    },
+    {
+      "name": "forsaken",
+      "collection": "Chasing",
+      "path": "data/events/04-chasing/forsaken/forsaken.level"
+    },
+    {
+      "name": "nighttrip",
+      "collection": "Chasing",
+      "path": "data/events/04-chasing/nighttrip/nighttrip.level"
+    },
+    {
+      "name": "oldquarry",
+      "collection": "Chasing",
+      "path": "data/events/04-chasing/oldquarry/oldquarry.level"
+    },
+    {
+      "name": "softbumps",
+      "collection": "Chasing",
+      "path": "data/events/04-chasing/softbumps/softbumps.level"
+    },
+    {
+      "name": "china",
+      "collection": "Weird",
+      "path": "data/events/05-weird/china/china.level"
+    },
+    {
+      "name": "frisky",
+      "collection": "Weird",
+      "path": "data/events/05-weird/frisky/frisky.level"
+    },
+    {
+      "name": "liquid",
+      "collection": "Weird",
+      "path": "data/events/05-weird/liquid/liquid.level"
+    },
+    {
+      "name": "mars",
+      "collection": "Weird",
+      "path": "data/events/05-weird/mars/mars.level"
+    },
+    {
+      "name": "slope",
+      "collection": "Weird",
+      "path": "data/events/05-weird/slope/slope.level"
+    },
+    {
+      "name": "bold",
+      "collection": "Picturesque",
+      "path": "data/events/06-picturesque/bold/bold.level"
+    },
+    {
+      "name": "canyon",
+      "collection": "Picturesque",
+      "path": "data/events/06-picturesque/canyon/canyon.level"
+    },
+    {
+      "name": "curvy",
+      "collection": "Picturesque",
+      "path": "data/events/06-picturesque/curvy/curvy.level"
+    },
+    {
+      "name": "faster",
+      "collection": "Picturesque",
+      "path": "data/events/06-picturesque/faster/faster.level"
+    },
+    {
+      "name": "fields",
+      "collection": "Picturesque",
+      "path": "data/events/06-picturesque/fields/fields.level"
+    },
+    {
+      "name": "plateau",
+      "collection": "Picturesque",
+      "path": "data/events/06-picturesque/plateau/plateau.level"
+    },
+    {
+      "name": "riddle",
+      "collection": "Picturesque",
+      "path": "data/events/06-picturesque/riddle/riddle.level"
+    },
+    {
+      "name": "scottish",
+      "collection": "Picturesque",
+      "path": "data/events/06-picturesque/scottish/scottish.level"
+    },
+    {
+      "name": "stumble",
+      "collection": "Picturesque",
+      "path": "data/events/06-picturesque/stumble/stumble.level"
+    },
+    {
+      "name": "elevated",
+      "collection": "Odd",
+      "path": "data/events/07-odd/elevated/elevated.level"
+    },
+    {
+      "name": "freeride",
+      "collection": "Odd",
+      "path": "data/events/07-odd/freeride/freeride.level"
+    },
+    {
+      "name": "inverted",
+      "collection": "Odd",
+      "path": "data/events/07-odd/inverted/inverted.level"
+    },
+    {
+      "name": "mirrowed",
+      "collection": "Odd",
+      "path": "data/events/07-odd/mirrowed/mirrowed.level"
+    },
+    {
+      "name": "rotated",
+      "collection": "Odd",
+      "path": "data/events/07-odd/rotated/rotated.level"
+    },
+    {
+      "name": "scale",
+      "collection": "Odd",
+      "path": "data/events/07-odd/scale/scale.level"
+    },
+    {
+      "name": "borderline",
+      "collection": "Coy",
+      "path": "data/events/08-coy/borderline/borderline.level"
+    },
+    {
+      "name": "crusted",
+      "collection": "Coy",
+      "path": "data/events/08-coy/crusted/crusted.level"
+    },
+    {
+      "name": "cut",
+      "collection": "Coy",
+      "path": "data/events/08-coy/cut/cut.level"
+    },
+    {
+      "name": "grasshopper",
+      "collection": "Coy",
+      "path": "data/events/08-coy/grasshopper/grasshopper.level"
+    },
+    {
+      "name": "undergrowth",
+      "collection": "Coy",
+      "path": "data/events/08-coy/undergrowth/undergrowth.level"
+    },
+    {
+      "name": "back",
+      "collection": "Marathon",
+      "path": "data/events/09-marathon/marathon/back.level"
+    },
+    {
+      "name": "beyond",
+      "collection": "Marathon",
+      "path": "data/events/09-marathon/marathon/beyond.level"
+    },
+    {
+      "name": "marathon",
+      "collection": "Marathon",
+      "path": "data/events/09-marathon/marathon/marathon.level"
+    },
+    {
+      "name": "midnight",
+      "collection": "Marathon",
+      "path": "data/events/09-marathon/marathon/midnight.level"
+    },
+    {
+      "name": "wet",
+      "collection": "Marathon",
+      "path": "data/events/09-marathon/marathon/wet.level"
+    },
+    {
+      "name": "dirtycruise",
+      "collection": "Flood",
+      "path": "data/events/10-flood/flood/dirtycruise.level"
+    },
+    {
+      "name": "flood",
+      "collection": "Flood",
+      "path": "data/events/10-flood/flood/flood.level"
+    },
+    {
+      "name": "hothell",
+      "collection": "Flood",
+      "path": "data/events/10-flood/flood/hothell.level"
+    },
+    {
+      "name": "nightblast",
+      "collection": "Flood",
+      "path": "data/events/10-flood/flood/nightblast.level"
+    },
+    {
+      "name": "snowylakes",
+      "collection": "Flood",
+      "path": "data/events/10-flood/flood/snowylakes.level"
+    },
+    {
+      "name": "wettarmac",
+      "collection": "Flood",
+      "path": "data/events/10-flood/flood/wettarmac.level"
+    },
+    {
+      "name": "lovely",
+      "collection": "Tight",
+      "path": "data/events/11-tight/lovely/lovely.level"
+    },
+    {
+      "name": "meteor",
+      "collection": "Tight",
+      "path": "data/events/11-tight/meteor/meteor.level"
+    },
+    {
+      "name": "mostly",
+      "collection": "Tight",
+      "path": "data/events/11-tight/mostly/mostly.level"
+    },
+    {
+      "name": "oasis",
+      "collection": "Tight",
+      "path": "data/events/11-tight/oasis/oasis.level"
+    },
+    {
+      "name": "promenade",
+      "collection": "Tight",
+      "path": "data/events/11-tight/promenade/promenade.level"
+    },
+    {
+      "name": "wetwoods",
+      "collection": "Tight",
+      "path": "data/events/11-tight/wetwoods/wetwoods.level"
+    },
+    {
+      "name": "brightrock",
+      "collection": "Encountered",
+      "path": "data/events/12-encountered/brightrock/brightrock.level"
+    },
+    {
+      "name": "detached",
+      "collection": "Encountered",
+      "path": "data/events/12-encountered/detached/detached.level"
+    },
+    {
+      "name": "eager",
+      "collection": "Encountered",
+      "path": "data/events/12-encountered/eager/eager.level"
+    },
+    {
+      "name": "junction",
+      "collection": "Encountered",
+      "path": "data/events/12-encountered/junction/junction.level"
+    },
+    {
+      "name": "merciless",
+      "collection": "Encountered",
+      "path": "data/events/12-encountered/merciless/merciless.level"
+    },
+    {
+      "name": "obscure",
+      "collection": "Encountered",
+      "path": "data/events/12-encountered/obscure/obscure.level"
+    },
+    {
+      "name": "swiss",
+      "collection": "Encountered",
+      "path": "data/events/12-encountered/swiss/swiss.level"
+    },
+    {
+      "name": "swissrain",
+      "collection": "Encountered",
+      "path": "data/events/12-encountered/swiss/swissrain.level"
+    },
+    {
+      "name": "whiterush",
+      "collection": "Encountered",
+      "path": "data/events/12-encountered/whiterush/whiterush.level"
+    },
+    {
+      "name": "aquamarin",
+      "collection": "Generic",
+      "path": "data/events/13-generic/aquamarin/aquamarin.level"
+    },
+    {
+      "name": "generic-dirt",
+      "collection": "Generic",
+      "path": "data/events/13-generic/generic/generic-dirt.level"
+    },
+    {
+      "name": "generic-gravel",
+      "collection": "Generic",
+      "path": "data/events/13-generic/generic/generic-gravel.level"
+    },
+    {
+      "name": "generic-tarmac",
+      "collection": "Generic",
+      "path": "data/events/13-generic/generic/generic-tarmac.level"
+    },
+    {
+      "name": "generic",
+      "collection": "Generic",
+      "path": "data/events/13-generic/generic/generic.level"
+    },
+    {
+      "name": "southern",
+      "collection": "Generic",
+      "path": "data/events/13-generic/southern/southern.level"
+    },
+    {
+      "name": "crust",
+      "collection": "Smoothglobe",
+      "path": "data/events/14-smoothglobe/crust/crust.level"
+    },
+    {
+      "name": "dirtjumper",
+      "collection": "Smoothglobe",
+      "path": "data/events/14-smoothglobe/dirtjumper/dirtjumper.level"
+    },
+    {
+      "name": "highmain",
+      "collection": "Smoothglobe",
+      "path": "data/events/14-smoothglobe/highpass/highmain.level"
+    },
+    {
+      "name": "highmorning",
+      "collection": "Smoothglobe",
+      "path": "data/events/14-smoothglobe/highpass/highmorning.level"
+    },
+    {
+      "name": "highpass",
+      "collection": "Smoothglobe",
+      "path": "data/events/14-smoothglobe/highpass/highpass.level"
+    },
+    {
+      "name": "smoothie",
+      "collection": "Smoothglobe",
+      "path": "data/events/14-smoothglobe/smoothie/smoothie.level"
+    },
+    {
+      "name": "terminalvelosity",
+      "collection": "Smoothglobe",
+      "path": "data/events/14-smoothglobe/terminalvelosity/terminalvelosity.level"
+    },
+    {
+      "name": "anxious",
+      "collection": "Roughvoyage",
+      "path": "data/events/15-roughvoyage/anxious/anxious.level"
+    },
+    {
+      "name": "bark",
+      "collection": "Roughvoyage",
+      "path": "data/events/15-roughvoyage/bark/bark.level"
+    },
+    {
+      "name": "goodmorning",
+      "collection": "Roughvoyage",
+      "path": "data/events/15-roughvoyage/goodmorning.level"
+    },
+    {
+      "name": "lakescape",
+      "collection": "Roughvoyage",
+      "path": "data/events/15-roughvoyage/lakescape/lakescape.level"
+    },
+    {
+      "name": "mosquito",
+      "collection": "Roughvoyage",
+      "path": "data/events/15-roughvoyage/mosquito/mosquito.level"
+    },
+    {
+      "name": "unchallenged",
+      "collection": "Roughvoyage",
+      "path": "data/events/15-roughvoyage/unchallenged.level"
+    },
+    {
+      "name": "infinite-offroad",
+      "collection": "Infinite",
+      "path": "data/events/16-infinite/infinite/infinite-offroad.level"
+    },
+    {
+      "name": "infinite-rain",
+      "collection": "Infinite",
+      "path": "data/events/16-infinite/infinite/infinite-rain.level"
+    },
+    {
+      "name": "infinite-rewind",
+      "collection": "Infinite",
+      "path": "data/events/16-infinite/infinite/infinite-rewind.level"
+    },
+    {
+      "name": "infinite",
+      "collection": "Infinite",
+      "path": "data/events/16-infinite/infinite/infinite.level"
+    }
+  ]
+}
