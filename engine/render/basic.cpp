@@ -167,10 +167,19 @@ void initialize(const std::filesystem::path &shaders, bool reload) {
   renderer = std::make_unique<Renderer>();
   auto &a = r();
   a.reload = reload;
-  a.basic = std::make_unique<rhi::ShaderProgram>(shaders / "basic.vert",
-                                                 shaders / "basic.frag");
-  a.particle = std::make_unique<rhi::ShaderProgram>(shaders / "particle.vert",
-                                                    shaders / "basic.frag");
+  const auto validate = [](GLuint program) {
+    const auto block = glGetUniformBlockIndex(program, "Frame");
+    GLint size = 0;
+    if (block != GL_INVALID_INDEX)
+      glGetActiveUniformBlockiv(program, block, GL_UNIFORM_BLOCK_DATA_SIZE,
+                                &size);
+    return size == static_cast<GLint>(sizeof(glm::mat4)) &&
+           glGetUniformLocation(program, "uTexture0") >= 0;
+  };
+  a.basic = std::make_unique<rhi::ShaderProgram>(
+      shaders / "basic.vert", shaders / "basic.frag", validate);
+  a.particle = std::make_unique<rhi::ShaderProgram>(
+      shaders / "particle.vert", shaders / "basic.frag", validate);
   a.frame = std::make_unique<rhi::UniformBuffer>(sizeof(glm::mat4));
   glGenVertexArrays(1, &a.streamVao);
   glGenBuffers(1, &a.streamBuffer);

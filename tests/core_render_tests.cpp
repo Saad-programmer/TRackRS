@@ -2,8 +2,12 @@
 #include "engine/render/basic.h"
 #include "validation.h"
 #include <array>
+#include <chrono>
 #include <cmath>
+#include <fstream>
+#include <iterator>
 #include <stdexcept>
+#include <thread>
 namespace validation {
 Run run;
 }
@@ -29,7 +33,7 @@ void quad(float left, float right) {
 } // namespace
 void coreRenderTests(const std::filesystem::path &shaders) {
   using namespace trackrs::draw;
-  initialize(shaders, false);
+  initialize(shaders, true);
   try {
     viewport(0, 0, 64, 64);
     disable(GL_DEPTH_TEST);
@@ -64,6 +68,28 @@ void coreRenderTests(const std::filesystem::path &shaders) {
       color(0, 0, 1);
       mesh.draw();
       require(pixel(32, 32)[2] == 255, "retained VAO mesh failed");
+      const auto vertexPath = shaders / "basic.vert";
+      std::ifstream input(vertexPath);
+      const std::string original((std::istreambuf_iterator<char>(input)), {});
+      input.close();
+      auto incompatible = original;
+      const auto block = incompatible.find("uniform Frame {");
+      require(block != std::string::npos, "missing Frame fixture");
+      incompatible.replace(block, std::string("uniform Frame {").size(),
+                           "uniform BrokenFrame {");
+      std::ofstream(vertexPath) << incompatible;
+      std::this_thread::sleep_for(std::chrono::milliseconds(300));
+      finishFrame();
+      mesh.draw();
+      require(
+          pixel(32, 32)[2] == 255,
+          "basic hot reload replaced a valid program with an incompatible UBO");
+      std::ofstream(vertexPath) << original;
+      std::this_thread::sleep_for(std::chrono::milliseconds(300));
+      finishFrame();
+      mesh.draw();
+      require(pixel(32, 32)[2] == 255, "basic hot reload recovery failed");
+
       matrix(Projection);
       ortho(-1, 1, -1, 1, 0, 10);
       matrix(View);

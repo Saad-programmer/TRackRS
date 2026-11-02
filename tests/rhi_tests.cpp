@@ -160,7 +160,12 @@ int main(int argc, char **argv) {
       glDeleteTextures(1, &texture);
       glDeleteVertexArrays(1, &vao);
     }
-    coreRenderTests(std::filesystem::path(argv[2]));
+    const auto basicShaders = temporary / "basic";
+    std::filesystem::create_directory(basicShaders);
+    for (const auto &file : std::filesystem::directory_iterator(argv[2]))
+      std::filesystem::copy_file(file.path(),
+                                 basicShaders / file.path().filename());
+    coreRenderTests(basicShaders);
     debug.check();
     std::cerr << "EXPECTED_KHR_DEBUG_API_ERROR canary follows\n";
     glEnable(0xdead);
