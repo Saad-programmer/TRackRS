@@ -4,9 +4,21 @@
 #include "app.h"
 #include "vehicle.h"
 #include "render.h"
+#include "engine/pbr/renderer.h"
+#include <glm/gtc/type_ptr.hpp>
 void trackrs::Renderer::vehiclePart(PApp& context, const PVehicleType &type, const PVehiclePart &part,
     const PVehicleTypePart &typepart, float alpha)
 {
+    std::unique_ptr<trackrs::pbr::HeadlightScope> headlights;
+    if(typepart.model && typepart.model->imported){
+        trackrs::draw::push();
+        const auto position=part.ref_world.getPosition();
+        trackrs::draw::translate(position.x,position.y,position.z);
+        const auto orientation=part.ref_world.getInverseOrientationMatrix();
+        trackrs::draw::multiply(orientation);
+        glm::mat4 bodyToEye;trackrs::draw::read(trackrs::draw::ViewMatrix,glm::value_ptr(bodyToEye));
+        trackrs::draw::pop();headlights=std::make_unique<trackrs::pbr::HeadlightScope>(bodyToEye);
+    }
     if (typepart.model)
     {
         trackrs::draw::push();

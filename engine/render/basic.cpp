@@ -225,6 +225,7 @@ void flush() {
   measured({a.batchTopology, a.batch.size()});
   a.batch.clear();
 }
+void invalidateGpuState() { if (renderer) renderer->cache.invalidate(); }
 void worldSpace(bool enabled) {
   flush();
   r().state.worldSpace = enabled;

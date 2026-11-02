@@ -15,6 +15,7 @@ install(FILES "${CMAKE_BINARY_DIR}/install-config/trackrs.config.defs" DESTINATI
 install(FILES doc/COPYING.txt doc/DATA_AUTHORS.txt debian/copyright DESTINATION share/doc/trackrs)
 install(DIRECTORY third_party/glad/include/ DESTINATION share/doc/trackrs/dependency-notices/glad)
 install(FILES third_party/plmpeg/pl_mpeg.h DESTINATION share/doc/trackrs/dependency-notices)
+install(FILES third_party/cgltf/cgltf.h third_party/mikktspace/mikktspace.h third_party/meshoptimizer/LICENSE.md third_party/phase2c-dependencies.json third_party/PHASE_2C.md DESTINATION share/doc/trackrs/dependency-notices/pbr)
 install(DIRECTORY docs/licenses/ DESTINATION share/doc/trackrs/dependency-notices)
 install(FILES data/metainfo/trackrs.desktop DESTINATION share/applications)
 install(FILES data/icon/trigger-256.png DESTINATION share/pixmaps RENAME trackrs.png)

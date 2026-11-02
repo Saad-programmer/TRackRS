@@ -55,6 +55,7 @@ void PSSRender::render(PParticleSystem *psys)
 void PSSRender::drawModel(PModel &model, PSSEffect &ssEffect, PSSTexture &ssTexture)
 {
   validation::PassScope timing("mesh_submit");
+  if (model.drawImported()) return;
   for (std::vector<PMesh>::iterator mesh = model.mesh.begin();
     mesh != model.mesh.end();
     mesh++) {

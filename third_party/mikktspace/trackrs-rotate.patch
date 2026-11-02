@@ -1,0 +1,22 @@
+--- a/mikktspace.c
++++ b/mikktspace.c
+@@ -1457,7 +1457,8 @@
+ 
+ 	// Random
+ 	unsigned int t=uSeed&31;
+-	t=(uSeed<<t)|(uSeed>>(32-t));
++	/* TrackRS: zero-bit rotation must not shift by 32 (UBSan). */
++	t=(uSeed<<t)|(uSeed>>((32-t)&31));
+ 	uSeed=uSeed+t+3;
+ 	// Random end
+ 
+@@ -1664,7 +1665,8 @@
+ 
+ 	// Random
+ 	t=uSeed&31;
+-	t=(uSeed<<t)|(uSeed>>(32-t));
++	/* TrackRS: zero-bit rotation must not shift by 32 (UBSan). */
++	t=(uSeed<<t)|(uSeed>>((32-t)&31));
+ 	uSeed=uSeed+t+3;
+ 	// Random end
+ 
