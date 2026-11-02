@@ -573,6 +573,7 @@ int PApp::run(int argc, char *argv[])
   sdl_keymap = SDL_GetKeyboardState(&sdl_numkeys);
 
   resize();
+  playIntro();
 
   PUtil::outLog() << "Initialisation complete, entering main loop" << std::endl;
 

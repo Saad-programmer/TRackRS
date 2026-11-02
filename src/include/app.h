@@ -234,6 +234,7 @@ class PApp
         void drawModel(PModel &model, float alpha);
     protected:
         void captureScreenshot();
+        void playIntro();
 
         void stereoGLProject(float xmin, float xmax, float ymin, float ymax, float znear, float zfar, float zzps, float dist, float eye);
         void stereoFrustum(float xmin, float xmax, float ymin, float ymax, float znear, float zfar, float zzps, float eye);

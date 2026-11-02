@@ -874,11 +874,14 @@ void MainApp::renderStateGame(float eyetranslation)
             const float alpha = game->sim->interpolationAlpha();
             const auto& previous = vehic->body->previous();
             const auto currentPosition = vehic->body->getPosition();
-            const auto position = previous.getPosition() + (currentPosition - previous.getPosition()) * alpha;
+            const auto oldPosition = previous.getPosition();
             const auto a = previous.getOrientation(), b = vehic->body->getOrientation();
-            const auto q = trackrs::interpolateRotation(glm::quat(a.w,a.x,a.y,a.z), glm::quat(b.w,b.x,b.y,b.z), alpha);
+            const auto pose = trackrs::interpolatePose(
+                {{oldPosition.x,oldPosition.y,oldPosition.z}, glm::quat(a.w,a.x,a.y,a.z)},
+                {{currentPosition.x,currentPosition.y,currentPosition.z}, glm::quat(b.w,b.x,b.y,b.z)}, alpha);
+            const auto q = pose.rotation;
             const auto orientation = quatf(q.x,q.y,q.z,q.w).getMatrix().transpose();
-            glTranslatef(position.x, position.y, position.z);
+            glTranslatef(pose.position.x, pose.position.y, pose.position.z);
             glMultMatrixf(orientation);
             glMultMatrixf(vehic->body->getOrientationMatrix());
             glTranslatef(-currentPosition.x, -currentPosition.y, -currentPosition.z);

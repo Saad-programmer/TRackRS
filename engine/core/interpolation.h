@@ -11,4 +11,11 @@ inline glm::quat interpolateRotation(glm::quat a, glm::quat b, float alpha) {
     const auto result = a * (1.0f - alpha) + b * alpha;
     return glm::dot(result, result) > 0 ? glm::normalize(result) : glm::quat(1, 0, 0, 0);
 }
+struct RenderPose { glm::vec3 position; glm::quat rotation; };
+inline RenderPose interpolatePose(const RenderPose& previous, const RenderPose& current, float alpha) {
+    alpha = glm::clamp(alpha, 0.0f, 1.0f);
+    return {glm::mix(previous.position, current.position, alpha),
+            interpolateRotation(previous.rotation, current.rotation, alpha)};
+}
+
 }

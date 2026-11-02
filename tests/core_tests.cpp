@@ -136,3 +136,15 @@ TEST_CASE("dev policy bypasses championship vehicle unlocks through the same API
     policy.edition = trackrs::EditionPolicy::Edition::Dev;
     CHECK(policy.championship(false));
 }
+
+TEST_CASE("render pose interpolates both physics transforms without modifying snapshots") {
+    const trackrs::RenderPose previous{{1,2,3}, glm::quat(1,0,0,0)};
+    const trackrs::RenderPose current{{5,6,7}, glm::quat(0,0,0,1)};
+    const auto middle=trackrs::interpolatePose(previous,current,.5f);
+    CHECK(middle.position==glm::vec3(3,4,5));
+    CHECK(middle.rotation.z==doctest::Approx(.70710678f));
+    CHECK(trackrs::interpolatePose(previous,current,0).position==previous.position);
+    CHECK(trackrs::interpolatePose(previous,current,1).position==current.position);
+    CHECK(previous.position==glm::vec3(1,2,3)); CHECK(current.position==glm::vec3(5,6,7));
+    CHECK(previous.rotation==glm::quat(1,0,0,0)); CHECK(current.rotation==glm::quat(0,0,0,1));
+}
