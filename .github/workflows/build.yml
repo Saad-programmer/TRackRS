@@ -47,6 +47,9 @@ jobs:
       - name: In-window intro playback and skip
         if: matrix.compiler == 'g++' && matrix.preset == 'linux-release'
         run: xvfb-run -a -s '-screen 0 640x480x24' python3 tests/test_intro.py --binary build/linux-release/bin/trackrs --output build/intro-proof
+      - name: Edition menu navigation and capture
+        if: matrix.compiler == 'g++' && matrix.preset == 'linux-release'
+        run: xvfb-run -a -s '-screen 0 640x480x24' python3 tests/test_edition_ui.py --binary build/linux-release/bin/trackrs --output build/edition-ui
       - name: Replay determinism
         env:
           LIBGL_ALWAYS_SOFTWARE: "1"
@@ -69,6 +72,7 @@ jobs:
             build/asan-audit
             build/rhi-gate
             build/intro-proof
+            build/edition-ui
             build/${{ matrix.preset }}/Testing
             build/${{ matrix.preset }}/bin
   windows-msvc:
