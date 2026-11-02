@@ -1,0 +1,30 @@
+{
+  "schema": "trackrs.legacy-benchmark/1",
+  "stage": "/maps/greenland/greenland.level",
+  "vehicle": "fox_super500",
+  "renderer": "llvmpipe (LLVM 19.1.7, 256 bits)",
+  "seed": 1000,
+  "ticks": 1500,
+  "step_seconds": 0.004,
+  "state_hash": "804029ba668f1ffb",
+  "samples": 1499,
+  "frame_ms_avg": 27.97711235,
+  "frame_ms_p99": 214.597956,
+  "frame_ms_p999": 551.986831,
+  "cpu_update_ms_avg": 0.04848298732,
+  "gpu_frame_ms_avg": 7.971357225,
+  "load_ms": 1305.439973,
+  "passes": {
+    "mesh_submit": { "calls": 7495, "cpu_ms_per_frame": 0.420268561, "gpu_ms_per_frame": 0.2237723049 },
+    "particles": { "calls": 1499, "cpu_ms_per_frame": 0.2604358819, "gpu_ms_per_frame": 1.516935567 },
+    "sky": { "calls": 1499, "cpu_ms_per_frame": 0.5386365831, "gpu_ms_per_frame": 0.01428688059 },
+    "terrain": { "calls": 1499, "cpu_ms_per_frame": 8.470505817, "gpu_ms_per_frame": 0.537562018 },
+    "ui_text": { "calls": 13991, "cpu_ms_per_frame": 0.576339527, "gpu_ms_per_frame": 0.3710626171 },
+    "water": { "calls": 0, "cpu_ms_per_frame": 0, "gpu_ms_per_frame": null }
+  },
+  "draw_calls": 114.8078719,
+  "triangles": 122639.8252,
+  "vram_bytes": null,
+  "ram_peak_bytes": 382717952,
+  "measurement_notes": "Whole-frame and per-scope GPU queries perturb timings; scope queries are collected after the core batch fence. Loading frame excluded; no warmup exclusion. Draw calls and triangles are mean submitted primitives, including degenerates. VRAM is unavailable without a portable driver memory query; no estimate is fabricated."
+}

@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 #include "core_device.h"
 #include "../render/basic.h"
+#include "../pbr/renderer.h"
 #include <cstdio>
 #include <stdexcept>
 namespace trackrs::rhi {
@@ -26,6 +27,7 @@ CoreDevice::CoreDevice(SDL_Window *window, SDL_GLContext context, int, int,
     throw std::runtime_error("OpenGL 3.3 core required");
   impl_->debug.install();
   draw::initialize(shaders, reload);
+  pbr::configure(shaders.parent_path() / "pbr");
   impl_->debug.check();
   std::fprintf(stderr,
                "RHI: GL %d.%d core only; retained meshes, batched UI, "

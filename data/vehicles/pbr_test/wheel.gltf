@@ -1,0 +1,208 @@
+{
+  "asset": {
+    "version": "2.0",
+    "generator": "TrackRS original CC0 test fixture"
+  },
+  "extensionsUsed": [
+    "KHR_materials_clearcoat"
+  ],
+  "buffers": [
+    {
+      "uri": "wheel.bin",
+      "byteLength": 1152
+    }
+  ],
+  "bufferViews": [
+    {
+      "buffer": 0,
+      "byteOffset": 0,
+      "byteLength": 432
+    },
+    {
+      "buffer": 0,
+      "byteOffset": 432,
+      "byteLength": 432
+    },
+    {
+      "buffer": 0,
+      "byteOffset": 864,
+      "byteLength": 288
+    }
+  ],
+  "accessors": [
+    {
+      "bufferView": 0,
+      "componentType": 5126,
+      "count": 36,
+      "type": "VEC3",
+      "min": [
+        -0.533333333,
+        -1,
+        -1
+      ],
+      "max": [
+        0.533333333,
+        1,
+        1
+      ]
+    },
+    {
+      "bufferView": 1,
+      "componentType": 5126,
+      "count": 36,
+      "type": "VEC3",
+      "min": [
+        -1,
+        -1,
+        -1
+      ],
+      "max": [
+        1,
+        1,
+        1
+      ]
+    },
+    {
+      "bufferView": 2,
+      "componentType": 5126,
+      "count": 36,
+      "type": "VEC2"
+    }
+  ],
+  "images": [
+    {
+      "uri": "paint.png"
+    },
+    {
+      "uri": "paint-orm.png"
+    },
+    {
+      "uri": "normal.png"
+    },
+    {
+      "uri": "rubber.png"
+    },
+    {
+      "uri": "rubber-orm.png"
+    },
+    {
+      "uri": "normal.png"
+    },
+    {
+      "uri": "glass.png"
+    },
+    {
+      "uri": "glass-orm.png"
+    },
+    {
+      "uri": "normal.png"
+    }
+  ],
+  "textures": [
+    {
+      "source": 0
+    },
+    {
+      "source": 1
+    },
+    {
+      "source": 2
+    },
+    {
+      "source": 3
+    },
+    {
+      "source": 4
+    },
+    {
+      "source": 5
+    },
+    {
+      "source": 6
+    },
+    {
+      "source": 7
+    },
+    {
+      "source": 8
+    }
+  ],
+  "materials": [
+    {
+      "name": "paint",
+      "pbrMetallicRoughness": {
+        "baseColorTexture": {
+          "index": 0
+        },
+        "metallicRoughnessTexture": {
+          "index": 1
+        }
+      },
+      "normalTexture": {
+        "index": 2
+      },
+      "extensions": {
+        "KHR_materials_clearcoat": {
+          "clearcoatFactor": 1,
+          "clearcoatRoughnessFactor": 0.12
+        }
+      }
+    },
+    {
+      "name": "rubber",
+      "pbrMetallicRoughness": {
+        "baseColorTexture": {
+          "index": 3
+        },
+        "metallicRoughnessTexture": {
+          "index": 4
+        }
+      },
+      "normalTexture": {
+        "index": 5
+      }
+    },
+    {
+      "name": "glass",
+      "pbrMetallicRoughness": {
+        "baseColorTexture": {
+          "index": 6
+        },
+        "metallicRoughnessTexture": {
+          "index": 7
+        }
+      },
+      "normalTexture": {
+        "index": 8
+      }
+    }
+  ],
+  "meshes": [
+    {
+      "primitives": [
+        {
+          "attributes": {
+            "POSITION": 0,
+            "NORMAL": 1,
+            "TEXCOORD_0": 2
+          },
+          "material": 1
+        }
+      ]
+    }
+  ],
+  "nodes": [
+    {
+      "mesh": 0,
+      "name": "Fictional TrackRS PBR test car"
+    }
+  ],
+  "scenes": [
+    {
+      "nodes": [
+        0
+      ]
+    }
+  ],
+  "scene": 0
+}

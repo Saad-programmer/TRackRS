@@ -60,6 +60,7 @@ public:
 void initialize(const std::filesystem::path &shaders, bool reload);
 void shutdown();
 void flush();
+void invalidateGpuState();
 void finishFrame();
 void worldSpace(bool enabled);
 void finish();

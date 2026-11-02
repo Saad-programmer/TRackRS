@@ -3,6 +3,7 @@
 #include "pengine.h"
 #include "physfs_utils.h"
 #include "render.h"
+#include "engine/pbr/renderer.h"
 
 PSSModel::PSSModel(PApp &parentApp) : PSubsystem(parentApp)
 {
@@ -94,6 +95,8 @@ std::pair<vec3f, vec3f> PModel::getExtents() const
   vec3f v_min(1000000000.0, 1000000000.0, 1000000000.0),
     v_max(-1000000000.0, -1000000000.0, -1000000000.0);
 
+  if(imported){for(const auto& sub:imported->submeshes)for(const auto& vertex:sub.vertices){v_min.x=std::min(v_min.x,vertex.position[0]);v_min.y=std::min(v_min.y,vertex.position[1]);v_min.z=std::min(v_min.z,vertex.position[2]);v_max.x=std::max(v_max.x,vertex.position[0]);v_max.y=std::max(v_max.y,vertex.position[1]);v_max.z=std::max(v_max.z,vertex.position[2]);}return {v_min,v_max};}
+
   for (unsigned int a=0; a<mesh.size(); ++a) {
     for (unsigned int b=0; b<mesh[a].vert.size(); ++b) {
       if (v_min.x > mesh[a].vert[b].x)
@@ -122,6 +125,25 @@ struct matl_s {
 
 PModel::PModel (const std::string &filename, float globalScale)
 {
+   const auto extension = std::filesystem::path(filename).extension().string();
+   if (extension == ".gltf" || extension == ".glb") {
+     try {
+       auto reader = [](const std::string& path) {
+         PHYSFS_File* file=PHYSFS_openRead(path.c_str());
+         if (!file) throw std::runtime_error("cannot open mesh dependency: "+path);
+         std::unique_ptr<PHYSFS_File, decltype(&PHYSFS_close)> handle(file,PHYSFS_close);
+         auto size=PHYSFS_fileLength(file);
+         if(size<0 || size>128*1024*1024) throw std::runtime_error("invalid mesh dependency size");
+         trackrs::mesh::Bytes bytes(static_cast<std::size_t>(size));
+         if(PHYSFS_readBytes(file,bytes.data(),static_cast<PHYSFS_uint64>(size))!=size)throw std::runtime_error("short mesh dependency read");
+         return bytes;
+       };
+       trackrs::mesh::ImportOptions options;options.gltfYUpToZUp=true;
+       imported=std::make_shared<trackrs::mesh::MeshData>(trackrs::mesh::MeshImporter::load(filename,reader,options));
+       for(auto& sub:imported->submeshes)for(std::size_t i=0;i<sub.vertices.size();++i){for(unsigned axis=0;axis<3;++axis)sub.vertices[i].position[axis]*=globalScale;sub.packed[i]=trackrs::mesh::packVertex(sub.vertices[i],sub.packed[i].color);}
+       return;
+     }catch(const std::exception& error){throw PException(error.what());}
+   }
    /* Let's check each model type will load (ASE or OBJ) */
    if(filename.find(".ase") != std::string::npos)
    {
@@ -131,6 +153,14 @@ PModel::PModel (const std::string &filename, float globalScale)
    {
       loadOBJ(filename, globalScale);
    }
+}
+
+bool PModel::drawImported(float alpha) {
+  if(!imported)return false;
+  trackrs::draw::flush();
+  if(!materialGpu){materialGpu=std::make_shared<trackrs::pbr::Model>(*imported,trackrs::pbr::shaderDirectory());trackrs::draw::invalidateGpuState();}
+  materialGpu->drawCurrent(alpha);
+  return true;
 }
 
 /*! Load an .obj model from file to the pengine structures.

@@ -1,0 +1,93 @@
+[
+  {
+    "stage": "ahead",
+    "draw_calls": 217.2308205,
+    "triangles": 477007.8279,
+    "before_draw_calls": 217.2308205,
+    "before_triangles": 477007.8279
+  },
+  {
+    "stage": "aegyptian",
+    "draw_calls": 123.1807872,
+    "triangles": 465472.9019,
+    "before_draw_calls": 123.1807872,
+    "before_triangles": 465472.9019
+  },
+  {
+    "stage": "greenland",
+    "draw_calls": 114.8078719,
+    "triangles": 122639.8252,
+    "before_draw_calls": 114.8078719,
+    "before_triangles": 122639.8252
+  },
+  {
+    "stage": "mudbath",
+    "draw_calls": 182.9086057,
+    "triangles": 280409.9533,
+    "before_draw_calls": 182.9086057,
+    "before_triangles": 280409.9533
+  },
+  {
+    "stage": "april",
+    "draw_calls": 141.8772515,
+    "triangles": 122249.8773,
+    "before_draw_calls": 141.8772515,
+    "before_triangles": 122249.8773
+  },
+  {
+    "stage": "ancient",
+    "draw_calls": 93.11541027,
+    "triangles": 115711.7585,
+    "before_draw_calls": 93.11541027,
+    "before_triangles": 115711.7585
+  },
+  {
+    "stage": "coastline",
+    "draw_calls": 255.8872582,
+    "triangles": 146539.0807,
+    "before_draw_calls": 255.8872582,
+    "before_triangles": 146539.0807
+  },
+  {
+    "stage": "country",
+    "draw_calls": 148.8292195,
+    "triangles": 135795.4663,
+    "before_draw_calls": 148.8292195,
+    "before_triangles": 135795.4663
+  },
+  {
+    "stage": "darkbushes",
+    "draw_calls": 248.6164109,
+    "triangles": 534080.2989,
+    "before_draw_calls": 248.6164109,
+    "before_triangles": 534080.2989
+  },
+  {
+    "stage": "barren",
+    "draw_calls": 243.8712475,
+    "triangles": 485988.1815,
+    "before_draw_calls": 243.8712475,
+    "before_triangles": 485988.1815
+  },
+  {
+    "stage": "altitude",
+    "draw_calls": 260.2141428,
+    "triangles": 447350.95,
+    "before_draw_calls": 260.2141428,
+    "before_triangles": 447350.95
+  },
+  {
+    "stage": "arizonachase",
+    "draw_calls": 128.9332889,
+    "triangles": 425653.1301,
+    "before_draw_calls": 128.9332889,
+    "before_triangles": 425653.1301
+  },
+  {
+    "stage": "glacier",
+    "draw_calls": 171.8859239,
+    "triangles": 134825.5744,
+    "before_draw_calls": 171.8859239,
+    "before_triangles": 134825.5744
+  }
+]

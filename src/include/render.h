@@ -1,4 +1,6 @@
 #include "engine/render/basic.h"
+namespace trackrs::mesh { struct MeshData; }
+namespace trackrs::pbr { class Model; }
 #include "../../engine/core/pcg32.h"
 // Creator: Saad AIT YAHIA - @github: Saad-programmer
 #pragma once
@@ -368,6 +370,9 @@ class PModel : public PResource {
 public:
 	PModel (const std::string &filename, float globalScale = 1.0);
 	std::vector<PMesh> mesh;
+  std::shared_ptr<trackrs::mesh::MeshData> imported;
+  std::shared_ptr<trackrs::pbr::Model> materialGpu;
+  bool drawImported(float alpha=1);
 	std::pair<vec3f, vec3f> getExtents() const;
 };
 

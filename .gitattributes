@@ -1,0 +1,4 @@
+# Preserve upstream source formatting and literal unified-patch context.
+third_party/cgltf/* -whitespace
+third_party/mikktspace/* -whitespace
+third_party/meshoptimizer/* -whitespace

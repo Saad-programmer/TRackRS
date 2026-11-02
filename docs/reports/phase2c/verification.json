@@ -1,0 +1,25 @@
+{
+  "runtime_commit": "eb7cc1eb231e08bfd83315e59c2d508dad81635a",
+  "accepted_reference": "phase-2b-done",
+  "hashes_unchanged": 13,
+  "images_pixel_identical": 8,
+  "source_sha256": {
+    "engine/mesh/vertex_layout.h": "df02ce381556bf139e4293627315c629c25fbc5fe30ddbaea06b570fcb3cf99c",
+    "engine/mesh/mesh_importer.cpp": "50c5c5a986757b973b18a9a06fa54d7c36c43964511592d9612ef1e205715c79",
+    "engine/mesh/tangents.cpp": "ba9706a95de949e015df6f2de08780daf462e2c9e1717313bf39d0414ec988d9",
+    "engine/pbr/renderer.cpp": "e396f431d2315f4016963e6028ce778b1ff8c146e36bd2db3c689b4ef116619a",
+    "data/shaders/pbr/pbr.vert": "d780d1763ccb8dbf886e2d0857872d0624d0fe6c2c6bb52809b70e9464efaada",
+    "data/shaders/pbr/pbr.frag": "9a6fd6bb9a67a30363f463db686022dbe05462c96791ac97fe4a43f65ed764a6",
+    "data/shaders/pbr/brdf.glsl": "8a59af89b24a4cbe747df7a03da168924936be65fa8dbecfc69105c4f73393b1",
+    "data/shaders/pbr/furnace.frag": "fb15687519e56f1c7438696fc6933c4e3310ccab2c47e97ae6f72c036074b9cb",
+    "tools/material_preview.cpp": "3fef263e78cce49e2bc79b0b8015403fb0f318f5c2b0c8cf2928b605cc7b6b71"
+  },
+  "scope": "Phase 2c only; Phase 2d not started",
+  "ci_candidate": {
+    "commit": "337a8a5ffcf16f4eb7b46ac2c59684c733402cac",
+    "run": "https://github.com/Saad-programmer/TRackRS/actions/runs/41512054893",
+    "result": "six jobs green"
+  },
+  "simulated_seconds_per_legacy_case": 6,
+  "legacy_repeats": 1
+}

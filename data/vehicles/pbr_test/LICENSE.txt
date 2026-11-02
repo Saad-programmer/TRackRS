@@ -1,0 +1,4 @@
+Original fictional low-poly geometry and tiny PNG material textures by TrackRS contributors, 2026.
+Dedicated to the public domain under CC0 1.0: https://creativecommons.org/publicdomain/zero/1.0/
+Rebuild with tools/generate_pbr_fixture.py (Python standard library only).
+Vehicle physics configuration is derived from the repository's GPL-2.0-or-later Cordo configuration.

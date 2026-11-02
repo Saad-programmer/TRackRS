@@ -1,0 +1,29 @@
+Test project /workspace/TRackRS/build/linux-debug-asan
+      Start  1: mesh-importer
+ 1/12 Test  #1: mesh-importer ....................   Passed    0.10 sec
+      Start  2: pbr-shader-permutations
+ 2/12 Test  #2: pbr-shader-permutations ..........   Passed    1.43 sec
+      Start  3: core-primitives
+ 3/12 Test  #3: core-primitives ..................   Passed    0.05 sec
+      Start  4: movie-decoder
+ 4/12 Test  #4: movie-decoder ....................   Passed    0.19 sec
+      Start  5: validation-unit
+ 5/12 Test  #5: validation-unit ..................   Passed    0.04 sec
+      Start  6: cli-help
+ 6/12 Test  #6: cli-help .........................   Passed    0.06 sec
+      Start  7: cli-invalid
+ 7/12 Test  #7: cli-invalid ......................   Passed    0.07 sec
+      Start  8: module-layering
+ 8/12 Test  #8: module-layering ..................   Passed    0.26 sec
+      Start  9: core-only-source
+ 9/12 Test  #9: core-only-source .................   Passed    0.08 sec
+      Start 10: legacy-content
+10/12 Test #10: legacy-content ...................   Passed    0.20 sec
+      Start 11: lsan-audit-policy
+11/12 Test #11: lsan-audit-policy ................   Passed    0.10 sec
+      Start 12: lsan-application-canary
+12/12 Test #12: lsan-application-canary ..........   Passed    0.15 sec
+
+100% tests passed, 0 tests failed out of 12
+
+Total Test time (real) =   2.75 sec

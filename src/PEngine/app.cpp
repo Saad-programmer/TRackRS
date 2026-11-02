@@ -853,6 +853,7 @@ void PApp::grabMouse(bool grab)
 void PApp::drawModel(PModel &model, float alpha)
 {
   validation::PassScope timing("mesh_submit");
+  if (model.drawImported(alpha)) return;
   for (std::vector<PMesh>::iterator mesh = model.mesh.begin();
     mesh != model.mesh.end();
     ++mesh) {

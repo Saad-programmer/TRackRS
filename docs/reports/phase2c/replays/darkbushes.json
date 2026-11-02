@@ -1,0 +1,30 @@
+{
+  "schema": "trackrs.legacy-benchmark/1",
+  "stage": "/maps/darkbushes/darkbushes.level",
+  "vehicle": "fox_super500",
+  "renderer": "llvmpipe (LLVM 19.1.7, 256 bits)",
+  "seed": 1000,
+  "ticks": 1500,
+  "step_seconds": 0.004,
+  "state_hash": "b6d2c008c0056040",
+  "samples": 1499,
+  "frame_ms_avg": 121.5681487,
+  "frame_ms_p99": 619.847501,
+  "frame_ms_p999": 1295.88394,
+  "cpu_update_ms_avg": 0.1200161514,
+  "gpu_frame_ms_avg": 28.05910294,
+  "load_ms": 1842.441543,
+  "passes": {
+    "mesh_submit": { "calls": 7495, "cpu_ms_per_frame": 0.8085849346, "gpu_ms_per_frame": 0.5829274817 },
+    "particles": { "calls": 1499, "cpu_ms_per_frame": 0.6858401848, "gpu_ms_per_frame": 1.830806836 },
+    "sky": { "calls": 1499, "cpu_ms_per_frame": 0.9536636564, "gpu_ms_per_frame": 0.06965996064 },
+    "terrain": { "calls": 1499, "cpu_ms_per_frame": 59.97562666, "gpu_ms_per_frame": 5.559691865 },
+    "ui_text": { "calls": 13991, "cpu_ms_per_frame": 0.5276051815, "gpu_ms_per_frame": 0.2977143182 },
+    "water": { "calls": 0, "cpu_ms_per_frame": 0, "gpu_ms_per_frame": null }
+  },
+  "draw_calls": 248.6164109,
+  "triangles": 534080.2989,
+  "vram_bytes": null,
+  "ram_peak_bytes": 452120576,
+  "measurement_notes": "Whole-frame and per-scope GPU queries perturb timings; scope queries are collected after the core batch fence. Loading frame excluded; no warmup exclusion. Draw calls and triangles are mean submitted primitives, including degenerates. VRAM is unavailable without a portable driver memory query; no estimate is fabricated."
+}

@@ -15,7 +15,7 @@ jobs:
       - name: Dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y ninja-build libsdl2-dev libsdl2-image-dev libopenal-dev libalut-dev libtinyxml2-dev libphysfs-dev libgl1-mesa-dev libglu1-mesa-dev xvfb xauth xdotool clang-tidy libglm-dev nlohmann-json3-dev
+          sudo apt-get install -y ninja-build libsdl2-dev libsdl2-image-dev libopenal-dev libalut-dev libtinyxml2-dev libphysfs-dev libgl1-mesa-dev libglu1-mesa-dev xvfb xauth xdotool clang-tidy glslang-tools libglm-dev nlohmann-json3-dev
       - run: cmake --preset ${{ matrix.preset }} -DCMAKE_CXX_COMPILER=${{ matrix.compiler }} -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
       - run: cmake --build --preset ${{ matrix.preset }} -j2
       - run: ctest --preset ${{ matrix.preset }}
@@ -44,6 +44,11 @@ jobs:
           sanitizer_args=()
           if [ '${{ matrix.preset }}' = 'linux-debug-asan' ]; then sanitizer_args+=(--asan); fi
           xvfb-run -a -s '-screen 0 640x480x24' python3 tests/run_rhi.py --binary build/${{ matrix.preset }}/bin/rhi_tests --output build/rhi-gate "${sanitizer_args[@]}"
+      - name: PBR shader and material integration
+        run: |
+          sanitizer_args=()
+          if [ '${{ matrix.preset }}' = 'linux-debug-asan' ]; then sanitizer_args+=(--asan); fi
+          xvfb-run -a -s '-screen 0 1024x768x24' python3 tests/run_pbr.py --binary build/${{ matrix.preset }}/bin/material_preview --game-binary build/${{ matrix.preset }}/bin/trackrs --output build/pbr-gate "${sanitizer_args[@]}"
       - name: In-window intro playback and skip
         if: matrix.compiler == 'g++' && matrix.preset == 'linux-release'
         run: xvfb-run -a -s '-screen 0 640x480x24' python3 tests/test_intro.py --binary build/linux-release/bin/trackrs --output build/intro-proof
@@ -71,6 +76,7 @@ jobs:
             build/linux-release/*.AppImage
             build/asan-audit
             build/rhi-gate
+            build/pbr-gate
             build/intro-proof
             build/edition-ui
             build/${{ matrix.preset }}/Testing

@@ -1,0 +1,17 @@
+{
+  "cgltf": {
+    "repository": "https://github.com/jkuhlmann/cgltf",
+    "ref": "refs/tags/v1.15",
+    "commit": "360db1a95480fe102ae9c69b27c5d101167ff5ba"
+  },
+  "mikktspace": {
+    "repository": "https://github.com/mmikk/MikkTSpace",
+    "ref": "HEAD",
+    "commit": "3e895b49d05ea07e4c2133156cfa94369e19e409"
+  },
+  "meshoptimizer": {
+    "repository": "https://github.com/zeux/meshoptimizer",
+    "ref": "refs/tags/v0.23",
+    "commit": "3e9d1ff3135794f519f3237515277c8d9a3fd3f2"
+  }
+}
