@@ -58,7 +58,8 @@ mesh::MeshData panel(const std::filesystem::path &assets,
   data.submeshes.push_back(std::move(sub));
   return data;
 }
-mesh::MeshData sphere(const std::filesystem::path &assets) {
+mesh::MeshData sphere(const std::filesystem::path &assets,
+                      bool mirrored = false) {
   auto data = panel(assets);
   data.submeshes.clear();
   mesh::Submesh sub;
@@ -73,6 +74,8 @@ mesh::MeshData sphere(const std::filesystem::path &assets) {
       std::copy_n(glm::value_ptr(p), 3, v.position);
       std::copy_n(glm::value_ptr(p), 3, v.normal);
       v.uv[0] = static_cast<float>(sector) / sectors;
+      if (mirrored)
+        v.uv[0] = std::abs(v.uv[0] - .25f);
       v.uv[1] = static_cast<float>(r) / rings;
       sub.vertices.push_back(v);
     }
@@ -142,7 +145,7 @@ nlohmann::json probes(const std::filesystem::path &data) {
   glGenVertexArrays(1, &vao);
   glBindFramebuffer(GL_FRAMEBUFFER, fbo);
   glBindTexture(GL_TEXTURE_2D, texture);
-  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, 10, 4, 0, GL_RGBA, GL_FLOAT,
+  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, 11, 4, 0, GL_RGBA, GL_FLOAT,
                nullptr);
   glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D,
                          texture, 0);
@@ -152,17 +155,18 @@ nlohmann::json probes(const std::filesystem::path &data) {
     rhi::ShaderProgram p(shaders / "furnace.vert", shaders / "furnace.frag");
     glUseProgram(p.id());
     glBindVertexArray(vao);
-    glViewport(0, 0, 10, 4);
+    glViewport(0, 0, 11, 4);
     glDisable(GL_DEPTH_TEST);
     glDisable(GL_BLEND);
     glDisable(GL_FRAMEBUFFER_SRGB);
     glDrawArrays(GL_TRIANGLES, 0, 3);
-    std::array<float, 160> values{};
-    glReadPixels(0, 0, 10, 4, GL_RGBA, GL_FLOAT, values.data());
-    float maximum = 0, minimum = 1;
-    for (std::size_t i = 0; i < 40; ++i) {
+    std::array<float, 176> values{};
+    glReadPixels(0, 0, 11, 4, GL_RGBA, GL_FLOAT, values.data());
+    float maximum = 0, minimum = 1, reciprocity = 0;
+    for (std::size_t i = 0; i < 44; ++i) {
       float energy = values[i * 4];
-      require(std::isfinite(energy) && energy >= 0 && energy <= 1.005f,
+      reciprocity = std::max(reciprocity, values[i * 4 + 3]);
+      require(std::isfinite(energy) && energy >= 0 && energy <= 1.0001f,
               "white furnace generated energy");
       maximum = std::max(maximum, energy);
       minimum = std::min(minimum, energy);
@@ -170,12 +174,15 @@ nlohmann::json probes(const std::filesystem::path &data) {
     require(maximum > .95f, "white furnace unexpectedly dark");
     report["white_furnace"] = {
         {"samples_per_cell", 4096},
-        {"roughness_min", .1},
+        {"roughness_min", .04},
         {"roughness_max", 1},
         {"maximum_energy", maximum},
         {"minimum_energy", minimum},
-        {"upper_bound", 1.005},
+        {"upper_bound", 1.0001},
         {"scope", "direct Appendix A BRDF; no Phase 2d IBL"}};
+    require(reciprocity <= 1e-5f, "BRDF reciprocity failed");
+    report["reciprocity"] = {{"maximum_relative_error", reciprocity},
+                             {"upper_bound", 1e-5}};
     glUseProgram(0);
   }
   glUseProgram(0);
@@ -255,6 +262,21 @@ nlohmann::json probes(const std::filesystem::path &data) {
                       2,
                   "mirrored/nonuniform model basis incorrect");
       }
+    {
+      pbr::Model mirroredSphere(sphere(data / "vehicles/pbr_test", true),
+                                shaders);
+      for (bool packed : {false, true}) {
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        mirroredSphere.draw(frame, {glm::mat4(1)}, packed);
+        auto a = pixel(475, 320), b = pixel(485, 320);
+        require(a[1] < 70 && b[1] < 70 && a[2] > 225 && b[2] > 225,
+                "mirrored sphere normal convention wrong");
+        require(std::abs(int(a[1]) - int(b[1])) <= 1 &&
+                    std::abs(int(a[2]) - int(b[2])) <= 1,
+                "mirrored sphere tangent seam discontinuous");
+      }
+      report["normal_handedness"]["mirrored_sphere"] = "pass";
+    }
     report["normal_handedness"]["negative_scale_and_shear"] = "pass";
     report["normal_handedness"]["two_instances"] = "pass";
     frame.debugView = 0;
@@ -389,7 +411,7 @@ int main(int argc, char **argv) {
         test = true;
       else if (arg == "--help") {
         std::cout << "material_preview [--data-dir data] [--frames N --output "
-                     "image.png] [--test --report results.json]\n0-5 debug "
+                     "image.png] [--test --report results.json]\n0-6 debug "
                      "views; H toggles headlights; Esc quits\n";
         return 0;
       } else
@@ -405,7 +427,7 @@ int main(int argc, char **argv) {
     SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
     SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
     window = SDL_CreateWindow(
-        "TrackRS PBR material preview | 0-5 views | H headlights", 0, 0, 960,
+        "TrackRS PBR material preview | 0-6 views | H headlights", 0, 0, 960,
         640,
         SDL_WINDOW_OPENGL |
             (frames || test ? SDL_WINDOW_HIDDEN : SDL_WINDOW_SHOWN));
@@ -462,8 +484,10 @@ int main(int argc, char **argv) {
               auto key = event.key.keysym.sym;
               if (key == SDLK_ESCAPE)
                 running = false;
-              if (key >= SDLK_0 && key <= SDLK_5)
+              if (key >= SDLK_0 && key <= SDLK_6)
                 frame.debugView = key - SDLK_0;
+              if (key >= SDLK_F1 && key <= SDLK_F7)
+                frame.debugView = key - SDLK_F1;
               if (key == SDLK_h)
                 frame.headlights = !frame.headlights;
             }

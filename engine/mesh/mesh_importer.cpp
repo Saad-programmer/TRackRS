@@ -399,6 +399,7 @@ MeshData obj(const std::string &filename, Input &input,
       std::string file;
       fields >> file;
       auto mbytes = input.uri(file.c_str());
+      const auto materialDirectory = std::filesystem::path(file).parent_path();
       std::istringstream mlines(std::string(mbytes.begin(), mbytes.end()));
       Material *current = nullptr;
       while (std::getline(mlines, line)) {
@@ -419,7 +420,8 @@ MeshData obj(const std::string &filename, Input &input,
               current->baseColor[2];
         else if (current && key == "map_Kd") {
           mf >> file;
-          current->albedo = {file, input.uri(file.c_str())};
+          const auto image = (materialDirectory / file).generic_string();
+          current->albedo = {image, input.uri(image.c_str())};
         }
       }
     } else if (key == "f") {

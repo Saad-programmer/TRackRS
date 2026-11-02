@@ -41,4 +41,4 @@ wheel=[((0,0,0),(.533333333,1,1),1)]
 scene(OUT/'body.gltf',body);scene(OUT/'wheel.gltf',wheel)
 full=body+[((x,.1,z),(.17,.30,.30),1) for x in (-.75,.75) for z in (-1.05,1.05)]
 scene(OUT/'car.gltf',full)
-source=(ROOT/'data/vehicles/cordo_kitcar/cordo_kitcar.vehicle').read_text();source=source.replace('name="Cordo"','name="PBR test car"').replace('class="Kit-Car"','class="Material test"').replace('cordo_kitcar_wheel.obj','wheel.gltf').replace('wheelscale="0.033"','wheelscale="1"').replace('cordo_kitcar.obj','body.gltf').replace('scale="0.01"','scale="1"');(OUT/'pbr_test.vehicle').write_text(source)
+source=(ROOT/'data/vehicles/cordo_kitcar/cordo_kitcar.vehicle').read_text();source=source.replace('name="Cordo"','name="PBR test car"').replace('class="Kit-Car"','class="Material test"').replace('cordo_kitcar_wheel.obj','wheel.gltf').replace('wheelscale="0.033"','wheelscale="1"').replace('cordo_kitcar.obj','body.gltf').replace('scale="0.01"','scale="1"');(OUT/'pbr_test.vehicle').write_text('\n'.join(line.rstrip() for line in source.splitlines())+'\n')

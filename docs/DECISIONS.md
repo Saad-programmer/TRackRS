@@ -100,3 +100,28 @@ terrain detail sampling. It is not a PBR/material-importer implementation; those
 belong to 2c. Physics/input/RNG paths are unchanged. State hashes have zero
 tolerance; image tolerances were declared before full comparison to permit SDF
 edge reconstruction and GL arithmetic rounding while rejecting scene regressions.
+
+## ADR-013: opt-in PBR materials and reference mesh processing (Phase 2c)
+
+Keep the accepted legacy OBJ/ASE loader and basic shader for existing content.
+Imported materials opt into PBR only with base-color, tangent-normal and packed
+metallic/roughness textures. Partial texture sets retain the legacy path. The
+fictional CC0 car and sphere preview prove the new path without replacing any
+legacy material or starting the Phase 2d texture/IBL work.
+
+Reference MikkTSpace runs on triangle corners before meshoptimizer deduplication,
+cache, overdraw and fetch passes; mirrored UV seams and colors are retained.
+Vertex layouts have fixed 56-byte/32-byte ABIs and creation-time VAO setup. Tangents
+use the model linear transform, normals its inverse transpose, and bitangent
+reconstruction includes both UV handedness and mirrored-model parity.
+
+Native UBSan found shift-by-32 in two MikkTSpace pivot rotations. Keep the pinned
+reference source and a marked, minimal shift-count patch, with its diff and
+license/provenance included. Do not disable instrumentation or suppress the error.
+
+The Appendix A GGX denominator uses stable arithmetic and a lower bound instead
+of an additive epsilon that changes normalization at roughness 0.04. The furnace
+integrates that shared production BRDF, using the PDF at the reflected light
+sample; reciprocity and a mirrored-UV sphere are tested on the GPU. Full IBL furnace
+validation remains at the 2d gate. CSM is a tested borrowed-resource interface,
+not a cascade generator in this gate.

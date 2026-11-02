@@ -67,7 +67,7 @@ build/linux-release/bin/material_preview
 build/linux-release/bin/trackrs --headless --data-dir data --stage ahead --vehicle pbr_test --frames 1500
 ```
 
-Preview keys: 0–5 select lit/albedo/normal/roughness/metallic/AO views; H toggles
+Preview keys: 0–6 or F1–F7 select lit/albedo/normal/roughness/metallic/AO/tangent-frame views; H toggles
 headlights; Escape exits. The preview has dielectric and metal sphere rows at
 roughness 0.1, 0.3, 0.5, 0.7 and 0.9, plus the complete car. Installed builds can
 use `material_preview --data-dir <installed-data-directory>`.
@@ -77,11 +77,16 @@ use `material_preview --data-dir <installed-data-directory>`.
 - glslang compiles and links all 16 combinations of explicit/packed bitangents,
   instancing, CSM and alpha-to-coverage. The driver compiles the same 16 combinations.
 - The white furnace integrates the actual shared Appendix A direct BRDF with
-  4,096 GGX/cosine samples per cell, dielectric/metal surfaces, roughness 0.1–1.0
-  and two view angles. Maximum energy: 1.000065, below the 1.005 numerical bound.
+  4,096 GGX/cosine samples per cell, dielectric/metal surfaces, roughness 0.04–1.0
+  and two view angles. Maximum energy: 0.999992, below 1.0 (numerical test allowance: 0.0001).
   Minimum: 0.306958, reflecting the Appendix A single-scattering rough-metal loss.
   This is a direct-BRDF energy test; full IBL furnace validation belongs to 2d.
-- GPU normal-map tests cover mirrored UVs, both vertex formats, negative scaling,
+- Reciprocity uses the same production BRDF; maximum relative error is
+  1.42e-7 against a 1e-5 bound. GGX uses a stable denominator near its smooth peak
+  and a minimum denominator instead of an additive epsilon that changes the
+  normalized distribution. The furnace PDF is evaluated at the sampled reflected
+  light direction, avoiding a float reconstruction artifact at roughness 0.04.
+- GPU normal-map tests cover a mirrored-UV sphere and planar fixtures, mirrored UVs, both vertex formats, negative scaling,
   shear and one/two-instance submissions. Explicit and packed reference pixels
   agree exactly in this fixture (allowed difference: one RGB8 level; transformed
   CPU/GPU comparison: two levels).

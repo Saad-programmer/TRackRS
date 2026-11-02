@@ -2,8 +2,11 @@
 float D_GGX(float NdotH, float alpha)                       // alpha = roughness^2
 {
     float a2 = alpha * alpha;
-    float d  = NdotH * NdotH * (a2 - 1.0) + 1.0;
-    return a2 / (PI * d * d + 1e-7);
+    float nh2 = NdotH * NdotH;
+    float d  = (1.0 - nh2) + nh2 * a2; // stable at NdotH ~= 1
+    // Preserve the GGX peak at minimum roughness; an additive 1e-7
+    // changes the normalized distribution appreciably for smooth materials.
+    return a2 / max(PI * d * d, 1e-12);
 }
 
 float G_SchlickGGX(float NdotX, float k)
@@ -67,4 +70,3 @@ vec3 evalLight(vec3 L, vec3 radiance, vec3 N, vec3 V, float NdotV,
 
     return (diffuse + specular) * radiance * NdotL;
 }
-

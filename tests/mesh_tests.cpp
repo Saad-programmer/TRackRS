@@ -248,3 +248,24 @@ TEST_CASE("incomplete glTF PBR texture sets choose the legacy material path") {
   CHECK(mesh.materials[1].path == MaterialPath::Pbr);
   CHECK(mesh.materials[2].path == MaterialPath::Pbr);
 }
+TEST_CASE("OBJ material textures resolve relative to the MTL directory") {
+  std::map<std::string, std::string> files = {
+      {"model/car.obj", "mtllib materials/paint.mtl\nv 0 0 0\nv 1 0 0\nv 0 1 "
+                        "0\nusemtl Red\nf 1 2 3\nusemtl Blue\nf 1 2 3\n"},
+      {"model/materials/paint.mtl",
+       "newmtl Red\nKd 0.3 0.2 0.1\nmap_Kd ../textures/red.png\nnewmtl "
+       "Blue\nKd 0.1 0.2 0.3\n"},
+      {"model/textures/red.png", "fixture-image"}};
+  auto read = [&](const std::string &file) {
+    const auto &bytes = files.at(file);
+    return Bytes(bytes.begin(), bytes.end());
+  };
+  auto model = MeshImporter::load("model/car.obj", read);
+  REQUIRE(model.submeshes.size() == 2);
+  const auto &red = model.materials[model.submeshes[0].material];
+  CHECK(red.name == "Red");
+  CHECK(red.baseColor[0] == doctest::Approx(.3));
+  CHECK_FALSE(red.albedo.empty());
+  CHECK(red.path == MaterialPath::Legacy);
+  CHECK(model.materials[model.submeshes[1].material].name == "Blue");
+}

@@ -8,7 +8,7 @@
 		mass="870.0"
 		wheelmodel="wheel.gltf"
 		wheelscale="1" />
-	
+
 	<!--
 		ATMOSPHERIC EFFECTS IN CTRLPARAMS
 		DRAG:
