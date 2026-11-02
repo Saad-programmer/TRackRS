@@ -162,6 +162,9 @@ void CoreDevice::present(const std::function<void()> &capture) {
         SDL_GL_SwapWindow(s.screen);
         s.debug.check();
       }
+      // Shared-object ownership crosses contexts: complete core sampling before
+      // the compatibility context can overwrite this texture for the next eye.
+      glFinish();
     } catch (...) {
       s.legacyCurrent();
       throw;

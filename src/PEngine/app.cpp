@@ -1025,7 +1025,7 @@ void PApp::presentFrame() {
 }
 void PApp::captureValidationScreenshot() {
         if (validation::run.complete && !validation::run.options.screenshot.empty()) {
-          // Capture the back buffer BEFORE swapping; the legacy F12 path reads it after swap.
+          // Capture the visible core back buffer before swapping.
           std::vector<unsigned char> pixels(static_cast<std::size_t>(cx) * static_cast<std::size_t>(cy) * 3);
           glPixelStorei(GL_PACK_ALIGNMENT, 1);
           glReadBuffer(GL_BACK);
