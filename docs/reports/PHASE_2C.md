@@ -1,6 +1,6 @@
 # Phase 2c — PBR material pipeline
 
-Gate: verification in progress. Phase 2d has not started.
+Phase 2c implementation and local verification are complete. Phase 2d has not started.
 
 ## Behavior and integration
 
@@ -98,5 +98,73 @@ use `material_preview --data-dir <installed-data-directory>`.
   groups, optimizer preservation, GLB/external buffers, mirrored nodes, incomplete
   texture fallback, byte/corner budgets and dependency escape rejection.
 
-Final sanitizer, legacy screenshot/hash and CI evidence will be recorded here
-before this gate is tagged.
+## Gate evidence
+
+Implementation commits: `337a8a5` (pipeline/importer/fixtures) and `eb7cc1e`
+(smooth GGX, reciprocity, mirrored sphere and MTL-relative texture tests).
+
+- [CPU tests](phase2c/mesh-tests.txt): eight importer/layout/tangent cases, 632 assertions.
+- [Release CTest](phase2c/ctest-release.txt): 11/11; [ASan/UBSan CTest](phase2c/ctest-asan.txt): 12/12, including the application-leak canary.
+- [glslang permutations](phase2c/glslang.json): 16/16 compile/link.
+- [GPU results](phase2c/pbr-release/gpu.json) and [native sanitizer GPU results](phase2c/pbr-asan/gpu.json): furnace, reciprocity, mirrored sphere, both layouts, instancing, point lights, CSM interface and multisample coverage pass.
+- [PBR sanitizer audit](phase2c/pbr-asan/result.json): probes, preview and in-game car all pass. Native LSan exits 23 for the same audited Mesa-origin allocation sites; application-origin leaks remain fatal. No native suppressions were added.
+- [Legacy ASan integration](phase2c/game-asan.json): 1,500 ticks, Ahead hash `6c59e5730498f6bb`, zero application errors, 108,124 audited driver bytes.
+- Installed preview launches against the staged installed data and produces the exact same PNG; dependency notices include the marked MikkTSpace patch. [Installed capture counts](phase2c/installed-preview.txt).
+- [Core RHI sanitizer integration](phase2c/rhi-asan.json), [intro playback/skip](phase2c/intro.txt), and [edition menu navigation/capture/exit](phase2c/edition-ui.txt) pass.
+- [Candidate CI](https://github.com/Saad-programmer/TRackRS/actions/runs/41512054893): all six jobs green (GCC/Clang release and ASan/UBSan, MSVC, MinGW). This run covers the first implementation commit; the final `main` run also checks the later refinements.
+
+The publication gate requires both Engine safety net and Pages to be green on
+the exact final `main` commit before creating `phase-2c-done`. The annotated tag
+records the full commit and final CI URLs.
+
+## Legacy regression and visual review
+
+[The manifest](phase2c/manifest.json) retains all 13 accepted state hashes.
+Each case ran 1,500 fixed ticks (6 simulated seconds), once as a regression probe;
+this is not a new long-duration soak or a repeatability claim. No hash changed,
+and no accepted baseline was regenerated or overwritten.
+
+[Open the paired review](phase2c/images/review.html),
+[full side-by-side sheet](phase2c/images/side-by-side.png), or
+[pixel metrics](phase2c/images/review.json). All eight 640×480 captures were
+reviewed side by side against accepted 2b output: terrain, vehicles, textures,
+lighting/fog, particles and HUD agree. Every image is RGB-identical: MAE 0,
+p99 channel error 0, pixels over 24 levels 0, HUD MAE 0, SSIM 1.0.
+The [unchanged 2b tolerance](phase2c/tolerance.json) is MAE ≤2, p99 ≤24,
+over-24 fraction ≤1%, SSIM ≥0.985 and HUD MAE ≤3.5; none was consumed.
+
+[Draw/triangle measurements](phase2c/counts.json) are also unchanged from 2b.
+The [material preview](phase2c/pbr-release/preview.txt) submits 18 draws and 9,696 triangles (eight car submeshes
+and ten spheres); GPU fixture counters are also checked by tests.
+No FPS claim is made from concurrent software-rendered verification.
+
+| Stage | Accepted 2b hash = 2c hash | Result |
+|---|---|---|
+
+| ahead | `6c59e5730498f6bb` | Unchanged |
+| aegyptian | `6ef69d2bfba26f27` | Unchanged |
+| greenland | `804029ba668f1ffb` | Unchanged |
+| mudbath | `0aaa524773512bc5` | Unchanged |
+| april | `c04e7703e85bb3b5` | Unchanged |
+| ancient | `e78aa8175f104310` | Unchanged |
+| coastline | `6c1fc7772b1256fa` | Unchanged |
+| country | `826ac4b1dfbe92d6` | Unchanged |
+| darkbushes | `b6d2c008c0056040` | Unchanged |
+| barren | `08fa4a1ec9780ada` | Unchanged |
+| altitude | `12ad3892a6b31069` | Unchanged |
+| arizonachase | `722602d179d1ee7d` | Unchanged |
+| glacier | `a348e60ebf050d09` | Unchanged |
+
+## Material preview and boundaries
+
+[Material preview](phase2c/pbr-release/preview.png) and
+[in-game PBR car](phase2c/pbr-release/game.png) were visually inspected.
+The race probe submits the body and four wheels for 299 rendered samples
+(1,495 model submissions); its 300 ticks are 1.2 simulated seconds.
+These are new proof assets, not replacements for legacy golden screenshots.
+
+CSM sampling is ready for caller-supplied cascades; cascade generation is not
+claimed. The white furnace proves direct-BRDF conservation, including roughness
+0.04. The IBL-specific rough-metal energy-loss requirement remains untested until
+2d supplies the IBL pipeline. Environment reflection art, KTX2 texture loading,
+IBL baking and probes have not been implemented. This work stops at the 2c gate.

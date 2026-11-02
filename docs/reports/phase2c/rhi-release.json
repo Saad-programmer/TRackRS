@@ -1,0 +1,9 @@
+{
+  "schema": "trackrs.core-gate/1",
+  "passed": true,
+  "native_exit": 0,
+  "accepted_driver_bytes": 0,
+  "accepted_driver_allocations": [],
+  "expected_gl_api_canary": true,
+  "unexpected_application_errors": 0
+}

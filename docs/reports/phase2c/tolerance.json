@@ -1,0 +1,10 @@
+{
+  "description": "Declared before full Phase 2b image measurements. RGB8 comparisons against accepted Phase 2a, same Mesa/llvmpipe SDK and 640x480 capture.",
+  "rgb_mean_absolute_error_max": 2.0,
+  "pixel_max_channel_p99_max": 24,
+  "pixels_over_24_fraction_max": 0.01,
+  "block_ssim_min": 0.985,
+  "hud_mean_absolute_error_max": 3.5,
+  "hud_region": "top 24 percent plus bottom 35 percent",
+  "reason": "Core lighting/fog rounding and SDF glyph edge reconstruction may differ; large-area color, geometry, texture or missing-HUD regressions must fail. State hashes have zero tolerance."
+}

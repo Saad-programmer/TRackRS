@@ -1,0 +1,36 @@
+{
+  "CSM_interface": "synthetic depth comparison passed; no cascade generation",
+  "KHR_debug_errors": 0,
+  "alpha_to_coverage": {
+    "pass": true,
+    "resolved_red": 64,
+    "samples": 4
+  },
+  "driver_shader_permutations": 16,
+  "normal_handedness": {
+    "instancing": "pass",
+    "layouts": [
+      56,
+      32
+    ],
+    "max_channel_error": 0,
+    "mirrored_sphere": "pass",
+    "mirrored_uv": "pass",
+    "negative_scale_and_shear": "pass",
+    "two_instances": "pass"
+  },
+  "point_lights": "pass",
+  "reciprocity": {
+    "maximum_relative_error": 1.4145389570785483e-07,
+    "upper_bound": 1e-05
+  },
+  "white_furnace": {
+    "maximum_energy": 0.9999920725822449,
+    "minimum_energy": 0.30695751309394836,
+    "roughness_max": 1,
+    "roughness_min": 0.04,
+    "samples_per_cell": 4096,
+    "scope": "direct Appendix A BRDF; no Phase 2d IBL",
+    "upper_bound": 1.0001
+  }
+}

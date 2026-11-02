@@ -1,0 +1,1 @@
+Preview draws=18 triangles=9696

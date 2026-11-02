@@ -1,0 +1,115 @@
+{
+  "permutations": [
+    {
+      "defines": [],
+      "compile_and_link": "pass"
+    },
+    {
+      "defines": [
+        "ALPHA_TO_COVERAGE"
+      ],
+      "compile_and_link": "pass"
+    },
+    {
+      "defines": [
+        "USE_CSM"
+      ],
+      "compile_and_link": "pass"
+    },
+    {
+      "defines": [
+        "USE_CSM",
+        "ALPHA_TO_COVERAGE"
+      ],
+      "compile_and_link": "pass"
+    },
+    {
+      "defines": [
+        "INSTANCED"
+      ],
+      "compile_and_link": "pass"
+    },
+    {
+      "defines": [
+        "INSTANCED",
+        "ALPHA_TO_COVERAGE"
+      ],
+      "compile_and_link": "pass"
+    },
+    {
+      "defines": [
+        "INSTANCED",
+        "USE_CSM"
+      ],
+      "compile_and_link": "pass"
+    },
+    {
+      "defines": [
+        "INSTANCED",
+        "USE_CSM",
+        "ALPHA_TO_COVERAGE"
+      ],
+      "compile_and_link": "pass"
+    },
+    {
+      "defines": [
+        "EXPLICIT_BITANGENT"
+      ],
+      "compile_and_link": "pass"
+    },
+    {
+      "defines": [
+        "EXPLICIT_BITANGENT",
+        "ALPHA_TO_COVERAGE"
+      ],
+      "compile_and_link": "pass"
+    },
+    {
+      "defines": [
+        "EXPLICIT_BITANGENT",
+        "USE_CSM"
+      ],
+      "compile_and_link": "pass"
+    },
+    {
+      "defines": [
+        "EXPLICIT_BITANGENT",
+        "USE_CSM",
+        "ALPHA_TO_COVERAGE"
+      ],
+      "compile_and_link": "pass"
+    },
+    {
+      "defines": [
+        "EXPLICIT_BITANGENT",
+        "INSTANCED"
+      ],
+      "compile_and_link": "pass"
+    },
+    {
+      "defines": [
+        "EXPLICIT_BITANGENT",
+        "INSTANCED",
+        "ALPHA_TO_COVERAGE"
+      ],
+      "compile_and_link": "pass"
+    },
+    {
+      "defines": [
+        "EXPLICIT_BITANGENT",
+        "INSTANCED",
+        "USE_CSM"
+      ],
+      "compile_and_link": "pass"
+    },
+    {
+      "defines": [
+        "EXPLICIT_BITANGENT",
+        "INSTANCED",
+        "USE_CSM",
+        "ALPHA_TO_COVERAGE"
+      ],
+      "compile_and_link": "pass"
+    }
+  ]
+}

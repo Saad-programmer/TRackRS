@@ -1,0 +1,27 @@
+Test project /workspace/TRackRS/build/linux-release
+      Start  1: mesh-importer
+ 1/11 Test  #1: mesh-importer ....................   Passed    0.30 sec
+      Start  2: pbr-shader-permutations
+ 2/11 Test  #2: pbr-shader-permutations ..........   Passed    3.70 sec
+      Start  3: core-primitives
+ 3/11 Test  #3: core-primitives ..................   Passed    0.01 sec
+      Start  4: movie-decoder
+ 4/11 Test  #4: movie-decoder ....................   Passed    0.01 sec
+      Start  5: validation-unit
+ 5/11 Test  #5: validation-unit ..................   Passed    0.01 sec
+      Start  6: cli-help
+ 6/11 Test  #6: cli-help .........................   Passed    0.02 sec
+      Start  7: cli-invalid
+ 7/11 Test  #7: cli-invalid ......................   Passed    0.02 sec
+      Start  8: module-layering
+ 8/11 Test  #8: module-layering ..................   Passed    0.19 sec
+      Start  9: core-only-source
+ 9/11 Test  #9: core-only-source .................   Passed    0.08 sec
+      Start 10: legacy-content
+10/11 Test #10: legacy-content ...................   Passed    0.23 sec
+      Start 11: lsan-audit-policy
+11/11 Test #11: lsan-audit-policy ................   Passed    0.14 sec
+
+100% tests passed, 0 tests failed out of 11
+
+Total Test time (real) =   4.96 sec
