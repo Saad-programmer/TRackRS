@@ -107,3 +107,9 @@ KHR_debug and sharing between the core and compatibility contexts; startup fails
 explicitly otherwise. No PBR shaders, new vertex layouts, importer, texture sets,
 KTX2 loader or IBL/probe work is included. **Stop at 2a after the green main CI
 run and `phase-2a-done` tag.**
+
+The final publication also fixes the pre-existing Pages failure: Jekyll 3.10
+interpreted the master prompt's literal C++ `{{...}}` initializers as Liquid.
+`docs/_config.yml` disables Liquid for that file only, preserving the specification
+text and normal Markdown rendering. This is a documentation build fix, not a
+renderer gate expansion.

@@ -1,0 +1,6 @@
+# Preserve literal C++ brace initializers in the engineering specification.
+defaults:
+  - scope:
+      path: CODEX_MASTER_PROMPT.md
+    values:
+      render_with_liquid: false
