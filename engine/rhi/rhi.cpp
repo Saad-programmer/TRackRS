@@ -15,7 +15,8 @@ namespace {
 void GLAD_API_PTR debugCallback(GLenum source, GLenum type, GLuint id,
                                 GLenum severity, GLsizei, const GLchar *message,
                                 const void *user) {
-  auto &debug = *static_cast<DebugMessages *>(const_cast<void *>(user));
+  auto &debug =
+      *const_cast<DebugMessages *>(static_cast<const DebugMessages *>(user));
   // Shader compiler diagnostics are recoverable during hot reload, never API
   // errors.
   if ((type == GL_DEBUG_TYPE_ERROR ||
