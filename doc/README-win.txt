@@ -1,3 +1,5 @@
+Historical document retained for provenance. Current build instructions: ../docs/BUILDING.md
+
 ==========================
 TrackRS ReadMe for Windows
 ==========================

@@ -30,3 +30,9 @@
 # Manuels / captures temporaires
 *.docx
 Screenshot*.png
+
+# Generated distribution outputs
+/_CPack_Packages/
+/*.zip
+/*.exe
+/*.AppImage

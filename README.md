@@ -15,7 +15,7 @@
     <img src="https://img.shields.io/badge/language-C%2B%2B11-00599C.svg" alt="Language">
     <img src="https://img.shields.io/badge/graphics-OpenGL%20%2B%20GLEW-5586A4.svg" alt="Graphics">
     <img src="https://img.shields.io/badge/platforms-Linux%20%7C%20Windows-lightgrey.svg" alt="Platforms">
-    <img src="https://img.shields.io/badge/version-0.6.7-orange.svg" alt="Version">
+    <img src="docs/version.svg" alt="Version">
     <img src="https://img.shields.io/badge/maps-132%20standalone%20%2B%2097%20event%20stages-brightgreen.svg" alt="Maps">
   </p>
 
@@ -192,7 +192,7 @@ Build `trackrs.exe` with MSYS2 (see [Windows build](#windows)), then compile `in
 
 ### Requirements
 
-- A C++11 compiler (g++ 4.9 or newer recommended) and binutils
+- A C++17 compiler, CMake 3.20+, Ninja and binutils
 - GNU Make
 - Development libraries:
 
@@ -208,8 +208,6 @@ Build `trackrs.exe` with MSYS2 (see [Windows build](#windows)), then compile `in
 | SDL2_image | PNG / JPG loading | `libsdl2-image-dev` | `SDL2_image-devel` |
 | TinyXML-2 | XML parsing | `libtinyxml2-dev` | `tinyxml2-devel` |
 
-**Optional runtime tool:** `ffplay` (part of FFmpeg), used to play the intro video if `inVideo.mp4` is present.
-
 ### Linux
 
 ```bash
@@ -221,7 +219,7 @@ make clean           # removes object files, dependency files, executable, backu
 make dist            # creates a tarball + MD5 sum (directory must be named trackrs-<version>)
 ```
 
-The `GNUmakefile` compiles with `-std=c++11 -Wall -Wextra -pedantic`, defines `-DNDEBUG -DUNIX -DPACKAGE_VERSION="0.6.7"`, and links `-lSDL2main -lGL -lGLEW -lSDL2 -lSDL2_image -lphysfs -lopenal -lalut -lpthread -ltinyxml2`. It compiles every `.cpp` in `src/PEngine`, `src/PSim` and `src/Trigger`.
+CMake is the canonical build. The three GNUmakefile entry points forward to it. Use the presets in [docs/BUILDING.md](docs/BUILDING.md); release defaults to `-O3 -ffp-contract=off`, x86-64-v2 on x86-64, and supported LTO. Native instructions require `-DTRACKRS_NATIVE=ON`.
 
 #### Build variables
 
@@ -680,14 +678,10 @@ The textures were authored as SVG in Inkscape. To re-render them you need these 
 
 ## 🔒 Demo Mode
 
-The current `menu.cpp` is a **restricted demo**:
-
-- The **Events** and **Practice** entries on the main menu are shown as weak `(locked)` labels and cannot be clicked.
-- In the **Single Race** list, every map except **"Ahead"** is shown as `(locked)`.
-- The next/previous buttons and arrow-key navigation on the level-preparation screen are blocked unless the target is "Ahead".
-- `levelScreenAction` guards `AA_PICK_LVL` and `AA_START_LVL`, so only "Ahead" can be selected or started.
-
-To build a full-content version, remove these guards in `src/Trigger/menu.cpp`. The installers (`trackrs-demo_0.6.7_amd64.deb`, `trackrs-demo-setup.exe`) are named for the demo.
+`data/policy/edition.xml` selects `demo`, `full` or `dev`. Demo permits only
+listed virtual stage paths (Ahead by default). Full enables installed stages,
+events and practice while respecting championship unlocks. Dev also bypasses
+championship locks. This access policy is separate from asset redistribution rights.
 
 ---
 
@@ -695,13 +689,9 @@ To build a full-content version, remove these guards in `src/Trigger/menu.cpp`. 
 
 ### Intro video
 
-If `inVideo.mp4` is found in `.`, `bin/` or `..`, the game plays it **before** opening the main window, using:
-
-```
-ffplay -fs -autoexit -noborder -loglevel quiet <path>
-```
-
-Press **ESC** or **Q** to skip. If the file or `ffplay` is missing, the game starts normally. The video file is excluded from the repository by `.gitignore`.
+The game opens its own SDL/GL window and uses the bundled loading splash as
+its intro fallback. Any key skips the remaining splash delay after loading.
+There is no external video player or shell command.
 
 ### Menu music
 
@@ -729,7 +719,7 @@ Press **ESC** or **Q** to skip. If the file or `ffplay` is missing, the game sta
 | Player profile not loading | Use only letters, digits, `_` and space in the player name. |
 | Low frame rate | Set `dirteffect="no"`, `weather="no"`, `foliage="no"`, lower `anisotropy`, or use `snowflaketype="point"`. |
 | Snow looks broken | Try `snowflaketype="square"`. |
-| No intro video | Check `inVideo.mp4` is present and `ffplay` is installed. |
+| No intro video | The bundled in-window splash is the supported intro fallback. |
 | Windows crash | Run `trackrs.RUNLOG.cmd` from the `bin` folder. It writes `trackrs.log` to `%TEMP%`. |
 | Stereo image swapped | Set `stereoswapeyes="yes"`. |
 | Stereo uncomfortable | Lower `stereoeyeseparation`. |
@@ -761,7 +751,7 @@ The full log, including the 0.4.x/0.5.x dates, is in [`doc/README.txt`](doc/READ
 Contributions are welcome.
 
 1. **Fork** the repository and create a feature branch.
-2. Keep to the existing C++11 style, and make sure the build is warning-clean under `-Wall -Wextra -pedantic`.
+2. Use C++17, and make sure the build is warning-clean under `-Wall -Wextra -pedantic`.
 3. For new content, follow the [Content Creation Guide](#-content-creation-guide) and add authorship and licence info to `doc/DATA_AUTHORS.txt`.
 4. Test with `make` in `src/`, then run `bin/trackrs`.
 5. Open a **pull request** describing what changed and why.

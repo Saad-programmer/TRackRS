@@ -1,0 +1,282 @@
+--- a/src/include/vmath.h
++++ b/src/include/vmath.h
+@@ -11,6 +11,8 @@
+ #define RADIANS(a) ((a)*PI/180.0)
+ #define DEGREES(a) ((a)*180.0/PI)
+ 
++#define rand01 ((float)rand() / (float)RAND_MAX)
++#define randm11 (2.0f * (float)rand() / (float)RAND_MAX - 1.0f)
+ 
+ #define MAX(a,b) (((a) >= (b)) ? (a) : (b))
+ #define MIN(a,b) (((a) <= (b)) ? (a) : (b))
+@@ -80,9 +82,10 @@
+ 
+   static const vec2<T> zero () { return vec2<T>(0,0); }
+ 
+-  static vec2<T> random(trackrs::Pcg32& rng) {
++  static vec2<T> rand() {
+     vec2<T> ret;
+-    do { ret.x = static_cast<T>(rng.symmetric()); ret.y = static_cast<T>(rng.symmetric()); }
++    do { ret=vec2<T>((T)2 * (T)::rand() / (T)RAND_MAX - (T)1,
++            (T)2 * (T)::rand() / (T)RAND_MAX - (T)1); }
+     while (ret.lengthsq() > (T)1);
+     return ret;
+   }
+@@ -150,9 +153,11 @@
+ 
+   static vec3<T> zero () { return vec3<T>(0,0,0); }
+ 
+-  static vec3<T> random(trackrs::Pcg32& rng) {
++  static vec3<T> rand() {
+     vec3<T> ret;
+-    do { ret.x = static_cast<T>(rng.symmetric()); ret.y = static_cast<T>(rng.symmetric()); ret.z = static_cast<T>(rng.symmetric()); }
++    do { ret=vec3<T>((T)2 * (T)::rand() / (T)RAND_MAX - (T)1,
++            (T)2 * (T)::rand() / (T)RAND_MAX - (T)1,
++            (T)2 * (T)::rand() / (T)RAND_MAX - (T)1); }
+     while (ret.lengthsq() > (T)1);
+     return ret;
+   }
+@@ -574,10 +579,13 @@
+ 
+   static quat<T> identity () { return quat<T>(0,0,0,1); }
+ 
+-  static quat<T> random(trackrs::Pcg32& rng) {
++  static quat<T> rand() {
+     quat<T> ret;
+     float lengthsq;
+-    do { ret.x = static_cast<T>(rng.symmetric()); ret.y = static_cast<T>(rng.symmetric()); ret.z = static_cast<T>(rng.symmetric()); ret.w = static_cast<T>(rng.symmetric());
++    do { ret=quat<T>((T)2 * (T)::rand() / (T)RAND_MAX - (T)1,
++            (T)2 * (T)::rand() / (T)RAND_MAX - (T)1,
++            (T)2 * (T)::rand() / (T)RAND_MAX - (T)1,
++            (T)2 * (T)::rand() / (T)RAND_MAX - (T)1);
+       lengthsq = ret.x*ret.x + ret.y*ret.y + ret.z*ret.z + ret.w*ret.w;
+     } while (lengthsq > (T)1 || lengthsq <= (T)0);
+     float mult = (T)1 / (T)sqrt(lengthsq);
+--- a/src/Trigger/main.cpp
++++ b/src/Trigger/main.cpp
+@@ -954,7 +954,7 @@
+     }
+     else
+       for (unsigned int k=0; k<game->vehicle[i]->part[j].wheel.size(); k++) {
+-        if (effectsRng.unit() * 20.0f < game->vehicle[i]->part[j].wheel[k].dirtthrow)
++        if (rand01 * 20.0f < game->vehicle[i]->part[j].wheel[k].dirtthrow)
+         {
+             const vec3f dirtpos = game->vehicle[i]->part[j].wheel[k].dirtthrowpos;
+             const vec3f dirtvec = game->vehicle[i]->part[j].wheel[k].dirtthrowvec;
+@@ -971,7 +971,7 @@
+             psys_dirt->setColorEnd(dirtcolor.x, dirtcolor.y, dirtcolor.z, 0.0f);
+             psys_dirt->setSize(di.startsize, di.endsize);
+             psys_dirt->setDecay(di.decay);
+-            psys_dirt->addParticle(dirtpos, dirtvec /*+ vec3f::random(effectsRng) * 10.0f*/);
++            psys_dirt->addParticle(dirtpos, dirtvec /*+ vec3f::rand() * 10.0f*/);
+         }
+       }
+     }
+@@ -1208,7 +1208,7 @@
+         case 1: // Shift up
+         {
+             audinst.push_back(std::make_unique<PAudioInstance>(aud_shiftup));
+-            audinst.back()->setPitch(0.7f + effectsRng.symmetric()*0.02f);
++            audinst.back()->setPitch(0.7f + randm11*0.02f);
+             audinst.back()->setGain(1.0f * cfg.getVolumeSfx());
+             audinst.back()->play();
+             break;
+@@ -1216,7 +1216,7 @@
+         case -1: // Shift down
+         {
+             audinst.push_back(std::make_unique<PAudioInstance>(aud_shiftdown));
+-            audinst.back()->setPitch(0.8f + effectsRng.symmetric()*0.12f);
++            audinst.back()->setPitch(0.8f + randm11*0.12f);
+             audinst.back()->setGain(1.0f * cfg.getVolumeSfx());
+             audinst.back()->play();
+             break;
+@@ -1230,14 +1230,14 @@
+       float crashlevel = vehic->getCrashNoiseLevel();
+       if (crashlevel > 0.0f) {
+         audinst.push_back(std::make_unique<PAudioInstance>(aud_crash1));
+-        audinst.back()->setPitch(1.0f + effectsRng.symmetric()*0.02f);
++        audinst.back()->setPitch(1.0f + randm11*0.02f);
+         audinst.back()->setGain(logf(1.0f + crashlevel) * cfg.getVolumeSfx());
+         audinst.back()->play();
+ 
+         if (haptic != nullptr)
+           SDL_HapticRumblePlay(haptic, crashlevel * 0.2f, MAX(1000, (unsigned int)(crashlevel * 20.0f)));
+       }
+-      crashnoise_timeout = effectsRng.unit() * 0.1f + 0.01f;
++      crashnoise_timeout = rand01 * 0.1f + 0.01f;
+     } else {
+       crashnoise_timeout -= delta;
+     }
+@@ -1266,18 +1266,18 @@
+   // randomised number of drops calculation
+   float numdrops = game->weather.precip.rain * delta;
+   int inumdrops = (int)numdrops;
+-  if (effectsRng.unit() < numdrops - inumdrops) inumdrops++;
++  if (rand01 < numdrops - inumdrops) inumdrops++;
+   for (int i=0; i<inumdrops; i++) {
+     rain.push_back(RainDrop());
+     rain.back().drop_pt = vec3f(campos.x,campos.y,0);
+     rain.back().drop_pt += camvel * RAIN_START_LIFE;
+-    rain.back().drop_pt += vec3f::random(effectsRng) * RAIN_POS_RANDOM;
++    rain.back().drop_pt += vec3f::rand() * RAIN_POS_RANDOM;
+     rain.back().drop_pt.z = game->terrain->getHeight(rain.back().drop_pt.x, rain.back().drop_pt.y);
+ 
+     if (game->water.enabled && rain.back().drop_pt.z < game->water.height)
+         rain.back().drop_pt.z = game->water.height;
+ 
+-    rain.back().drop_vect = def_drop_vect + vec3f::random(effectsRng) * RAIN_VEL_RANDOM;
++    rain.back().drop_vect = def_drop_vect + vec3f::rand() * RAIN_VEL_RANDOM;
+     rain.back().life = RAIN_START_LIFE;
+   }
+ 
+@@ -1306,19 +1306,19 @@
+   // randomised number of flakes calculation
+   float numflakes = game->weather.precip.snowfall * delta;
+   int inumflakes = (int)numflakes;
+-  if (effectsRng.unit() < numflakes - inumflakes) inumflakes++;
++  if (rand01 < numflakes - inumflakes) inumflakes++;
+   for (int i=0; i<inumflakes; i++) {
+     snowfall.push_back(SnowFlake());
+     snowfall.back().drop_pt = vec3f(campos.x,campos.y,0);
+     snowfall.back().drop_pt += camvel * SNOWFALL_START_LIFE / 2;
+-    snowfall.back().drop_pt += vec3f::random(effectsRng) * SNOWFALL_POS_RANDOM;
++    snowfall.back().drop_pt += vec3f::rand() * SNOWFALL_POS_RANDOM;
+     snowfall.back().drop_pt.z = game->terrain->getHeight(snowfall.back().drop_pt.x, snowfall.back().drop_pt.y);
+ 
+     if (game->water.enabled && snowfall.back().drop_pt.z < game->water.height)
+         snowfall.back().drop_pt.z = game->water.height;
+ 
+-    snowfall.back().drop_vect = def_drop_vect + vec3f::random(effectsRng) * SNOWFALL_VEL_RANDOM;
+-    snowfall.back().life = SNOWFALL_START_LIFE * effectsRng.unit();
++    snowfall.back().drop_vect = def_drop_vect + vec3f::rand() * SNOWFALL_VEL_RANDOM;
++    snowfall.back().life = SNOWFALL_START_LIFE * rand01;
+   }
+ 
+   // update life and delete dead snowflakes
+--- a/src/Trigger/game.cpp
++++ b/src/Trigger/game.cpp
+@@ -408,7 +408,7 @@
+ 		}
+ 	}
+   
+-	// The stage-owned stream was seeded from stage_seed at load.
++	srand(1000);
+   
+ 	// if there are no checkpoints
+ 	if (checkpt.size() == 0)
+@@ -419,15 +419,15 @@
+     
+ 		temp1.resize(cpsize);
+     
+-		float ang = stageRng.symmetric() * PI;
+-    
+-		temp1[0] = vec2f(cosf(ang),sinf(ang)) * (100.0f + stageRng.unit() * 300.0f);
++		float ang = randm11 * PI;
++    
++		temp1[0] = vec2f(cosf(ang),sinf(ang)) * (100.0f + rand01 * 300.0f);
+     
+ 		for (int i=1; i<cpsize; i++)
+ 		{
+-			ang += stageRng.symmetric() * (PI * 0.3f);
++			ang += randm11 * (PI * 0.3f);
+       
+-			temp1[i] = temp1[i-1] + vec2f(cosf(ang),sinf(ang)) * (100.0f + stageRng.unit() * 300.0f);
++			temp1[i] = temp1[i-1] + vec2f(cosf(ang),sinf(ang)) * (100.0f + rand01 * 300.0f);
+ 		}
+     
+ 		checkpt.resize(cpsize, vec3f::zero());
+@@ -683,7 +683,7 @@
+     if (correction >= PI) { correction -= PI*2.0f; if (correction >= PI) correction -= PI*2.0f; }
+     if (correction < -PI) { correction += PI*2.0f; if (correction < -PI) correction += PI*2.0f; }
+     
+-    vehic->ctrl.turn.z = correction * 2.0f + stageRng.symmetric() * 0.2f;
++    vehic->ctrl.turn.z = correction * 2.0f + randm11 * 0.2f;
+     
+     vehic->ctrl.throttle = 1.0f - fabsf(correction) * 0.8f;
+     if (vehic->ctrl.throttle < 0.1f)
+--- a/src/PEngine/render.cpp
++++ b/src/PEngine/render.cpp
+@@ -336,7 +336,7 @@
+   part.back().linvel = linvel;
+   part.back().life = 1.0;
+ 
+-  float ang = particleRng.symmetric() * PI;
++  float ang = randm11 * PI;
+   part.back().orix = vec2f(cos(ang),sin(ang));
+   part.back().oriy = vec2f(-sin(ang),cos(ang));
+ }
+--- a/src/PSim/vehicle.cpp
++++ b/src/PSim/vehicle.cpp
+@@ -1207,9 +1207,7 @@
+           wheel.bumplast = wheel.bumpnext;
+           wheel.bumptravel -= (int)wheel.bumptravel;
+ 
+-          const float bumpSign = physicsRng.symmetric();
+-          const float bumpMagnitude = physicsRng.unit();
+-          wheel.bumpnext = bumpSign * bumpMagnitude * typewheel.radius * 0.1f;
++          wheel.bumpnext = randm11 * rand01 * typewheel.radius * 0.1f;
+         }
+ 
+         // how much wheel is below the ground along the normal
+--- a/src/PEngine/terrain.cpp
++++ b/src/PEngine/terrain.cpp
+@@ -534,9 +534,7 @@
+ 
+   // Create foliage
+ 
+-  const auto tileSeed = foliageSeed ^ (static_cast<std::uint64_t>(static_cast<std::uint32_t>(tilex)) << 32u)
+-                                    ^ static_cast<std::uint32_t>(tiley);
+-  trackrs::Pcg32 tileRng(tileSeed, 11);
++  srand(1);
+ 
+   tileptr->foliage.resize(foliageband.size());
+ 
+@@ -548,23 +546,22 @@
+ 
+     for (int i = 0; i < foliageband[b].trycount; i++) {
+       float rigidityvalue = 0.0f;
+-      const float sampleX = tileRng.unit(), sampleY = tileRng.unit();
+       vec2f ftry = vec2f(
+-        (float)((tileptr->posx * tilesize) + sampleX * tilesize) * scale_hz,
+-        (float)((tileptr->posy * tilesize) + sampleY * tilesize) * scale_hz);
++        (float)((tileptr->posx * tilesize) + rand01 * tilesize) * scale_hz,
++        (float)((tileptr->posy * tilesize) + rand01 * tilesize) * scale_hz);
+ 
+       float fol = getFoliageLevel(ftry.x, ftry.y);
+ 
+-      if ((1.0 - fabs((fol - foliageband[b].middle) / foliageband[b].range)) < tileRng.unit()) continue;
++      if ((1.0 - fabs((fol - foliageband[b].middle) / foliageband[b].range)) < rand01) continue;
+ 
+       tileptr->foliage[b].inst.push_back(PTerrainFoliage());
+       tileptr->foliage[b].inst.back().pos.x = ftry.x;
+       tileptr->foliage[b].inst.back().pos.y = ftry.y;
+       tileptr->foliage[b].inst.back().pos.z = getHeight(ftry.x, ftry.y);
+-      tileptr->foliage[b].inst.back().ang = tileRng.unit() * PI*2.0f;
+-      //tileptr->foliage[b].inst.back().scale = (1.0f + fol * 0.5f) * (tileRng.unit() * tileRng.unit() + 0.5) * 1.4;
+-      //tileptr->foliage[b].inst.back().scale = (foliageband[b].scalemin + fol * 0.5f) * (tileRng.unit() * tileRng.unit() + 0.5) * foliageband[b].scalemax;
+-      tileptr->foliage[b].inst.back().scale = (foliageband[b].scale + fol * 0.5f) * (tileRng.unit() * tileRng.unit() + 0.5) * 1.4;
++      tileptr->foliage[b].inst.back().ang = rand01 * PI*2.0f;
++      //tileptr->foliage[b].inst.back().scale = (1.0f + fol * 0.5f) * (rand01 * rand01 + 0.5) * 1.4;
++      //tileptr->foliage[b].inst.back().scale = (foliageband[b].scalemin + fol * 0.5f) * (rand01 * rand01 + 0.5) * foliageband[b].scalemax;
++      tileptr->foliage[b].inst.back().scale = (foliageband[b].scale + fol * 0.5f) * (rand01 * rand01 + 0.5) * 1.4;
+ 
+       rigidityvalue = rigidity.getRigidity(foliageband[b].sprite_tex->getName());
+       if (rigidityvalue != 0.0f) {
+--- a/src/PEngine/app.cpp
++++ b/src/PEngine/app.cpp
+@@ -507,6 +507,7 @@
+     break;
+   }
+ 
++  srand(validation::run.options.enabled ? validation::run.options.seed : SDL_GetTicks());
+   std::vector<std::unique_ptr<PSubsystem>> sslist;
+ 
+   try
+@@ -577,6 +578,7 @@
+   PUtil::outLog() << "Initialisation complete, entering main loop" << std::endl;
+ 
+ 
++  srand(validation::run.options.enabled ? validation::run.options.seed : rand() + SDL_GetTicks());
+   bool active = true, repaint = true, axis_down = false;
+   const double frequency = static_cast<double>(SDL_GetPerformanceFrequency());
+   Uint64 curtime = SDL_GetPerformanceCounter();

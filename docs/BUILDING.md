@@ -133,3 +133,66 @@ logs and underlying command failures, and removes stale result files.
 The current legacy simulation uses process-global state; the runner deliberately
 starts one process per scenario until Phase 1 fixes simulation ownership and RNG.
 Interactive play retains its existing timing and input paths.
+
+## Phase 1 runtime and distributions
+
+`project(TrackRS VERSION ...)` is the canonical version. CMake generates the
+runtime header, appdata metadata, CPack versions and `generated/version.svg`.
+When bumping it, copy the generated badge to `docs/version.svg` for the README.
+The old GNUmakefile entry points forward to CMake; use the presets above.
+Release uses x86-64-v2 on x86-64, `-O3 -ffp-contract=off`, and LTO when supported.
+Use `-DTRACKRS_NATIVE=ON` only for a local machine; `-DTRACKRS_LTO=OFF` disables LTO.
+
+The `<video>` element accepts `vsync="off|on|adaptive"` and `framecap="120"`.
+Defaults are vsync on and 120 FPS cap; cap zero is unlimited. Unsupported adaptive
+vsync falls back to ordinary vsync. Validation runs remain uncapped, fixed-step
+and non-interpolated for reproducible state/image capture. Interactive vehicle
+rendering interpolates body snapshots without changing simulation state.
+
+`data/policy/edition.xml` chooses demo/full/dev. Demo uses virtual-path allowlists;
+full respects championship locks; dev bypasses them. The bundled splash plays
+inside the SDL window; any key skips its remaining delay after loading. No
+external player is required. Legacy levels derive a deterministic seed from their
+virtual path; add decimal `stage_seed` on `<level>` to override it. Validation
+combines this with `--seed`. `PSim` also accepts a fixed-step duration at construction;
+legacy game/replay runs retain 0.004 seconds.
+
+After a release build, create `.deb` or `.zip` with:
+
+```sh
+cpack --config build/linux-release/CPackConfig.cmake -G 'DEB;ZIP'
+```
+
+DEB resolves platform ABI dependencies with shlibdeps. Linux ZIP requires the same
+runtime libraries as a source build; its binary/content layout is relocatable.
+Windows CPack supports ZIP and NSIS and includes resolved non-system DLLs.
+Run installers from the platform they were built for. Packages exclude the same
+17 unlicensed plugin ZIPs as the previous Debian script; source content is retained.
+
+For AppImage, supply the verified linuxdeploy tool and runtime described in
+[tools/README.md](../tools/README.md), then run:
+
+```sh
+LINUXDEPLOY=/absolute/path/linuxdeploy-x86_64.AppImage \
+LDAI_RUNTIME_FILE=/absolute/path/runtime-x86_64 \
+cmake --build --preset linux-release --target appimage
+```
+
+The host still supplies graphics drivers and glibc; build on the oldest supported
+distribution when targeting older systems. FUSE-free testing uses
+`APPIMAGE_EXTRACT_AND_RUN=1 ./TrackRS-x86_64.AppImage --help`.
+
+For the ten-minute wall-clock sanitizer soak (separate builds), use:
+
+```sh
+LP_NUM_THREADS=2 xvfb-run -a -s '-screen 0 640x480x24' python3 tests/run_soak.py \
+  --binary build/linux-debug-asan/bin/trackrs --output build/soak-asan --sanitizer asan
+LP_NUM_THREADS=0 xvfb-run -a -s '-screen 0 640x480x24' python3 tests/run_soak.py \
+  --binary build/linux-debug-tsan/bin/trackrs --output build/soak-tsan --sanitizer thread
+clang-tidy tests/core_lint.cpp -- -std=c++17 -I.
+```
+
+Each cycle runs 2,500 real-game ticks (10 simulated seconds) including load,
+rendering, replay and teardown. The loop runs until at least 600 wall seconds;
+slow cycles may exceed that target. Mesa worker threading is disabled only for
+TSan; no TrackRS race suppressions are used. Raw native diagnostics are retained.

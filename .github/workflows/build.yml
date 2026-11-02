@@ -15,10 +15,26 @@ jobs:
       - name: Dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y ninja-build libsdl2-dev libsdl2-image-dev libglew-dev libopenal-dev libalut-dev libtinyxml2-dev libphysfs-dev libgl1-mesa-dev libglu1-mesa-dev xvfb xauth
+          sudo apt-get install -y ninja-build libsdl2-dev libsdl2-image-dev libglew-dev libopenal-dev libalut-dev libtinyxml2-dev libphysfs-dev libgl1-mesa-dev libglu1-mesa-dev xvfb xauth clang-tidy
       - run: cmake --preset ${{ matrix.preset }} -DCMAKE_CXX_COMPILER=${{ matrix.compiler }}
       - run: cmake --build --preset ${{ matrix.preset }} -j2
       - run: ctest --preset ${{ matrix.preset }}
+      - name: New production core clang-tidy
+        if: matrix.compiler == 'clang++' && matrix.preset == 'linux-release'
+        run: clang-tidy tests/core_lint.cpp -- -std=c++17 -I.
+      - name: Distribution packages
+        if: matrix.compiler == 'g++' && matrix.preset == 'linux-release'
+        run: cpack --config build/${{ matrix.preset }}/CPackConfig.cmake -G 'DEB;ZIP'
+
+      - name: AppImage distribution
+        if: matrix.compiler == 'g++' && matrix.preset == 'linux-release'
+        run: |
+          curl -fL https://github.com/linuxdeploy/linuxdeploy/releases/download/1-alpha-20251107-1/linuxdeploy-x86_64.AppImage -o build/linuxdeploy-x86_64.AppImage
+          echo 'c20cd71e3a4e3b80c3483cef793cda3f4e990aca14014d23c544ca3ce1270b4d  build/linuxdeploy-x86_64.AppImage' | sha256sum -c
+          curl -fL https://github.com/AppImage/type2-runtime/releases/download/continuous/runtime-x86_64 -o build/runtime-x86_64
+          echo '617aa77314d57c8b8e4fae9c3f0b35af7b30d5529cb69e98f64f92510ed98a46  build/runtime-x86_64' | sha256sum -c
+          chmod +x build/linuxdeploy-x86_64.AppImage
+          LDAI_RUNTIME_FILE="$PWD/build/runtime-x86_64" LINUXDEPLOY="$PWD/build/linuxdeploy-x86_64.AppImage" cmake --build --preset linux-release --target appimage
       - name: Replay determinism
         env:
           LIBGL_ALWAYS_SOFTWARE: "1"
@@ -35,6 +51,9 @@ jobs:
           name: linux-${{ matrix.compiler }}-${{ matrix.preset }}
           path: |
             build/results
+            *.deb
+            *.zip
+            build/linux-release/*.AppImage
             build/asan-audit
             build/${{ matrix.preset }}/Testing
             build/${{ matrix.preset }}/bin
@@ -86,6 +105,9 @@ jobs:
             Write-Output "::error::$message"
           }
           exit $testExit
+      - name: Windows distributions
+        shell: pwsh
+        run: cpack --config build/windows/CPackConfig.cmake -C Release -G 'ZIP;NSIS' -B build/windows/packages
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         if: always()
         with:
@@ -94,6 +116,7 @@ jobs:
             build/windows/bin
             build/windows/build.log
             build/windows/ctest.log
+            build/windows/packages
   windows-mingw:
     runs-on: windows-2022
     steps:
@@ -126,6 +149,9 @@ jobs:
             printf '::error::%s\n' "$message"
           fi
           exit "$test_status"
+      - name: Windows portable distribution
+        shell: msys2 {0}
+        run: cpack --config build/win-mingw-release/CPackConfig.cmake -G ZIP -B build/win-mingw-release/packages
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         if: always()
         with:
@@ -133,3 +159,4 @@ jobs:
           path: |
             build/win-mingw-release/bin
             build/win-mingw-release/ctest.log
+            build/win-mingw-release/packages

@@ -47,6 +47,8 @@ def main():
     parser.add_argument("--frames", type=int)
     parser.add_argument("--stages", nargs="+", choices=STAGES, help="run a selected subset")
     parser.add_argument("--compare", type=Path, help="previous run manifest, same build/platform only")
+    parser.add_argument("--repeats", type=int, choices=(1, 2), default=2, help="one run is a regression probe, two also prove repeatability")
+    parser.add_argument("--state-only", action="store_true", help="compare simulation records while retaining new framebuffer evidence")
     args = parser.parse_args()
     args.binary = args.binary.resolve()
     args.output.mkdir(parents=True, exist_ok=True)
@@ -57,9 +59,9 @@ def main():
     cases = args.stages or (STAGES[:1] if args.quick else STAGES)
     reports = []
     for i, stage in enumerate(cases):
-        car = CARS[i % len(CARS)]
+        car = CARS[STAGES.index(stage) % len(CARS)]
         hashes, images = [], []
-        for repeat in range(2):
+        for repeat in range(args.repeats):
             stem = args.output / f"{stage}-{repeat}"
             with tempfile.TemporaryDirectory(prefix="trackrs-profile-") as profile:
                 env = dict(os.environ, XDG_DATA_HOME=profile, ALSOFT_DRIVERS="null", LIBGL_ALWAYS_SOFTWARE="1")
@@ -89,19 +91,22 @@ def main():
             if i < 8:
                 images.append(png_from_ppm(stem.with_suffix(".ppm"), stem.with_suffix(".png")))
                 stem.with_suffix(".ppm").unlink()
-        if hashes[0] != hashes[1]:
+        if len(set(hashes)) != 1:
             raise RuntimeError(f"non-deterministic physics: {stage}: {hashes}")
-        if images and images[0] != images[1]:
+        if images and len(set(images)) != 1:
             raise RuntimeError(f"non-deterministic framebuffer: {stage}: {images}")
         reports.append({"stage": stage, "vehicle": car, "ticks": frames, "state_hash": hashes[0],
                         "framebuffer_sha256": images[0] if images else None})
         print(f"PASS {stage}/{car}: {frames} ticks, hash {hashes[0]}", flush=True)
+    summary = {"schema": "trackrs.legacy-baselines/1", "repeat_count": args.repeats, "scenarios": reports}
+    (args.output / "manifest.json").write_text(json.dumps(summary, indent=2) + "\n")
     if args.compare:
         previous = json.loads(args.compare.read_text())
-        if previous["scenarios"] != reports:
-            raise RuntimeError("baseline regression: scenario state/framebuffer changed")
-    summary = {"schema": "trackrs.legacy-baselines/1", "repeat_count": 2, "scenarios": reports}
-    (args.output / "manifest.json").write_text(json.dumps(summary, indent=2) + "\n")
+        keys = ("stage", "vehicle", "ticks", "state_hash") if args.state_only else tuple(reports[0])
+        old = {r["stage"]: r for r in previous["scenarios"]}
+        changed = [r["stage"] for r in reports if any(r[k] != old.get(r["stage"], {}).get(k) for k in keys)]
+        if changed:
+            raise RuntimeError("baseline regression in: " + ", ".join(changed))
 
 
 if __name__ == "__main__":

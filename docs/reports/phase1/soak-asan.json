@@ -1,0 +1,19 @@
+{
+  "sanitizer": "asan",
+  "requested_wall_seconds": 600,
+  "elapsed_wall_seconds": 852.912732239005,
+  "simulated_seconds": 20.0,
+  "cycles": [
+    {
+      "stage": "ahead",
+      "ticks": 2500,
+      "state_hash": "b61575c53cc83831"
+    },
+    {
+      "stage": "greenland",
+      "ticks": 2500,
+      "state_hash": "56ccfc055f8ac28e"
+    }
+  ],
+  "application_errors": 0
+}

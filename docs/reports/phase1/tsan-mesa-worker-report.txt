@@ -1,0 +1,29 @@
+==================
+WARNING: ThreadSanitizer: data race (pid=36143)
+  Write of size 1 at 0x72200003c590 by main thread (mutexes: write M0):
+    #0 pthread_mutex_destroy ../../../../src/libsanitizer/tsan/tsan_interceptors_posix.cpp:1332 (libtsan.so.2+0x52bcc) (BuildId: 99ef88596cb10a8ccf307fe1a9070f66a44b1624)
+    #1 <null> <null> (libgallium-25.0.7-2+deb13u1.so+0x86f2f7) (BuildId: f34ab849e878d8ffbbb15533a597ca31ebd583ec)
+    #2 PApp::run(int, char**) /workspace/TRackRS/src/PEngine/app.cpp:712 (trackrs+0x788db) (BuildId: ae49c347e91e5b5345aeb09e9322b498753a8560)
+    #3 main /workspace/TRackRS/src/Trigger/main.cpp:1651 (trackrs+0xebe3f) (BuildId: ae49c347e91e5b5345aeb09e9322b498753a8560)
+
+  Previous atomic read of size 1 at 0x72200003c590 by thread T2:
+    #0 pthread_mutex_lock ../../../../src/libsanitizer/tsan/tsan_interceptors_posix.cpp:1341 (libtsan.so.2+0x558ce) (BuildId: 99ef88596cb10a8ccf307fe1a9070f66a44b1624)
+    #1 <null> <null> (libgallium-25.0.7-2+deb13u1.so+0x5afd2c) (BuildId: f34ab849e878d8ffbbb15533a597ca31ebd583ec)
+
+  Location is heap block of size 120 at 0x72200003c580 allocated by main thread:
+    #0 calloc ../../../../src/libsanitizer/tsan/tsan_interceptors_posix.cpp:685 (libtsan.so.2+0x5179e) (BuildId: 99ef88596cb10a8ccf307fe1a9070f66a44b1624)
+    #1 <null> <null> (libgallium-25.0.7-2+deb13u1.so+0x86f28a) (BuildId: f34ab849e878d8ffbbb15533a597ca31ebd583ec)
+    #2 main /workspace/TRackRS/src/Trigger/main.cpp:1651 (trackrs+0xebe3f) (BuildId: ae49c347e91e5b5345aeb09e9322b498753a8560)
+
+  Mutex M0 (0x726c000012d0) created at:
+    #0 pthread_mutex_init ../../../../src/libsanitizer/tsan/tsan_interceptors_posix.cpp:1315 (libtsan.so.2+0x5545f) (BuildId: 99ef88596cb10a8ccf307fe1a9070f66a44b1624)
+    #1 <null> <null> (libgallium-25.0.7-2+deb13u1.so+0x5afd11) (BuildId: f34ab849e878d8ffbbb15533a597ca31ebd583ec)
+    #2 main /workspace/TRackRS/src/Trigger/main.cpp:1651 (trackrs+0xebe3f) (BuildId: ae49c347e91e5b5345aeb09e9322b498753a8560)
+
+  Thread T2 'llvmpipe-0' (tid=36152, running) created by main thread at:
+    #0 pthread_create ../../../../src/libsanitizer/tsan/tsan_interceptors_posix.cpp:1022 (libtsan.so.2+0x568a6) (BuildId: 99ef88596cb10a8ccf307fe1a9070f66a44b1624)
+    #1 <null> <null> (libgallium-25.0.7-2+deb13u1.so+0x5afda3) (BuildId: f34ab849e878d8ffbbb15533a597ca31ebd583ec)
+    #2 main /workspace/TRackRS/src/Trigger/main.cpp:1651 (trackrs+0xebe3f) (BuildId: ae49c347e91e5b5345aeb09e9322b498753a8560)
+
+SUMMARY: ThreadSanitizer: data race (/lib/x86_64-linux-gnu/libgallium-25.0.7-2+deb13u1.so+0x86f2f7) (BuildId: f34ab849e878d8ffbbb15533a597ca31ebd583ec) 
+==================

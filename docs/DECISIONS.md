@@ -41,3 +41,31 @@ Decision: use lsan.supp as an exact driver-build/allocation-PC origin policy in 
 Consequences: the first post-allocator frame must be the audited system Mesa module; callbacks, unknown origins and other sanitizer errors fail.
 Evidence: retain full unsuppressed logs/status, verify all reported byte/object totals, and test real application leaks plus driver-callback fixtures.
 Status: accepted by the user; Mesa-origin allocations may have TrackRS caller frames.
+
+## ADR 007 — Phase 1 scope and the R-10 inventory mismatch
+
+Context: The Phase 1 list names R-07/08/09/11/12/13/14/15/16; Car Definition v2 (R-10) belongs to Phase 4.
+Decision: Audit R-10 against the actual 11-vehicle snapshot, preserve its existing definitions, and implement the explicit Phase 1 list.
+Reason: This checkout has nine fictional cars and two additional definitions, not eleven missing real-car asset sets; real specifications cannot be fabricated.
+Consequence: Phase 1 does not claim calibrated real-car physics or introduce Phase 2/4 systems. The existing asset inventory remains authoritative.
+
+## ADR 008 — Owned PCG streams replace libc RNG coupling
+
+Context: Terrain tile creation reseeded the process RNG and changed subsequent wheel bumps, weather and effects according to render traversal.
+Decision: Use PCG32 streams owned by each vehicle, stage, particle system and application; derive independent foliage streams from stage and signed tile coordinates.
+Seed policy: Legacy levels default to the stable virtual-path FNV-1a seed; optional decimal `stage_seed` overrides it. Validation XORs its explicit `--seed` into the stage seed.
+Consequence: Wheel-bump samples and foliage positions intentionally change; original golden artifacts remain immutable and a legacy-RNG A/B patch isolates their effect.
+
+## ADR 009 — Transitional engine modules preserve the compatibility renderer
+
+Context: Engine textures and terrain included `main.h`, and configuration downcast its host to MainApp; UI primitives shared the application menu source.
+Decision: Compile Core, Platform, Renderer, UI, Audio, World and Sim separately; expose borrowed engine services and typed application states; enforce transitive engine-to-game include boundaries.
+Consequence: Scene and menu composition remain application responsibilities. The fixed-function draw path remains until Phase 2; this phase makes no modern-renderer claim.
+Validation: The layering check runs at configure and every game build, and as CTest; CPU-only primitives remain independent of SDL/GL.
+
+## ADR 010 — Sanitizer and package evidence must state their limits
+
+Context: The uninstrumented Mesa llvmpipe worker mutex produced a native TSan report; rootless SDK packages are not registered in dpkg's installed-package database.
+Decision: Run TSan's real-game soak with `LP_NUM_THREADS=0`, without race suppressions; keep native ASan origin auditing unchanged. Add stable SDL_image/ALUT/PhysFS runtime package dependencies alongside shlibdeps.
+Consequence: TrackRS threads remain instrumented. Soak reports distinguish wall time from fixed-step simulated time; no performance claim is made from concurrent software-rendered verification.
+Packaging: All formats share the existing unlicensed-plugin exclusion list, generated project version and relative data layout; AppImage tools and runtime are checksum-pinned.
