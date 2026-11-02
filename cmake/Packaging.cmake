@@ -27,11 +27,27 @@ if(WIN32)
   set(CMAKE_INSTALL_SYSTEM_RUNTIME_DESTINATION bin)
   include(InstallRequiredSystemLibraries)
   set(CPACK_GENERATOR "ZIP;NSIS")
+  # MinGW does not copy dependency DLLs beside the executable. Resolve them from
+  # the discovered SDK and compiler bin directories, never an assumed drive.
+  set(TRACKRS_DLL_DIRS "$<TARGET_FILE_DIR:trackrs>")
+  get_filename_component(compiler_bin "${CMAKE_CXX_COMPILER}" DIRECTORY)
+  list(APPEND TRACKRS_DLL_DIRS "${compiler_bin}")
+  foreach(library IN LISTS TRACKRS_LIBRARIES)
+    get_filename_component(library_dir "${library}" DIRECTORY)
+    get_filename_component(sdk_bin "${library_dir}/../bin" ABSOLUTE)
+    list(APPEND TRACKRS_DLL_DIRS "${library_dir}" "${sdk_bin}")
+  endforeach()
+  list(REMOVE_DUPLICATES TRACKRS_DLL_DIRS)
+  install(CODE "set(TRACKRS_PACKAGE_DLL_DIRS \"${TRACKRS_DLL_DIRS}\")")
   install(CODE [[
+    if(POLICY CMP0207)
+      cmake_policy(SET CMP0207 NEW)
+    endif()
     file(GET_RUNTIME_DEPENDENCIES EXECUTABLES "$<TARGET_FILE:trackrs>"
       RESOLVED_DEPENDENCIES_VAR resolved UNRESOLVED_DEPENDENCIES_VAR unresolved
+      DIRECTORIES ${TRACKRS_PACKAGE_DLL_DIRS}
       PRE_EXCLUDE_REGEXES "api-ms-.*" "ext-ms-.*"
-      POST_EXCLUDE_REGEXES ".*[Ww]indows/.*")
+      POST_EXCLUDE_REGEXES "^[A-Za-z]:.[Ww][Ii][Nn][Dd][Oo][Ww][Ss].*")
     if(unresolved)
       message(FATAL_ERROR "Unresolved package DLLs: ${unresolved}")
     endif()
