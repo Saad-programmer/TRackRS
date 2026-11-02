@@ -80,7 +80,7 @@ vehicle trajectories; no art or shader upgrade is claimed.
 
 | Ahead before | Ahead after |
 | --- | --- |
-| ![Phase 0 Ahead](../../tests/baselines/linux-gcc/ahead-0.png) | ![Phase 1 Ahead](phase1/screenshots/ahead.png) |
+| ![Phase 0 Ahead](../../tests/baselines/linux-gcc/screenshots/ahead.png) | ![Phase 1 Ahead](phase1/screenshots/ahead.png) |
 
 ## Validation
 
