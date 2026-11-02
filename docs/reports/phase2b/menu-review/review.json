@@ -1,0 +1,20 @@
+[
+  {
+    "stage": "demo",
+    "before_rgb_sha256": "7ee81349edc135013396880dab26d0478f9a5b656c4392f504a93f7a0c0603ca",
+    "after_rgb_sha256": "a08a06e2eaa0c35c14f3b3b1682144ff9ef1f31e9c43ee69e045e88e819e012d",
+    "identical": false
+  },
+  {
+    "stage": "dev",
+    "before_rgb_sha256": "a6270ba9927aabf3e868d154c83f69591300dd9642005203ea1f8416049655c1",
+    "after_rgb_sha256": "dbcdfd4f7ebec35b5cd2be325fadf731a729afeb1fb89c859dc24be34fa2a513",
+    "identical": false
+  },
+  {
+    "stage": "full",
+    "before_rgb_sha256": "6f533ce367054ac5d66c60e0fc9f92bffef250b450b78d3428a4a4c1b464d7c8",
+    "after_rgb_sha256": "4ae3da9492511dbbab85ea98d1adf1422e7814678077726bb0d9d93d37edaef8",
+    "identical": false
+  }
+]

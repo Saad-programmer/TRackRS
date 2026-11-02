@@ -1,0 +1,114 @@
+[
+  {
+    "stage": "aegyptian",
+    "before_rgb_sha256": "7ecaf22b257a329bdcefe0786a1c482eacb3cd6e66086e1f20fb2bf2b744b2a4",
+    "after_rgb_sha256": "f2018ca9294c2f07a6ecef658aacca4f44b87948ebaf561702457aea54ecbe21",
+    "identical": false,
+    "metrics": {
+      "rgb_mean_absolute_error": 0.07767686631944444,
+      "pixel_max_channel_p99": 3,
+      "pixels_over_24_fraction": 0.00028645833333333333,
+      "block_ssim": 0.9996698953987307,
+      "hud_mean_absolute_error": 0.13097393992932863
+    },
+    "within_tolerance": true
+  },
+  {
+    "stage": "ahead",
+    "before_rgb_sha256": "39242d408d7c12230cb0d0cd0b4d6b53c97bbc08a3c46263866ff95c4f2ccd1e",
+    "after_rgb_sha256": "e77c453263ca31f10fd764048cbb11b0c62faa33baf53c865ccd333e5fdae6f9",
+    "identical": false,
+    "metrics": {
+      "rgb_mean_absolute_error": 0.17054253472222222,
+      "pixel_max_channel_p99": 6,
+      "pixels_over_24_fraction": 0.0026041666666666665,
+      "block_ssim": 0.9990779867851339,
+      "hud_mean_absolute_error": 0.2886300058892815
+    },
+    "within_tolerance": true
+  },
+  {
+    "stage": "ancient",
+    "before_rgb_sha256": "c1c4a7160d076e45252a62819c7264b08a3fe28cf322113644d6342890f81d1b",
+    "after_rgb_sha256": "98a86abe569bf4c8736aa08ce0fae4905f4eb01971c1deb20095d54d2eee9d56",
+    "identical": false,
+    "metrics": {
+      "rgb_mean_absolute_error": 0.12466254340277778,
+      "pixel_max_channel_p99": 4,
+      "pixels_over_24_fraction": 0.0006608072916666666,
+      "block_ssim": 0.999446616102395,
+      "hud_mean_absolute_error": 0.21119147526501766
+    },
+    "within_tolerance": true
+  },
+  {
+    "stage": "april",
+    "before_rgb_sha256": "b308259cea6f3bd32d794fdb81e1929ea12018ab5843eea9c40f4e9975154940",
+    "after_rgb_sha256": "34f96d0f9ac7da83a70d83df25a8c41626c66345b1e1414bfa5e228afa8f418c",
+    "identical": false,
+    "metrics": {
+      "rgb_mean_absolute_error": 0.06744574652777778,
+      "pixel_max_channel_p99": 2,
+      "pixels_over_24_fraction": 0.0002897135416666667,
+      "block_ssim": 0.9997206584684767,
+      "hud_mean_absolute_error": 0.11390974676089517
+    },
+    "within_tolerance": true
+  },
+  {
+    "stage": "coastline",
+    "before_rgb_sha256": "21844e2fe616f0e9fb9ddbffd2ae0de416fe26a6d7555fa78022496b16465039",
+    "after_rgb_sha256": "a98b052568c4ca2d36abb5b06a44baaaf44a710f87e930069ca7b7676f405117",
+    "identical": false,
+    "metrics": {
+      "rgb_mean_absolute_error": 0.12700520833333334,
+      "pixel_max_channel_p99": 5,
+      "pixels_over_24_fraction": 0.002223307291666667,
+      "block_ssim": 0.9993128574880351,
+      "hud_mean_absolute_error": 0.21494221142520611
+    },
+    "within_tolerance": true
+  },
+  {
+    "stage": "country",
+    "before_rgb_sha256": "636ff771e75c160c91d12481763379cffacd96372a6bead67616a8bfbf480dfa",
+    "after_rgb_sha256": "473bd9300969a575be41f0b9f39693ad0928d22aac3b230ec2e6ae1ce945f89d",
+    "identical": false,
+    "metrics": {
+      "rgb_mean_absolute_error": 0.15824544270833332,
+      "pixel_max_channel_p99": 6,
+      "pixels_over_24_fraction": 0.0022688802083333333,
+      "block_ssim": 0.9991765643938209,
+      "hud_mean_absolute_error": 0.26770097173144874
+    },
+    "within_tolerance": true
+  },
+  {
+    "stage": "greenland",
+    "before_rgb_sha256": "a27e4e713f82d314c4596affb13c19fd402825db23393ca604681584e2cd3d1b",
+    "after_rgb_sha256": "e534e0aa36f70319a5b35432ce986a9c75b89d9ae3b932bc659e7530e2099e97",
+    "identical": false,
+    "metrics": {
+      "rgb_mean_absolute_error": 0.06829644097222222,
+      "pixel_max_channel_p99": 2,
+      "pixels_over_24_fraction": 0.00037760416666666666,
+      "block_ssim": 0.9997572098680155,
+      "hud_mean_absolute_error": 0.11569493521790342
+    },
+    "within_tolerance": true
+  },
+  {
+    "stage": "mudbath",
+    "before_rgb_sha256": "06dad63104439195a2ee4eb6864071e4a9ac3d538c1395b6797ee5bc180957c2",
+    "after_rgb_sha256": "095e917bc9ad21f0470dcb5906bee4b8e477692cb30c25eafbc3dfebe44cc177",
+    "identical": false,
+    "metrics": {
+      "rgb_mean_absolute_error": 0.09409613715277777,
+      "pixel_max_channel_p99": 3,
+      "pixels_over_24_fraction": 0.0004524739583333333,
+      "block_ssim": 0.9995397702697968,
+      "hud_mean_absolute_error": 0.15855050058892814
+    },
+    "within_tolerance": true
+  }
+]

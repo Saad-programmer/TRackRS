@@ -1,0 +1,99 @@
+{
+  "schema": "trackrs.legacy-baselines/1",
+  "repeat_count": 1,
+  "scenarios": [
+    {
+      "stage": "ahead",
+      "vehicle": "cordo_kitcar",
+      "ticks": 1500,
+      "state_hash": "6c59e5730498f6bb",
+      "framebuffer_sha256": "e77c453263ca31f10fd764048cbb11b0c62faa33baf53c865ccd333e5fdae6f9"
+    },
+    {
+      "stage": "aegyptian",
+      "vehicle": "evo_wrc",
+      "ticks": 1500,
+      "state_hash": "6ef69d2bfba26f27",
+      "framebuffer_sha256": "f2018ca9294c2f07a6ecef658aacca4f44b87948ebaf561702457aea54ecbe21"
+    },
+    {
+      "stage": "greenland",
+      "vehicle": "fox_super500",
+      "ticks": 1500,
+      "state_hash": "804029ba668f1ffb",
+      "framebuffer_sha256": "e534e0aa36f70319a5b35432ce986a9c75b89d9ae3b932bc659e7530e2099e97"
+    },
+    {
+      "stage": "mudbath",
+      "vehicle": "cordo_kitcar",
+      "ticks": 1500,
+      "state_hash": "0aaa524773512bc5",
+      "framebuffer_sha256": "095e917bc9ad21f0470dcb5906bee4b8e477692cb30c25eafbc3dfebe44cc177"
+    },
+    {
+      "stage": "april",
+      "vehicle": "evo_wrc",
+      "ticks": 1500,
+      "state_hash": "c04e7703e85bb3b5",
+      "framebuffer_sha256": "34f96d0f9ac7da83a70d83df25a8c41626c66345b1e1414bfa5e228afa8f418c"
+    },
+    {
+      "stage": "ancient",
+      "vehicle": "fox_super500",
+      "ticks": 1500,
+      "state_hash": "e78aa8175f104310",
+      "framebuffer_sha256": "98a86abe569bf4c8736aa08ce0fae4905f4eb01971c1deb20095d54d2eee9d56"
+    },
+    {
+      "stage": "coastline",
+      "vehicle": "cordo_kitcar",
+      "ticks": 1500,
+      "state_hash": "6c1fc7772b1256fa",
+      "framebuffer_sha256": "a98b052568c4ca2d36abb5b06a44baaaf44a710f87e930069ca7b7676f405117"
+    },
+    {
+      "stage": "country",
+      "vehicle": "evo_wrc",
+      "ticks": 1500,
+      "state_hash": "826ac4b1dfbe92d6",
+      "framebuffer_sha256": "473bd9300969a575be41f0b9f39693ad0928d22aac3b230ec2e6ae1ce945f89d"
+    },
+    {
+      "stage": "darkbushes",
+      "vehicle": "fox_super500",
+      "ticks": 1500,
+      "state_hash": "b6d2c008c0056040",
+      "framebuffer_sha256": null
+    },
+    {
+      "stage": "barren",
+      "vehicle": "cordo_kitcar",
+      "ticks": 1500,
+      "state_hash": "08fa4a1ec9780ada",
+      "framebuffer_sha256": null
+    },
+    {
+      "stage": "altitude",
+      "vehicle": "evo_wrc",
+      "ticks": 1500,
+      "state_hash": "12ad3892a6b31069",
+      "framebuffer_sha256": null
+    },
+    {
+      "stage": "arizonachase",
+      "vehicle": "fox_super500",
+      "ticks": 1500,
+      "state_hash": "722602d179d1ee7d",
+      "framebuffer_sha256": null
+    },
+    {
+      "stage": "glacier",
+      "vehicle": "cordo_kitcar",
+      "ticks": 1500,
+      "state_hash": "a348e60ebf050d09",
+      "framebuffer_sha256": null
+    }
+  ],
+  "implementation_commit": "f2fa1a7",
+  "execution_notes": "Final complete 13-stage comparison after the coplanar-shadow fix; one 1500-tick process per stage, default Mesa worker setting. Earlier paired probes were superseded after Country failed the strict image gate. Physics baseline hashes are exact."
+}

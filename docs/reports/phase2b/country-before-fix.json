@@ -1,0 +1,14 @@
+{
+  "stage": "country",
+  "before_rgb_sha256": "636ff771e75c160c91d12481763379cffacd96372a6bead67616a8bfbf480dfa",
+  "after_rgb_sha256": "afd4e20409e683b6e6e33bc9691be0f27c5d0b9d65597db21b56d6ee70765d3d",
+  "identical": false,
+  "metrics": {
+    "rgb_mean_absolute_error": 1.6479351128472222,
+    "pixel_max_channel_p99": 27,
+    "pixels_over_24_fraction": 0.015029296875,
+    "block_ssim": 0.9874304747023555,
+    "hud_mean_absolute_error": 2.794383097762073
+  },
+  "within_tolerance": false
+}

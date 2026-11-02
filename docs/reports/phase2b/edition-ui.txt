@@ -1,0 +1,3 @@
+PASS UI startup/click/screenshot/clean exit: demo
+PASS UI startup/click/screenshot/clean exit: full
+PASS UI startup/click/screenshot/clean exit: dev
