@@ -28,43 +28,28 @@ void PSSRender::render(PParticleSystem *psys)
   validation::PassScope timing("particles");
   vec3f pushx = makevec3f(cam_orimat.row[0]);
   vec3f pushy = makevec3f(cam_orimat.row[1]);
-  vec3f vert;
   
-  glBlendFunc(psys->blendparam1, psys->blendparam2);
+  trackrs::draw::blend(psys->blendparam1, psys->blendparam2);
   
   if (psys->tex) psys->tex->bind();
-  else glDisable(GL_TEXTURE_2D);
+  else trackrs::draw::disable(GL_TEXTURE_2D);
   
-  glBegin(GL_QUADS);
-  for (unsigned int i=0; i<psys->part.size(); i++) {
-    PParticle_s &part = psys->part[i];
-    float sizenow = INTERP(psys->endsize, psys->startsize, part.life);
-    vec3f pushxt = pushx * sizenow;
-    vec3f pushyt = pushy * sizenow;
-    vec3f pushx2 = pushxt * part.orix.x + pushyt * part.orix.y;
-    vec3f pushy2 = pushxt * part.oriy.x + pushyt * part.oriy.y;
-
-    glColor4f(INTERP(psys->colorend[0], psys->colorstart[0], part.life),
-        INTERP(psys->colorend[1], psys->colorstart[1], part.life),
-        INTERP(psys->colorend[2], psys->colorstart[2], part.life),
-        INTERP(psys->colorend[3], psys->colorstart[3], part.life));
-
-    vert = part.pos - pushx2 - pushy2;
-    glTexCoord2i(0,0);
-    glVertex3fv(vert);
-    vert = part.pos + pushx2 - pushy2;
-    glTexCoord2i(1,0);
-    glVertex3fv(vert);
-    vert = part.pos + pushx2 + pushy2;
-    glTexCoord2i(1,1);
-    glVertex3fv(vert);
-    vert = part.pos - pushx2 + pushy2;
-    glTexCoord2i(0,1);
-    glVertex3fv(vert);
+  std::vector<trackrs::draw::Particle> instances;
+  instances.reserve(psys->part.size());
+  for (const auto& part : psys->part) {
+    const float size=INTERP(psys->endsize,psys->startsize,part.life);
+    const auto x=(pushx*part.orix.x+pushy*part.orix.y)*size;
+    const auto y=(pushx*part.oriy.x+pushy*part.oriy.y)*size;
+    const glm::vec4 color(
+      INTERP(psys->colorend[0],psys->colorstart[0],part.life),
+      INTERP(psys->colorend[1],psys->colorstart[1],part.life),
+      INTERP(psys->colorend[2],psys->colorstart[2],part.life),
+      INTERP(psys->colorend[3],psys->colorstart[3],part.life));
+    instances.push_back({{part.pos.x,part.pos.y,part.pos.z},{x.x,x.y,x.z},{y.x,y.y,y.z},color,color});
   }
-  glEnd();
-  
-  if (!psys->tex) glEnable(GL_TEXTURE_2D);
+  trackrs::draw::particles(instances);
+
+  if (!psys->tex) trackrs::draw::enable(GL_TEXTURE_2D);
 }
 
 void PSSRender::drawModel(PModel &model, PSSEffect &ssEffect, PSSTexture &ssTexture)
@@ -80,23 +65,18 @@ void PSSRender::drawModel(PModel &model, PSSEffect &ssEffect, PSSTexture &ssText
     if (mesh->effect->renderBegin(&numPasses, ssTexture)) {
       for (int i=0; i<numPasses; i++) {
         mesh->effect->renderPass(i);
-        glBegin(GL_TRIANGLES);
-        for (unsigned int f=0; f<mesh->face.size(); f++) {
-          //glNormal3fv(mesh->face[f].facenormal);
-
-          glNormal3fv(mesh->norm[mesh->face[f].nr[0]]);
-          glTexCoord2fv(mesh->texco[mesh->face[f].tc[0]]);
-          glVertex3fv(mesh->vert[mesh->face[f].vt[0]]);
-
-          glNormal3fv(mesh->norm[mesh->face[f].nr[1]]);
-          glTexCoord2fv(mesh->texco[mesh->face[f].tc[1]]);
-          glVertex3fv(mesh->vert[mesh->face[f].vt[1]]);
-
-          glNormal3fv(mesh->norm[mesh->face[f].nr[2]]);
-          glTexCoord2fv(mesh->texco[mesh->face[f].tc[2]]);
-          glVertex3fv(mesh->vert[mesh->face[f].vt[2]]);
-        }
-        glEnd();
+        if (!mesh->gpu) {
+            std::vector<trackrs::draw::MeshVertex> vertices;
+            vertices.reserve(mesh->face.size()*3);
+            for (const auto& face : mesh->face) for (int corner=0;corner<3;++corner) {
+              const auto& p=mesh->vert[face.vt[corner]];
+              const auto& n=mesh->norm[face.nr[corner]];
+              const auto& uv=mesh->texco[face.tc[corner]];
+              vertices.push_back({{p.x,p.y,p.z},{n.x,n.y,n.z},{uv.x,uv.y}});
+            }
+            mesh->gpu=std::make_shared<trackrs::draw::Mesh>(vertices);
+          }
+          mesh->gpu->draw();
       }
       mesh->effect->renderEnd();
     }
@@ -240,21 +220,21 @@ void PSSRender::drawText(const std::string &text, uint32 flags)
     const GLfloat addy = 1.0f / 8.0f;
 
     float color[4];
-    glGetFloatv(GL_CURRENT_COLOR, color);
+    trackrs::draw::read(trackrs::draw::CurrentColor, color);
 
-    glPushMatrix();
+    trackrs::draw::push();
 
     if (flags & PTEXT_VTA_CENTER)
-        glTranslatef(0.0f, -0.5f, 0.0f);
+        trackrs::draw::translate(0.0f, -0.5f, 0.0f);
     else
     if (flags & PTEXT_VTA_TOP)
-        glTranslatef(0.0f, -1.0f, 0.0f);
+        trackrs::draw::translate(0.0f, -1.0f, 0.0f);
 
     if (flags & PTEXT_HZA_CENTER)
-        glTranslatef(-0.5f * text.length() * font_aspect, 0.0f, 0.0f);
+        trackrs::draw::translate(-0.5f * text.length() * font_aspect, 0.0f, 0.0f);
     else
     if (flags & PTEXT_HZA_RIGHT)
-        glTranslatef(-1.0f * text.length() * font_aspect, 0.0f, 0.0f);
+        trackrs::draw::translate(-1.0f * text.length() * font_aspect, 0.0f, 0.0f);
 
     for (auto it = text.cbegin() ; it != text.cend(); ++it)
     {
@@ -287,36 +267,36 @@ void PSSRender::drawText(const std::string &text, uint32 flags)
               }
             }
 
-            glScalef(4.0f/3.0f, 4.0f/3.0f, 1.0f);
-            glTranslatef(-1.0f/12.0f, -1.0f/12.0f, 0.0f);
-            glDisable(GL_TEXTURE_2D);
-            glColor4f(0.0f, 0.0f, 0.0f, 0.25f);
-            glBegin(GL_TRIANGLE_STRIP);
-            glVertex2f(ystart, 0.0f);
-            glVertex2f(yend, 0.0f);
-            glVertex2f(ystart, 1.0f);
-            glVertex2f(yend, 1.0f);
-            glEnd();
-            glEnable(GL_TEXTURE_2D);
-            glTranslatef(1.0f/12.0f, 1.0f/12.0f, 0.0f);
-            glScalef(0.75f, 0.75f, 1.0f);
+            trackrs::draw::scale(4.0f/3.0f, 4.0f/3.0f, 1.0f);
+            trackrs::draw::translate(-1.0f/12.0f, -1.0f/12.0f, 0.0f);
+            trackrs::draw::disable(GL_TEXTURE_2D);
+            trackrs::draw::color(0.0f, 0.0f, 0.0f, 0.25f);
+            trackrs::draw::begin(GL_TRIANGLE_STRIP);
+            trackrs::draw::vertex(ystart, 0.0f);
+            trackrs::draw::vertex(yend, 0.0f);
+            trackrs::draw::vertex(ystart, 1.0f);
+            trackrs::draw::vertex(yend, 1.0f);
+            trackrs::draw::end();
+            trackrs::draw::enable(GL_TEXTURE_2D);
+            trackrs::draw::translate(1.0f/12.0f, 1.0f/12.0f, 0.0f);
+            trackrs::draw::scale(0.75f, 0.75f, 1.0f);
         }
 
-        glColor4fv(color);
-        glBegin(GL_TRIANGLE_STRIP);
-        glTexCoord2f(tx, ty);
-        glVertex2f(0.0f, 0.0f);
-        glTexCoord2f(tx + addx, ty);
-        glVertex2f(font_aspect, 0.0f);
-        glTexCoord2f(tx, ty + addy);
-        glVertex2f(0.0f, 1.0f);
-        glTexCoord2f(tx + addx, ty + addy);
-        glVertex2f(font_aspect, 1.0f);
-        glEnd();
-        glTranslatef(font_aspect, 0.0f, 0.0f);
+        trackrs::draw::color(color);
+        trackrs::draw::begin(GL_TRIANGLE_STRIP);
+        trackrs::draw::uv(tx, ty);
+        trackrs::draw::vertex(0.0f, 0.0f);
+        trackrs::draw::uv(tx + addx, ty);
+        trackrs::draw::vertex(font_aspect, 0.0f);
+        trackrs::draw::uv(tx, ty + addy);
+        trackrs::draw::vertex(0.0f, 1.0f);
+        trackrs::draw::uv(tx + addx, ty + addy);
+        trackrs::draw::vertex(font_aspect, 1.0f);
+        trackrs::draw::end();
+        trackrs::draw::translate(font_aspect, 0.0f, 0.0f);
     }
 
-    glPopMatrix();
+    trackrs::draw::pop();
 }
 
 

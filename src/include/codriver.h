@@ -107,31 +107,31 @@ public:
             return;
         }
 
-        glPushMatrix();
-        glLoadIdentity();
-        glOrtho(-1.0, 1.0, -1.0, 1.0, -1.0, 1.0);
-        glTranslatef(uc.posx, uc.posy, 0.0f);
-        glScalef(uc.scale, uc.scale, 1.0f);
-        glTranslatef(-0.5f * cpsigns.size() * 2 + 1.0f, 0.0f, 0.0f);
-        glColor4f(1.0f, 1.0f, 1.0f, alpha);
+        trackrs::draw::push();
+        trackrs::draw::identity();
+        trackrs::draw::ortho(-1.0, 1.0, -1.0, 1.0, -1.0, 1.0);
+        trackrs::draw::translate(uc.posx, uc.posy, 0.0f);
+        trackrs::draw::scale(uc.scale, uc.scale, 1.0f);
+        trackrs::draw::translate(-0.5f * cpsigns.size() * 2 + 1.0f, 0.0f, 0.0f);
+        trackrs::draw::color(1.0f, 1.0f, 1.0f, alpha);
 
         for (PTexture *cptex: cpsigns)
         {
             cptex->bind();
-            glBegin(GL_QUADS);
-            glTexCoord2f(   1.0f,   1.0f);
-            glVertex2f(     1.0f,   1.0f);
-            glTexCoord2f(   0.0f,   1.0f);
-            glVertex2f(    -1.0f,   1.0f);
-            glTexCoord2f(   0.0f,   0.0f);
-            glVertex2f(    -1.0f,  -1.0f);
-            glTexCoord2f(   1.0f,   0.0f);
-            glVertex2f(     1.0f,  -1.0f);
-            glEnd();
-            glTranslatef(2.0f, 0.0f, 0.0f);
+            trackrs::draw::begin(trackrs::draw::Quads);
+            trackrs::draw::uv(   1.0f,   1.0f);
+            trackrs::draw::vertex(     1.0f,   1.0f);
+            trackrs::draw::uv(   0.0f,   1.0f);
+            trackrs::draw::vertex(    -1.0f,   1.0f);
+            trackrs::draw::uv(   0.0f,   0.0f);
+            trackrs::draw::vertex(    -1.0f,  -1.0f);
+            trackrs::draw::uv(   1.0f,   0.0f);
+            trackrs::draw::vertex(     1.0f,  -1.0f);
+            trackrs::draw::end();
+            trackrs::draw::translate(2.0f, 0.0f, 0.0f);
         }
 
-        glPopMatrix();
+        trackrs::draw::pop();
     }
 
 private:

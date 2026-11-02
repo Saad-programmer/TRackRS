@@ -1,11 +1,7 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 #pragma once
-/** Owns the temporary legacy compatibility context and core presentation RHI.
- * Borrows the visible core window/context; they outlive this object. Main
- * thread only. One GPU copy and core triangle per eye/frame; no CPU pixel
- * transfer. The bridge is removed in 2b, preserving a playable checkpoint at
- * gate 2a.
- */
+/** Borrows one visible core context; owns core rendering resources. No other
+ * SDL window/context or compatibility bridge is created. Main render thread. */
 #include "rhi.h"
 #include <SDL2/SDL.h>
 #include <functional>

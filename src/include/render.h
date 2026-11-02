@@ -1,3 +1,4 @@
+#include "engine/render/basic.h"
 #include "../../engine/core/pcg32.h"
 // Creator: Saad AIT YAHIA - @github: Saad-programmer
 #pragma once
@@ -355,7 +356,8 @@ public:
   std::vector<PFace> face;
 
   std::string fxname;
-  PEffect *effect;
+  PEffect *effect = nullptr;
+  std::shared_ptr<trackrs::draw::Mesh> gpu;
 };
 
 

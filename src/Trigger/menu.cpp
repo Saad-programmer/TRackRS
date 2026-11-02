@@ -1235,32 +1235,32 @@ void MainApp::renderStateLevel(float eyetranslation)
 {
   eyetranslation = eyetranslation;
 
-  glMatrixMode(GL_PROJECTION);
-  glPushMatrix();
-  glLoadIdentity();
+  trackrs::draw::matrix(trackrs::draw::Projection);
+  trackrs::draw::push();
+  trackrs::draw::identity();
 
   const GLdouble margin = (800.0 - 600.0 * cx / cy) / 2.0;
 
-  glOrtho(margin, 600.0 * cx / cy + margin, 0.0, 600.0, -1.0, 1.0);
+  trackrs::draw::ortho(margin, 600.0 * cx / cy + margin, 0.0, 600.0, -1.0, 1.0);
 
-  glPushMatrix();
-  glLoadIdentity();
-  glOrtho(-1.0, 1.0, -1.0, 1.0, -1.0, 1.0);
+  trackrs::draw::push();
+  trackrs::draw::identity();
+  trackrs::draw::ortho(-1.0, 1.0, -1.0, 1.0, -1.0, 1.0);
 
-  glMatrixMode(GL_MODELVIEW);
+  trackrs::draw::matrix(trackrs::draw::View);
 
   // draw background image
 
-  glBlendFunc(GL_ONE, GL_ZERO);
-  glDisable(GL_DEPTH_TEST);
-  glDisable(GL_FOG);
-  glDisable(GL_LIGHTING);
+  trackrs::draw::blend(GL_ONE, GL_ZERO);
+  trackrs::draw::disable(GL_DEPTH_TEST);
+  trackrs::draw::disable(trackrs::draw::Fog);
+  trackrs::draw::disable(trackrs::draw::Lighting);
 
   tex_splash_screen->bind();
 
-  //glColor4f(0.0f, 0.0f, 0.2f, 1.0f); // make image dark blue
-  glColor4f(1.0f, 1.0f, 1.0f, 1.0f); // use image's normal colors
-  //glColor4f(0.5f, 0.5f, 0.5f, 1.0f); // make image darker
+  //trackrs::draw::color(0.0f, 0.0f, 0.2f, 1.0f); // make image dark blue
+  trackrs::draw::color(1.0f, 1.0f, 1.0f, 1.0f); // use image's normal colors
+  //trackrs::draw::color(0.5f, 0.5f, 0.5f, 1.0f); // make image darker
 
   // Old-school rally Ken Burns effect
   float zoom = 0.82f + 0.04f * sinf(menu_time * 0.2f);
@@ -1270,7 +1270,7 @@ void MainApp::renderStateLevel(float eyetranslation)
   auto map_tx = [&](float tx) { return 0.5f + dx + (tx - 0.5f) * zoom; };
   auto map_ty = [&](float ty) { return 0.5f + dy + (ty - 0.5f) * zoom; };
 
-  glBegin(GL_QUADS);
+  trackrs::draw::begin(trackrs::draw::Quads);
   // the background image is square and cut out a piece based on aspect ratio
   // -------- if aspect ratio is larger than 4:3
   // if aspect ratio is larger than 1:1
@@ -1279,56 +1279,56 @@ void MainApp::renderStateLevel(float eyetranslation)
     // lower and upper offset based on aspect ratio
     float off_l = (1 - ((float)getHeight() / (float)getWidth())) / 2.f;
     float off_u = 1 - off_l;
-    glTexCoord2f(map_tx(1.0f), map_ty(off_u)); glVertex2f(1.0f, 1.0f);
-    glTexCoord2f(map_tx(0.0f), map_ty(off_u)); glVertex2f(-1.0f, 1.0f);
-    glTexCoord2f(map_tx(0.0f), map_ty(off_l)); glVertex2f(-1.0f, -1.0f);
-    glTexCoord2f(map_tx(1.0f), map_ty(off_l)); glVertex2f(1.0f, -1.0f);
+    trackrs::draw::uv(map_tx(1.0f), map_ty(off_u)); trackrs::draw::vertex(1.0f, 1.0f);
+    trackrs::draw::uv(map_tx(0.0f), map_ty(off_u)); trackrs::draw::vertex(-1.0f, 1.0f);
+    trackrs::draw::uv(map_tx(0.0f), map_ty(off_l)); trackrs::draw::vertex(-1.0f, -1.0f);
+    trackrs::draw::uv(map_tx(1.0f), map_ty(off_l)); trackrs::draw::vertex(1.0f, -1.0f);
   }
   // other cases (including 4:3, in which case off_l and off_u are = 1)
   else
   {
     float off_l = (1 - ((float)getWidth() / (float)getHeight())) / 2.f;
     float off_u = 1 - off_l;
-    glTexCoord2f(map_tx(off_u), map_ty(1.0f)); glVertex2f(1.0f, 1.0f);
-    glTexCoord2f(map_tx(off_l), map_ty(1.0f)); glVertex2f(-1.0f, 1.0f);
-    glTexCoord2f(map_tx(off_l), map_ty(0.0f)); glVertex2f(-1.0f, -1.0f);
-    glTexCoord2f(map_tx(off_u), map_ty(0.0f)); glVertex2f(1.0f, -1.0f);
+    trackrs::draw::uv(map_tx(off_u), map_ty(1.0f)); trackrs::draw::vertex(1.0f, 1.0f);
+    trackrs::draw::uv(map_tx(off_l), map_ty(1.0f)); trackrs::draw::vertex(-1.0f, 1.0f);
+    trackrs::draw::uv(map_tx(off_l), map_ty(0.0f)); trackrs::draw::vertex(-1.0f, -1.0f);
+    trackrs::draw::uv(map_tx(off_u), map_ty(0.0f)); trackrs::draw::vertex(1.0f, -1.0f);
   }
-  glEnd();
+  trackrs::draw::end();
 
   // Draw animated gradient, scanlines, and particles
-  glDisable(GL_TEXTURE_2D);
-  glEnable(GL_BLEND);
-  glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+  trackrs::draw::disable(GL_TEXTURE_2D);
+  trackrs::draw::enable(GL_BLEND);
+  trackrs::draw::blend(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
   // 1. Dark colored gradient overlay
-  glBegin(GL_QUADS);
+  trackrs::draw::begin(trackrs::draw::Quads);
   // Top: deep dark blue
-  glColor4f(0.02f, 0.05f, 0.12f, 0.65f + 0.05f * sinf(menu_time * 0.5f));
-  glVertex2f(-1.0f, 1.0f);
-  glVertex2f(1.0f, 1.0f);
+  trackrs::draw::color(0.02f, 0.05f, 0.12f, 0.65f + 0.05f * sinf(menu_time * 0.5f));
+  trackrs::draw::vertex(-1.0f, 1.0f);
+  trackrs::draw::vertex(1.0f, 1.0f);
   // Bottom: dark warm charcoal/reddish-purple glow
   float r_glow = 0.08f + 0.04f * sinf(menu_time * 0.3f);
   float b_glow = 0.04f + 0.02f * cosf(menu_time * 0.4f);
-  glColor4f(r_glow, 0.01f, b_glow, 0.85f);
-  glVertex2f(1.0f, -1.0f);
-  glVertex2f(-1.0f, -1.0f);
-  glEnd();
+  trackrs::draw::color(r_glow, 0.01f, b_glow, 0.85f);
+  trackrs::draw::vertex(1.0f, -1.0f);
+  trackrs::draw::vertex(-1.0f, -1.0f);
+  trackrs::draw::end();
 
   // 2. Subtle scrolling retro CRT scanlines
-  glLineWidth(1.0f);
-  glBegin(GL_LINES);
+  trackrs::draw::lineWidth(1.0f);
+  trackrs::draw::begin(GL_LINES);
   for (int j = 0; j < 40; ++j) {
       float y = -1.0f + (j / 20.0f);
       float scan_alpha = 0.03f + 0.01f * sinf(menu_time * 2.0f + y * 5.0f);
-      glColor4f(1.0f, 1.0f, 1.0f, scan_alpha);
-      glVertex2f(-1.0f, y);
-      glVertex2f(1.0f, y);
+      trackrs::draw::color(1.0f, 1.0f, 1.0f, scan_alpha);
+      trackrs::draw::vertex(-1.0f, y);
+      trackrs::draw::vertex(1.0f, y);
   }
-  glEnd();
+  trackrs::draw::end();
 
   // 3. Stateless speed particles/spark drift
-  glBegin(GL_QUADS);
+  trackrs::draw::begin(trackrs::draw::Quads);
   for (int k = 0; k < 40; ++k) {
       float speed = 0.25f + 0.2f * sinf(k * 1.45f);
       float size = 0.003f + 0.003f * cosf(k * 3.21f) * cosf(k * 3.21f);
@@ -1343,47 +1343,47 @@ void MainApp::renderStateLevel(float eyetranslation)
       float spark_alpha = 0.1f + 0.1f * sinf(menu_time * 1.5f + k);
       
       if (k % 2 == 0) {
-          glColor4f(1.0f, 0.65f, 0.15f, spark_alpha);
+          trackrs::draw::color(1.0f, 0.65f, 0.15f, spark_alpha);
       } else {
-          glColor4f(0.8f, 0.9f, 1.0f, spark_alpha);
+          trackrs::draw::color(0.8f, 0.9f, 1.0f, spark_alpha);
       }
       
-      glVertex2f(x - length, y + size * 0.5f);
-      glVertex2f(x + length, y + size * 0.5f);
-      glVertex2f(x + length, y - size * 0.5f);
-      glVertex2f(x - length, y - size * 0.5f);
+      trackrs::draw::vertex(x - length, y + size * 0.5f);
+      trackrs::draw::vertex(x + length, y + size * 0.5f);
+      trackrs::draw::vertex(x + length, y - size * 0.5f);
+      trackrs::draw::vertex(x - length, y - size * 0.5f);
   }
-  glEnd();
+  trackrs::draw::end();
 
-  glEnable(GL_TEXTURE_2D);
+  trackrs::draw::enable(GL_TEXTURE_2D);
 
 
-  glMatrixMode(GL_PROJECTION);
-  glPopMatrix();
+  trackrs::draw::matrix(trackrs::draw::Projection);
+  trackrs::draw::pop();
 
-  glMatrixMode(GL_MODELVIEW);
+  trackrs::draw::matrix(trackrs::draw::View);
   // draw GUI
 
-  glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+  trackrs::draw::blend(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-  glColor4f(1.0f, 1.0f, 1.0f, 0.2f);
+  trackrs::draw::color(1.0f, 1.0f, 1.0f, 0.2f);
 
   tex_fontSourceCodeOutlined->bind();
 
-  glPushMatrix(); // 0
+  trackrs::draw::push(); // 0
 
   gui.render();
 
-  glPopMatrix(); // 0
+  trackrs::draw::pop(); // 0
 
-  glBlendFunc(GL_ONE, GL_ZERO);
-  glEnable(GL_DEPTH_TEST);
-  glEnable(GL_FOG);
-  glEnable(GL_LIGHTING);
+  trackrs::draw::blend(GL_ONE, GL_ZERO);
+  trackrs::draw::enable(GL_DEPTH_TEST);
+  trackrs::draw::enable(trackrs::draw::Fog);
+  trackrs::draw::enable(trackrs::draw::Lighting);
 
-  glMatrixMode(GL_PROJECTION);
-  glPopMatrix();
-  glMatrixMode(GL_MODELVIEW);
+  trackrs::draw::matrix(trackrs::draw::Projection);
+  trackrs::draw::pop();
+  trackrs::draw::matrix(trackrs::draw::View);
 }
 
 /// @see GuiWidgetColors

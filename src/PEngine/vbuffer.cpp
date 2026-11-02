@@ -2,157 +2,22 @@
 #include "pengine.h"
 #include "vbuffer.h"
 
-#define USE_VBO_ARB ((GLAD_GL_VERSION_1_5 || GLAD_GL_ARB_vertex_buffer_object))
-//#define USE_VBO_ARB (false)
-
-// emulation of GL buffer binding functionality
-//PVBuffer *PVBuffer::bound = nullptr;
-//PVBuffer *PVBuffer::boundelem = nullptr;
-
-
-PVBuffer::~PVBuffer()
-{
-    unload();
+#include <utility>
+PVBuffer::~PVBuffer(){unload();}
+PVBuffer::PVBuffer(PVBuffer&& other) noexcept:buffid(std::exchange(other.buffid,0)),target(other.target){}
+PVBuffer& PVBuffer::operator=(PVBuffer&& other) noexcept {
+ if(this!=&other){unload();buffid=std::exchange(other.buffid,0);target=other.target;}return *this;
 }
-
-
-void PVBuffer::unload()
-{
-    if (USE_VBO_ARB) {
-        if (buffid) glDeleteBuffers(1, &buffid);
-        buffid = 0;
-    } else {
-        if (buffer) delete[] buffer;
-        buffer = nullptr;
-    }
+void PVBuffer::unload(){if(buffid){glDeleteBuffers(1,&buffid);buffid=0;}}
+bool PVBuffer::create(int size,contenttype type,usagemode usage,const void* data){
+ unload();target=type==VertexContent?GL_ARRAY_BUFFER:GL_ELEMENT_ARRAY_BUFFER;
+ glGenBuffers(1,&buffid);bind();
+ const GLenum hint=usage==StreamUsage?GL_STREAM_DRAW:usage==DynamicUsage?GL_DYNAMIC_DRAW:GL_STATIC_DRAW;
+ glBufferData(target,size,data,hint);unbind();return true;
 }
-
-
-bool PVBuffer::create(int buffsize, contenttype type, usagemode usage, const void *data)
-{
-    unload();
-
-    pr_type = type;
-
-    if (USE_VBO_ARB) {
-        switch (type) {
-        default:
-        case VertexContent:
-            target = GL_ARRAY_BUFFER;
-            break;
-        case IndexContent:
-            target = GL_ELEMENT_ARRAY_BUFFER;
-            break;
-        }
-
-        glGenBuffers(1, &buffid);
-        bind();
-
-        GLenum gl_usage;
-        switch (usage) {
-        case StreamUsage:
-            gl_usage = GL_STREAM_DRAW_ARB;
-            break;
-        default:
-        case StaticUsage:
-            gl_usage = GL_STATIC_DRAW_ARB;
-            break;
-        case DynamicUsage:
-            gl_usage = GL_DYNAMIC_DRAW_ARB;
-            break;
-        }
-
-        glGetError();
-
-        //int getter;
-        //glGetIntegerv(GL_ARRAY_BUFFER_BINDING_ARB,&getter);
-        //con_printf("bufferdata with object %i bound\n",getter);
-
-        glBufferData(target, buffsize, data, gl_usage);
-
-        unbind();
-
-        int err = glGetError();
-        if (err != GL_NO_ERROR) {
-            PUtil::outLog() << buffsize << " byte buffer creation failed, ";
-            switch (err) {
-            case GL_INVALID_OPERATION:
-                PUtil::outLog() << "invalid operation\n";
-                break;
-            case GL_INVALID_ENUM:
-                PUtil::outLog() << "invalid enum\n";
-                break;
-            case GL_OUT_OF_MEMORY:
-                PUtil::outLog() << "out of memory\n";
-                break;
-            default:
-                PUtil::outLog() << "GL error code " << err << "\n";
-                break;
-            }
-            unload();
-            buffid = 0;
-            return false;
-        }
-    } else {
-        buffer = new uint8 [buffsize];
-        if (!buffer) {
-            PUtil::outLog() << buffsize << " byte buffer creation failed (out of memory)\n";
-            return false;
-        }
-
-        memcpy(buffer, data, buffsize);
-
-        //buffersize = buffsize;
-    }
-
-    return true;
-}
-
-void PVBuffer::update(int offset, int buffsize, const void *data)
-{
-    if (USE_VBO_ARB) {
-        bind();
-        glBufferSubData(target, offset, buffsize, data);
-        unbind();
-    } else {
-        memcpy(buffer + offset, data, buffsize);
-    }
-}
-
-uint8 *PVBuffer::getPointer(int offset)
-{
-    if (USE_VBO_ARB) {
-        return ((uint8*)nullptr + offset);
-    } else {
-        return ((uint8*)buffer + offset);
-    }
-}
-
-void PVBuffer::bind()
-{
-    if (USE_VBO_ARB) {
-        glBindBuffer(target, buffid);
-    } else {
-        // don't bind if buffer hasn't been allocated
-        //switch (pr_type) {
-        //case VertexContent: bound = buffer ? this : nullptr; break;
-        //case IndexContent: boundelem = buffer ? this : nullptr; break;
-        //}
-    }
-}
-
-// static
-void PVBuffer::unbind()
-{
-    if (USE_VBO_ARB) {
-        glBindBuffer(GL_ARRAY_BUFFER, 0);
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-    } else {
-        //bound = nullptr;
-        //boundelem = nullptr;
-    }
-}
-
+void PVBuffer::update(int offset,int size,const void* data){bind();glBufferSubData(target,offset,size,data);unbind();}
+void PVBuffer::bind(){trackrs::draw::beginBufferUpload();glBindBuffer(target,buffid);}
+void PVBuffer::unbind(){glBindBuffer(GL_ARRAY_BUFFER,0);glBindBuffer(GL_ELEMENT_ARRAY_BUFFER,0);}
 
 // RamFile
 

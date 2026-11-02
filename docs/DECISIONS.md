@@ -84,3 +84,19 @@ The alternative of running immediate mode in the visible context would not meet
 the core-context gate. Rewriting geometry now would cross the 2b gate. Retire the
 bridge during 2b after content and side-by-side screenshot review. No PBR, KTX2,
 IBL or mesh-importer work belongs to 2a.
+
+## ADR-012: retire the bridge with a basic core renderer (Phase 2b)
+
+All game drawing now uses one GL 3.3 core context and a core-only glad loader.
+Retained meshes and indexed terrain use explicit vertex attributes. Dynamic UI
+vertices batch in order with CPU-baked transforms; original font atlas alpha is
+converted to a signed-distance field and reconstructed in the shader. The original
+RGB outline/metrics remain intact. Particle billboards, rain gradients and snow
+use a fenced three-slot instance ring. No compatibility driver entry points or
+context-sharing bridge remain.
+
+The basic shader intentionally reproduces vertex lighting, fog, alpha cutoff and
+terrain detail sampling. It is not a PBR/material-importer implementation; those
+belong to 2c. Physics/input/RNG paths are unchanged. State hashes have zero
+tolerance; image tolerances were declared before full comparison to permit SDF
+edge reconstruction and GL arithmetic rounding while rejecting scene regressions.

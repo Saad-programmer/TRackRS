@@ -1,14 +1,14 @@
 # Engine baseline and migration boundary
 
-The visible window uses a GL 3.3 core presentation renderer. Until gate 2b,
-legacy scene rendering runs in a hidden, shared compatibility context.
+The game uses one GL 3.3-or-later core context. Phase 2b removes the shared
+compatibility context and all removed fixed-function driver entry points.
 The Reality target architecture is specified in CODEX_MASTER_PROMPT.md; the
 directories and features described there are a migration target, not a claim
 about implemented systems.
 
 ## Current layers
 
-- `src/PEngine`: SDL platform loop, PhysFS resources, compatibility OpenGL
+- `src/PEngine`: SDL platform loop, PhysFS resources, core OpenGL
   rendering, terrain, effects/material loading, images, models, OpenAL audio,
   configuration and maths support.
 - `src/PSim`: rigid bodies, vehicles, engine model, collision and damage.
@@ -35,9 +35,9 @@ function-static accumulators, RNG and other shared state have not been fixed.
 The harness deliberately exposes this boundary instead of pretending those
 defects are already resolved.
 
-`legacy_metrics.h` forwards the submission forms present in this revision to
-their original GL functions, counting submitted primitives when capture is
-enabled. Timestamp scope queries are collected at the existing frame fence.
+`legacy_metrics.h` owns CPU/GPU pass scopes. `engine/render/basic.cpp` records
+actual GPU submissions and submitted triangles, including instanced multiplicity
+and strip degenerates. Pending stream geometry drains at frame presentation.
 Pass state is borrowed from the process-owned Run; query objects are deleted
 before context teardown. The profiler is main-thread-only.
 
@@ -67,22 +67,36 @@ other project layers; engine components cannot include the application/game
 layer. CMake runs this at configure and every game build, including when tests
 are disabled. UI widgets moved out of application menu composition; application
 state dispatch and audio logic have separate sources. Legacy World/Sim/render
-interfaces still share compatibility headers; this is not a completed modern RHI.
+interfaces still share legacy engine types; the core rendering boundary is below.
 
-## Phase 2a presentation boundary
+## Phase 2b core rendering boundary
 
-`engine/rhi` owns shader programs, uniform buffers, cached core state and the
-core/compatibility context bridge. PApp owns CoreDevice and destroys it before
-the visible SDL context. Legacy GL objects are loaded and drawn with the hidden
-compatibility context current. Each completed eye is copied to a shared RGBA8
-texture, synchronized, and presented by a core VAO/fullscreen triangle. Readback
-for validation and F12 occurs on the visible core framebuffer before swap.
+PApp owns one CoreDevice and one SDL core context. CoreDevice owns the core-only
+renderer and KHR_debug callback; assets and their GPU objects are destroyed before
+the device/context. There is no hidden window, compatibility context, framebuffer
+copy or fullscreen presentation bridge.
 
-KHR_debug is required and installed on both contexts; unexpected API errors are
-fatal. Shader reload failures keep the last valid program, including its checked
-UBO/sampler interface. Interactive file polling includes dependencies and bounded
-root-contained includes; validation disables reload. Frame UBO binding 0 carries
-the presentation extent. This bridge preserves the accepted golden pixels while
-2b remains responsible for replacing every immediate-mode draw site.
+`engine/render/basic` preserves the original look with a basic GLSL 330 shader:
+vertex directional lighting/specular, exponential fog, explicit planar/detail UVs,
+alpha cutoff and the original blend/depth order. It does not implement PBR.
+Static vehicle/model meshes retain VAO/VBO storage; terrain and foliage explicitly
+bind core vertex attributes and indexed buffers. PVBuffer is a move-only GPU owner.
 
-See [the gate report](reports/PHASE_2A.md) for evidence and limitations.
+Dynamic scene/UI geometry is tessellated on the CPU and appended to ordered
+vertex batches. CPU transform stacks are ordinary math, never driver matrix
+state; transformed vertices allow adjacent UI items to batch across color and
+transform changes. Texture/raster/shader-state changes drain batches in order.
+Text uses signed-distance alpha fields derived from the original licensed font
+atlas, preserving its glyph layout, advances and RGB outline.
+
+Dust, rain and snow are instanced. Three GPU instance-buffer slots rotate with
+GLsync fences, mapping only after their previous draw completes. Instance bases,
+color gradients and UV orientation reproduce the old billboards/rain ribbons.
+GPU tests wrap the ring ten times and validate pixels and actual submission counts.
+
+RHI shader hot reload, include bounds, last-good program rollback, Frame UBOs and
+fatal KHR_debug checks remain active. Identity shaders used by RHI tests live under
+`tests/fixtures/rhi`; game shaders live under `data/shaders/basic`.
+
+See [the 2b report](reports/PHASE_2B.md) for image tolerances, state hashes,
+submission counts and platform limits. Phase 2c is not part of this boundary.

@@ -763,8 +763,8 @@ void PTerrain::render(const vec3f &campos, const mat44f &camorim)
   {
     mat44f mat_mv, mat_p, mat_c;
 
-    glGetFloatv(GL_MODELVIEW_MATRIX, mat_mv);
-    glGetFloatv(GL_PROJECTION_MATRIX, mat_p);
+    trackrs::draw::read(trackrs::draw::ViewMatrix, mat_mv);
+    trackrs::draw::read(trackrs::draw::ProjectionMatrix, mat_p);
 
     mat_c = mat_mv.concatenate(mat_p);
 
@@ -793,27 +793,24 @@ void PTerrain::render(const vec3f &campos, const mat44f &camorim)
 
   // Draw terrain
 
-  glEnable(GL_TEXTURE_GEN_S);
-  glEnable(GL_TEXTURE_GEN_T);
+  trackrs::draw::enable(trackrs::draw::GenerateS);
+  trackrs::draw::enable(trackrs::draw::GenerateT);
 
   float tgens[] = { scale_tile_inv, 0.0, 0.0, 0.0 };
   float tgent[] = { 0.0, scale_tile_inv, 0.0, 0.0 };
-  glTexGeni(GL_S, GL_TEXTURE_GEN_MODE, GL_OBJECT_LINEAR);
-  glTexGeni(GL_T, GL_TEXTURE_GEN_MODE, GL_OBJECT_LINEAR);
 
-  glEnableClientState(GL_VERTEX_ARRAY);
 
   for (std::list<PTerrainTile *>::iterator t = drawtile.begin(); t != drawtile.end(); t++) {
     //if (frust.isAABBOutside(tileptr->mins, tileptr->maxs))
-    //    glColor3f(1,0,0);
+    //    trackrs::draw::color(1,0,0);
     //else
-    //    glColor3f(1,1,1);
+    //    trackrs::draw::color(1,1,1);
 
     tgens[3] = (float) (- (*t)->posx);
     tgent[3] = (float) (- (*t)->posy);
 
-    glTexGenfv(GL_S, GL_OBJECT_PLANE, tgens);
-    glTexGenfv(GL_T, GL_OBJECT_PLANE, tgent);
+    trackrs::draw::uvPlane(trackrs::draw::S, tgens);
+    trackrs::draw::uvPlane(trackrs::draw::T, tgent);
 
     // Texture
     (*t)->tex.bind();
@@ -821,33 +818,28 @@ void PTerrain::render(const vec3f &campos, const mat44f &camorim)
     // Vertex buffers
     (*t)->vert.bind();
     ind.bind();
-    glVertexPointer(3, GL_FLOAT, sizeof(vec3f), (*t)->vert.getPointer(0));
 
-    glDrawRangeElements(GL_TRIANGLE_STRIP, 0, (*t)->numverts,
-      numinds, GL_UNSIGNED_SHORT, ind.getPointer(0));
+    trackrs::draw::indexed({GL_TRIANGLE_STRIP, (*t)->vert.id(), ind.id(), numinds, GL_UNSIGNED_SHORT, false});
   }
 
-  glDisableClientState(GL_VERTEX_ARRAY);
 
   PVBuffer::unbind();
 
-  glDisable(GL_TEXTURE_GEN_S);
-  glDisable(GL_TEXTURE_GEN_T);
+  trackrs::draw::disable(trackrs::draw::GenerateS);
+  trackrs::draw::disable(trackrs::draw::GenerateT);
 
   // Don't apply terrain detail texture to foliage.
   // http://sourceforge.net/p/trigger-rally/discussion/527953/thread/b53361ba/
-  glActiveTexture(GL_TEXTURE1);
-  glDisable(GL_TEXTURE_2D);
-  glActiveTexture(GL_TEXTURE0);
+  trackrs::draw::activeTexture(GL_TEXTURE1);
+  trackrs::draw::disable(GL_TEXTURE_2D);
+  trackrs::draw::activeTexture(GL_TEXTURE0);
 
   // Draw foliage
   #if 1
-  glAlphaFunc(GL_GEQUAL, 0.5);
-  glEnable(GL_ALPHA_TEST);
-  glDisable(GL_CULL_FACE);
-  glColor3f(1.0f, 1.0f, 1.0f);
-  glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-  glEnableClientState(GL_VERTEX_ARRAY);
+  trackrs::draw::alpha({GL_GEQUAL, 0.5});
+  trackrs::draw::enable(trackrs::draw::AlphaTest);
+  trackrs::draw::disable(GL_CULL_FACE);
+  trackrs::draw::color(1.0f, 1.0f, 1.0f);
 
   for (unsigned int b = 0; b < foliageband.size(); b++) {
 
@@ -859,35 +851,31 @@ void PTerrain::render(const vec3f &campos, const mat44f &camorim)
         (*t)->foliage[b].buff[0].bind(); // vert data
         (*t)->foliage[b].buff[1].bind(); // indices
 
-        glTexCoordPointer(2, GL_FLOAT, sizeof(PVert_tv), (*t)->foliage[b].buff[0].getPointer(0));
-        glVertexPointer(3, GL_FLOAT, sizeof(PVert_tv), (*t)->foliage[b].buff[0].getPointer(sizeof(float)*2));
 
-        glDrawRangeElements(GL_TRIANGLES,
-          0,(*t)->foliage[b].numvert,(*t)->foliage[b].numelem,
-          GL_UNSIGNED_INT,(*t)->foliage[b].buff[1].getPointer(0));
+        trackrs::draw::indexed({GL_TRIANGLES, (*t)->foliage[b].buff[0].id(), (*t)->foliage[b].buff[1].id(), (*t)->foliage[b].numelem, GL_UNSIGNED_INT, true});
       }
 
       #if 0
       for (std::vector<PTerrainFoliage>::iterator f = (*t)->foliage.begin(); f != (*t)->foliage.end(); f++) {
 
         #if 0
-        glBegin(GL_LINES);
+        trackrs::draw::begin(GL_LINES);
         vec3f pos = f->pos;
-        glVertex3fv(pos);
+        trackrs::draw::vertex(pos);
         pos += vec3f(0.0f, 0.0f, 2.0f);
-        glVertex3fv(pos);
-        glEnd();
+        trackrs::draw::vertex(pos);
+        trackrs::draw::end();
         #endif
 
         #if 0
         if (!f->tfb->model) continue;
 
-        glPushMatrix();
+        trackrs::draw::push();
         vec3f &pos = f->pos;
-        glTranslatef(pos.x, pos.y, pos.z);
-        glScalef(f->tfb->modelscale, f->tfb->modelscale, f->tfb->modelscale);
+        trackrs::draw::translate(pos.x, pos.y, pos.z);
+        trackrs::draw::scale(f->tfb->modelscale, f->tfb->modelscale, f->tfb->modelscale);
         ssRender.drawModel(*f->tfb->model, ssEffect, ssTexture);
-        glPopMatrix();
+        trackrs::draw::pop();
         #endif
       }
       #endif
@@ -905,12 +893,8 @@ void PTerrain::render(const vec3f &campos, const mat44f &camorim)
         (*t)->roadsignset[b].buff[0].bind();
         (*t)->roadsignset[b].buff[1].bind();
 
-        glTexCoordPointer(2, GL_FLOAT, sizeof(PVert_tv), (*t)->roadsignset[b].buff[0].getPointer(0));
-        glVertexPointer(3, GL_FLOAT, sizeof(PVert_tv), (*t)->roadsignset[b].buff[0].getPointer(sizeof(float)*2));
 
-        glDrawRangeElements(GL_TRIANGLES, 0,
-          (*t)->roadsignset[b].numvert, (*t)->roadsignset[b].numelem,
-          GL_UNSIGNED_INT, (*t)->roadsignset[b].buff[1].getPointer(0));
+        trackrs::draw::indexed({GL_TRIANGLES, (*t)->roadsignset[b].buff[0].id(), (*t)->roadsignset[b].buff[1].id(), (*t)->roadsignset[b].numelem, GL_UNSIGNED_INT, true});
       }
     }
   }
@@ -918,10 +902,8 @@ void PTerrain::render(const vec3f &campos, const mat44f &camorim)
   #endif
 
   PVBuffer::unbind();
-  glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-  glDisableClientState(GL_VERTEX_ARRAY);
-  glEnable(GL_CULL_FACE);
-  glDisable(GL_ALPHA_TEST);
+  trackrs::draw::enable(GL_CULL_FACE);
+  trackrs::draw::disable(trackrs::draw::AlphaTest);
 }
 
 void PTerrain::drawSplat(float x, float y, float scale, float angle)
@@ -944,13 +926,13 @@ void PTerrain::drawSplat(float x, float y, float scale, float angle)
   int maxx = (int)(x + scale) + 2;
   if ((x + scale) < 0.0f) maxx--;
 
-  glMatrixMode(GL_TEXTURE);
+  trackrs::draw::matrix(trackrs::draw::TextureTransform);
 
-  glPushMatrix();
-  glTranslatef(0.5f, 0.5f, 0.0f);
-  glRotatef(DEGREES(angle), 0.0f, 0.0f, 1.0f);
-  glScalef(0.5f / scale, 0.5f / scale, 1.0f);
-  glTranslatef(-x, -y, 0.0f);
+  trackrs::draw::push();
+  trackrs::draw::translate(0.5f, 0.5f, 0.0f);
+  trackrs::draw::rotate(DEGREES(angle), 0.0f, 0.0f, 1.0f);
+  trackrs::draw::scale(0.5f / scale, 0.5f / scale, 1.0f);
+  trackrs::draw::translate(-x, -y, 0.0f);
 
   for (int y2=miny; y2<maxy; y2++) {
     int yc = y2 & (cy-1),
@@ -958,19 +940,19 @@ void PTerrain::drawSplat(float x, float y, float scale, float angle)
       yc_cx = yc * cx,
       ycp1_cx = ycp1 * cx;
 
-    glBegin(GL_TRIANGLE_STRIP);
+    trackrs::draw::begin(GL_TRIANGLE_STRIP);
     for (int x2=minx; x2<maxx; x2++) {
       int xc = x2 & (cx - 1);
-      glTexCoord2i(x2, y2 + 1);
-      glVertex3f(x2 * scale_hz, (y2 + 1) * scale_hz, hmd[ycp1_cx + xc]);
-      glTexCoord2i(x2, y2);
-      glVertex3f(x2 * scale_hz, y2 * scale_hz, hmd[yc_cx + xc]);
+      trackrs::draw::uv(x2, y2 + 1);
+      trackrs::draw::vertex(x2 * scale_hz, (y2 + 1) * scale_hz, hmd[ycp1_cx + xc]);
+      trackrs::draw::uv(x2, y2);
+      trackrs::draw::vertex(x2 * scale_hz, y2 * scale_hz, hmd[yc_cx + xc]);
     }
-    glEnd();
+    trackrs::draw::end();
   }
-  glPopMatrix();
+  trackrs::draw::pop();
 
-  glMatrixMode(GL_MODELVIEW);
+  trackrs::draw::matrix(trackrs::draw::View);
 }
 
 

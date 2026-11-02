@@ -140,10 +140,10 @@ void PApp::stereoGLProject(float xmin, float xmax, float ymin, float ymax, float
   right = n_over_d * (dx / 2.0 - eye);
   left = n_over_d * (-dx / 2.0 - eye);
 
-  glMatrixMode(GL_PROJECTION);
-  glLoadIdentity();
-  glFrustum(left, right, bottom, top, clip_near, clip_far);
-  glTranslatef(-xmid - eye, -ymid, -zzps - dist);
+  trackrs::draw::matrix(trackrs::draw::Projection);
+  trackrs::draw::identity();
+  trackrs::draw::frustum(left, right, bottom, top, clip_near, clip_far);
+  trackrs::draw::translate(-xmid - eye, -ymid, -zzps - dist);
 }
 
 // I'm afraid I didn't understand how stereoGLProject worked, so I rewrote it
@@ -154,7 +154,7 @@ void PApp::stereoFrustum(float xmin, float xmax, float ymin, float ymax, float z
   
   float xmove = -eye * znear / zzps;
   
-  glFrustum(xmin + xmove, xmax + xmove, ymin, ymax, znear, zfar);
+  trackrs::draw::frustum(xmin + xmove, xmax + xmove, ymin, ymax, znear, zfar);
 }
 
 ///
@@ -468,10 +468,10 @@ int PApp::run(int argc, char *argv[])
     destroyGraphics(); SDL_Quit(); return 1;
   }
   try {
-    const char* directory = PHYSFS_getRealDir("/shaders/core/present.vert");
-    if (!directory) throw std::runtime_error("Missing core presentation shaders");
+    const char* directory = PHYSFS_getRealDir("/shaders/basic/basic.vert");
+    if (!directory) throw std::runtime_error("Missing basic core shaders");
     rhiDevice = std::make_unique<trackrs::rhi::CoreDevice>(screen,context,cx,cy,
-        std::filesystem::u8path(directory)/"shaders/core",!validation::run.options.enabled);
+        std::filesystem::u8path(directory)/"shaders/basic",!validation::run.options.enabled);
   } catch (const std::exception& error) {
     PUtil::outLog() << "Core RHI startup failed: " << error.what() << '\n';
     destroyGraphics(); SDL_Quit(); PHYSFS_deinit(); return 1;
@@ -753,14 +753,14 @@ int PApp::run(int argc, char *argv[])
       case StereoRedBlue: // Red-blue anaglyph stereo
         
         // Green will not be rendered to, so clear it
-        glColorMask(GL_FALSE, GL_TRUE, GL_FALSE, GL_TRUE);
+        trackrs::draw::colorMask(GL_FALSE, GL_TRUE, GL_FALSE, GL_TRUE);
         glClearColor(0.5, 0.5, 0.5, 0.5);
-        glClear(GL_COLOR_BUFFER_BIT);
+        trackrs::draw::clear(GL_COLOR_BUFFER_BIT);
         
-        glColorMask(GL_TRUE, GL_FALSE, GL_FALSE, GL_TRUE);
+        trackrs::draw::colorMask(GL_TRUE, GL_FALSE, GL_FALSE, GL_TRUE);
         render(-stereoEyeTranslation);
         
-        glColorMask(GL_FALSE, GL_FALSE, GL_TRUE, GL_TRUE);
+        trackrs::draw::colorMask(GL_FALSE, GL_FALSE, GL_TRUE, GL_TRUE);
         render(stereoEyeTranslation);
         
         presentFrame();
@@ -769,14 +769,14 @@ int PApp::run(int argc, char *argv[])
       case StereoRedGreen: // Red-green anaglyph stereo
         
         // Blue will not be rendered to, so clear it
-        glColorMask(GL_FALSE, GL_FALSE, GL_TRUE, GL_TRUE);
+        trackrs::draw::colorMask(GL_FALSE, GL_FALSE, GL_TRUE, GL_TRUE);
         glClearColor(0.5, 0.5, 0.5, 0.5);
-        glClear(GL_COLOR_BUFFER_BIT);
+        trackrs::draw::clear(GL_COLOR_BUFFER_BIT);
         
-        glColorMask(GL_TRUE, GL_FALSE, GL_FALSE, GL_TRUE);
+        trackrs::draw::colorMask(GL_TRUE, GL_FALSE, GL_FALSE, GL_TRUE);
         render(-stereoEyeTranslation);
         
-        glColorMask(GL_FALSE, GL_TRUE, GL_FALSE, GL_TRUE);
+        trackrs::draw::colorMask(GL_FALSE, GL_TRUE, GL_FALSE, GL_TRUE);
         render(stereoEyeTranslation);
         
         presentFrame();
@@ -784,10 +784,10 @@ int PApp::run(int argc, char *argv[])
         
       case StereoRedCyan: // Red-cyan anaglyph stereo
         
-        glColorMask(GL_TRUE, GL_FALSE, GL_FALSE, GL_TRUE);
+        trackrs::draw::colorMask(GL_TRUE, GL_FALSE, GL_FALSE, GL_TRUE);
         render(-stereoEyeTranslation);
         
-        glColorMask(GL_FALSE, GL_TRUE, GL_TRUE, GL_TRUE);
+        trackrs::draw::colorMask(GL_FALSE, GL_TRUE, GL_TRUE, GL_TRUE);
         render(stereoEyeTranslation);
         
         presentFrame();
@@ -795,10 +795,10 @@ int PApp::run(int argc, char *argv[])
         
       case StereoYellowBlue: // Yellow-blue anaglyph stereo
         
-        glColorMask(GL_TRUE, GL_TRUE, GL_FALSE, GL_TRUE);
+        trackrs::draw::colorMask(GL_TRUE, GL_TRUE, GL_FALSE, GL_TRUE);
         render(-stereoEyeTranslation);
         
-        glColorMask(GL_FALSE, GL_FALSE, GL_TRUE, GL_TRUE);
+        trackrs::draw::colorMask(GL_FALSE, GL_FALSE, GL_TRUE, GL_TRUE);
         render(stereoEyeTranslation);
         
         presentFrame();
@@ -869,34 +869,30 @@ void PApp::drawModel(PModel &model, float alpha)
           continue;
         }
         if (alpha < 1.0f) {
-          glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
-          glEnable(GL_BLEND);
-          glColor4f(1.0f, 1.0f, 1.0f, 0.5f);
+          trackrs::draw::blend(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
+          trackrs::draw::enable(GL_BLEND);
+          trackrs::draw::color(1.0f, 1.0f, 1.0f, 0.5f);
         }
 
         for (int i=0; i<numPasses; i++) {
           mesh->effect->renderPass(i);
-          glBegin(GL_TRIANGLES);
-          for (unsigned int f=0; f<mesh->face.size(); f++) {
-            //glNormal3fv(mesh->face[f].facenormal);
-            glNormal3fv(mesh->norm[mesh->face[f].nr[0]]);
-            glTexCoord2fv(mesh->texco[mesh->face[f].tc[0]]);
-            glVertex3fv(mesh->vert[mesh->face[f].vt[0]]);
-
-            glNormal3fv(mesh->norm[mesh->face[f].nr[1]]);
-            glTexCoord2fv(mesh->texco[mesh->face[f].tc[1]]);
-            glVertex3fv(mesh->vert[mesh->face[f].vt[1]]);
-
-            glNormal3fv(mesh->norm[mesh->face[f].nr[2]]);
-            glTexCoord2fv(mesh->texco[mesh->face[f].tc[2]]);
-            glVertex3fv(mesh->vert[mesh->face[f].vt[2]]);
+          if (!mesh->gpu) {
+            std::vector<trackrs::draw::MeshVertex> vertices;
+            vertices.reserve(mesh->face.size()*3);
+            for (const auto& face : mesh->face) for (int corner=0;corner<3;++corner) {
+              const auto& p=mesh->vert[face.vt[corner]];
+              const auto& n=mesh->norm[face.nr[corner]];
+              const auto& uv=mesh->texco[face.tc[corner]];
+              vertices.push_back({{p.x,p.y,p.z},{n.x,n.y,n.z},{uv.x,uv.y}});
+            }
+            mesh->gpu=std::make_shared<trackrs::draw::Mesh>(vertices);
           }
-          glEnd();
+          mesh->gpu->draw();
         }
         mesh->effect->renderEnd();
       }
       if (alpha < 1.0f)
-        glBlendFunc(GL_ONE,GL_ZERO);
+        trackrs::draw::blend(GL_ONE,GL_ZERO);
     }
   }
 }
@@ -931,7 +927,7 @@ void PApp::render(float eyetranslation)
   
   glClearColor(0.5, 0.5, 0.5, 0.0);
   
-  glClear(GL_COLOR_BUFFER_BIT);
+  trackrs::draw::clear(GL_COLOR_BUFFER_BIT);
 }
 
 void PApp::keyEvent(const SDL_KeyboardEvent &ke)

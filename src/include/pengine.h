@@ -18,6 +18,7 @@
 #include <physfs.h>
 
 #include <glad/gl.h>
+#include "engine/render/basic.h"
 #include "legacy_metrics.h"
 
 #include <tinyxml2.h>

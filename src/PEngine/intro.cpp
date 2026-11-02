@@ -23,34 +23,16 @@ void PApp::playIntro() {
     if (PHYSFS_readBytes(file.get(), bytes.data(), length) != length)
       throw std::runtime_error("intro read failed");
     trackrs::Movie movie(std::move(bytes));
-    struct LegacyState {
-      GLint matrixMode = GL_MODELVIEW, unpack = 4;
-      LegacyState() {
-        glGetIntegerv(GL_MATRIX_MODE, &matrixMode);
-        glGetIntegerv(GL_UNPACK_ALIGNMENT, &unpack);
-        glPushAttrib(GL_ALL_ATTRIB_BITS);
-        glMatrixMode(GL_PROJECTION);
-        glPushMatrix();
-        glLoadIdentity();
-        glMatrixMode(GL_MODELVIEW);
-        glPushMatrix();
-        glLoadIdentity();
-      }
-      ~LegacyState() {
-        glMatrixMode(GL_MODELVIEW);
-        glPopMatrix();
-        glMatrixMode(GL_PROJECTION);
-        glPopMatrix();
-        glMatrixMode(static_cast<GLenum>(matrixMode));
-        glPopAttrib();
-        glPixelStorei(GL_UNPACK_ALIGNMENT, unpack);
-      }
-    } state;
+    trackrs::draw::SavedState saved;
+    trackrs::draw::matrix(trackrs::draw::Projection);
+    trackrs::draw::identity();
+    trackrs::draw::matrix(trackrs::draw::View);
+    trackrs::draw::identity();
     struct Texture {
       GLuint id = 0;
       ~Texture() {
         if (id)
-          glDeleteTextures(1, &id);
+          trackrs::draw::deleteTextures(1, &id);
       }
     } texture;
     struct Audio {
@@ -71,18 +53,18 @@ void PApp::playIntro() {
         SDL_PauseAudioDevice(audio.id, 0);
     }
     glGenTextures(1, &texture.id);
-    glBindTexture(GL_TEXTURE_2D, texture.id);
+    trackrs::draw::bindTexture(GL_TEXTURE_2D, texture.id);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB8, movie.width(), movie.height(), 0,
                  GL_RGB, GL_UNSIGNED_BYTE, nullptr);
-    glDisable(GL_DEPTH_TEST);
-    glDisable(GL_CULL_FACE);
-    glDisable(GL_LIGHTING);
-    glDisable(GL_FOG);
-    glDisable(GL_BLEND);
-    glEnable(GL_TEXTURE_2D);
-    glColor4f(1, 1, 1, 1);
+    trackrs::draw::disable(GL_DEPTH_TEST);
+    trackrs::draw::disable(GL_CULL_FACE);
+    trackrs::draw::disable(trackrs::draw::Lighting);
+    trackrs::draw::disable(trackrs::draw::Fog);
+    trackrs::draw::disable(GL_BLEND);
+    trackrs::draw::enable(GL_TEXTURE_2D);
+    trackrs::draw::color(1, 1, 1, 1);
     PUtil::outLog() << "In-window pl_mpeg intro started " << movie.width()
                     << "x" << movie.height() << "\n";
     auto previous = SDL_GetPerformanceCounter();
@@ -104,7 +86,7 @@ void PApp::playIntro() {
                            static_cast<double>(SDL_GetPerformanceFrequency());
       previous = now;
       if (movie.advance(elapsed)) {
-        glBindTexture(GL_TEXTURE_2D, texture.id);
+        trackrs::draw::bindTexture(GL_TEXTURE_2D, texture.id);
         glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
         glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, movie.width(), movie.height(),
                         GL_RGB, GL_UNSIGNED_BYTE, movie.rgb().data());
@@ -114,23 +96,23 @@ void PApp::playIntro() {
         SDL_QueueAudio(
             audio.id, movie.audio().data(),
             static_cast<Uint32>(movie.audio().size() * sizeof(float)));
-      glClear(GL_COLOR_BUFFER_BIT);
-      glBindTexture(GL_TEXTURE_2D, texture.id);
+      trackrs::draw::clear(GL_COLOR_BUFFER_BIT);
+      trackrs::draw::bindTexture(GL_TEXTURE_2D, texture.id);
       const float aspect = static_cast<float>(movie.width()) /
                            static_cast<float>(movie.height());
       const float view = static_cast<float>(cx) / static_cast<float>(cy);
       const float x = std::min(1.0f, aspect / view),
                   y = std::min(1.0f, view / aspect);
-      glBegin(GL_QUADS);
-      glTexCoord2f(0, 1);
-      glVertex2f(-x, -y);
-      glTexCoord2f(1, 1);
-      glVertex2f(x, -y);
-      glTexCoord2f(1, 0);
-      glVertex2f(x, y);
-      glTexCoord2f(0, 0);
-      glVertex2f(-x, y);
-      glEnd();
+      trackrs::draw::begin(trackrs::draw::Quads);
+      trackrs::draw::uv(0, 1);
+      trackrs::draw::vertex(-x, -y);
+      trackrs::draw::uv(1, 1);
+      trackrs::draw::vertex(x, -y);
+      trackrs::draw::uv(1, 0);
+      trackrs::draw::vertex(x, y);
+      trackrs::draw::uv(0, 0);
+      trackrs::draw::vertex(-x, y);
+      trackrs::draw::end();
       presentFrame();
       pacer.wait(60);
     }

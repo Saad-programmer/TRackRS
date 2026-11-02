@@ -123,7 +123,7 @@ void PTexture::unload()
 {
   if (texid)
   {
-    glDeleteTextures (1, &texid);
+    trackrs::draw::deleteTextures (1, &texid);
     texid = 0;
   }
 }
@@ -131,7 +131,10 @@ void PTexture::unload()
 void PTexture::load (const std::string &filename, GLfloat cfgAnisotropy, bool genMipmaps, bool clamp)
 {
   PImage image (filename);
+  const bool sdf = filename.find("font-") != std::string::npos;
+  if (sdf) trackrs::draw::makeSdf(image.getData(),image.getcx(),image.getcy(),image.getcc());
   load (image, cfgAnisotropy, genMipmaps, clamp);
+  if (sdf) trackrs::draw::registerSdf(texid);
   name = filename;
 }
 
@@ -141,20 +144,14 @@ void PTexture::load (PImage &img, GLfloat cfgAnisotropy, bool genMipmaps, bool c
 
   textarget = GL_TEXTURE_2D;
 
-#ifdef USE_GEN_MIPMAPS
-  if (genMipmaps && !SDL_GL_ExtensionSupported("GL_SGIS_generate_mipmap")) {
-    PUtil::outLog() << "warning: can't generate mipmaps for texture" << std::endl;
-    genMipmaps = false;
-  }
-#endif
 
   GLuint fmt,fmt2;
 
   switch (img.getcc()) {
   case 1:
-    fmt = GL_LUMINANCE; fmt2 = GL_LUMINANCE; break;
+    fmt = GL_RED; fmt2 = GL_RED; break;
   case 2:
-    fmt = GL_LUMINANCE_ALPHA; fmt2 = GL_LUMINANCE_ALPHA; break;
+    fmt = GL_RG; fmt2 = GL_RG; break;
   case 3:
     fmt = GL_RGB; fmt2 = GL_RGB; break;
   case 4:
@@ -185,6 +182,11 @@ void PTexture::load (PImage &img, GLfloat cfgAnisotropy, bool genMipmaps, bool c
 
   glGenTextures(1,&texid);
   bind();
+  if (img.getcc()==1 || img.getcc()==2) {
+    const GLint swizzle[4]={GL_RED,GL_RED,GL_RED,img.getcc()==2?GL_GREEN:GL_ONE};
+    glTexParameteriv(textarget,GL_TEXTURE_SWIZZLE_RGBA,swizzle);
+  }
+
 
     if (SDL_GL_ExtensionSupported("GL_EXT_texture_filter_anisotropic"))
         glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, cfgAnisotropy);
@@ -208,15 +210,6 @@ void PTexture::load (PImage &img, GLfloat cfgAnisotropy, bool genMipmaps, bool c
   glPixelStorei(GL_UNPACK_ALIGNMENT,1);
 
   if (genMipmaps) {
-#ifdef USE_GEN_MIPMAPS
-
-    glTexParameteri(textarget, GL_GENERATE_MIPMAP, GL_TRUE);
-
-    glTexImage2D(GL_TEXTURE_2D,0,fmt2,
-      newcx,newcy,
-      0,fmt,GL_UNSIGNED_BYTE,img.getData());
-
-#else
 
     int level = 0;
     uint8 *imd = img.getData();
@@ -245,7 +238,6 @@ void PTexture::load (PImage &img, GLfloat cfgAnisotropy, bool genMipmaps, bool c
       }
     }
 
-#endif
   } else {
     glTexImage2D(GL_TEXTURE_2D,0,fmt2,
       newcx,newcy,
@@ -259,22 +251,15 @@ void PTexture::loadPiece(PImage &img, int offx, int offy, int sizex, int sizey, 
 
   textarget = GL_TEXTURE_2D;
 
-#ifdef USE_GEN_MIPMAPS
-  if (genMipmaps && !SDL_GL_ExtensionSupported("GL_SGIS_generate_mipmap")) {
-    PUtil::outLog() << "warning: can't generate mipmaps for texture" << std::endl;
-    genMipmaps = false;
-  }
-#else
   genMipmaps = false;
-#endif
 
   GLuint fmt,fmt2;
 
   switch (img.getcc()) {
   case 1:
-    fmt = GL_LUMINANCE; fmt2 = GL_LUMINANCE; break;
+    fmt = GL_RED; fmt2 = GL_RED; break;
   case 2:
-    fmt = GL_LUMINANCE_ALPHA; fmt2 = GL_LUMINANCE_ALPHA; break;
+    fmt = GL_RG; fmt2 = GL_RG; break;
   case 3:
     fmt = GL_RGB; fmt2 = GL_RGB; break;
   case 4:
@@ -315,6 +300,11 @@ void PTexture::loadPiece(PImage &img, int offx, int offy, int sizex, int sizey, 
 
   glGenTextures(1,&texid);
   bind();
+  if (img.getcc()==1 || img.getcc()==2) {
+    const GLint swizzle[4]={GL_RED,GL_RED,GL_RED,img.getcc()==2?GL_GREEN:GL_ONE};
+    glTexParameteriv(textarget,GL_TEXTURE_SWIZZLE_RGBA,swizzle);
+  }
+
 
   glTexParameteri(textarget,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
   if (genMipmaps)
@@ -332,15 +322,12 @@ void PTexture::loadPiece(PImage &img, int offx, int offy, int sizex, int sizey, 
 
   glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 
-#ifdef USE_GEN_MIPMAPS
-  if (genMipmaps)
-    glTexParameteri(textarget, GL_GENERATE_MIPMAP, GL_TRUE);
-#endif
 
   glTexImage2D(GL_TEXTURE_2D,0,fmt2,
     newcx,newcy,
     0,fmt,GL_UNSIGNED_BYTE,buffer);
 
+  if(genMipmaps) glGenerateMipmap(GL_TEXTURE_2D);
   delete[] buffer;
 }
 
@@ -357,20 +344,14 @@ void PTexture::loadAlpha(PImage &img, bool genMipmaps, bool clamp)
 
   textarget = GL_TEXTURE_2D;
 
-#ifdef USE_GEN_MIPMAPS
-  if (genMipmaps && !SDL_GL_ExtensionSupported("GL_SGIS_generate_mipmap")) {
-    PUtil::outLog() << "warning: can't generate mipmaps for texture" << std::endl;
-    genMipmaps = false;
-  }
-#endif
 
   GLuint fmt,fmt2;
 
   switch (img.getcc()) {
   case 1:
-    fmt = GL_ALPHA; fmt2 = GL_ALPHA; break;
+    fmt = GL_RED; fmt2 = GL_RED; break;
   case 2:
-    fmt = GL_LUMINANCE_ALPHA; fmt2 = GL_LUMINANCE_ALPHA;
+    fmt = GL_RG; fmt2 = GL_RG;
     PUtil::outLog() << "Warning: loadAlpha() has been used for image with 2 channels" << std::endl;
     break;
   case 3:
@@ -405,6 +386,11 @@ void PTexture::loadAlpha(PImage &img, bool genMipmaps, bool clamp)
 
   glGenTextures(1,&texid);
   bind();
+  if (img.getcc()==1 || img.getcc()==2) {
+    const GLint swizzle[4]={img.getcc()==1?GL_ONE:GL_RED,img.getcc()==1?GL_ONE:GL_RED,img.getcc()==1?GL_ONE:GL_RED,img.getcc()==1?GL_RED:GL_GREEN};
+    glTexParameteriv(textarget,GL_TEXTURE_SWIZZLE_RGBA,swizzle);
+  }
+
 
   glTexParameteri(textarget,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
   if (genMipmaps)
@@ -423,15 +409,6 @@ void PTexture::loadAlpha(PImage &img, bool genMipmaps, bool clamp)
   glPixelStorei(GL_UNPACK_ALIGNMENT,1);
 
   if (genMipmaps) {
-#ifdef USE_GEN_MIPMAPS
-
-    glTexParameteri(textarget, GL_GENERATE_MIPMAP, GL_TRUE);
-
-    glTexImage2D(GL_TEXTURE_2D,0,fmt2,
-      newcx,newcy,
-      0,fmt,GL_UNSIGNED_BYTE,img.getData());
-
-#else
 
     int level = 0;
     uint8 *imd = img.getData();
@@ -460,7 +437,6 @@ void PTexture::loadAlpha(PImage &img, bool genMipmaps, bool clamp)
       }
     }
 
-#endif
   } else {
     glTexImage2D(GL_TEXTURE_2D,0,fmt2,
       newcx,newcy,
@@ -475,28 +451,12 @@ void PTexture::loadCubeMap(const std::string &filenamePrefix, const std::string 
 
   textarget = GL_TEXTURE_CUBE_MAP;
 
-#ifdef USE_GEN_MIPMAPS
-  if (genMipmaps && !SDL_GL_ExtensionSupported("GL_SGIS_generate_mipmap")) {
-    PUtil::outLog() << "warning: can't generate mipmaps for texture" << std::endl;
-    genMipmaps = false;
-  }
-#endif
 
   PImage img;
 
   glGenTextures(1,&texid);
   bind();
 
-#ifdef USE_GEN_MIPMAPS
-  GLenum sidetarget[6] = {
-    GL_TEXTURE_CUBE_MAP_POSITIVE_X,
-    GL_TEXTURE_CUBE_MAP_NEGATIVE_X,
-    GL_TEXTURE_CUBE_MAP_POSITIVE_Y,
-    GL_TEXTURE_CUBE_MAP_NEGATIVE_Y,
-    GL_TEXTURE_CUBE_MAP_POSITIVE_Z,
-    GL_TEXTURE_CUBE_MAP_NEGATIVE_Z,
-  };
-#endif
 
   const char *middlename[6] = { "px", "nx", "py", "ny", "pz", "nz" };
 
@@ -509,9 +469,9 @@ void PTexture::loadCubeMap(const std::string &filenamePrefix, const std::string 
 
     switch (img.getcc()) {
     case 1:
-      fmt = GL_LUMINANCE; fmt2 = GL_LUMINANCE; break;
+      fmt = GL_RED; fmt2 = GL_RED; break;
     case 2:
-      fmt = GL_LUMINANCE_ALPHA; fmt2 = GL_LUMINANCE_ALPHA; break;
+      fmt = GL_RG; fmt2 = GL_RG; break;
     case 3:
       fmt = GL_RGB; fmt2 = GL_RGB; break;
     case 4:
@@ -550,15 +510,6 @@ void PTexture::loadCubeMap(const std::string &filenamePrefix, const std::string 
     glPixelStorei(GL_UNPACK_ALIGNMENT,1);
 
     if (genMipmaps) {
-#ifdef USE_GEN_MIPMAPS
-
-      glTexParameteri(textarget, GL_GENERATE_MIPMAP, GL_TRUE);
-
-      glTexImage2D(sidetarget[side],0,fmt2,
-        newcx,newcy,
-        0,fmt,GL_UNSIGNED_BYTE,img.getData());
-
-#else
 
       int level = 0;
       uint8 *imd = img.getData();
@@ -587,7 +538,6 @@ void PTexture::loadCubeMap(const std::string &filenamePrefix, const std::string 
         }
       }
 
-#endif
     } else {
       glTexImage2D(GL_TEXTURE_2D,0,fmt2,
         newcx,newcy,
@@ -602,15 +552,15 @@ void PTexture::loadCubeMap(const std::string &filenamePrefix, const std::string 
 
 void PTexture::bind() const
 {
-  glBindTexture(textarget, texid);
+  trackrs::draw::bindTexture(textarget, texid);
 }
 
 // static
 void PTexture::unbind()
 {
   // clear both used texture targets
-  glBindTexture(GL_TEXTURE_2D, 0);
-  glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
+  trackrs::draw::bindTexture(GL_TEXTURE_2D, 0);
+  trackrs::draw::bindTexture(GL_TEXTURE_CUBE_MAP, 0);
 }
 
 void PTexture::scaleImage(GLuint format,
@@ -625,11 +575,11 @@ void PTexture::scaleImage(GLuint format,
 
     // TODO: those masks may be incorrect in terms of color order, but we don't really care about it as we're just performing scaling
     switch (format) {
-    case GL_LUMINANCE: // 1 component
+    case GL_RED: // 1 component
       depth = 8;
       rm = 0xFF;
       break;
-    case GL_LUMINANCE_ALPHA: // 2 components
+    case GL_RG: // 2 components
       depth = 16;
       rm = 0x00FF;
       gm = 0xFF00;

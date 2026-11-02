@@ -16,34 +16,21 @@ public:
         StreamUsage, StaticUsage, DynamicUsage
     };
 
-protected:
-    GLuint buffid;
-    GLenum target;
-
-    contenttype pr_type;
-
-    // emulation:
-
-    uint8 *buffer;
-    //int buffersize; // not used anyway
-
-    // in order to implement vbuffer emulation, need to add
-    // DrawRangeElements type call to this class
-
-    //static PVBuffer *bound, *boundelem;
-
+private:
+    GLuint buffid=0;
+    GLenum target=GL_ARRAY_BUFFER;
 public:
-    PVBuffer() { buffid = 0; buffer = nullptr; }
+    PVBuffer() = default;
     ~PVBuffer();
-
-    bool create(int buffsize, contenttype type, usagemode usage, const void *data = nullptr);
-    void update(int offset, int buffsize, const void *data);
+    PVBuffer(const PVBuffer&) = delete;
+    PVBuffer& operator=(const PVBuffer&) = delete;
+    PVBuffer(PVBuffer&& other) noexcept;
+    PVBuffer& operator=(PVBuffer&& other) noexcept;
+    bool create(int size, contenttype type, usagemode usage, const void* data=nullptr);
+    void update(int offset,int size,const void* data);
     void unload();
-
-    uint8 *getPointer(int offset);
-
+    GLuint id() const { return buffid; }
     void bind();
-
     static void unbind();
 };
 

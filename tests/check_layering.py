@@ -22,6 +22,8 @@ def check(path, chain=()):
         target = path.parent / name
         if not target.exists():
             target = HEADERS / name
+        if not target.exists():
+            target = ROOT / name
         if target.exists():
             target = target.resolve()
             relative = target.relative_to(ROOT).as_posix()
@@ -33,7 +35,7 @@ def check(path, chain=()):
                 raise RuntimeError(f"higher-layer include: {origin} -> {relative}")
             check(target, (*chain, path))
 
-for folder in ("src/PEngine", "src/PSim", "engine/core", "engine/renderer", "engine/rhi", "engine/media"):
+for folder in ("src/PEngine", "src/PSim", "engine/core", "engine/renderer", "engine/rhi", "engine/render", "engine/media"):
     for path in (ROOT / folder).rglob("*"):
         if path.suffix in (".cpp", ".h"):
             check(path)

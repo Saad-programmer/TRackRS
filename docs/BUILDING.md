@@ -205,14 +205,14 @@ or invalid media falls back to the existing splash. The player launches no
 external process; MP4/ffplay are not used. Test with `movie-decoder` and, under
 Xvfb with xdotool, `python3 tests/test_intro.py --binary build/linux-release/bin/trackrs --output build/intro-test`.
 
-### Phase 2a core rendering requirements
+### Phase 2b core rendering requirements
 
 The visible window requires OpenGL 3.3 core and KHR_debug. glad 2.0.8 is vendored;
-no GLEW or loader generator is needed to build. Until 2b, the driver must also
-support a shared compatibility context for legacy drawing. Startup fails with a
-diagnostic if either context or sharing is unavailable.
+no GLEW or loader generator is needed to build. The game creates only one core
+context; compatibility-profile support and context sharing are no longer required.
+Startup fails with a diagnostic if core 3.3 or KHR_debug is unavailable.
 
-Presentation shaders live in `data/shaders/core`. Interactive runs poll edits
+Legacy-look shaders live in `data/shaders/basic`. Interactive runs poll edits
 every 250 ms, retain the last valid linked program on errors, and watch included
 files. Includes must stay inside the shader root; compile-time define permutations
 are supported by the RHI API. Validation runs disable hot reload.
@@ -220,4 +220,12 @@ are supported by the RHI API. Validation runs disable hot reload.
 Run `xvfb-run -a python3 tests/run_rhi.py --binary build/linux-release/bin/rhi_tests
 --output build/rhi-gate` for the core integration test (put the command on one
 line). Add `--asan` with the ASan build; the existing exact-origin Mesa audit
-policy remains unchanged. See [the report](reports/PHASE_2A.md).
+policy remains unchanged. See [the report](reports/PHASE_2B.md).
+
+`python3 tests/check_core_only.py` rejects removed GL calls in active production
+code and the generated loader. `tests/run_rhi.py` also proves batched UI output,
+retained meshes, basic lighting/fog, SDF coverage, and particle-ring reuse.
+
+Golden images use the declared limits in `docs/reports/phase2b/tolerance.json`
+with `tests/review_gate_images.py --tolerance ...`; physics hashes remain exact.
+The 2b report records software-Mesa worker settings for each validation run.

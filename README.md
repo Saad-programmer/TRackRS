@@ -51,6 +51,9 @@
 
 ---
 
+Current graphics requirement: **OpenGL 3.3 core with KHR_debug**. The game uses
+one core context; no compatibility profile is required.
+
 ## 🎯 About the Project
 
 **TrackRS** is a 3D rally racing simulation. You race against the clock through long point-to-point stages, guided by a spoken **co-driver** who reads pace notes ("*medium right into easy left*"). The game has a physics engine built around drifting, and terrain that changes how the car behaves: dirt, gravel, tarmac, sand, snow, ice, mud and water. Weather, fog and lighting change from stage to stage.
@@ -298,7 +301,7 @@ Produces `trackrs-demo_0.6.7_amd64.deb`.
 | Menu shortcut | `/usr/share/applications/trackrs.desktop` (its `Exec=` is rewritten to the absolute path) |
 | Icon | `/usr/share/pixmaps/trackrs.png` |
 
-Declared dependencies: `libsdl2-2.0-0`, `libsdl2-image-2.0-0`, `libglew2.x`, `libopenal1`, `libalut0`, `libphysfs1`, `libtinyxml2-*`.
+Declared dependencies: `libsdl2-2.0-0`, `libsdl2-image-2.0-0`, `libopenal1`, `libalut0`, `libphysfs1`, `libtinyxml2-*`.
 
 Inspect the result with `dpkg -c trackrs-demo_0.6.7_amd64.deb`.
 

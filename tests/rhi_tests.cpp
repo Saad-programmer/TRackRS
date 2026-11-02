@@ -15,8 +15,9 @@ static void require(bool condition, const char *message) {
   if (!condition)
     throw std::runtime_error(message);
 }
+void coreRenderTests(const std::filesystem::path &shaders);
 int main(int argc, char **argv) {
-  if (argc != 2)
+  if (argc != 3)
     return 2;
   SDL_Window *window = nullptr;
   SDL_GLContext context = nullptr;
@@ -159,6 +160,8 @@ int main(int argc, char **argv) {
       glDeleteTextures(1, &texture);
       glDeleteVertexArrays(1, &vao);
     }
+    coreRenderTests(std::filesystem::path(argv[2]));
+    debug.check();
     std::cerr << "EXPECTED_KHR_DEBUG_API_ERROR canary follows\n";
     glEnable(0xdead);
     require(debug.errors.load() > 0,
@@ -175,7 +178,8 @@ int main(int argc, char **argv) {
     debug.errors = 0;
     glDebugMessageCallback(nullptr, nullptr);
     std::cout << "RHI_GATE_OK: core profile, glad, identity pixels, cache, "
-                 "UBO, hot reload rollback/recovery, fatal KHR_debug"
+                 "UBO, hot reload rollback/recovery, core "
+                 "UI/mesh/fog/light/SDF/instance-ring, fatal KHR_debug"
               << std::endl;
   } catch (const std::exception &error) {
     std::cerr << "RHI_GATE_FAILED: " << error.what() << '\n';

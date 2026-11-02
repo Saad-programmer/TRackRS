@@ -18,7 +18,7 @@ args.output.mkdir(parents=True, exist_ok=True)
 (args.output/'result.json').unlink(missing_ok=True)
 env = dict(os.environ, LIBGL_ALWAYS_SOFTWARE='1', ASAN_OPTIONS='detect_leaks=1:fast_unwind_on_malloc=0:malloc_context_size=64:halt_on_error=1', LSAN_OPTIONS='exitcode=23:max_leaks=0', UBSAN_OPTIONS='halt_on_error=1:print_stacktrace=1')
 with (args.output/'raw.log').open('w') as log:
-    result = subprocess.run([str(args.binary.resolve()),str(ROOT/'data/shaders/core')],env=env,stdout=log,stderr=subprocess.STDOUT,timeout=180)
+    result = subprocess.run([str(args.binary.resolve()),str(ROOT/'tests/fixtures/rhi'),str(ROOT/'data/shaders/basic')],env=env,stdout=log,stderr=subprocess.STDOUT,timeout=180)
 text = (args.output/'raw.log').read_text()
 if 'RHI_GATE_OK:' not in text:
     raise RuntimeError('core integration did not pass; inspect raw.log')

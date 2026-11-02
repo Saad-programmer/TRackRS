@@ -31,7 +31,7 @@ PSSEffect::PSSEffect(PApp &parentApp) : PSubsystem(parentApp)
 
   def_rs.texunit[0].texindex = -1;
 
-  glGetIntegerv(GL_MAX_TEXTURE_UNITS, &max_tex_units);
+  glGetIntegerv(GL_MAX_TEXTURE_IMAGE_UNITS, &max_tex_units);
 }
 
 PSSEffect::~PSSEffect()
@@ -946,17 +946,17 @@ bool PEffect::renderBegin(int *numPasses, PSSTexture &sstex)
 void PEffect::migrateRenderState(fx_renderstate_s *rs_old, fx_renderstate_s *rs_new)
 {
   if (rs_old->depthtest != rs_new->depthtest) {
-    if (rs_new->depthtest)  glEnable(GL_DEPTH_TEST);
-    else                    glDisable(GL_DEPTH_TEST);
+    if (rs_new->depthtest)  trackrs::draw::enable(GL_DEPTH_TEST);
+    else                    trackrs::draw::disable(GL_DEPTH_TEST);
   }
 
   if (rs_old->lighting != rs_new->lighting) {
-    if (rs_new->lighting)   glEnable(GL_LIGHTING);
-    else                    glDisable(GL_LIGHTING);
+    if (rs_new->lighting)   trackrs::draw::enable(trackrs::draw::Lighting);
+    else                    trackrs::draw::disable(trackrs::draw::Lighting);
   }
 
   if (rs_old->lightmodeltwoside != rs_new->lightmodeltwoside) {
-    glLightModeli(GL_LIGHT_MODEL_TWO_SIDE, rs_new->lightmodeltwoside ? GL_TRUE : GL_FALSE);
+    trackrs::draw::lightModel(trackrs::draw::TwoSided, rs_new->lightmodeltwoside ? GL_TRUE : GL_FALSE);
   }
 
   if (rs_old->alphatest.func != rs_new->alphatest.func ||
@@ -964,44 +964,44 @@ void PEffect::migrateRenderState(fx_renderstate_s *rs_old, fx_renderstate_s *rs_
       rs_old->alphatest.ref != rs_new->alphatest.ref)) {
     if (rs_old->alphatest.func == GL_ALWAYS) {
       // enabling alpha test
-      glEnable(GL_ALPHA_TEST);
-      glAlphaFunc(rs_new->alphatest.func, rs_new->alphatest.ref);
+      trackrs::draw::enable(trackrs::draw::AlphaTest);
+      trackrs::draw::alpha({rs_new->alphatest.func, rs_new->alphatest.ref});
     } else if (rs_new->alphatest.func == GL_ALWAYS) {
       // disabling alpha test
-      glDisable(GL_ALPHA_TEST);
+      trackrs::draw::disable(trackrs::draw::AlphaTest);
     } else {
       // changing alpha test
-      glAlphaFunc(rs_new->alphatest.func, rs_new->alphatest.ref);
+      trackrs::draw::alpha({rs_new->alphatest.func, rs_new->alphatest.ref});
     }
   }
 
   if (rs_old->cullface != rs_new->cullface) {
     if (rs_old->cullface == CULLFACE_NONE) {
-      glEnable(GL_CULL_FACE);
-      glCullFace(rs_new->cullface == CULLFACE_CW ? GL_BACK : GL_FRONT);
+      trackrs::draw::enable(GL_CULL_FACE);
+      trackrs::draw::cull(rs_new->cullface == CULLFACE_CW ? GL_BACK : GL_FRONT);
     } else if (rs_new->cullface == CULLFACE_NONE) {
-      glDisable(GL_CULL_FACE);
+      trackrs::draw::disable(GL_CULL_FACE);
     } else {
-      glCullFace(rs_new->cullface == CULLFACE_CW ? GL_BACK : GL_FRONT);
+      trackrs::draw::cull(rs_new->cullface == CULLFACE_CW ? GL_BACK : GL_FRONT);
     }
   }
 
   if (rs_old->blendmode != rs_new->blendmode) {
     switch (rs_new->blendmode) {
     default:
-      glBlendFunc(GL_ONE,GL_ZERO);
+      trackrs::draw::blend(GL_ONE,GL_ZERO);
       break;
     case BLEND_ADD:
-      glBlendFunc(GL_ONE,GL_ONE);
+      trackrs::draw::blend(GL_ONE,GL_ONE);
       break;
     case BLEND_MULTIPLY:
-      glBlendFunc(GL_DST_COLOR,GL_SRC_COLOR);
+      trackrs::draw::blend(GL_DST_COLOR,GL_SRC_COLOR);
       break;
     case BLEND_ALPHA:
-      glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
+      trackrs::draw::blend(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
       break;
     case BLEND_PREMULTALPHA:
-      glBlendFunc(GL_ONE,GL_ONE_MINUS_SRC_ALPHA);
+      trackrs::draw::blend(GL_ONE,GL_ONE_MINUS_SRC_ALPHA);
       break;
     }
   }

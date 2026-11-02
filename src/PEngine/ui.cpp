@@ -59,25 +59,25 @@ bool Gui::getDefaultAction(int &data1, int &data2)
 }
 
 static void drawMoroccanStar(float cx, float cy, float r, const vec4f &color) {
-  glDisable(GL_TEXTURE_2D);
-  glEnable(GL_BLEND);
-  glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-  glColor4fv(color);
-  glLineWidth(1.5f);
+  trackrs::draw::disable(GL_TEXTURE_2D);
+  trackrs::draw::enable(GL_BLEND);
+  trackrs::draw::blend(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+  trackrs::draw::color(color);
+  trackrs::draw::lineWidth(1.5f);
 
-  glBegin(GL_LINE_LOOP);
+  trackrs::draw::begin(GL_LINE_LOOP);
   for (int i = 0; i < 4; ++i) {
     float angle = (float)i * PI / 2.0f;
-    glVertex2f(cx + r * cosf(angle), cy + r * sinf(angle));
+    trackrs::draw::vertex(cx + r * cosf(angle), cy + r * sinf(angle));
   }
-  glEnd();
+  trackrs::draw::end();
 
-  glBegin(GL_LINE_LOOP);
+  trackrs::draw::begin(GL_LINE_LOOP);
   for (int i = 0; i < 4; ++i) {
     float angle = (float)i * PI / 2.0f + PI / 4.0f;
-    glVertex2f(cx + r * cosf(angle), cy + r * sinf(angle));
+    trackrs::draw::vertex(cx + r * cosf(angle), cy + r * sinf(angle));
   }
-  glEnd();
+  trackrs::draw::end();
 }
 
 void Gui::render()
@@ -91,33 +91,33 @@ void Gui::render()
   }
 
   if (has_left_menu) {
-    glDisable(GL_TEXTURE_2D);
-    glEnable(GL_BLEND);
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    trackrs::draw::disable(GL_TEXTURE_2D);
+    trackrs::draw::enable(GL_BLEND);
+    trackrs::draw::blend(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-    glColor4f(0.08f, 0.04f, 0.03f, 0.55f);
-    glBegin(GL_QUADS);
-    glVertex2f(35.0f, 75.0f);
-    glVertex2f(310.0f, 75.0f);
-    glVertex2f(310.0f, 470.0f);
-    glVertex2f(35.0f, 470.0f);
-    glEnd();
+    trackrs::draw::color(0.08f, 0.04f, 0.03f, 0.55f);
+    trackrs::draw::begin(trackrs::draw::Quads);
+    trackrs::draw::vertex(35.0f, 75.0f);
+    trackrs::draw::vertex(310.0f, 75.0f);
+    trackrs::draw::vertex(310.0f, 470.0f);
+    trackrs::draw::vertex(35.0f, 470.0f);
+    trackrs::draw::end();
 
-    glLineWidth(2.0f);
-    glColor4f(0.851f, 0.643f, 0.255f, 0.40f);
-    glBegin(GL_LINE_LOOP);
-    glVertex2f(35.0f, 75.0f);
-    glVertex2f(310.0f, 75.0f);
-    glVertex2f(310.0f, 470.0f);
-    glVertex2f(35.0f, 470.0f);
-    glEnd();
+    trackrs::draw::lineWidth(2.0f);
+    trackrs::draw::color(0.851f, 0.643f, 0.255f, 0.40f);
+    trackrs::draw::begin(GL_LINE_LOOP);
+    trackrs::draw::vertex(35.0f, 75.0f);
+    trackrs::draw::vertex(310.0f, 75.0f);
+    trackrs::draw::vertex(310.0f, 470.0f);
+    trackrs::draw::vertex(35.0f, 470.0f);
+    trackrs::draw::end();
 
     drawMoroccanStar(35.0f, 470.0f, 4.0f, vec4f(0.851f, 0.643f, 0.255f, 0.5f));
     drawMoroccanStar(310.0f, 470.0f, 4.0f, vec4f(0.851f, 0.643f, 0.255f, 0.5f));
     drawMoroccanStar(310.0f, 75.0f, 4.0f, vec4f(0.851f, 0.643f, 0.255f, 0.5f));
     drawMoroccanStar(35.0f, 75.0f, 4.0f, vec4f(0.851f, 0.643f, 0.255f, 0.5f));
 
-    glEnable(GL_TEXTURE_2D);
+    trackrs::draw::enable(GL_TEXTURE_2D);
   }
 
   for (unsigned int i = 0; i < widget.size(); i++) {
@@ -130,49 +130,49 @@ void Gui::render()
       float shift_x = 0.0f;
 
       if (widget[i].text == "TrackRS") {
-         glPushMatrix();
-         glTranslatef(15.0f, ctr.y - 12.0f, 0.0f);
-         glScalef(55.0f, 55.0f, 1.0f);
-         glEnable(GL_TEXTURE_2D);
+         trackrs::draw::push();
+         trackrs::draw::translate(15.0f, ctr.y - 12.0f, 0.0f);
+         trackrs::draw::scale(55.0f, 55.0f, 1.0f);
+         trackrs::draw::enable(GL_TEXTURE_2D);
          fonttex->bind();
-         glColor4f(0.10f, 0.05f, 0.02f, 0.9f);
+         trackrs::draw::color(0.10f, 0.05f, 0.02f, 0.9f);
          ssRender->drawText(widget[i].text, flags);
-         glPopMatrix();
+         trackrs::draw::pop();
 
-         glPushMatrix();
-         glTranslatef(10.0f, ctr.y - 10.0f, 0.0f);
-         glScalef(55.0f, 55.0f, 1.0f);
-         glEnable(GL_TEXTURE_2D);
+         trackrs::draw::push();
+         trackrs::draw::translate(10.0f, ctr.y - 10.0f, 0.0f);
+         trackrs::draw::scale(55.0f, 55.0f, 1.0f);
+         trackrs::draw::enable(GL_TEXTURE_2D);
          fonttex->bind();
-         glColor4f(0.98f, 0.85f, 0.35f, 1.0f);
+         trackrs::draw::color(0.98f, 0.85f, 0.35f, 1.0f);
          ssRender->drawText(widget[i].text, flags);
-         glPopMatrix();
+         trackrs::draw::pop();
 
-         glPushMatrix();
-         glTranslatef(12.0f, ctr.y - 32.0f, 0.0f);
-         glScalef(13.0f, 13.0f, 1.0f);
-         glEnable(GL_TEXTURE_2D);
+         trackrs::draw::push();
+         trackrs::draw::translate(12.0f, ctr.y - 32.0f, 0.0f);
+         trackrs::draw::scale(13.0f, 13.0f, 1.0f);
+         trackrs::draw::enable(GL_TEXTURE_2D);
          fonttex->bind();
-         glColor4f(0.90f, 0.90f, 0.95f, 0.9f);
+         trackrs::draw::color(0.90f, 0.90f, 0.95f, 0.9f);
          ssRender->drawText("MERZOUGA DUNE STAGE - ERG CHEBBI, MOROCCO", flags);
-         glPopMatrix();
+         trackrs::draw::pop();
 
-         glDisable(GL_TEXTURE_2D);
-         glEnable(GL_BLEND);
-         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+         trackrs::draw::disable(GL_TEXTURE_2D);
+         trackrs::draw::enable(GL_BLEND);
+         trackrs::draw::blend(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
          
-         glBegin(GL_QUADS);
-         glColor4f(0.98f, 0.85f, 0.35f, 0.9f);
-         glVertex2f(10.0f, ctr.y - 38.0f);
-         glColor4f(0.85f, 0.55f, 0.20f, 0.7f);
-         glVertex2f(340.0f, ctr.y - 38.0f);
-         glColor4f(0.85f, 0.55f, 0.20f, 0.0f);
-         glVertex2f(440.0f, ctr.y - 40.0f);
-         glColor4f(0.98f, 0.85f, 0.35f, 0.9f);
-         glVertex2f(10.0f, ctr.y - 40.0f);
-         glEnd();
+         trackrs::draw::begin(trackrs::draw::Quads);
+         trackrs::draw::color(0.98f, 0.85f, 0.35f, 0.9f);
+         trackrs::draw::vertex(10.0f, ctr.y - 38.0f);
+         trackrs::draw::color(0.85f, 0.55f, 0.20f, 0.7f);
+         trackrs::draw::vertex(340.0f, ctr.y - 38.0f);
+         trackrs::draw::color(0.85f, 0.55f, 0.20f, 0.0f);
+         trackrs::draw::vertex(440.0f, ctr.y - 40.0f);
+         trackrs::draw::color(0.98f, 0.85f, 0.35f, 0.9f);
+         trackrs::draw::vertex(10.0f, ctr.y - 40.0f);
+         trackrs::draw::end();
          
-         glEnable(GL_TEXTURE_2D);
+         trackrs::draw::enable(GL_TEXTURE_2D);
          drawMoroccanStar(355.0f, ctr.y - 38.0f, 6.0f, vec4f(0.98f, 0.85f, 0.35f, 0.9f));
          continue;
       }
@@ -182,26 +182,26 @@ void Gui::render()
         shift_x = 22.0f * widget[i].glow;
 
         if (widget[i].glow > 0.01f) {
-          glDisable(GL_TEXTURE_2D);
-          glEnable(GL_BLEND);
-          glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+          trackrs::draw::disable(GL_TEXTURE_2D);
+          trackrs::draw::enable(GL_BLEND);
+          trackrs::draw::blend(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-          glColor4f(0.98f, 0.85f, 0.35f, 0.15f * widget[i].glow);
-          glBegin(GL_QUADS);
-          glVertex2f(ctr.x + shift_x - 14.0f, ctr.y - 10.0f);
-          glVertex2f(ctr.x + shift_x + 230.0f, ctr.y - 10.0f);
-          glVertex2f(ctr.x + shift_x + 230.0f, ctr.y + 26.0f);
-          glVertex2f(ctr.x + shift_x - 14.0f, ctr.y + 26.0f);
-          glEnd();
+          trackrs::draw::color(0.98f, 0.85f, 0.35f, 0.15f * widget[i].glow);
+          trackrs::draw::begin(trackrs::draw::Quads);
+          trackrs::draw::vertex(ctr.x + shift_x - 14.0f, ctr.y - 10.0f);
+          trackrs::draw::vertex(ctr.x + shift_x + 230.0f, ctr.y - 10.0f);
+          trackrs::draw::vertex(ctr.x + shift_x + 230.0f, ctr.y + 26.0f);
+          trackrs::draw::vertex(ctr.x + shift_x - 14.0f, ctr.y + 26.0f);
+          trackrs::draw::end();
 
-          glLineWidth(3.0f);
-          glColor4f(0.98f, 0.85f, 0.35f, 0.90f * widget[i].glow);
-          glBegin(GL_LINES);
-          glVertex2f(ctr.x + shift_x - 14.0f, ctr.y - 10.0f);
-          glVertex2f(ctr.x + shift_x - 14.0f, ctr.y + 26.0f);
-          glEnd();
+          trackrs::draw::lineWidth(3.0f);
+          trackrs::draw::color(0.98f, 0.85f, 0.35f, 0.90f * widget[i].glow);
+          trackrs::draw::begin(GL_LINES);
+          trackrs::draw::vertex(ctr.x + shift_x - 14.0f, ctr.y - 10.0f);
+          trackrs::draw::vertex(ctr.x + shift_x - 14.0f, ctr.y + 26.0f);
+          trackrs::draw::end();
 
-          glEnable(GL_TEXTURE_2D);
+          trackrs::draw::enable(GL_TEXTURE_2D);
           drawMoroccanStar(ctr.x + shift_x - 26.0f, ctr.y + 8.0f, 5.0f, vec4f(0.98f, 0.85f, 0.35f, widget[i].glow));
         }
       }
@@ -209,37 +209,37 @@ void Gui::render()
       if (widget[i].selectable && widget[i].selected)
         flags |= PTEXT_HIGHLIGHT;
 
-      glPushMatrix();
-      glTranslatef(ctr.x + shift_x, ctr.y, 0.0f);
+      trackrs::draw::push();
+      trackrs::draw::translate(ctr.x + shift_x, ctr.y, 0.0f);
 
       if (widget[i].text.length() > 0 &&
           (widget[i].colnormal.x == colors.header.x &&
            widget[i].colnormal.y == colors.header.y &&
            widget[i].colnormal.z == colors.header.z)) {
-         glDisable(GL_TEXTURE_2D);
-         glEnable(GL_BLEND);
-         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-         glColor4f(colors.header.x, colors.header.y, colors.header.z, 0.8f);
-         glLineWidth(2.0f);
-         glBegin(GL_LINES);
-         glVertex2f(0.0f, -6.0f);
-         glVertex2f(350.0f, -6.0f);
-         glVertex2f(0.0f, -10.0f);
-         glVertex2f(200.0f, -10.0f);
-         glEnd();
-         glEnable(GL_TEXTURE_2D);
+         trackrs::draw::disable(GL_TEXTURE_2D);
+         trackrs::draw::enable(GL_BLEND);
+         trackrs::draw::blend(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+         trackrs::draw::color(colors.header.x, colors.header.y, colors.header.z, 0.8f);
+         trackrs::draw::lineWidth(2.0f);
+         trackrs::draw::begin(GL_LINES);
+         trackrs::draw::vertex(0.0f, -6.0f);
+         trackrs::draw::vertex(350.0f, -6.0f);
+         trackrs::draw::vertex(0.0f, -10.0f);
+         trackrs::draw::vertex(200.0f, -10.0f);
+         trackrs::draw::end();
+         trackrs::draw::enable(GL_TEXTURE_2D);
         drawMoroccanStar(365.0f, -6.0f, 4.0f, vec4f(colors.header.x, colors.header.y, colors.header.z, 0.8f));
       }
 
       float current_fontsize = widget[i].fontsize * (widget[i].selectable ? (1.0f + 0.06f * widget[i].glow) : 1.0f);
-      glScalef(current_fontsize, current_fontsize, 1.0f);
+      trackrs::draw::scale(current_fontsize, current_fontsize, 1.0f);
 
-      glEnable(GL_TEXTURE_2D);
+      trackrs::draw::enable(GL_TEXTURE_2D);
       fonttex->bind();
 
-      glColor4fv(colc);
+      trackrs::draw::color(colc);
       ssRender->drawText(widget[i].text, flags);
-      glPopMatrix();
+      trackrs::draw::pop();
       } break;
 
     case GWT_GRAPHIC: {
@@ -247,41 +247,41 @@ void Gui::render()
       vec2f max = widget[i].pos + widget[i].dims_min;
 
       if (!widget[i].tex) {
-        glDisable(GL_TEXTURE_2D);
-        glEnable(GL_BLEND);
-        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+        trackrs::draw::disable(GL_TEXTURE_2D);
+        trackrs::draw::enable(GL_BLEND);
+        trackrs::draw::blend(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
         
-        glColor4f(0.14f, 0.08f, 0.06f, 0.85f);
-        glBegin(GL_QUADS);
-        glVertex2f(min.x, min.y);
-        glVertex2f(max.x, min.y);
-        glVertex2f(max.x, max.y);
-        glVertex2f(min.x, max.y);
-        glEnd();
+        trackrs::draw::color(0.14f, 0.08f, 0.06f, 0.85f);
+        trackrs::draw::begin(trackrs::draw::Quads);
+        trackrs::draw::vertex(min.x, min.y);
+        trackrs::draw::vertex(max.x, min.y);
+        trackrs::draw::vertex(max.x, max.y);
+        trackrs::draw::vertex(min.x, max.y);
+        trackrs::draw::end();
         
-        glLineWidth(2.0f);
+        trackrs::draw::lineWidth(2.0f);
         if (widget[i].clickable && widget[i].glow > 0.01f) {
           float pulse = 0.7f + 0.3f * sinf((float)SDL_GetTicks() / 150.0f);
-          glColor4f(0.95f, 0.80f, 0.40f, widget[i].glow * pulse);
+          trackrs::draw::color(0.95f, 0.80f, 0.40f, widget[i].glow * pulse);
         } else {
-          glColor4f(0.851f, 0.643f, 0.255f, 0.5f);
+          trackrs::draw::color(0.851f, 0.643f, 0.255f, 0.5f);
         }
         
-        glBegin(GL_LINE_LOOP);
-        glVertex2f(min.x, min.y);
-        glVertex2f(max.x, min.y);
-        glVertex2f(max.x, max.y);
-        glVertex2f(min.x, max.y);
-        glEnd();
+        trackrs::draw::begin(GL_LINE_LOOP);
+        trackrs::draw::vertex(min.x, min.y);
+        trackrs::draw::vertex(max.x, min.y);
+        trackrs::draw::vertex(max.x, max.y);
+        trackrs::draw::vertex(min.x, max.y);
+        trackrs::draw::end();
 
-        glLineWidth(1.0f);
-        glColor4f(0.851f, 0.643f, 0.255f, 0.25f);
-        glBegin(GL_LINE_LOOP);
-        glVertex2f(min.x + 4.0f, min.y + 4.0f);
-        glVertex2f(max.x - 4.0f, min.y + 4.0f);
-        glVertex2f(max.x - 4.0f, max.y - 4.0f);
-        glVertex2f(min.x + 4.0f, max.y - 4.0f);
-        glEnd();
+        trackrs::draw::lineWidth(1.0f);
+        trackrs::draw::color(0.851f, 0.643f, 0.255f, 0.25f);
+        trackrs::draw::begin(GL_LINE_LOOP);
+        trackrs::draw::vertex(min.x + 4.0f, min.y + 4.0f);
+        trackrs::draw::vertex(max.x - 4.0f, min.y + 4.0f);
+        trackrs::draw::vertex(max.x - 4.0f, max.y - 4.0f);
+        trackrs::draw::vertex(min.x + 4.0f, max.y - 4.0f);
+        trackrs::draw::end();
 
         vec4f star_col = vec4f(0.851f, 0.643f, 0.255f, 0.6f);
         drawMoroccanStar(min.x + 8.0f, min.y + 8.0f, 4.0f, star_col);
@@ -289,7 +289,7 @@ void Gui::render()
         drawMoroccanStar(max.x - 8.0f, max.y - 8.0f, 4.0f, star_col);
         drawMoroccanStar(min.x + 8.0f, max.y - 8.0f, 4.0f, star_col);
         
-        glEnable(GL_TEXTURE_2D);
+        trackrs::draw::enable(GL_TEXTURE_2D);
       }
       else {
         vec4f colc = vec4f(1.0f, 1.0f, 1.0f, 1.0f);
@@ -300,14 +300,14 @@ void Gui::render()
         }
 
         widget[i].tex->bind();
-        glColor4fv(colc);
+        trackrs::draw::color(colc);
 
-        glBegin(GL_QUADS);
-        glTexCoord2f(0.0f, 0.0f); glVertex2f(min.x, min.y);
-        glTexCoord2f(1.0f, 0.0f); glVertex2f(max.x, min.y);
-        glTexCoord2f(1.0f, 1.0f); glVertex2f(max.x, max.y);
-        glTexCoord2f(0.0f, 1.0f); glVertex2f(min.x, max.y);
-        glEnd();
+        trackrs::draw::begin(trackrs::draw::Quads);
+        trackrs::draw::uv(0.0f, 0.0f); trackrs::draw::vertex(min.x, min.y);
+        trackrs::draw::uv(1.0f, 0.0f); trackrs::draw::vertex(max.x, min.y);
+        trackrs::draw::uv(1.0f, 1.0f); trackrs::draw::vertex(max.x, max.y);
+        trackrs::draw::uv(0.0f, 1.0f); trackrs::draw::vertex(min.x, max.y);
+        trackrs::draw::end();
       }
       } break;
     }
@@ -471,27 +471,27 @@ void Gui::renderWidgetTree(int w)
 
   switch (widget[w].type) {
   case GWT_CONTAINER:
-    glColor4f(1.0f,0.0f,0.0f,0.2f);
+    trackrs::draw::color(1.0f,0.0f,0.0f,0.2f);
     break;
   case GWT_FILLER:
-    glColor4f(0.0f,1.0f,0.0f,0.2f);
+    trackrs::draw::color(0.0f,1.0f,0.0f,0.2f);
     break;
   case GWT_LABEL:
-    glColor4f(0.0f,0.0f,1.0f,0.2f);
+    trackrs::draw::color(0.0f,0.0f,1.0f,0.2f);
     break;
   }
 
   min = widget[w].pos;
   max = widget[w].pos + widget[w].dims_measure;
 
-  glDisable(GL_TEXTURE_2D);
-  glBegin(GL_QUADS);
-  glVertex2f(min.x, min.y);
-  glVertex2f(max.x, min.y);
-  glVertex2f(max.x, max.y);
-  glVertex2f(min.x, max.y);
-  glEnd();
-  glEnable(GL_TEXTURE_2D);
+  trackrs::draw::disable(GL_TEXTURE_2D);
+  trackrs::draw::begin(trackrs::draw::Quads);
+  trackrs::draw::vertex(min.x, min.y);
+  trackrs::draw::vertex(max.x, min.y);
+  trackrs::draw::vertex(max.x, max.y);
+  trackrs::draw::vertex(min.x, max.y);
+  trackrs::draw::end();
+  trackrs::draw::enable(GL_TEXTURE_2D);
 
   // Render this widget
   switch (widget[w].type) {
@@ -499,13 +499,13 @@ void Gui::renderWidgetTree(int w)
     break;
 
   case GWT_LABEL: {
-    glPushMatrix();
+    trackrs::draw::push();
     vec2f ctr = widget[w].pos + widget[w].dims_measure * 0.5f;
-    glTranslatef(ctr.x, ctr.y, 0.0f);
-    glScalef(widget[w].fontsize, widget[w].fontsize, 1.0f);
-    glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
+    trackrs::draw::translate(ctr.x, ctr.y, 0.0f);
+    trackrs::draw::scale(widget[w].fontsize, widget[w].fontsize, 1.0f);
+    trackrs::draw::color(1.0f, 1.0f, 1.0f, 1.0f);
     ssRender->drawText(widget[w].text, PTEXT_HZA_CENTER | PTEXT_VTA_CENTER);
-    glPopMatrix();
+    trackrs::draw::pop();
     } break;
   }
 

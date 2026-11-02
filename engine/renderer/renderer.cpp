@@ -9,40 +9,40 @@ void trackrs::Renderer::vehiclePart(PApp& context, const PVehicleType &type, con
 {
     if (typepart.model)
     {
-        glPushMatrix();
+        trackrs::draw::push();
 
         vec3f vpos = part.ref_world.getPosition();
-        glTranslatef(vpos.x, vpos.y, vpos.z);
+        trackrs::draw::translate(vpos.x, vpos.y, vpos.z);
 
         mat44f vorim = part.ref_world.getInverseOrientationMatrix();
-        glMultMatrixf(vorim);
+        trackrs::draw::multiply(vorim);
 
         float scale = typepart.scale;
-        glScalef(scale,scale,scale);
+        trackrs::draw::scale(scale,scale,scale);
 
         context.drawModel(*typepart.model, alpha);
 
-        glPopMatrix();
+        trackrs::draw::pop();
     }
 
     if (type.wheelmodel)
     {
         for (unsigned int i=0; i<typepart.wheel.size(); ++i)
         {
-            glPushMatrix();
+            trackrs::draw::push();
 
             vec3f wpos = part.wheel[i].ref_world.getPosition();
-            glTranslatef(wpos.x,wpos.y,wpos.z);
+            trackrs::draw::translate(wpos.x,wpos.y,wpos.z);
 
             mat44f worim = part.wheel[i].ref_world.getInverseOrientationMatrix();
-            glMultMatrixf(worim);
+            trackrs::draw::multiply(worim);
 
             float scale = type.wheelscale * typepart.wheel[i].radius;
-            glScalef(scale,scale,scale);
+            trackrs::draw::scale(scale,scale,scale);
 
             context.drawModel(*type.wheelmodel, alpha);
 
-            glPopMatrix();
+            trackrs::draw::pop();
         }
     }
 }
