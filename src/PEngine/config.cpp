@@ -886,4 +886,5 @@ void PConfig::setSpeedUnit(Speedunit speedUnit)
 void PConfig::setAnisotropy(GLfloat anisotropy)
 {
   cfg_anisotropy = anisotropy;
+  mainapp->setTextureAnisotropy(cfg_anisotropy);
 }

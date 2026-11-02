@@ -13,6 +13,7 @@ string(REPLACE "../data" "../share/games/trackrs" install_config "${install_conf
 file(WRITE "${CMAKE_BINARY_DIR}/install-config/trackrs.config.defs" "${install_config}")
 install(FILES "${CMAKE_BINARY_DIR}/install-config/trackrs.config.defs" DESTINATION bin)
 install(FILES doc/COPYING.txt doc/DATA_AUTHORS.txt debian/copyright DESTINATION share/doc/trackrs)
+install(DIRECTORY docs/licenses/ DESTINATION share/doc/trackrs/dependency-notices)
 install(FILES data/metainfo/trackrs.desktop DESTINATION share/applications)
 install(FILES data/icon/trigger-256.png DESTINATION share/pixmaps RENAME trackrs.png)
 install(FILES "${CMAKE_BINARY_DIR}/generated/org.trackrs.TrackRS.metainfo.xml" DESTINATION share/metainfo)

@@ -314,7 +314,7 @@ public:
     ///
     bool isUnlockedByPlayer(const std::string &udata) const
     {
-        return player_unlocks.count(udata) != 0;
+        return editionPolicy.championship(player_unlocks.count(udata) != 0);
     }
 
     ///

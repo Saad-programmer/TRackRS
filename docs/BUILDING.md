@@ -6,7 +6,7 @@ checks. This branch does not yet implement the modern renderer or new physics.
 
 ## Linux
 
-Install CMake 3.20+, Ninja, a C++17 compiler, and the development packages listed
+Install CMake 3.20+, Ninja, Python 3.9+ (for mandatory layering checks), a C++17 compiler, and the development packages listed
 in the README (SDL2, SDL2_image, GLEW, OpenGL, OpenAL, ALUT, PhysFS, TinyXML-2).
 For Debian/Ubuntu:
 

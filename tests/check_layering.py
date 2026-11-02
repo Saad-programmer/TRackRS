@@ -23,7 +23,15 @@ def check(path, chain=()):
         if not target.exists():
             target = HEADERS / name
         if target.exists():
-            check(target.resolve(), (*chain, path))
+            target = target.resolve()
+            relative = target.relative_to(ROOT).as_posix()
+            origin = (chain[0] if chain else path).relative_to(ROOT).as_posix()
+            forbidden = relative.startswith("engine/application/")
+            if origin.startswith("engine/core/"):
+                forbidden = not relative.startswith("engine/core/")
+            if forbidden:
+                raise RuntimeError(f"higher-layer include: {origin} -> {relative}")
+            check(target, (*chain, path))
 
 for folder in ("src/PEngine", "src/PSim", "engine/core", "engine/renderer"):
     for path in (ROOT / folder).rglob("*"):

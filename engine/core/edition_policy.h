@@ -22,6 +22,7 @@ public:
     }
     bool stage(std::string_view path) const { return edition != Edition::Demo || demoStages.count(path) != 0; }
     bool events() const noexcept { return edition != Edition::Demo; }
-    bool event(bool locked, bool unlocked) const noexcept { return events() && (edition == Edition::Dev || !locked || unlocked); }
+    bool championship(bool earned) const noexcept { return edition == Edition::Dev || earned; }
+    bool event(bool locked, bool unlocked) const noexcept { return events() && championship(!locked || unlocked); }
 };
 }

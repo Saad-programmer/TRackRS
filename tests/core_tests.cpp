@@ -126,3 +126,13 @@ TEST_CASE("edition documents fail closed on malformed schema and paths") {
 TEST_CASE("edition stage lists require JSON arrays") {
     CHECK_THROWS(trackrs::loadEditionPolicy(R"({"schema":"trackrs.edition/1","mode":"demo","demo_stages":"/maps/ahead/ahead.level"})"));
 }
+
+TEST_CASE("dev policy bypasses championship vehicle unlocks through the same API") {
+    trackrs::EditionPolicy policy;
+    CHECK_FALSE(policy.championship(false));
+    CHECK(policy.championship(true));
+    policy.edition = trackrs::EditionPolicy::Edition::Full;
+    CHECK_FALSE(policy.championship(false));
+    policy.edition = trackrs::EditionPolicy::Edition::Dev;
+    CHECK(policy.championship(false));
+}

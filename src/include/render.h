@@ -6,7 +6,6 @@
 #include "vbuffer.h"
 #include <cmath>
 
-class MainApp;
 class PEffect;
 class PException;
 class PModel;
