@@ -54,7 +54,7 @@
      float mult = (T)1 / (T)sqrt(lengthsq);
 --- a/src/Trigger/main.cpp
 +++ b/src/Trigger/main.cpp
-@@ -954,7 +954,7 @@
+@@ -958,7 +958,7 @@
      }
      else
        for (unsigned int k=0; k<game->vehicle[i]->part[j].wheel.size(); k++) {
@@ -63,7 +63,7 @@
          {
              const vec3f dirtpos = game->vehicle[i]->part[j].wheel[k].dirtthrowpos;
              const vec3f dirtvec = game->vehicle[i]->part[j].wheel[k].dirtthrowvec;
-@@ -971,7 +971,7 @@
+@@ -975,7 +975,7 @@
              psys_dirt->setColorEnd(dirtcolor.x, dirtcolor.y, dirtcolor.z, 0.0f);
              psys_dirt->setSize(di.startsize, di.endsize);
              psys_dirt->setDecay(di.decay);
@@ -72,7 +72,7 @@
          }
        }
      }
-@@ -1208,7 +1208,7 @@
+@@ -1212,7 +1212,7 @@
          case 1: // Shift up
          {
              audinst.push_back(std::make_unique<PAudioInstance>(aud_shiftup));
@@ -81,7 +81,7 @@
              audinst.back()->setGain(1.0f * cfg.getVolumeSfx());
              audinst.back()->play();
              break;
-@@ -1216,7 +1216,7 @@
+@@ -1220,7 +1220,7 @@
          case -1: // Shift down
          {
              audinst.push_back(std::make_unique<PAudioInstance>(aud_shiftdown));
@@ -90,7 +90,7 @@
              audinst.back()->setGain(1.0f * cfg.getVolumeSfx());
              audinst.back()->play();
              break;
-@@ -1230,14 +1230,14 @@
+@@ -1234,14 +1234,14 @@
        float crashlevel = vehic->getCrashNoiseLevel();
        if (crashlevel > 0.0f) {
          audinst.push_back(std::make_unique<PAudioInstance>(aud_crash1));
@@ -107,7 +107,7 @@
      } else {
        crashnoise_timeout -= delta;
      }
-@@ -1266,18 +1266,18 @@
+@@ -1270,18 +1270,18 @@
    // randomised number of drops calculation
    float numdrops = game->weather.precip.rain * delta;
    int inumdrops = (int)numdrops;
@@ -129,7 +129,7 @@
      rain.back().life = RAIN_START_LIFE;
    }
  
-@@ -1306,19 +1306,19 @@
+@@ -1310,19 +1310,19 @@
    // randomised number of flakes calculation
    float numflakes = game->weather.precip.snowfall * delta;
    int inumflakes = (int)numflakes;

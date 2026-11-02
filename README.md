@@ -678,7 +678,7 @@ The textures were authored as SVG in Inkscape. To re-render them you need these 
 
 ## 🔒 Demo Mode
 
-`data/policy/edition.xml` selects `demo`, `full` or `dev`. Demo permits only
+`data/policy/edition.json` selects `demo`, `full` or `dev`. Demo permits only
 listed virtual stage paths (Ahead by default). Full enables installed stages,
 events and practice while respecting championship unlocks. Dev also bypasses
 championship locks. This access policy is separate from asset redistribution rights.

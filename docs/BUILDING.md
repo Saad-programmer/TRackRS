@@ -13,7 +13,7 @@ For Debian/Ubuntu:
 ```sh
 sudo apt-get install build-essential cmake ninja-build libsdl2-dev libsdl2-image-dev \
   libglew-dev libopenal-dev libalut-dev libtinyxml2-dev libphysfs-dev \
-  libgl1-mesa-dev libglu1-mesa-dev xvfb xauth
+  libgl1-mesa-dev libglu1-mesa-dev libglm-dev nlohmann-json3-dev xvfb xauth
 cmake --preset linux-release
 cmake --build --preset linux-release -j4
 ctest --preset linux-release
@@ -149,7 +149,7 @@ vsync falls back to ordinary vsync. Validation runs remain uncapped, fixed-step
 and non-interpolated for reproducible state/image capture. Interactive vehicle
 rendering interpolates body snapshots without changing simulation state.
 
-`data/policy/edition.xml` chooses demo/full/dev. Demo uses virtual-path allowlists;
+`data/policy/edition.json` chooses demo/full/dev. Demo uses virtual-path allowlists;
 full respects championship locks; dev bypasses them. The bundled splash plays
 inside the SDL window; any key skips its remaining delay after loading. No
 external player is required. Legacy levels derive a deterministic seed from their

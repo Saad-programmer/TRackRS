@@ -1,0 +1,7 @@
+{
+  "schema": "trackrs.edition/1",
+  "mode": "demo",
+  "demo_stages": [
+    "/maps/ahead/ahead.level"
+  ]
+}

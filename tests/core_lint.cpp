@@ -7,3 +7,4 @@
 #include "engine/core/interpolation.h"
 #include "engine/core/edition_policy.h"
 #include "engine/application/game_state.h"
+#include "engine/application/edition_loader.h"

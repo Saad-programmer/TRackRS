@@ -1,6 +1,15 @@
 {
   "name": "trackrs",
-  "version-string": "0.6.7",
   "builtin-baseline": "9a5dfef5d1a0438a7d24856a85bd60f309d355e9",
-  "dependencies": ["sdl2", "sdl2-image", "glew", "openal-soft", "freealut", "physfs", "tinyxml2"]
+  "dependencies": [
+    "sdl2",
+    "sdl2-image",
+    "glew",
+    "openal-soft",
+    "freealut",
+    "physfs",
+    "tinyxml2",
+    "glm",
+    "nlohmann-json"
+  ]
 }

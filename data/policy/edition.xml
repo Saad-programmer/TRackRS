@@ -1,6 +1,0 @@
-<?xml version="1.0"?>
-<!-- Access policy, not a DRM boundary. full enables installed content and respects
-     championship unlocks; dev also bypasses championship locks. -->
-<edition mode="demo">
-  <stage path="/maps/ahead/ahead.level"/>
-</edition>

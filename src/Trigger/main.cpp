@@ -1,3 +1,4 @@
+#include "../../engine/application/edition_loader.h"
 // Creator: Saad AIT YAHIA - @github: Saad-programmer
 #include "exception.h"
 #include "main.h"
@@ -56,13 +57,15 @@ void MainApp::config()
         throw MakePException("Cannot mount CMake build-tree data directory");
 #endif
 
-    XMLDocument policyDocument;
-    auto* policy = PUtil::loadRootElement(policyDocument, "/policy/edition.xml", "edition");
-    if (!policy || !policy->Attribute("mode")) throw MakePException("Missing edition policy");
-    editionPolicy.edition = trackrs::EditionPolicy::parse(policy->Attribute("mode"));
-    editionPolicy.demoStages.clear();
-    for (auto* stage = policy->FirstChildElement("stage"); stage; stage = stage->NextSiblingElement("stage"))
-        if (const char* path = stage->Attribute("path")) editionPolicy.demoStages.insert(path);
+    std::unique_ptr<PHYSFS_File, decltype(&PHYSFS_close)> policyFile(
+        PHYSFS_openRead("/policy/edition.json"), &PHYSFS_close);
+    if (!policyFile) throw MakePException("Missing edition policy");
+    const auto policyLength = PHYSFS_fileLength(policyFile.get());
+    if (policyLength < 0 || policyLength > 65536) throw MakePException("Invalid edition policy size");
+    std::string policyText(static_cast<std::size_t>(policyLength), '\0');
+    if (PHYSFS_readBytes(policyFile.get(), policyText.data(), policyLength) != policyLength)
+        throw MakePException("Cannot read edition policy");
+    editionPolicy = trackrs::loadEditionPolicy(policyText);
 
     if (cfg.getCopydefplayers())
         copyDefaultPlayers();
@@ -572,6 +575,7 @@ void MainApp::loadCodrivername()
 
 void MainApp::reloadAll()
 {
+  setTextureAnisotropy(cfg.getAnisotropy());
   tex_codriversigns.clear();
   loadCodriversigns();
 

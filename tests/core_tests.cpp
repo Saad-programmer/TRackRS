@@ -93,11 +93,11 @@ TEST_CASE("edition rules use stable paths and respect championship locks") {
     CHECK_THROWS(trackrs::EditionPolicy::parse("unknown"));
 }
 TEST_CASE("render rotation handles antipodal quaternions without simulation writes") {
-    const std::array<float,4> a{0,0,0,1}, b{0,0,0,-1};
+    const glm::quat a(1,0,0,0), b(-1,0,0,0);
     CHECK(trackrs::interpolateRotation(a,b,.5f) == a);
-    const auto mid = trackrs::interpolateRotation(a,{0,0,1,0},.5f);
-    CHECK(mid[2] == doctest::Approx(.70710678f));
-    CHECK(mid[3] == doctest::Approx(.70710678f));
+    const auto mid = trackrs::interpolateRotation(a,glm::quat(0,0,0,1),.5f);
+    CHECK(mid.z == doctest::Approx(.70710678f));
+    CHECK(mid.w == doctest::Approx(.70710678f));
     CHECK(trackrs::interpolateRotation(a,b,-1) == a);
 }
 
@@ -111,4 +111,18 @@ TEST_CASE("state ownership tracks real transitions only") {
     CHECK(state.generation() == 1);
     state = trackrs::AppState::Race;
     CHECK(state.generation() == 2);
+}
+
+#include "engine/application/edition_loader.h"
+TEST_CASE("edition documents fail closed on malformed schema and paths") {
+    const auto policy = trackrs::loadEditionPolicy(R"({"schema":"trackrs.edition/1","mode":"full","demo_stages":[]})");
+    CHECK(policy.events());
+    CHECK_THROWS(trackrs::loadEditionPolicy("{}"));
+    CHECK_THROWS(trackrs::loadEditionPolicy(R"({"schema":"unknown","mode":"full","demo_stages":[]})"));
+    CHECK_THROWS(trackrs::loadEditionPolicy(R"({"schema":"trackrs.edition/1","mode":"demo","demo_stages":["../unsafe"]})"));
+    CHECK_THROWS(trackrs::loadEditionPolicy(R"({"schema":"trackrs.edition/1","mode":"demo","demo_stages":[1]})"));
+}
+
+TEST_CASE("edition stage lists require JSON arrays") {
+    CHECK_THROWS(trackrs::loadEditionPolicy(R"({"schema":"trackrs.edition/1","mode":"demo","demo_stages":"/maps/ahead/ahead.level"})"));
 }
