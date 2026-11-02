@@ -1,0 +1,23 @@
+Test project /workspace/TRackRS/build/linux-debug-asan
+    Start 1: core-primitives
+1/9 Test #1: core-primitives ..................   Passed    0.06 sec
+    Start 2: movie-decoder
+2/9 Test #2: movie-decoder ....................   Passed    0.16 sec
+    Start 3: validation-unit
+3/9 Test #3: validation-unit ..................   Passed    0.04 sec
+    Start 4: cli-help
+4/9 Test #4: cli-help .........................   Passed    0.05 sec
+    Start 5: cli-invalid
+5/9 Test #5: cli-invalid ......................   Passed    0.05 sec
+    Start 6: module-layering
+6/9 Test #6: module-layering ..................   Passed    0.15 sec
+    Start 7: legacy-content
+7/9 Test #7: legacy-content ...................   Passed    0.18 sec
+    Start 8: lsan-audit-policy
+8/9 Test #8: lsan-audit-policy ................   Passed    0.12 sec
+    Start 9: lsan-application-canary
+9/9 Test #9: lsan-application-canary ..........   Passed    0.09 sec
+
+100% tests passed, 0 tests failed out of 9
+
+Total Test time (real) =   0.92 sec

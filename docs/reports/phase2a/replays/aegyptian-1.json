@@ -1,0 +1,30 @@
+{
+  "schema": "trackrs.legacy-benchmark/1",
+  "stage": "/maps/aegyptian/aegyptian.level",
+  "vehicle": "evo_wrc",
+  "renderer": "llvmpipe (LLVM 19.1.7, 256 bits)",
+  "seed": 1000,
+  "ticks": 1500,
+  "step_seconds": 0.004,
+  "state_hash": "6ef69d2bfba26f27",
+  "samples": 1499,
+  "frame_ms_avg": 79.48656047,
+  "frame_ms_p99": 471.825276,
+  "frame_ms_p999": 814.429776,
+  "cpu_update_ms_avg": 0.0645976958,
+  "gpu_frame_ms_avg": 10.1559771,
+  "load_ms": 1374.260884,
+  "passes": {
+    "mesh_submit": { "calls": 7495, "cpu_ms_per_frame": 0.5831494196, "gpu_ms_per_frame": 0.1142264643 },
+    "particles": { "calls": 1499, "cpu_ms_per_frame": 0.02043337358, "gpu_ms_per_frame": 0.06224708672 },
+    "sky": { "calls": 1499, "cpu_ms_per_frame": 0.1445792635, "gpu_ms_per_frame": 0.08521046765 },
+    "terrain": { "calls": 1499, "cpu_ms_per_frame": 19.99181066, "gpu_ms_per_frame": 1.025019789 },
+    "ui_text": { "calls": 13991, "cpu_ms_per_frame": 0.4543097645, "gpu_ms_per_frame": 0.1647161528 },
+    "water": { "calls": 0, "cpu_ms_per_frame": 0, "gpu_ms_per_frame": null }
+  },
+  "draw_calls": 266.4036024,
+  "triangles": 465472.9019,
+  "vram_bytes": null,
+  "ram_peak_bytes": 434606080,
+  "measurement_notes": "Whole-frame and per-scope GPU queries perturb timings; scope queries are collected after the legacy frame fence. Loading frame excluded; no warmup exclusion. Draw calls and triangles are mean submitted primitives, including degenerates. VRAM is unavailable without a portable driver memory query; no estimate is fabricated."
+}

@@ -1,8 +1,8 @@
 # Phase 1 — defect purge
 
-Phase 1 implementation and local acceptance checks are complete. Phase 2 has not
-started. The final `phase-1-done` tag is created only after the final main-branch
-CI run passes.
+Phase 1 is accepted and tagged `phase-1-done` at `e7dba16`.
+Its final [main CI run](https://github.com/Saad-programmer/TRackRS/actions/runs/41422451771)
+passed. The requested audit below precedes the gated [Phase 2a report](PHASE_2A.md).
 
 Phase 0 closed at `18c75bd088a4d1116c11403edf826496916359ca`, with
 [green CI](https://github.com/Saad-programmer/TRackRS/actions/runs/41406279839)

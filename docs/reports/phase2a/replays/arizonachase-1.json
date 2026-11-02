@@ -1,0 +1,30 @@
+{
+  "schema": "trackrs.legacy-benchmark/1",
+  "stage": "/maps/arizonachase/arizonachase.level",
+  "vehicle": "fox_super500",
+  "renderer": "llvmpipe (LLVM 19.1.7, 256 bits)",
+  "seed": 1000,
+  "ticks": 1500,
+  "step_seconds": 0.004,
+  "state_hash": "722602d179d1ee7d",
+  "samples": 1499,
+  "frame_ms_avg": 27.45376695,
+  "frame_ms_p99": 63.167773,
+  "frame_ms_p999": 104.90835,
+  "cpu_update_ms_avg": 0.04101120414,
+  "gpu_frame_ms_avg": 2.42803061,
+  "load_ms": 1581.242563,
+  "passes": {
+    "mesh_submit": { "calls": 7495, "cpu_ms_per_frame": 0.4179212688, "gpu_ms_per_frame": 0.06471785924 },
+    "particles": { "calls": 1499, "cpu_ms_per_frame": 0.01076463242, "gpu_ms_per_frame": 0.003382488993 },
+    "sky": { "calls": 1499, "cpu_ms_per_frame": 0.1247531134, "gpu_ms_per_frame": 0.01545081721 },
+    "terrain": { "calls": 1499, "cpu_ms_per_frame": 12.17967244, "gpu_ms_per_frame": 0.3085709486 },
+    "ui_text": { "calls": 13991, "cpu_ms_per_frame": 0.4194533102, "gpu_ms_per_frame": 0.03084727885 },
+    "water": { "calls": 0, "cpu_ms_per_frame": 0, "gpu_ms_per_frame": null }
+  },
+  "draw_calls": 209.4096064,
+  "triangles": 425653.1301,
+  "vram_bytes": null,
+  "ram_peak_bytes": 451432448,
+  "measurement_notes": "Whole-frame and per-scope GPU queries perturb timings; scope queries are collected after the legacy frame fence. Loading frame excluded; no warmup exclusion. Draw calls and triangles are mean submitted primitives, including degenerates. VRAM is unavailable without a portable driver memory query; no estimate is fabricated."
+}

@@ -1,0 +1,50 @@
+[
+  {
+    "stage": "aegyptian",
+    "before_rgb_sha256": "7ecaf22b257a329bdcefe0786a1c482eacb3cd6e66086e1f20fb2bf2b744b2a4",
+    "after_rgb_sha256": "7ecaf22b257a329bdcefe0786a1c482eacb3cd6e66086e1f20fb2bf2b744b2a4",
+    "identical": true
+  },
+  {
+    "stage": "ahead",
+    "before_rgb_sha256": "39242d408d7c12230cb0d0cd0b4d6b53c97bbc08a3c46263866ff95c4f2ccd1e",
+    "after_rgb_sha256": "39242d408d7c12230cb0d0cd0b4d6b53c97bbc08a3c46263866ff95c4f2ccd1e",
+    "identical": true
+  },
+  {
+    "stage": "ancient",
+    "before_rgb_sha256": "c1c4a7160d076e45252a62819c7264b08a3fe28cf322113644d6342890f81d1b",
+    "after_rgb_sha256": "c1c4a7160d076e45252a62819c7264b08a3fe28cf322113644d6342890f81d1b",
+    "identical": true
+  },
+  {
+    "stage": "april",
+    "before_rgb_sha256": "b308259cea6f3bd32d794fdb81e1929ea12018ab5843eea9c40f4e9975154940",
+    "after_rgb_sha256": "b308259cea6f3bd32d794fdb81e1929ea12018ab5843eea9c40f4e9975154940",
+    "identical": true
+  },
+  {
+    "stage": "coastline",
+    "before_rgb_sha256": "21844e2fe616f0e9fb9ddbffd2ae0de416fe26a6d7555fa78022496b16465039",
+    "after_rgb_sha256": "21844e2fe616f0e9fb9ddbffd2ae0de416fe26a6d7555fa78022496b16465039",
+    "identical": true
+  },
+  {
+    "stage": "country",
+    "before_rgb_sha256": "636ff771e75c160c91d12481763379cffacd96372a6bead67616a8bfbf480dfa",
+    "after_rgb_sha256": "636ff771e75c160c91d12481763379cffacd96372a6bead67616a8bfbf480dfa",
+    "identical": true
+  },
+  {
+    "stage": "greenland",
+    "before_rgb_sha256": "a27e4e713f82d314c4596affb13c19fd402825db23393ca604681584e2cd3d1b",
+    "after_rgb_sha256": "a27e4e713f82d314c4596affb13c19fd402825db23393ca604681584e2cd3d1b",
+    "identical": true
+  },
+  {
+    "stage": "mudbath",
+    "before_rgb_sha256": "06dad63104439195a2ee4eb6864071e4a9ac3d538c1395b6797ee5bc180957c2",
+    "after_rgb_sha256": "06dad63104439195a2ee4eb6864071e4a9ac3d538c1395b6797ee5bc180957c2",
+    "identical": true
+  }
+]

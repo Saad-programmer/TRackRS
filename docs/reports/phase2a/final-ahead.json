@@ -1,0 +1,13 @@
+{
+  "schema": "trackrs.legacy-baselines/1",
+  "repeat_count": 2,
+  "scenarios": [
+    {
+      "stage": "ahead",
+      "vehicle": "cordo_kitcar",
+      "ticks": 1500,
+      "state_hash": "6c59e5730498f6bb",
+      "framebuffer_sha256": "39242d408d7c12230cb0d0cd0b4d6b53c97bbc08a3c46263866ff95c4f2ccd1e"
+    }
+  ]
+}

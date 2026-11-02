@@ -1,0 +1,30 @@
+{
+  "schema": "trackrs.legacy-benchmark/1",
+  "stage": "/maps/coastline/coastline.level",
+  "vehicle": "cordo_kitcar",
+  "renderer": "llvmpipe (LLVM 19.1.7, 256 bits)",
+  "seed": 1000,
+  "ticks": 1500,
+  "step_seconds": 0.004,
+  "state_hash": "6c1fc7772b1256fa",
+  "samples": 1499,
+  "frame_ms_avg": 24.24941468,
+  "frame_ms_p99": 84.05375,
+  "frame_ms_p999": 138.845616,
+  "cpu_update_ms_avg": 0.02985624149,
+  "gpu_frame_ms_avg": 3.040277454,
+  "load_ms": 1600.079329,
+  "passes": {
+    "mesh_submit": { "calls": 7495, "cpu_ms_per_frame": 0.3994266851, "gpu_ms_per_frame": 0.06279637825 },
+    "particles": { "calls": 1499, "cpu_ms_per_frame": 0.00878063976, "gpu_ms_per_frame": 0.003161297532 },
+    "sky": { "calls": 1499, "cpu_ms_per_frame": 0.1214595123, "gpu_ms_per_frame": 0.01355621147 },
+    "terrain": { "calls": 1499, "cpu_ms_per_frame": 5.97005783, "gpu_ms_per_frame": 0.4065184576 },
+    "ui_text": { "calls": 13991, "cpu_ms_per_frame": 0.3439135837, "gpu_ms_per_frame": 0.01577087592 },
+    "water": { "calls": 1499, "cpu_ms_per_frame": 0.410509499, "gpu_ms_per_frame": 0.02726731087 }
+  },
+  "draw_calls": 360.3682455,
+  "triangles": 146539.0807,
+  "vram_bytes": null,
+  "ram_peak_bytes": 441860096,
+  "measurement_notes": "Whole-frame and per-scope GPU queries perturb timings; scope queries are collected after the legacy frame fence. Loading frame excluded; no warmup exclusion. Draw calls and triangles are mean submitted primitives, including degenerates. VRAM is unavailable without a portable driver memory query; no estimate is fabricated."
+}

@@ -1,0 +1,30 @@
+{
+  "schema": "trackrs.legacy-benchmark/1",
+  "stage": "/maps/mudbath/mudbath.level",
+  "vehicle": "fox_super500",
+  "renderer": "llvmpipe (LLVM 19.1.7, 256 bits)",
+  "seed": 1000,
+  "ticks": 1250,
+  "step_seconds": 0.004,
+  "state_hash": "db012aa29e458299",
+  "samples": 1249,
+  "frame_ms_avg": 36.24848992,
+  "frame_ms_p99": 88.271729,
+  "frame_ms_p999": 203.57615,
+  "cpu_update_ms_avg": 0.04957182706,
+  "gpu_frame_ms_avg": 2.463628849,
+  "load_ms": 1405.909578,
+  "passes": {
+    "mesh_submit": { "calls": 6245, "cpu_ms_per_frame": 0.714336996, "gpu_ms_per_frame": 0.05884926261 },
+    "particles": { "calls": 1249, "cpu_ms_per_frame": 0.008573211369, "gpu_ms_per_frame": 0.0006199407526 },
+    "sky": { "calls": 1249, "cpu_ms_per_frame": 0.1257790456, "gpu_ms_per_frame": 0.009794785428 },
+    "terrain": { "calls": 1249, "cpu_ms_per_frame": 14.7508535, "gpu_ms_per_frame": 0.3584231233 },
+    "ui_text": { "calls": 11990, "cpu_ms_per_frame": 0.4487807526, "gpu_ms_per_frame": 0.02750323139 },
+    "water": { "calls": 1249, "cpu_ms_per_frame": 0.2903880176, "gpu_ms_per_frame": 0.0354832538 }
+  },
+  "draw_calls": 775.5140112,
+  "triangles": 280324.9784,
+  "vram_bytes": null,
+  "ram_peak_bytes": 436260864,
+  "measurement_notes": "Whole-frame and per-scope GPU queries perturb timings; scope queries are collected after the legacy frame fence. Loading frame excluded; no warmup exclusion. Draw calls and triangles are mean submitted primitives, including degenerates. VRAM is unavailable without a portable driver memory query; no estimate is fabricated."
+}
