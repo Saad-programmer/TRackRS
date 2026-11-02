@@ -5,6 +5,8 @@
 #include <chrono>
 #include <cmath>
 #include <fstream>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
 #include <iterator>
 #include <stdexcept>
 #include <thread>
@@ -59,6 +61,20 @@ void coreRenderTests(const std::filesystem::path &shaders) {
             "UI transforms/colors failed to batch");
     require(pixel(16, 32)[0] == 255 && pixel(48, 32)[1] == 255,
             "UI batch transform/color pixels changed");
+    clear(GL_COLOR_BUFFER_BIT);
+    color(1, 0, 0);
+    quad(-1, 1);
+    drawBuffer(GL_FRONT);
+    glReadBuffer(GL_BACK);
+    require(pixel(32, 32)[0] == 255,
+            "draw-buffer switch moved a pending batch to the wrong buffer");
+    drawBuffer(GL_BACK);
+    worldSpace(true);
+    color(0, 0, 1);
+    quad(-1, 1);
+    worldSpace(false);
+    require(pixel(32, 32)[2] == 255,
+            "GPU-transformed stream lost per-vertex color");
     std::vector<MeshVertex> vertices = {
         {{-1, -1, 0}, {0, 0, 1}, {0, 0}}, {{1, -1, 0}, {0, 0, 1}, {1, 0}},
         {{1, 1, 0}, {0, 0, 1}, {1, 1}},   {{-1, -1, 0}, {0, 0, 1}, {0, 0}},
@@ -119,6 +135,56 @@ void coreRenderTests(const std::filesystem::path &shaders) {
               "basic directional lighting incorrect");
       disable(Lighting);
     }
+    matrix(Projection);
+    identity();
+    matrix(View);
+    identity();
+    // A projected shadow and retained terrain sharing a plane must have
+    // identical GPU depth arithmetic, even far from the world origin.
+    matrix(Projection);
+    identity();
+    frustum(-.1, .1, -.1, .1, .1, 1000);
+    matrix(View);
+    identity();
+    const auto camera =
+        glm::lookAt(glm::vec3(1024.25f, -2048.5f, 10),
+                    glm::vec3(1024.75f, -2047.2f, 0), glm::vec3(0, 0, 1));
+    multiply(glm::value_ptr(camera));
+    std::vector<MeshVertex> plane = {{{1020, -2052, 0}, {0, 0, 1}, {0, 0}},
+                                     {{1029, -2052, 0}, {0, 0, 1}, {1, 0}},
+                                     {{1029, -2043, 0}, {0, 0, 1}, {1, 1}},
+                                     {{1020, -2052, 0}, {0, 0, 1}, {0, 0}},
+                                     {{1029, -2043, 0}, {0, 0, 1}, {1, 1}},
+                                     {{1020, -2043, 0}, {0, 0, 1}, {0, 1}}};
+    enable(GL_DEPTH_TEST);
+    depthFunc(GL_LEQUAL);
+    clear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    color(1, 0, 0);
+    {
+      Mesh terrain(plane);
+      terrain.draw();
+      std::vector<unsigned char> before(64 * 64 * 4), after(before.size());
+      glReadPixels(0, 0, 64, 64, GL_RGBA, GL_UNSIGNED_BYTE, before.data());
+      worldSpace(true);
+      color(0, 1, 0);
+      begin(Quads);
+      vertex(1020, -2052, 0);
+      vertex(1029, -2052, 0);
+      vertex(1029, -2043, 0);
+      vertex(1020, -2043, 0);
+      end();
+      worldSpace(false);
+      glReadPixels(0, 0, 64, 64, GL_RGBA, GL_UNSIGNED_BYTE, after.data());
+      int covered = 0;
+      for (std::size_t i = 0; i < before.size(); i += 4)
+        if (before[i] > 128) {
+          ++covered;
+          require(after[i + 1] > 250, "coplanar GPU shadow failed LEQUAL depth "
+                                      "against retained terrain");
+        }
+      require(covered > 100, "coplanar depth test did no work");
+    }
+    disable(GL_DEPTH_TEST);
     matrix(Projection);
     identity();
     matrix(View);

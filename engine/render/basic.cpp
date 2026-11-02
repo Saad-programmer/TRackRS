@@ -29,7 +29,8 @@ struct State {
       materialSpecular{0, 0, 0, 1};
   glm::vec3 normal{0, 0, 1};
   glm::vec2 uv{0};
-  bool lighting = false, fog = false, alpha = false, twoSided = false;
+  bool lighting = false, fog = false, alpha = false, twoSided = false,
+       worldSpace = false;
   float density = 1, shininess = 0, alphaReference = 0, pointSize = 1;
   unsigned alphaFunction = GL_ALWAYS;
 };
@@ -103,11 +104,12 @@ void uniform(GLuint p, const char *name, const glm::mat4 &value) {
   glUniformMatrix4fv(glGetUniformLocation(p, name), 1, GL_FALSE,
                      glm::value_ptr(value));
 }
-void prepare(GLuint p, bool baked) {
+void prepare(GLuint p, bool baked, bool streamed = false) {
   auto &a = r();
   auto &s = a.state;
   a.cache.program(p);
   uniform(p, "uBaked", int(baked));
+  uniform(p, "uStream", int(baked || streamed));
   uniform(p, "uView", s.view.back());
   uniform(p, "uProjection", s.projection.back());
   uniform(p, "uColor", s.color);
@@ -213,7 +215,7 @@ void flush() {
   auto &a = r();
   if (a.batch.empty())
     return;
-  prepare(a.basic->id(), true);
+  prepare(a.basic->id(), !a.state.worldSpace, true);
   a.cache.vertexArray(a.streamVao);
   glBindBuffer(GL_ARRAY_BUFFER, a.streamBuffer);
   glBufferData(GL_ARRAY_BUFFER,
@@ -222,6 +224,22 @@ void flush() {
   glDrawArrays(a.batchTopology, 0, static_cast<GLsizei>(a.batch.size()));
   measured({a.batchTopology, a.batch.size()});
   a.batch.clear();
+}
+void worldSpace(bool enabled) {
+  flush();
+  r().state.worldSpace = enabled;
+}
+void beforeTransform() {
+  if (r().state.worldSpace && r().state.mode != TextureTransform)
+    flush();
+}
+void finish() {
+  flush();
+  glFinish();
+}
+void drawBuffer(unsigned buffer) {
+  flush();
+  glDrawBuffer(buffer);
 }
 void beginBufferUpload() {
   flush();
@@ -300,9 +318,12 @@ void vertex(float x, float y, float z) {
   auto &s = a.state;
   const glm::vec4 object(x, y, z, 1), eye = s.view.back() * object;
   StreamVertex v{};
-  v.position = s.projection.back() * eye;
+  v.position = s.worldSpace ? object : s.projection.back() * eye;
   v.eye = glm::vec3(eye);
-  v.normal = glm::transpose(glm::inverse(glm::mat3(s.view.back()))) * s.normal;
+  v.normal =
+      s.worldSpace
+          ? s.normal
+          : glm::transpose(glm::inverse(glm::mat3(s.view.back()))) * s.normal;
   v.color = s.color;
   for (unsigned i = 0; i < 2; ++i) {
     auto &t = s.textures[i];
@@ -329,29 +350,42 @@ void colorBytes(unsigned char x, unsigned char y, unsigned char z) {
   color(float(x) / 255, float(y) / 255, float(z) / 255);
 }
 void matrix(unsigned mode) { r().state.mode = mode; }
-void identity() { matrices().back() = glm::mat4(1); }
+void beforeTransform();
+void identity() {
+  beforeTransform();
+  matrices().back() = glm::mat4(1);
+}
 void push() { matrices().push_back(matrices().back()); }
 void pop() {
+  beforeTransform();
   auto &m = matrices();
   if (m.size() < 2)
     throw std::logic_error("transform stack underflow");
   m.pop_back();
 }
-void multiply(const float *p) { matrices().back() *= glm::make_mat4(p); }
+void multiply(const float *p) {
+  beforeTransform();
+  matrices().back() *= glm::make_mat4(p);
+}
 void translate(float x, float y, float z) {
+  beforeTransform();
   matrices().back() = glm::translate(matrices().back(), {x, y, z});
 }
 void scale(float x, float y, float z) {
+  beforeTransform();
   matrices().back() = glm::scale(matrices().back(), {x, y, z});
 }
 void rotate(float a, float x, float y, float z) {
+  beforeTransform();
   matrices().back() = glm::rotate(matrices().back(), glm::radians(a),
                                   glm::normalize(glm::vec3(x, y, z)));
 }
 void ortho(double l, double rr, double b, double t, double n, double f) {
+  beforeTransform();
   matrices().back() *= glm::mat4(glm::ortho(l, rr, b, t, n, f));
 }
 void frustum(double l, double rr, double b, double t, double n, double f) {
+  beforeTransform();
   matrices().back() *= glm::mat4(glm::frustum(l, rr, b, t, n, f));
 }
 void read(unsigned property, float *out) {

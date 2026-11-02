@@ -85,6 +85,8 @@ void MainApp::renderWater()
     trackrs::draw::scale(20.0,20.0,1.0);
     trackrs::draw::blend(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
     trackrs::draw::enable(GL_BLEND);
+    // Keep coplanar terrain/water depth arithmetic on the GPU.
+    trackrs::draw::worldSpace(true);
     {
         int minx = (int)(campos.x / 20.0)-20,
             maxx = minx + 40,
@@ -124,6 +126,7 @@ void MainApp::renderWater()
             trackrs::draw::end();
         }
     }
+    trackrs::draw::worldSpace(false);
     trackrs::draw::pop();
     trackrs::draw::blend(GL_ONE,GL_ZERO);
 
@@ -197,7 +200,7 @@ void MainApp::render(float eyetranslation)
             break;
     }
 
-    glFinish();
+    trackrs::draw::finish();
 }
 
 void MainApp::renderStateLoading(float eyetranslation)

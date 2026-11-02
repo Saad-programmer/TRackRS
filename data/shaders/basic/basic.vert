@@ -8,7 +8,7 @@ layout(location=5) in vec2 aUv1;
 layout(location=6) in float aSdf;
 layout(std140) uniform Frame { mat4 uViewProjection; };
 uniform mat4 uView,uProjection,uTextureMatrix0,uTextureMatrix1;
-uniform bool uBaked,uLighting,uGenerate0,uGenerate1;
+uniform bool uBaked,uStream,uLighting,uGenerate0,uGenerate1;
 uniform vec4 uColor,uAmbient,uDiffuse,uSpecular,uLight,uMaterial,uMaterialSpecular;
 uniform vec4 uPlaneS0,uPlaneT0,uPlaneS1,uPlaneT1;
 uniform float uShininess,uPointSize;
@@ -28,10 +28,10 @@ void main(){
   gl_Position=uBaked?aPosition:uViewProjection*aPosition;
   gl_PointSize=uPointSize;
   vec3 n=normalize(uBaked?aNormal:transpose(inverse(mat3(uView)))*aNormal);
-  vColor=uLighting?illuminate(n,eye.xyz):(uBaked?aColor:uColor);
+  vColor=uLighting?illuminate(n,eye.xyz):(uStream?aColor:uColor);
   vBackColor=uLighting?illuminate(-n,eye.xyz):vColor;
   vFog=abs(eye.z);
-  vUv0=uBaked?aUv0:(uTextureMatrix0*(uGenerate0?vec4(dot(uPlaneS0,aPosition),dot(uPlaneT0,aPosition),0,1):vec4(aUv0,0,1))).xy;
-  vUv1=uBaked?aUv1:(uTextureMatrix1*(uGenerate1?vec4(dot(uPlaneS1,aPosition),dot(uPlaneT1,aPosition),0,1):vec4(aUv0,0,1))).xy;
-  vSdf=uBaked?aSdf:(uSdf?1.0:0.0);
+  vUv0=uStream?aUv0:(uTextureMatrix0*(uGenerate0?vec4(dot(uPlaneS0,aPosition),dot(uPlaneT0,aPosition),0,1):vec4(aUv0,0,1))).xy;
+  vUv1=uStream?aUv1:(uTextureMatrix1*(uGenerate1?vec4(dot(uPlaneS1,aPosition),dot(uPlaneT1,aPosition),0,1):vec4(aUv0,0,1))).xy;
+  vSdf=uStream?aSdf:(uSdf?1.0:0.0);
 }

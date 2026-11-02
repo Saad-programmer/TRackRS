@@ -926,6 +926,8 @@ void PTerrain::drawSplat(float x, float y, float scale, float angle)
   int maxx = (int)(x + scale) + 2;
   if ((x + scale) < 0.0f) maxx--;
 
+  // Coplanar shadows must use the same GPU depth arithmetic as terrain.
+  trackrs::draw::worldSpace(true);
   trackrs::draw::matrix(trackrs::draw::TextureTransform);
 
   trackrs::draw::push();
@@ -950,6 +952,7 @@ void PTerrain::drawSplat(float x, float y, float scale, float angle)
     }
     trackrs::draw::end();
   }
+  trackrs::draw::worldSpace(false);
   trackrs::draw::pop();
 
   trackrs::draw::matrix(trackrs::draw::View);

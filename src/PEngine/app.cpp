@@ -709,7 +709,7 @@ int PApp::run(int argc, char *argv[])
         if (validationQuery) glEndQuery(GL_TIME_ELAPSED);
         presentFrame();
         if (validationWasStarted) {
-          // MainApp's existing glFinish has completed this frame. Collect all
+          // MainApp's core batch drain/fence has completed this frame. Collect all
           // pass timestamps here rather than stalling after each scope.
           for (const auto& query : validation::run.queries) {
             GLuint64 a = 0, b = 0;
@@ -741,10 +741,10 @@ int PApp::run(int argc, char *argv[])
         
       case StereoQuadBuffer: // Hardware quad buffer stereo
         
-        glDrawBuffer(GL_BACK_LEFT);
+        trackrs::draw::drawBuffer(GL_BACK_LEFT);
         render(-stereoEyeTranslation);
         
-        glDrawBuffer(GL_BACK_RIGHT);
+        trackrs::draw::drawBuffer(GL_BACK_RIGHT);
         render(stereoEyeTranslation);
         
         presentFrame();

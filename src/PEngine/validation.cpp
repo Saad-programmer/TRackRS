@@ -170,7 +170,7 @@ void writeResults() {
     out << "null";
 #endif
     out << ",\n  \"measurement_notes\": \"Whole-frame and per-scope GPU queries perturb timings; "
-        << "scope queries are collected after the legacy frame fence. Loading frame excluded; no warmup exclusion. "
+        << "scope queries are collected after the core batch fence. Loading frame excluded; no warmup exclusion. "
         << "Draw calls and triangles are mean submitted primitives, including degenerates. "
         << "VRAM is unavailable without a portable driver memory query; no estimate is fabricated.\"\n}\n";
     save(run.options.json, out.str());
