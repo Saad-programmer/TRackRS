@@ -71,3 +71,9 @@ car/HUD/particles and terrain are present, with the intentional new terrain
 appearance. Mean draws/triangles fall from 217/477,008 to 198/260,663; software
 frame time rises from 67.70 to 259.35 ms. This is a geometry improvement and a
 software timing regression, not a claim of hardware frame-budget compliance.
+
+Final software-policy checks are in `checkpoints/policy-*`: both CPU suites,
+strict lint, native ASan/UBSan PBR/IBL and terrain integration pass. Validation
+explicitly disables automatic video mode before applying dimensions; release
+and sanitized 640×480 captures pass on a deliberately different 1024×768
+desktop (`viewport-release.json`, `policy-terrain-asan.json`).

@@ -52,3 +52,9 @@ The native-BC 1500-tick 1080p experiment exceeded the practical software-run bud
 
 ## Final isolated moving/visual item completed
 Final software-decoded1080pHigh120tick pairs Ahead/Country/Glacier pass same-state checks and geometry budgets; reviewed sheet and raw pass metrics are in reports/phase3a/benchmark. Full1500tick Ahead pair also passes accepted6c59e5730498f6bb; moving comparison reviewed, rawtables/images in moving. Mean217draws477008tris→198draws260663tris; software67.70→259.35ms/frame, documented regression and hardware caveat. Alloldgoldens unchanged. Freshprobequality costs and native policy sanitizer/targetedlint are running. No3b.
+
+## Final policy tests / viewport regression
+Refreshed software32/128probe costs pushed. CPU release13/13 andnativeASan14/14 pass; changedTextureStream/terrain files strictclang-tidypass. NativePBR GPU/IBLfurnace+terrainGPUtests,preview and300tick PBRcar integration pass withsoftwarestreamer policy. A second terrainrunner attempt correctly REJECTED1280x1024image when640x480requested: automaticVideo could overridevalidationdimensions. Fixed validation startup todisableautomaticVideo explicitly before applyingviewport. Native rerun uses1024x768desktop/requested640x480 toprovethis; pending. Existing1080pbenchmarkPNGs already verified1920x1080. No goldenupdated; no3b.
+
+## Final local gate checks complete
+Viewport regression passes on final release AND nativeASan/UBSan with1024x768desktop/640x480requested: Ahead/Glacier old/newhashesmatch, High128probe casepasses. Finalpolicy-terrain-asan.json andviewport-release.json preserveevidence. Allrequiredlocalcheckscomplete; nofurtherimplementation changes planned. CandidateCI must pass, thenpreservemainupdates, mergeandverifyfinalmainCI, tagphase-3a-doneandstop. No3b/c/d.

@@ -1,0 +1,10 @@
+[1/2] Processing file /workspace/TRackRS/engine/pbr/texture_stream.cpp.
+29093 warnings generated.
+[2/2] Processing file /workspace/TRackRS/engine/pbr/texture_stream.cpp.
+58185 warnings generated.
+[3/2] Processing file /workspace/TRackRS/engine/terrain/renderer.cpp.
+92679 warnings generated.
+[4/2] Processing file /workspace/TRackRS/engine/terrain/renderer.cpp.
+127173 warnings generated.
+Suppressed 127197 warnings (127172 in non-user code, 24 NOLINT, 1 with check filters).
+Use -header-filter=.* to display errors from all non-system headers. Use -system-headers to display errors from system headers as well.
