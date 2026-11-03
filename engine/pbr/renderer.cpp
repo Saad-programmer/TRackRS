@@ -2,6 +2,7 @@
 #include "renderer.h"
 #include "engine/render/basic.h"
 #include "engine/rhi/rhi.h"
+#include "engine/world/state.h"
 #include "texture_stream.h"
 #include "validation.h"
 #include <SDL2/SDL_image.h>
@@ -442,6 +443,7 @@ Statistics Model::draw(const Frame &frame, const std::vector<glm::mat4> &models,
                             (coverage ? 4u : 0u) |
                             (frame.shadows.texture ? 8u : 0u));
     glUseProgram(p);
+    world::apply(p, glm::inverse(worldView), world::state().scene);
     glUniformMatrix4fv(glGetUniformLocation(p, "uViewProj"), 1, GL_FALSE,
                        glm::value_ptr(frame.viewProjection));
     vector(p, "uCamPos", frame.camera);
@@ -613,6 +615,11 @@ bool Model::drawCurrentInstances(const std::vector<glm::mat4> &models,
   frame.lights = currentHeadlights;
   frame.sunDirection = glm::vec3(.2f, .5f, 1);
   frame.camera = glm::vec3(0);
+  if (world::state().settings.enabled) {
+    frame.sunDirection = glm::mat3(worldView) * world::state().sun.direction;
+    frame.sunRadiance = world::state().sun.radiance;
+    frame.ambient = world::state().sun.ambient;
+  }
   if (!runtimeIbl) {
     auto directory =
         shaderRoot.parent_path().parent_path() / "scenes/material_preview/ibl";
@@ -628,20 +635,24 @@ bool Model::drawCurrentInstances(const std::vector<glm::mat4> &models,
         glm::mat3(glm::rotate(glm::mat4(1), glm::radians(-90.f),
                               glm::vec3(1, 0, 0))) *
         frame.probeRotation;
-    if (runtimeIbl->ready()) {
+    if (world::state().settings.enabled)
+      frame.environmentRotation = frame.probeRotation;
+    if (runtimeIbl->ready() && !world::state().depthPass) {
       const auto resolution = carProbeResolution(renderQuality);
       if (!runtimeProbe || runtimeProbeSize != resolution) {
         runtimeProbe =
             std::make_unique<ReflectionProbe>(shaderRoot, resolution);
         runtimeProbeSize = resolution;
       }
-      if (!probeAttemptedThisFrame) {
+      if (!probeAttemptedThisFrame && !world::state().depthPass) {
         probeAttemptedThisFrame = true;
         runtimeProbe->update(
             *runtimeIbl, glm::vec3(inverse * glm::vec4(currentCarCenter, 1)),
             probeScene,
-            glm::mat3(glm::rotate(glm::mat4(1), glm::radians(-90.f),
-                                  glm::vec3(1, 0, 0))));
+            world::state().settings.enabled
+                ? glm::mat3(1)
+                : glm::mat3(glm::rotate(glm::mat4(1), glm::radians(-90.f),
+                                        glm::vec3(1, 0, 0))));
       }
       frame.reflectionProbe = runtimeProbe->texture();
       frame.probeMaxLod = runtimeProbe->maxLod();

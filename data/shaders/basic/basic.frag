@@ -1,4 +1,6 @@
 #version 330 core
+in vec3 vSceneEye,vSceneNormal;
+#include "../world/scene.glsl"
 in vec4 vColor,vBackColor;
 in vec2 vUv0,vUv1;
 in float vFog,vSdf;
@@ -27,6 +29,15 @@ void main(){
  }
  if(uTextured1){vec4 detail=texture(uTexture1,vUv1);color=vec4(clamp(color.rgb+detail.rgb-.5,0.0,1.0),color.a*detail.a);}
  if(!passes(color.a))discard;
- if(uFog)color.rgb=mix(uFogColor.rgb,color.rgb,clamp(exp(-uDensity*vFog),0.0,1.0));
+ if(uDepthOnly){outColor=vec4(0);return;}
+ if(uSceneEnabled){
+  vec3 world=(uSceneFromLocal*vec4(vSceneEye,1)).xyz;
+  vec3 normal=normalize(mat3(uSceneFromLocal)*vSceneNormal);
+  float visibility=sceneVisibility(world,normal);
+  vec3 light=uSceneAmbient+uSolarRadiance*(max(dot(normal,uSolarDirection),0.)*visibility/3.14159265);
+  vec3 c=sceneFog(pow(max(color.rgb,vec3(0)),vec3(2.2))*light,world);
+  c=clamp((c*(2.51*c+.03))/(c*(2.43*c+.59)+.14),0.,1.);
+  color.rgb=pow(c,vec3(1./2.2));
+ }else if(uFog)color.rgb=mix(uFogColor.rgb,color.rgb,clamp(exp(-uDensity*vFog),0.0,1.0));
  outColor=color;
 }

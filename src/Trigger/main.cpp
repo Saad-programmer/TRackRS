@@ -22,6 +22,8 @@ void MainApp::config()
     cfg.loadConfig();
     if(!validation::run.options.quality.empty())cfg.setRenderQuality(trackrs::parseQuality(validation::run.options.quality));
     if(!validation::run.options.renderer.empty())cfg.setPbrTerrain(validation::run.options.renderer=="pbr");
+    if(!validation::run.options.timeOfDay.empty())cfg.setTimeOfDay(validation::run.options.timeOfDay);
+    if(!validation::run.options.shadows.empty())cfg.setCsm(validation::run.options.shadows=="csm");
     setTextureAnisotropy(cfg.getAnisotropy());
     setScreenMode(cfg.getVideoCx(), cfg.getVideoCy(), cfg.getVideoFullscreen());
     if (validation::run.options.enabled) {
@@ -1646,7 +1648,7 @@ int main(int argc, char *argv[])
             validation::run.draws.reserve(validation::run.options.frames);
             validation::run.triangles.reserve(validation::run.options.frames);
             validation::run.queries.reserve(128);
-            for (const char* name : {"terrain", "terrain_probe", "sky", "water", "mesh_submit", "particles", "ui_text"}) {
+            for (const char* name : {"terrain", "terrain_probe", "sky", "water", "mesh_submit", "particles", "ui_text", "sky_ibl_bake", "shadow_terrain", "shadow_cascade_0", "shadow_cascade_1", "shadow_cascade_2", "shadow_cascade_3"}) {
                 auto& pass = validation::run.passes[name];
                 pass.cpu.reserve(validation::run.options.frames * 32);
                 pass.gpu.reserve(validation::run.options.frames * 32);

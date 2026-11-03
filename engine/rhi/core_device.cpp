@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 #include "core_device.h"
+#include "engine/world/renderer.h"
 #include "../render/basic.h"
 #include "../pbr/renderer.h"
 #include <cstdio>
@@ -11,6 +12,7 @@ struct CoreDevice::Impl {
   DebugMessages debug;
   Impl(SDL_Window *w, SDL_GLContext c) : window(w), context(c) {}
   ~Impl() {
+    world::shutdown();
     pbr::shutdown();
     draw::shutdown();
     glDebugMessageCallback(nullptr, nullptr);

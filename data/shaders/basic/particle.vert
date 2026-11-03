@@ -10,6 +10,7 @@ layout(std140) uniform Frame { mat4 uViewProjection; };
 uniform mat4 uView;
 uniform bool uPoints;
 uniform float uPointSize;
+out vec3 vSceneEye,vSceneNormal;
 out vec4 vColor,vBackColor;
 out vec2 vUv0,vUv1;
 out float vFog,vSdf;
@@ -23,5 +24,6 @@ void main(){
  vec2 uvCorner=corner*.5+.5;
  if(swapUv>.5)uvCorner=uvCorner.yx;
  vUv0=mix(uvRect.xy,uvRect.zw,uvCorner);vUv1=vUv0;
+ vSceneEye=(uView*position).xyz;vSceneNormal=vec3(0,0,1);
  vFog=abs((uView*position).z);vSdf=0.0;
 }

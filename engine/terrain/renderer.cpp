@@ -4,6 +4,7 @@
 #include "engine/pbr/renderer.h"
 #include "engine/render/basic.h"
 #include "engine/rhi/rhi.h"
+#include "engine/world/state.h"
 #include <algorithm>
 #include <array>
 #include <fstream>
@@ -83,7 +84,7 @@ void vector(GLuint p, const char *name, glm::vec3 value) {
 void configure(Settings settings) { current = settings; }
 Settings settings() { return current; }
 struct Renderer::Impl {
-  std::unique_ptr<rhi::ShaderProgram> shader;
+  std::unique_ptr<rhi::ShaderProgram> shader, depthShader;
   std::shared_ptr<pbr::TextureStream> stream;
   std::array<std::shared_ptr<pbr::StreamedTexture>, 3> maps;
   std::unique_ptr<pbr::Ibl> environment;
@@ -124,6 +125,9 @@ Renderer::Renderer(const std::vector<float> &heights, unsigned size,
                glGetUniformLocation(program, "uTerrainTypes") >= 0;
       },
       std::vector<std::string>{"TERRAIN"});
+  p.depthShader = std::make_unique<rhi::ShaderProgram>(
+      data / "shaders/pbr/terrain.vert", data / "shaders/world/depth.frag",
+      [](GLuint id) { return glGetUniformLocation(id, "uHeight") >= 0; });
   p.stream = pbr::textureStream();
   constexpr std::array<const char *, 9> names = {"tarmac", "gravel", "dirt",
                                                  "grass",  "sand",   "snow",
@@ -230,8 +234,10 @@ std::size_t Renderer::draw(glm::vec3 camera, const glm::mat4 &vp, bool capture,
     p.selected = selection;
     activeRenderer = this;
   }
-  auto program = p.shader->id();
+  auto program =
+      world::state().depthPass ? p.depthShader->id() : p.shader->id();
   glUseProgram(program);
+  world::apply(program, glm::mat4(1), world::state().scene);
   glBindVertexArray(p.vao);
   glEnable(GL_DEPTH_TEST);
   glDepthMask(GL_TRUE);
@@ -246,9 +252,16 @@ std::size_t Renderer::draw(glm::vec3 camera, const glm::mat4 &vp, bool capture,
   glUniformMatrix4fv(glGetUniformLocation(program, "uViewProjection"), 1,
                      GL_FALSE, glm::value_ptr(vp));
   vector(program, "uCamPos", camera);
-  vector(program, "uSunDir", glm::normalize(glm::vec3(.2f, .5f, 1)));
-  vector(program, "uSunColor", glm::vec3(3));
-  vector(program, "uAmbientColor", glm::vec3(.08f));
+  vector(program, "uSunDir",
+         world::state().settings.enabled
+             ? world::state().sun.direction
+             : glm::normalize(glm::vec3(.2f, .5f, 1)));
+  vector(program, "uSunColor",
+         world::state().settings.enabled ? world::state().sun.radiance
+                                         : glm::vec3(3));
+  vector(program, "uAmbientColor",
+         world::state().settings.enabled ? world::state().sun.ambient
+                                         : glm::vec3(.08f));
   scalar(program, "uWorldPeriod", static_cast<float>(p.size) * p.spacing);
   scalar(program, "uAOStrength", 1);
   integer(program, "uPointLightCount", 0);
@@ -283,8 +296,10 @@ std::size_t Renderer::draw(glm::vec3 camera, const glm::mat4 &vp, bool capture,
     scalar(program, "uPrefilterMaxLod", p.environment->maxLod());
     auto rotate = glm::mat3(
         glm::rotate(glm::mat4(1), glm::radians(-90.f), glm::vec3(1, 0, 0)));
-    glUniformMatrix3fv(glGetUniformLocation(program, "uEnvironmentRotation"), 1,
-                       GL_FALSE, glm::value_ptr(rotate));
+    glUniformMatrix3fv(
+        glGetUniformLocation(program, "uEnvironmentRotation"), 1, GL_FALSE,
+        glm::value_ptr(world::state().settings.enabled ? glm::mat3(1)
+                                                       : rotate));
   }
   for (const auto &patch : selection.patches) {
     glUniform4f(glGetUniformLocation(program, "uPatch"),

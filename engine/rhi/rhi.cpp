@@ -223,14 +223,19 @@ bool ShaderProgram::poll(bool force) {
     watched_[std::filesystem::weakly_canonical(vertex_)] = modified(vertex_);
     watched_[std::filesystem::weakly_canonical(fragment_)] =
         modified(fragment_);
-    if (std::filesystem::weakly_canonical(vertex_.parent_path()) !=
-        std::filesystem::weakly_canonical(fragment_.parent_path()))
-      throw std::runtime_error("shader stages require one source directory");
-    SourceLoader loader{
-        std::filesystem::weakly_canonical(vertex_.parent_path()),
-        watched_,
-        {},
-        0};
+    auto sourceRoot = std::filesystem::weakly_canonical(vertex_.parent_path());
+    // Built-in stages share bounded includes across shaders/basic,pbr,world.
+    // Arbitrary tool/test directories retain the original single-folder
+    // sandbox.
+    if (sourceRoot.parent_path().filename() == "shaders")
+      sourceRoot = sourceRoot.parent_path();
+    auto fragmentRelative =
+        std::filesystem::weakly_canonical(fragment_).lexically_relative(
+            sourceRoot);
+    if (fragmentRelative.empty() || fragmentRelative.is_absolute() ||
+        *fragmentRelative.begin() == "..")
+      throw std::runtime_error("shader stages require one source tree");
+    SourceLoader loader{sourceRoot, watched_, {}, 0};
     const auto vertex = permutation(loader.load(vertex_), defines_);
     const auto fragment = permutation(loader.load(fragment_), defines_);
     struct FreshProgram {

@@ -2,6 +2,7 @@
 #include "../../engine/core/interpolation.h"
 #include "validation.h"
 #include "engine/pbr/renderer.h"
+#include "engine/world/renderer.h"
 #include <glm/gtc/type_ptr.hpp>
 // Creator: Saad AIT YAHIA - @github: Saad-programmer
 #include "damage.h"
@@ -139,6 +140,10 @@ void MainApp::renderWater()
 void MainApp::renderSky(const mat44f &cammat)
 {
     validation::PassScope timing("sky");
+    if(cfg.getPbrTerrain()){
+      glm::mat4 projection,view;trackrs::draw::read(trackrs::draw::ProjectionMatrix,glm::value_ptr(projection));trackrs::draw::read(trackrs::draw::ViewMatrix,glm::value_ptr(view));
+      trackrs::world::drawSky(projection,view,{campos.x,campos.y,campos.z});return;
+    }
     trackrs::draw::fog(trackrs::draw::FogDensity, game->weather.fog.density_sky);
     trackrs::draw::depthRange(0.999,1.0);
     trackrs::draw::disable(GL_CULL_FACE);
@@ -812,65 +817,23 @@ void MainApp::renderStateGame(float eyetranslation)
     trackrs::draw::translate(-campos.x, -campos.y, -campos.z);
     glm::mat4 pbrView;trackrs::draw::read(trackrs::draw::ViewMatrix,glm::value_ptr(pbrView));
     trackrs::pbr::setWorldView(pbrView);
+    glm::mat4 worldProjection;trackrs::draw::read(trackrs::draw::ProjectionMatrix,glm::value_ptr(worldProjection));
+    trackrs::world::prepare(pbrView,worldProjection,cfg.getRenderQuality(),trackrs::pbr::shaderDirectory().parent_path().parent_path());
     trackrs::pbr::setProbeScene([this](const glm::mat4& projection,const glm::mat4& view,const glm::vec3& center){
         if(!game||!game->terrain)return;
         trackrs::draw::SavedState saved;
         trackrs::draw::matrix(trackrs::draw::Projection);trackrs::draw::identity();trackrs::draw::multiply(glm::value_ptr(projection));
         trackrs::draw::matrix(trackrs::draw::View);trackrs::draw::identity();trackrs::draw::multiply(glm::value_ptr(view));
+        const auto previousWorldView=trackrs::world::state().view;
+        trackrs::world::state().view=view;
         float sun[]={.2f,.5f,1,0};trackrs::draw::light(trackrs::draw::LightPosition,sun);
         game->terrain->render(vec3f(center.x,center.y,center.z),mat44f::identity(),true);
         trackrs::draw::flush();
+        trackrs::world::state().view=previousWorldView;
     });
 
 
-    float lpos[] = { 0.2, 0.5, 1.0, 0.0 };
-    trackrs::draw::light( trackrs::draw::LightPosition, lpos);
-
-    trackrs::draw::colorBytes(255,255,255);
-
-    trackrs::draw::disable(trackrs::draw::Lighting);
-
-    trackrs::draw::activeTexture(GL_TEXTURE1);
-    trackrs::draw::enable(GL_TEXTURE_2D);
-    tex_detail->bind();
-    float tgens[] = { 0.05, 0.0, 0.0, 0.0 };
-    float tgent[] = { 0.0, 0.05, 0.0, 0.0 };
-    trackrs::draw::uvPlane(trackrs::draw::S, tgens);
-    trackrs::draw::uvPlane(trackrs::draw::T, tgent);
-    trackrs::draw::enable(trackrs::draw::GenerateS);
-    trackrs::draw::enable(trackrs::draw::GenerateT);
-    trackrs::draw::activeTexture(GL_TEXTURE0);
-
-    // draw terrain
-    game->terrain->render(campos, cammat_inv);
-
-    trackrs::draw::disable(trackrs::draw::GenerateS);
-    trackrs::draw::disable(trackrs::draw::GenerateT);
-
-    trackrs::draw::activeTexture(GL_TEXTURE1);
-    trackrs::draw::disable(GL_TEXTURE_2D);
-    trackrs::draw::activeTexture(GL_TEXTURE0);
-
-    if (renderowncar)
-    {
-        trackrs::draw::blend(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
-        tex_shadow->bind();
-
-        trackrs::draw::color(1.0f, 1.0f, 1.0f, 0.7f);
-
-        vec3f vpos = game->vehicle[0]->body->getPosition();
-        vec3f forw = makevec3f(game->vehicle[0]->body->getOrientationMatrix().row[0]);
-        float forwangle = atan2(forw.y, forw.x);
-        game->terrain->drawSplat(vpos.x, vpos.y, 1.4f, forwangle + PI*0.5f);
-
-        trackrs::draw::blend(GL_ONE, GL_ZERO);
-    }
-
-    renderSky(cammat);
-
-    trackrs::draw::enable(trackrs::draw::Lighting);
-
+    auto drawVehicles = [&]() {
     for (unsigned int v=0; v<game->vehicle.size(); ++v)
     {
         if (!renderowncar && v == 0) continue;
@@ -899,6 +862,67 @@ void MainApp::renderStateGame(float eyetranslation)
         }
         trackrs::draw::pop();
     }
+
+    };
+
+    if(cfg.getPbrTerrain() && cfg.getCsm()) {
+      trackrs::world::renderShadows([&](const glm::mat4 &light){
+        trackrs::draw::SavedState saved;
+        trackrs::draw::matrix(trackrs::draw::Projection);trackrs::draw::identity();trackrs::draw::multiply(glm::value_ptr(light));
+        trackrs::draw::matrix(trackrs::draw::View);trackrs::draw::identity();
+        game->terrain->render(campos,cammat_inv);
+        drawVehicles();trackrs::draw::flush();
+      });
+    }
+    float lpos[] = { 0.2, 0.5, 1.0, 0.0 };
+    trackrs::draw::light( trackrs::draw::LightPosition, lpos);
+
+    trackrs::draw::colorBytes(255,255,255);
+
+    trackrs::draw::disable(trackrs::draw::Lighting);
+
+    trackrs::draw::activeTexture(GL_TEXTURE1);
+    trackrs::draw::enable(GL_TEXTURE_2D);
+    tex_detail->bind();
+    float tgens[] = { 0.05, 0.0, 0.0, 0.0 };
+    float tgent[] = { 0.0, 0.05, 0.0, 0.0 };
+    trackrs::draw::uvPlane(trackrs::draw::S, tgens);
+    trackrs::draw::uvPlane(trackrs::draw::T, tgent);
+    trackrs::draw::enable(trackrs::draw::GenerateS);
+    trackrs::draw::enable(trackrs::draw::GenerateT);
+    trackrs::draw::activeTexture(GL_TEXTURE0);
+
+    // draw terrain
+    game->terrain->render(campos, cammat_inv);
+
+    trackrs::draw::disable(trackrs::draw::GenerateS);
+    trackrs::draw::disable(trackrs::draw::GenerateT);
+
+    trackrs::draw::activeTexture(GL_TEXTURE1);
+    trackrs::draw::disable(GL_TEXTURE_2D);
+    trackrs::draw::activeTexture(GL_TEXTURE0);
+
+    if (renderowncar && !(cfg.getPbrTerrain() && cfg.getCsm()))
+    {
+        trackrs::draw::blend(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+        tex_shadow->bind();
+
+        trackrs::draw::color(1.0f, 1.0f, 1.0f, 0.7f);
+
+        vec3f vpos = game->vehicle[0]->body->getPosition();
+        vec3f forw = makevec3f(game->vehicle[0]->body->getOrientationMatrix().row[0]);
+        float forwangle = atan2(forw.y, forw.x);
+        game->terrain->drawSplat(vpos.x, vpos.y, 1.4f, forwangle + PI*0.5f);
+
+        trackrs::draw::blend(GL_ONE, GL_ZERO);
+    }
+
+    renderSky(cammat);
+
+    trackrs::draw::enable(trackrs::draw::Lighting);
+
+    drawVehicles();
 
     trackrs::draw::disable(trackrs::draw::Lighting);
 
@@ -1187,6 +1211,7 @@ void MainApp::renderStateGame(float eyetranslation)
 
     trackrs::draw::disable(trackrs::draw::Lighting);
 
+    if(trackrs::world::state().scene){trackrs::draw::flush();trackrs::world::state().scene=false;}
     trackrs::draw::pop(); // 0
 
     trackrs::draw::disable(GL_DEPTH_TEST);

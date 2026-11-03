@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 #include "ibl.h"
 #include "engine/render/basic.h"
+#include "engine/world/state.h"
 #include <algorithm>
 #include <chrono>
 #include <glm/gtc/matrix_transform.hpp>
@@ -127,11 +128,27 @@ bool Ibl::ready() const {
   return std::all_of(maps_.begin(), maps_.end(),
                      [](const auto &t) { return t->ready; });
 }
-GLuint Ibl::sky() const { return maps_[0]->id(); }
-GLuint Ibl::irradiance() const { return maps_[1]->id(); }
-GLuint Ibl::prefilter() const { return maps_[2]->id(); }
+GLuint Ibl::sky() const {
+  return world::state().settings.enabled && world::state().sky
+             ? world::state().sky
+             : maps_[0]->id();
+}
+GLuint Ibl::irradiance() const {
+  return world::state().settings.enabled && world::state().irradiance
+             ? world::state().irradiance
+             : maps_[1]->id();
+}
+GLuint Ibl::prefilter() const {
+  return world::state().settings.enabled && world::state().prefilter
+             ? world::state().prefilter
+             : maps_[2]->id();
+}
 GLuint Ibl::brdf() const { return maps_[3]->id(); }
-float Ibl::maxLod() const { return float(maps_[2]->levels - 1); }
+float Ibl::maxLod() const {
+  return world::state().settings.enabled && world::state().prefilter
+             ? world::state().environmentLod
+             : float(maps_[2]->levels - 1);
+}
 std::size_t Ibl::bytes() const {
   std::size_t bytes = 0;
   std::set<const StreamedTexture *> seen;

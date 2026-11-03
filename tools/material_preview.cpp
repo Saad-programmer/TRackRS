@@ -10,6 +10,7 @@
 #include <glm/gtc/type_ptr.hpp>
 #include <iostream>
 #include <nlohmann/json.hpp>
+nlohmann::json worldGpuTests(const std::filesystem::path &data);
 nlohmann::json terrainGpuTests(const std::filesystem::path &data);
 nlohmann::json iblIntegrationTests(const std::filesystem::path &data);
 nlohmann::json runMaterialScene(
@@ -458,6 +459,7 @@ int main(int argc, char **argv) {
       if (test) {
         auto report = probes(data);
         report["terrain"] = terrainGpuTests(data);
+        report["world"] = worldGpuTests(data);
         debug.install();
         if (!reportPath.empty())
           std::ofstream(reportPath) << report.dump(2) << '\n';

@@ -6,6 +6,7 @@
 #include "pengine.h"
 #include "../../engine/core/wrap.h"
 #include "engine/terrain/renderer.h"
+#include "engine/world/state.h"
 #include "engine/pbr/renderer.h"
 #include <glm/gtc/type_ptr.hpp>
 
@@ -776,7 +777,7 @@ void PTerrain::ensureWorldRenderer() {
 
 void PTerrain::render(const vec3f &campos, const mat44f &camorim, bool reflectionCapture)
 {
-  validation::PassScope timing(reflectionCapture ? "terrain_probe" : "terrain");
+  validation::PassScope timing(trackrs::world::state().depthPass ? "shadow_terrain" : reflectionCapture ? "terrain_probe" : "terrain");
   float blah = camorim.row[0][0]; blah = blah; // unused
 
   // get frustum

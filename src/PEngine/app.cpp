@@ -1,3 +1,4 @@
+#include "engine/world/renderer.h"
 #include "../../engine/rhi/core_device.h"
 #include <filesystem>
 #include "../../engine/core/frame_pacer.h"
@@ -735,7 +736,7 @@ int PApp::run(int argc, char *argv[])
           validation::run.draws.push_back(validation::run.frameDraws);
           validation::run.triangles.push_back(validation::run.frameTriangles);
           if (validation::run.complete) {
-            try { validation::writeResults(); trackrs::pbr::writeProfile(validation::run.options.json + ".pbr.json"); trackrs::terrain::writeReport(validation::run.options.json + ".terrain.json"); }
+            try { validation::writeResults(); trackrs::pbr::writeProfile(validation::run.options.json + ".pbr.json"); trackrs::terrain::writeReport(validation::run.options.json + ".terrain.json"); trackrs::world::writeReport(validation::run.options.json + ".world.json"); }
             catch (const std::exception& e) { PUtil::outLog() << e.what() << std::endl; validation::run.result = 1; }
             requestExit();
           }

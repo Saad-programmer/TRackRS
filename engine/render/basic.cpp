@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 #include "basic.h"
+#include "engine/world/state.h"
 #include "../rhi/rhi.h"
 #include "validation.h"
 #include <algorithm>
@@ -113,7 +114,8 @@ void prepare(GLuint p, bool baked, bool streamed = false) {
   uniform(p, "uView", s.view.back());
   uniform(p, "uProjection", s.projection.back());
   uniform(p, "uColor", s.color);
-  uniform(p, "uLighting", int(s.lighting));
+  uniform(p, "uLighting", int(s.lighting && !(world::state().settings.enabled && world::state().scene)));
+  world::apply(p, glm::inverse(world::state().view), world::state().scene);
   uniform(p, "uFog", int(s.fog));
   uniform(p, "uFogColor", s.fogColor);
   uniform(p, "uDensity", s.density);

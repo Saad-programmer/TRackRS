@@ -30,6 +30,8 @@ private:
     OptionTextureQuality,
     OptionRenderQuality,
     OptionTerrainRenderer,
+    OptionTimeOfDay,
+    OptionShadows,
     OptionSnowflakes,
     OptionSpeedUnits,
     OptionGhostCars,

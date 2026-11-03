@@ -13,6 +13,7 @@ uniform vec4 uColor,uAmbient,uDiffuse,uSpecular,uLight,uMaterial,uMaterialSpecul
 uniform vec4 uPlaneS0,uPlaneT0,uPlaneS1,uPlaneT1;
 uniform float uShininess,uPointSize;
 uniform bool uSdf;
+out vec3 vSceneEye,vSceneNormal;
 out vec4 vColor,vBackColor;
 out vec2 vUv0,vUv1;
 out float vFog,vSdf;
@@ -28,6 +29,7 @@ void main(){
   gl_Position=uBaked?aPosition:uViewProjection*aPosition;
   gl_PointSize=uPointSize;
   vec3 n=normalize(uBaked?aNormal:transpose(inverse(mat3(uView)))*aNormal);
+  vSceneEye=eye.xyz;vSceneNormal=n;
   vColor=uLighting?illuminate(n,eye.xyz):(uStream?aColor:uColor);
   vBackColor=uLighting?illuminate(-n,eye.xyz):vColor;
   vFog=abs(eye.z);

@@ -28,6 +28,7 @@ in VS_OUT {
 } fs;
 
 out vec4 FragColor;
+#include "../world/scene.glsl"
 
 // ---- material -------------------------------------------------------------
 uniform sampler2D uAlbedoMap;
@@ -76,6 +77,7 @@ uniform mat4 uView;
 uniform int uCascadeCount;
 uniform bool uShadowEnabled;
 float sunVisibility() {
+    if(uSceneEnabled)return sceneVisibility((uSceneFromLocal*vec4(fs.worldPos,1)).xyz,normalize(mat3(uSceneFromLocal)*fs.N));
     if (!uShadowEnabled || uCascadeCount == 0) return 1.0;
     float depth = -(uView * vec4(fs.worldPos, 1.0)).z;
     int layer = 0;
@@ -86,7 +88,7 @@ float sunVisibility() {
     return texture(uShadowMap, vec4(coord.xy, float(layer), coord.z-0.001));
 }
 #else
-float sunVisibility() { return 1.0; }
+float sunVisibility() { return uSceneEnabled?sceneVisibility((uSceneFromLocal*vec4(fs.worldPos,1)).xyz,normalize(mat3(uSceneFromLocal)*fs.N)):1.0; }
 #endif
 uniform int uDebugView = 0;
 // ---- output ---------------------------------------------------------------
@@ -118,6 +120,7 @@ void main()
     if (uAlphaCutoff > 0.0 && baseSample.a < uAlphaCutoff) discard;
 #endif
 
+    if(uDepthOnly){FragColor=vec4(0);return;}
     vec3 albedo = baseSample.rgb * fs.color.rgb;            // vertex colour = baked wear/AO tint (white if unused)
 #ifdef TERRAIN
     vec3 mr = terrain.orm;
@@ -199,6 +202,7 @@ void main()
     }
 
     vec3 color = (Lo + ambient) * uExposure;
+    if(!uDepthOnly)color=sceneFog(color,(uSceneFromLocal*vec4(fs.worldPos,1)).xyz);
 
     // ---- tone-map + gamma 2.2 ---------------------------------------------------
     if (uToneMap) {

@@ -1,0 +1,186 @@
+{
+  "permutations": [
+    {
+      "defines": [],
+      "compile_and_link": "pass"
+    },
+    {
+      "defines": [
+        "ALPHA_TO_COVERAGE"
+      ],
+      "compile_and_link": "pass"
+    },
+    {
+      "defines": [
+        "USE_CSM"
+      ],
+      "compile_and_link": "pass"
+    },
+    {
+      "defines": [
+        "USE_CSM",
+        "ALPHA_TO_COVERAGE"
+      ],
+      "compile_and_link": "pass"
+    },
+    {
+      "defines": [
+        "INSTANCED"
+      ],
+      "compile_and_link": "pass"
+    },
+    {
+      "defines": [
+        "INSTANCED",
+        "ALPHA_TO_COVERAGE"
+      ],
+      "compile_and_link": "pass"
+    },
+    {
+      "defines": [
+        "INSTANCED",
+        "USE_CSM"
+      ],
+      "compile_and_link": "pass"
+    },
+    {
+      "defines": [
+        "INSTANCED",
+        "USE_CSM",
+        "ALPHA_TO_COVERAGE"
+      ],
+      "compile_and_link": "pass"
+    },
+    {
+      "defines": [
+        "EXPLICIT_BITANGENT"
+      ],
+      "compile_and_link": "pass"
+    },
+    {
+      "defines": [
+        "EXPLICIT_BITANGENT",
+        "ALPHA_TO_COVERAGE"
+      ],
+      "compile_and_link": "pass"
+    },
+    {
+      "defines": [
+        "EXPLICIT_BITANGENT",
+        "USE_CSM"
+      ],
+      "compile_and_link": "pass"
+    },
+    {
+      "defines": [
+        "EXPLICIT_BITANGENT",
+        "USE_CSM",
+        "ALPHA_TO_COVERAGE"
+      ],
+      "compile_and_link": "pass"
+    },
+    {
+      "defines": [
+        "EXPLICIT_BITANGENT",
+        "INSTANCED"
+      ],
+      "compile_and_link": "pass"
+    },
+    {
+      "defines": [
+        "EXPLICIT_BITANGENT",
+        "INSTANCED",
+        "ALPHA_TO_COVERAGE"
+      ],
+      "compile_and_link": "pass"
+    },
+    {
+      "defines": [
+        "EXPLICIT_BITANGENT",
+        "INSTANCED",
+        "USE_CSM"
+      ],
+      "compile_and_link": "pass"
+    },
+    {
+      "defines": [
+        "EXPLICIT_BITANGENT",
+        "INSTANCED",
+        "USE_CSM",
+        "ALPHA_TO_COVERAGE"
+      ],
+      "compile_and_link": "pass"
+    }
+  ],
+  "auxiliary": [
+    {
+      "fragment": "probe_sky",
+      "compile_and_link": "pass"
+    },
+    {
+      "fragment": "probe_filter",
+      "compile_and_link": "pass"
+    },
+    {
+      "fragment": "background",
+      "compile_and_link": "pass"
+    }
+  ],
+  "terrain": [
+    {
+      "defines": [
+        "TERRAIN"
+      ],
+      "compile_and_link": "pass"
+    },
+    {
+      "defines": [
+        "TERRAIN",
+        "ALPHA_TO_COVERAGE"
+      ],
+      "compile_and_link": "pass"
+    },
+    {
+      "defines": [
+        "TERRAIN",
+        "USE_CSM"
+      ],
+      "compile_and_link": "pass"
+    },
+    {
+      "defines": [
+        "TERRAIN",
+        "USE_CSM",
+        "ALPHA_TO_COVERAGE"
+      ],
+      "compile_and_link": "pass"
+    }
+  ],
+  "world": [
+    {
+      "vertex": "basic/basic.vert",
+      "fragment": "basic/basic.frag",
+      "compile_and_link": "pass"
+    },
+    {
+      "vertex": "basic/particle.vert",
+      "fragment": "basic/basic.frag",
+      "compile_and_link": "pass"
+    },
+    {
+      "vertex": "world/sky.vert",
+      "fragment": "world/sky.frag",
+      "compile_and_link": "pass"
+    },
+    {
+      "vertex": "pbr/cube.vert",
+      "fragment": "world/irradiance.frag",
+      "compile_and_link": "pass"
+    },
+    {
+      "vertex": "pbr/terrain.vert",
+      "fragment": "world/depth.frag",
+      "compile_and_link": "pass"
+    }
+  ]
+}
