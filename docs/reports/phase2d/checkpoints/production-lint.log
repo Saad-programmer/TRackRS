@@ -1,0 +1,42 @@
+[1/12] Processing file /workspace/TRackRS/engine/rhi/rhi.cpp.
+29951 warnings generated.
+[2/12] Processing file /workspace/TRackRS/engine/rhi/rhi.cpp.
+59901 warnings generated.
+[3/12] Processing file /workspace/TRackRS/engine/rhi/rhi.cpp.
+89851 warnings generated.
+[4/12] Processing file /workspace/TRackRS/engine/rhi/core_device.cpp.
+140693 warnings generated.
+[5/12] Processing file /workspace/TRackRS/engine/media/movie.cpp.
+160993 warnings generated.
+[6/12] Processing file /workspace/TRackRS/engine/media/movie.cpp.
+181293 warnings generated.
+[7/12] Processing file /workspace/TRackRS/engine/render/basic.cpp.
+213021 warnings generated.
+[8/12] Processing file /workspace/TRackRS/engine/render/basic.cpp.
+244748 warnings generated.
+[9/12] Processing file /workspace/TRackRS/engine/render/basic.cpp.
+276475 warnings generated.
+[10/12] Processing file /workspace/TRackRS/engine/mesh/mesh_importer.cpp.
+310115 warnings generated.
+[11/12] Processing file /workspace/TRackRS/engine/mesh/tangents.cpp.
+328550 warnings generated.
+[12/12] Processing file /workspace/TRackRS/engine/pbr/renderer.cpp.
+379759 warnings generated.
+[13/12] Processing file /workspace/TRackRS/engine/pbr/renderer.cpp.
+430962 warnings generated.
+[14/12] Processing file /workspace/TRackRS/engine/pbr/texture_stream.cpp.
+460054 warnings generated.
+[15/12] Processing file /workspace/TRackRS/engine/pbr/texture_stream.cpp.
+489145 warnings generated.
+[16/12] Processing file /workspace/TRackRS/engine/pbr/ibl.cpp.
+523187 warnings generated.
+[17/12] Processing file /workspace/TRackRS/engine/pbr/ibl.cpp.
+557228 warnings generated.
+[18/12] Processing file /workspace/TRackRS/engine/assets/ktx2.cpp.
+583450 warnings generated.
+[19/12] Processing file /workspace/TRackRS/engine/assets/ibl_bake.cpp.
+612136 warnings generated.
+[20/12] Processing file /workspace/TRackRS/engine/assets/material_manifest.cpp.
+645153 warnings generated.
+Suppressed 645244 warnings (645143 in non-user code, 91 NOLINT, 10 with check filters).
+Use -header-filter=.* to display errors from all non-system headers. Use -system-headers to display errors from system headers as well.

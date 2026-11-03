@@ -1,0 +1,32 @@
+Internal ctest changing into directory: /workspace/TRackRS/build/linux-debug-asan
+Test project /workspace/TRackRS/build/linux-debug-asan
+      Start  1: ktx2-materials
+ 1/13 Test  #1: ktx2-materials ...................   Passed    0.07 sec
+      Start  2: mesh-importer
+ 2/13 Test  #2: mesh-importer ....................   Passed    0.14 sec
+      Start  3: pbr-shader-permutations
+ 3/13 Test  #3: pbr-shader-permutations ..........   Passed    1.80 sec
+      Start  4: core-primitives
+ 4/13 Test  #4: core-primitives ..................   Passed    0.05 sec
+      Start  5: movie-decoder
+ 5/13 Test  #5: movie-decoder ....................   Passed    0.37 sec
+      Start  6: validation-unit
+ 6/13 Test  #6: validation-unit ..................   Passed    0.07 sec
+      Start  7: cli-help
+ 7/13 Test  #7: cli-help .........................   Passed    0.09 sec
+      Start  8: cli-invalid
+ 8/13 Test  #8: cli-invalid ......................   Passed    0.08 sec
+      Start  9: module-layering
+ 9/13 Test  #9: module-layering ..................   Passed    0.44 sec
+      Start 10: core-only-source
+10/13 Test #10: core-only-source .................   Passed    0.12 sec
+      Start 11: legacy-content
+11/13 Test #11: legacy-content ...................   Passed    0.26 sec
+      Start 12: lsan-audit-policy
+12/13 Test #12: lsan-audit-policy ................   Passed    0.15 sec
+      Start 13: lsan-application-canary
+13/13 Test #13: lsan-application-canary ..........   Passed    0.13 sec
+
+100% tests passed, 0 tests failed out of 13
+
+Total Test time (real) =   3.76 sec

@@ -48,3 +48,6 @@ All eight required legacy screenshots compare pixel-identically to Phase 2c (MAE
 
 ## Real-race material batching item completed
 The corrected frozen release executable passes all GPU probes, preview and the 300-tick PBR race. Runtime timestamps prove exactly299 submissions each for paint, glass, rubber and chrome over299 rendered frames: one draw per material, including all four instanced wheels. Scene-aware probe updates obey the configured interval. CI now asserts those exact counts and the <=4Hz rate and135136-byte probe storage. WIP CI runs cancel obsolete runs on the same branch to preserve runners. GCC13 isolated tests pass locally; latest diagnostic CI and final strict lint remain pending.
+
+## Production lint item completed
+Expanded strict clang-tidy passes for all new assets/streaming/IBL production translation units, including header diagnostics. Wire-value enum width and conventional bit-packing/PBO offset APIs have narrowly documented lint exceptions; no broad checker disable was added. Integer widening/narrowing is explicit and texture construction uses named RAII owners. Logs, GCC13 texture tests and release/sanitized CPU suite evidence are saved in checkpoints. Eleven legacy hashes now match; two remaining cases are running. Final sanitizer graphics run, final metrics and current CI are still required.
