@@ -23,7 +23,7 @@ public:
            const std::filesystem::path &data);
   ~Renderer();
   void draw(glm::vec3 camera, const glm::mat4 &viewProjection,
-            bool capture = false);
+            bool capture = false, int debugView = 0);
   nlohmann::json report() const;
 };
 } // namespace trackrs::terrain

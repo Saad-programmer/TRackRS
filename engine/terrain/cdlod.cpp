@@ -32,15 +32,16 @@ bool outside(const glm::mat4 &vp, glm::vec3 minimum, glm::vec3 maximum) {
   return false;
 }
 Selection Selector::select(glm::vec3 camera, const glm::mat4 &vp, float spacing,
-                           float distance, glm::vec2 heightRange) {
-  if (!std::isfinite(spacing) || spacing <= 0 || !std::isfinite(distance) ||
-      distance <= 0 || distance / spacing > 1048576 ||
-      !std::isfinite(camera.x) || !std::isfinite(camera.y) ||
-      std::abs(camera.x / spacing) > 100000000 ||
+                           float distance, glm::vec2 heightRange,
+                           unsigned minimumLevel) {
+  if (minimumLevel > 8 || !std::isfinite(spacing) || spacing <= 0 ||
+      !std::isfinite(distance) || distance <= 0 ||
+      distance / spacing > 1048576 || !std::isfinite(camera.x) ||
+      !std::isfinite(camera.y) || std::abs(camera.x / spacing) > 100000000 ||
       std::abs(camera.y / spacing) > 100000000)
     throw std::invalid_argument("invalid CDLOD domain");
-  unsigned root = GridCells;
-  int level = 0;
+  unsigned root = GridCells << minimumLevel;
+  int level = static_cast<int>(minimumLevel);
   while (static_cast<float>(root) * spacing < distance * 2) {
     root *= 2;
     ++level;
@@ -57,7 +58,8 @@ Selection Selector::select(glm::vec3 camera, const glm::mat4 &vp, float spacing,
       ++result.culled;
       return;
     }
-    if (lod > 0 && nearest < 4.f * static_cast<float>(cells) * spacing) {
+    if (lod > static_cast<int>(minimumLevel) &&
+        nearest < 4.f * static_cast<float>(cells) * spacing) {
       const auto half = cells / 2;
       for (int dy = 0; dy < 2; ++dy)
         for (int dx = 0; dx < 2; ++dx)

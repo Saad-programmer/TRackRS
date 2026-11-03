@@ -12,6 +12,7 @@ float heightAt(vec2 pixel) {
     ivec2 a=(p%size+size)%size;
     ivec2 b=((p+ivec2(1))%size+size)%size;
     float h00=texelFetch(uHeight,a,0).r;
+    if(all(equal(f,vec2(0.0))))return h00; // exact grid samples need one fetch, not four
     float h10=texelFetch(uHeight,ivec2(b.x,a.y),0).r;
     float h01=texelFetch(uHeight,ivec2(a.x,b.y),0).r;
     float h11=texelFetch(uHeight,b,0).r;

@@ -18,10 +18,14 @@ class State {
         row = 0, front = 0, cull = 0;
   GLboolean depthMask = 0;
   std::array<GLint, 10> two{}, cube{}, array{};
-  static constexpr std::array<GLenum, 5> caps = {GL_DEPTH_TEST, GL_CULL_FACE,
-                                                 GL_BLEND, GL_FRAMEBUFFER_SRGB,
-                                                 GL_SAMPLE_ALPHA_TO_COVERAGE};
-  std::array<GLboolean, 5> enabled{};
+  static constexpr std::array<GLenum, 7> caps = {GL_DEPTH_TEST,
+                                                 GL_CULL_FACE,
+                                                 GL_BLEND,
+                                                 GL_FRAMEBUFFER_SRGB,
+                                                 GL_SAMPLE_ALPHA_TO_COVERAGE,
+                                                 GL_TEXTURE_CUBE_MAP_SEAMLESS,
+                                                 GL_SCISSOR_TEST};
+  std::array<GLboolean, 7> enabled{};
 
 public:
   State() {
@@ -90,6 +94,7 @@ struct Renderer::Impl {
   Selector selector;
   Selection selected;
   bool ready = false;
+  std::uint64_t probeCalls = 0, probeDraws = 0, probeTriangles = 0;
   ~Impl() {
     glDeleteVertexArrays(1, &vao);
     glDeleteBuffers(1, &vbo);
@@ -190,7 +195,8 @@ void writeReport(const std::filesystem::path &path) {
   if (activeRenderer)
     std::ofstream(path) << activeRenderer->report().dump(2) << '\n';
 }
-void Renderer::draw(glm::vec3 camera, const glm::mat4 &vp, bool capture) {
+void Renderer::draw(glm::vec3 camera, const glm::mat4 &vp, bool capture,
+                    int debugView) {
   draw::flush();
   State guard;
   auto &p = *impl_;
@@ -206,8 +212,17 @@ void Renderer::draw(glm::vec3 camera, const glm::mat4 &vp, bool capture) {
                    : current.quality == RenderQuality::Medium ? 1200.f
                    : current.quality == RenderQuality::High   ? 1800.f
                                                               : 2400.f;
-  auto selection =
-      p.selector.select(camera, vp, p.spacing, distance, p.heights);
+  if (capture)
+    distance = std::min(distance, 768.f);
+  auto selection = p.selector.select(
+      camera, vp, p.spacing, distance, p.heights,
+      capture ? (carProbeResolution(current.quality) == 128 ? 1u : 2u) : 0u);
+  if (capture) {
+    ++p.probeCalls;
+    p.probeDraws += selection.patches.size();
+    p.probeTriangles += selection.patches.size() * GridCells * GridCells * 2;
+  }
+
   if (!capture) {
     p.selected = selection;
     activeRenderer = this;
@@ -223,6 +238,8 @@ void Renderer::draw(glm::vec3 camera, const glm::mat4 &vp, bool capture) {
   glDisable(GL_BLEND);
   glDisable(GL_FRAMEBUFFER_SRGB);
   glDisable(GL_SAMPLE_ALPHA_TO_COVERAGE);
+  glEnable(GL_TEXTURE_CUBE_MAP_SEAMLESS);
+  glDisable(GL_SCISSOR_TEST);
   glUniformMatrix4fv(glGetUniformLocation(program, "uViewProjection"), 1,
                      GL_FALSE, glm::value_ptr(vp));
   vector(program, "uCamPos", camera);
@@ -232,6 +249,7 @@ void Renderer::draw(glm::vec3 camera, const glm::mat4 &vp, bool capture) {
   scalar(program, "uWorldPeriod", static_cast<float>(p.size) * p.spacing);
   scalar(program, "uAOStrength", 1);
   integer(program, "uPointLightCount", 0);
+  integer(program, "uDebugView", debugView);
   integer(program, "uHasIBL", p.environment->ready() ? 1 : 0);
   integer(program, "uUseLocalProbe", 0);
   integer(program, "uToneMap", capture ? 0 : 1);
@@ -281,6 +299,9 @@ nlohmann::json Renderer::report() const {
   for (const auto &map : p.maps)
     textures += map->residentBytes;
   return {{"renderer", "cdlod"},
+          {"probe_capture_calls", p.probeCalls},
+          {"probe_draws_total", p.probeDraws},
+          {"probe_triangles_total", p.probeTriangles},
           {"quality", std::string(qualityName(current.quality))},
           {"ready", p.ready},
           {"draw_calls", p.selected.patches.size()},

@@ -730,7 +730,7 @@ PTerrainTile *PTerrain::getTile(int tilex, int tiley)
 
 void PTerrain::render(const vec3f &campos, const mat44f &camorim, bool reflectionCapture)
 {
-  validation::PassScope timing("terrain");
+  validation::PassScope timing(reflectionCapture ? "terrain_probe" : "terrain");
   float blah = camorim.row[0][0]; blah = blah; // unused
 
   // get frustum

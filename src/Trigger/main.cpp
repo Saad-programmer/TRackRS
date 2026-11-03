@@ -1645,7 +1645,7 @@ int main(int argc, char *argv[])
             validation::run.draws.reserve(validation::run.options.frames);
             validation::run.triangles.reserve(validation::run.options.frames);
             validation::run.queries.reserve(128);
-            for (const char* name : {"terrain", "sky", "water", "mesh_submit", "particles", "ui_text"}) {
+            for (const char* name : {"terrain", "terrain_probe", "sky", "water", "mesh_submit", "particles", "ui_text"}) {
                 auto& pass = validation::run.passes[name];
                 pass.cpu.reserve(validation::run.options.frames * 32);
                 pass.gpu.reserve(validation::run.options.frames * 32);

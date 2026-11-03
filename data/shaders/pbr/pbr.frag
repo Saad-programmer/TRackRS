@@ -211,5 +211,8 @@ void main()
     if (uDebugView == 4) color = vec3(metallic);
     if (uDebugView == 5) color = vec3(ao);
     if (uDebugView == 6) {int axis=int(mod(floor(fs.uv.x*12.0),3.0));color=(axis==0?normalize(fs.T):axis==1?normalize(fs.B):normalize(fs.N))*0.5+0.5;}
+#ifdef TERRAIN
+    if(uDebugView==7)color=normalize(fs.N)*0.5+0.5;
+#endif
     FragColor = vec4(color, baseSample.a);
 }

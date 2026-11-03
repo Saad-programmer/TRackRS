@@ -19,7 +19,8 @@ class Selector {
 
 public:
   Selection select(glm::vec3 camera, const glm::mat4 &viewProjection,
-                   float spacing, float distance, glm::vec2 heightRange);
+                   float spacing, float distance, glm::vec2 heightRange,
+                   unsigned minimumLevel = 0);
   std::size_t residentTiles() const { return tiles_.size(); }
 };
 float morphFactor(float distance, unsigned cells, float spacing);
