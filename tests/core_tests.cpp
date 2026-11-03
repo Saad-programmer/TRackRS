@@ -148,3 +148,15 @@ TEST_CASE("render pose interpolates both physics transforms without modifying sn
     CHECK(previous.position==glm::vec3(1,2,3)); CHECK(current.position==glm::vec3(5,6,7));
     CHECK(previous.rotation==glm::quat(1,0,0,0)); CHECK(current.rotation==glm::quat(0,0,0,1));
 }
+
+#include "engine/core/render_quality.h"
+TEST_CASE("car reflection probe resolution follows the four quality presets") {
+  using namespace trackrs;
+  CHECK(carProbeResolution(RenderQuality::Low) == 32);
+  CHECK(carProbeResolution(RenderQuality::Medium) == 32);
+  CHECK(carProbeResolution(RenderQuality::High) == 128);
+  CHECK(carProbeResolution(RenderQuality::Ultra) == 128);
+  for (auto quality : {RenderQuality::Low, RenderQuality::Medium, RenderQuality::High, RenderQuality::Ultra})
+    CHECK(parseQuality(qualityName(quality)) == quality);
+  CHECK_THROWS(parseQuality("maximum"));
+}

@@ -28,6 +28,7 @@ private:
     OptionCodriverVoice,
     OptionCodriverSigns,
     OptionTextureQuality,
+    OptionRenderQuality,
     OptionSnowflakes,
     OptionSpeedUnits,
     OptionGhostCars,

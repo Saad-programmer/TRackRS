@@ -29,6 +29,8 @@ POption::POption(Gui &parent, PConfig &config) :
     { "off", "abon", "glossy", "plain", "white" }, 0 });
   options.push_back({ OptionTextureQuality, "Texture quality",
     { "off", "1", "2", "4", "8", "16", "32" }, 0 });
+  options.push_back({ OptionRenderQuality, "Render quality",
+    { "Low", "Medium", "High", "Ultra" }, 1 });
   options.push_back({ OptionSnowflakes, "Snowflakes",
     { "off", "point", "square", "textured" }, 0 });
   options.push_back({ OptionSpeedUnits, "Speed units",
@@ -103,6 +105,9 @@ void POption::select(int index)
       cfg.setAnisotropy(pow(2, column - 1));
     else
       cfg.setAnisotropy(0.0f);
+    break;
+  case OptionRenderQuality:
+    cfg.setRenderQuality(static_cast<trackrs::RenderQuality>(column));
     break;
   case OptionSnowflakes:
     if (column) {
@@ -210,6 +215,9 @@ void POption::updateSelect(Option &option)
       option.select = 0;
     break;
   }
+  case OptionRenderQuality:
+    option.select = static_cast<unsigned>(cfg.getRenderQuality());
+    break;
   case OptionSnowflakes:
     if (cfg.getWeather())
       option.select = cfg.getSnowflaketype() + 1;

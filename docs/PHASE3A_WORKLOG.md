@@ -1,0 +1,13 @@
+# Phase 3a worklog
+
+Phase2d accepted; Phase2 complete. Authorized scope now: probe-resolution quality setting then Phase3a terrain only. Stop, report and tag at3a; do not start3b. Legacy stays default through3c; new renderer default only at3d. Keep WIP checkpoint pushes after completed items.
+
+Branch wip/phase-3a, base584278d (phase-2d-done). No AGENTS.md; no agents authorized. SDK activation: . /workspace/trackrs-env/activate.sh. Native GL/sanitizers/network require escalated shell. Runtime connected; policy unrestricted/enforced; no configured secrets/identities. Main contains website update; preserve it.
+
+## Probe quality prerequisite completed
+Render quality persisted as graphics.renderquality and exposed in options; Low/Medium32-square, High/Ultra128-square. DefaultMedium preserves old32. Runtime defers recreation to GL draw. Preview supports --quality. ReleaseCPU12/12 passes including new mapping tests; actual30-frame32/128 profiles completed. PROBE_QUALITY.md reports measured cost, rawJSON in reports/phase3a/probe-quality. This is not3a gate completion; no tag yet.
+
+## Terrain implementation next
+Use opt-in CDLOD path; old look/default retained. CPU physics hmap/getInterp/periodicCell/wrapCoord untouched. Current PTerrain tile get/getAtPos scan std::list; replace with O(1) hash+LRU while preserving seeded foliage and legacy visuals. New renderer uses shared grid VAO/VBO/IBO and R32F height texture, GPU normals, CDLOD selection/frustum culling/radial morphing, nine terrain-type surfaces mapped from legacy16color classes, triplanar normal detail and macro variation. Reuse existing PBR BRDF/IBL. Register new shader checks/CPU selection/cache/crack tests + actual GPU integration, measure old/new triangles/draws/pass timestamps, budgets§7; software timings not hardware conclusions. Legacy13states+8screenshots must remain unchanged in old path. New path all13load + screenshots, native sanitizers, strictlint, finalCI. Push WIP after completeditems. Merge/tag phase-3a-done only at verified gate, stopbefore3b.
+
+Design considered for crack-free CDLOD: grid32; morph radiusR(level)=8*patchWorldSize. Select children when node min XY distance<R(level-1), morph from0.7R toR. Since sqrt(2)*patchSize<0.4R, any coarse boundary adjacent to a finer selected patch is still unmorphed, while the fine boundary is fully collapsed to parent grid. Test shared edge positions/heights through transitions, negatives and periodic seams; don't rely on skirts to hide defects. Keep coarse triangulation consistent with CPU diagonal. View distance scaled byquality; no tall vegetation/sky/weather/post-FX work in3a.

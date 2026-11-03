@@ -3,6 +3,7 @@
 
 #include "pengine.h"
 #include "codriver_config.h"
+#include "engine/core/render_quality.h"
 #include <list>
 #include <string>
 
@@ -104,6 +105,8 @@ public:
   float getHudSpeedoMpsSpeedMult() const;
   Speedunit getSpeedUnit() const;
   GLfloat getAnisotropy() const;
+  trackrs::RenderQuality getRenderQuality() const { return cfg_render_quality; }
+  void setRenderQuality(trackrs::RenderQuality quality);
 
   void setFoliage(bool foliage);
   void setRoadsigns(bool roadsigns);
@@ -175,6 +178,7 @@ private:
 
   bool cfg_dirteffect = true;
 
+  trackrs::RenderQuality cfg_render_quality = trackrs::RenderQuality::Medium;
   GLfloat cfg_anisotropy = 1.0f;    ///< Anisotropic filter quality.
   bool cfg_foliage = true;          ///< Foliage on/off flag.
   bool cfg_roadsigns = true;        ///< Road signs on/off flag.

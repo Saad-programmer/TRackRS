@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 #pragma once
+#include "engine/core/render_quality.h"
 #include "engine/mesh/mesh_importer.h"
 #include "ibl.h"
 #include <filesystem>
@@ -54,7 +55,8 @@ public:
   // preview/tool callers supply world-space Frame and model matrices directly.
   void drawCurrent(float alpha = 1);
   bool canInstance() const;
-  bool drawCurrentInstances(const std::vector<glm::mat4> &models, float alpha = 1);
+  bool drawCurrentInstances(const std::vector<glm::mat4> &models,
+                            float alpha = 1);
 };
 // Vehicle composition supplies one shared pair, including wheel draws.
 class HeadlightScope {
@@ -66,6 +68,7 @@ public:
   ~HeadlightScope();
   HeadlightScope(const HeadlightScope &) = delete;
 };
+void setQuality(RenderQuality quality);
 void setWorldView(const glm::mat4 &view);
 void setProbeScene(SceneCapture scene);
 void writeProfile(const std::filesystem::path &path);

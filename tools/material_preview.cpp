@@ -13,7 +13,7 @@
 nlohmann::json iblIntegrationTests(const std::filesystem::path &data);
 nlohmann::json runMaterialScene(
     SDL_Window *window, const std::filesystem::path &data, unsigned frames,
-    bool profiling,
+    bool profiling, trackrs::RenderQuality quality,
     const std::function<trackrs::mesh::MeshData(const std::filesystem::path &)>
         &sphereFactory,
     const std::function<void()> &capture);
@@ -406,6 +406,7 @@ int main(int argc, char **argv) {
              "../share/games/trackrs";
     unsigned frames = 0;
     bool test = false;
+    auto quality = RenderQuality::Medium;
     for (int i = 1; i < argc; ++i) {
       std::string arg = argv[i];
       if (arg == "--data-dir" && i + 1 < argc)
@@ -416,11 +417,14 @@ int main(int argc, char **argv) {
         reportPath = argv[++i];
       else if (arg == "--frames" && i + 1 < argc)
         frames = static_cast<unsigned>(std::stoul(argv[++i]));
+      else if (arg == "--quality" && i + 1 < argc)
+        quality = parseQuality(argv[++i]);
       else if (arg == "--test")
         test = true;
       else if (arg == "--help") {
         std::cout << "material_preview [--data-dir data] [--frames N --output "
-                     "image.png] [--test --report results.json]\n0-6 debug "
+                     "image.png] [--quality low|medium|high|ultra] [--test "
+                     "--report results.json]\n0-6 debug "
                      "views; H headlights, I IBL, P probe; Esc quits\n";
         return 0;
       } else
@@ -458,7 +462,7 @@ int main(int argc, char **argv) {
         std::cout << report.dump(2) << '\n';
       } else {
         auto report = runMaterialScene(
-            window, data, frames, !reportPath.empty(),
+            window, data, frames, !reportPath.empty(), quality,
             [](const std::filesystem::path &path) { return sphere(path); },
             [&] {
               if (!output.empty())

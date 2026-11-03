@@ -1,5 +1,6 @@
 // Creator: Saad AIT YAHIA - @github: Saad-programmer
 #include "config.h"
+#include "engine/pbr/renderer.h"
 #include "exception.h"
 #include "app.h"
 #include "pengine.h"
@@ -258,6 +259,11 @@ void PConfig::loadConfig()
     else
     if (!strcmp(walk->Value(), "graphics"))
     {
+        val = walk->Attribute("renderquality");
+        if (val) {
+          try { setRenderQuality(trackrs::parseQuality(val)); }
+          catch (const std::invalid_argument&) { setRenderQuality(trackrs::RenderQuality::Medium); }
+        }
         val = walk->Attribute("anisotropy");
 
         if (val)
@@ -583,6 +589,7 @@ void PConfig::storeConfig()
       walk->SetAttribute("codrivervolume", cfg_volume_codriver);
     }
     else if (!strcmp(walk->Value(), "graphics")) {
+      walk->SetAttribute("renderquality", std::string(trackrs::qualityName(cfg_render_quality)).c_str());
       if (cfg_anisotropy == 0.0f)
         walk->SetAttribute("anisotropy", "off");
       else
@@ -887,4 +894,9 @@ void PConfig::setAnisotropy(GLfloat anisotropy)
 {
   cfg_anisotropy = anisotropy;
   mainapp->setTextureAnisotropy(cfg_anisotropy);
+}
+
+void PConfig::setRenderQuality(trackrs::RenderQuality quality) {
+  cfg_render_quality = quality;
+  trackrs::pbr::setQuality(quality);
 }

@@ -17,6 +17,8 @@ std::filesystem::path shaderRoot;
 std::vector<PointLight> currentHeadlights;
 std::unique_ptr<Ibl> runtimeIbl;
 std::unique_ptr<ReflectionProbe> runtimeProbe;
+RenderQuality renderQuality = RenderQuality::Medium;
+unsigned runtimeProbeSize = 0;
 glm::mat4 worldView(1);
 glm::vec3 currentCarCenter(0);
 SceneCapture probeScene;
@@ -590,6 +592,7 @@ bool Model::canInstance() const {
       return false;
   return true;
 }
+void setQuality(RenderQuality quality) { renderQuality = quality; }
 void Model::drawCurrent(float alpha) { drawCurrentInstances({}, alpha); }
 bool Model::drawCurrentInstances(const std::vector<glm::mat4> &models,
                                  float alpha) {
@@ -624,8 +627,12 @@ bool Model::drawCurrentInstances(const std::vector<glm::mat4> &models,
                               glm::vec3(1, 0, 0))) *
         frame.probeRotation;
     if (runtimeIbl->ready()) {
-      if (!runtimeProbe)
-        runtimeProbe = std::make_unique<ReflectionProbe>(shaderRoot);
+      const auto resolution = carProbeResolution(renderQuality);
+      if (!runtimeProbe || runtimeProbeSize != resolution) {
+        runtimeProbe =
+            std::make_unique<ReflectionProbe>(shaderRoot, resolution);
+        runtimeProbeSize = resolution;
+      }
       runtimeProbe->update(
           *runtimeIbl, glm::vec3(inverse * glm::vec4(currentCarCenter, 1)),
           probeScene,

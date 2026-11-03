@@ -52,7 +52,7 @@ public:
 } // namespace
 nlohmann::json runMaterialScene(
     SDL_Window *window, const std::filesystem::path &data, unsigned frames,
-    bool profiling,
+    bool profiling, trackrs::RenderQuality quality,
     const std::function<trackrs::mesh::MeshData(const std::filesystem::path &)>
         &sphereFactory,
     const std::function<void()> &capture) {
@@ -70,7 +70,7 @@ nlohmann::json runMaterialScene(
        materialPath = data / "vehicles/pbr_test";
   pbr::Model car(load("car"), shaders), asphalt(load("asphalt"), shaders);
   pbr::Ibl environment(scenePath / document.at("ibl").get<std::string>());
-  pbr::ReflectionProbe probe(shaders, 32, .5);
+  pbr::ReflectionProbe probe(shaders, carProbeResolution(quality), .5);
   Sky sky(shaders);
   auto stream = pbr::textureStream();
   std::vector<std::unique_ptr<pbr::Model>> swatches;
@@ -184,6 +184,7 @@ nlohmann::json runMaterialScene(
   glFinish();
   auto report = nlohmann::json{
       {"schema", "trackrs.phase2d-profile/1"},
+      {"quality", std::string(qualityName(quality))},
       {"renderer", reinterpret_cast<const char *>(glGetString(GL_RENDERER))},
       {"frames", total},
       {"ready_frames", readyFrames},
