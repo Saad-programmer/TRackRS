@@ -211,6 +211,39 @@ nlohmann::json iblIntegrationTests(const std::filesystem::path &data) {
                                    {"instance_draws", instances.draws},
                                    {"instance_triangles", instances.triangles}};
   }
+  for (bool fallback : {false, true}) {
+    pbr::TextureStream arrays(fallback);
+    std::vector<assets::Bytes> layers;
+    for (const auto *name : {"tarmac", "gravel", "dirt", "grass", "sand",
+                             "snow", "ice", "mud", "water"})
+      layers.push_back(assets::readFile(data / "terrain/pbr" /
+                                        (std::string(name) + "-albedo.ktx2")));
+    auto texture = arrays.requestArray(layers, assets::Semantic::Albedo);
+    require(!texture->ready && texture->target == GL_TEXTURE_2D_ARRAY,
+            "array must start with correctly typed placeholder");
+    wait(arrays);
+    require(texture->ready && texture->error.empty() && texture->levels == 7,
+            "array mip chain was not published");
+    glBindTexture(GL_TEXTURE_2D_ARRAY, texture->id());
+    for (unsigned mip = 0; mip < 7; ++mip) {
+      GLint depth = 0, width = 0;
+      glGetTexLevelParameteriv(GL_TEXTURE_2D_ARRAY, static_cast<GLint>(mip),
+                               GL_TEXTURE_DEPTH, &depth);
+      glGetTexLevelParameteriv(GL_TEXTURE_2D_ARRAY, static_cast<GLint>(mip),
+                               GL_TEXTURE_WIDTH, &width);
+      require(depth == 9 && width == static_cast<GLint>(64u >> mip),
+              "array dimensions differ across mips");
+    }
+    auto bad = layers;
+    bad[3] = assets::readFile(data / "vehicles/pbr_test/white-albedo.ktx2");
+    auto rejected = arrays.requestArray(bad, assets::Semantic::Albedo);
+    wait(arrays);
+    require(!rejected->ready && !rejected->error.empty(),
+            "incompatible array layer accepted");
+    glBindTexture(GL_TEXTURE_2D_ARRAY, 0);
+    report[fallback ? "surface_array_cpu_fallback" : "surface_array_native"] =
+        "pass";
+  }
   double clock = 0;
   {
     pbr::ReflectionProbe probe(data / "shaders/pbr", 16, .5,

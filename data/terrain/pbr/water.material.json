@@ -1,0 +1,7 @@
+{
+  "name": "water",
+  "albedo": "water-albedo.ktx2",
+  "normal": "water-normal.ktx2",
+  "orm": "water-orm.ktx2",
+  "atlas": false
+}

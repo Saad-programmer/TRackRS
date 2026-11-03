@@ -1,0 +1,7 @@
+{
+  "name": "grass",
+  "albedo": "grass-albedo.ktx2",
+  "normal": "grass-normal.ktx2",
+  "orm": "grass-orm.ktx2",
+  "atlas": false
+}

@@ -17,6 +17,9 @@ struct StreamedTexture {
 class TextureStream {
   struct Impl;
   std::unique_ptr<Impl> impl_;
+  std::shared_ptr<StreamedTexture>
+  requestLayers(const std::vector<assets::Bytes> &layers,
+                assets::Semantic semantic, bool array);
 
 public:
   explicit TextureStream(bool forceCpuDecode = false);
@@ -24,6 +27,9 @@ public:
   TextureStream(const TextureStream &) = delete;
   std::shared_ptr<StreamedTexture> request(const assets::Bytes &bytes,
                                            assets::Semantic semantic);
+  std::shared_ptr<StreamedTexture>
+  requestArray(const std::vector<assets::Bytes> &layers,
+               assets::Semantic semantic);
   void pump();
   bool idle() const;
   std::size_t pboBytes() const;

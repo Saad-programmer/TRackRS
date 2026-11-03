@@ -1,0 +1,7 @@
+{
+  "name": "mud",
+  "albedo": "mud-albedo.ktx2",
+  "normal": "mud-normal.ktx2",
+  "orm": "mud-orm.ktx2",
+  "atlas": false
+}

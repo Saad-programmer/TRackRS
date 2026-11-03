@@ -1,0 +1,7 @@
+{
+  "name": "ice",
+  "albedo": "ice-albedo.ktx2",
+  "normal": "ice-normal.ktx2",
+  "orm": "ice-orm.ktx2",
+  "atlas": false
+}

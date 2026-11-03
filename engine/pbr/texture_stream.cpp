@@ -39,12 +39,14 @@ GLenum internal(assets::Format f) {
   throw std::runtime_error("unsupported texture format");
 }
 struct Binding {
-  GLint active = 0, tex2d = 0, cube = 0, pbo = 0, alignment = 0, row = 0;
+  GLint active = 0, tex2d = 0, cube = 0, array = 0, pbo = 0, alignment = 0,
+        row = 0;
   Binding() {
     glGetIntegerv(GL_ACTIVE_TEXTURE, &active);
     glActiveTexture(GL_TEXTURE0);
     glGetIntegerv(GL_TEXTURE_BINDING_2D, &tex2d);
     glGetIntegerv(GL_TEXTURE_BINDING_CUBE_MAP, &cube);
+    glGetIntegerv(GL_TEXTURE_BINDING_2D_ARRAY, &array);
     glGetIntegerv(GL_PIXEL_UNPACK_BUFFER_BINDING, &pbo);
     glGetIntegerv(GL_UNPACK_ALIGNMENT, &alignment);
     glGetIntegerv(GL_UNPACK_ROW_LENGTH, &row);
@@ -55,6 +57,7 @@ struct Binding {
   ~Binding() {
     glBindTexture(GL_TEXTURE_2D, static_cast<GLuint>(tex2d));
     glBindTexture(GL_TEXTURE_CUBE_MAP, static_cast<GLuint>(cube));
+    glBindTexture(GL_TEXTURE_2D_ARRAY, static_cast<GLuint>(array));
     glBindBuffer(GL_PIXEL_UNPACK_BUFFER, static_cast<GLuint>(pbo));
     glPixelStorei(GL_UNPACK_ALIGNMENT, alignment);
     glPixelStorei(GL_UNPACK_ROW_LENGTH, row);
@@ -76,12 +79,14 @@ struct TextureStream::Impl {
     std::weak_ptr<StreamedTexture> target;
     assets::Bytes bytes;
     assets::Semantic semantic;
+    std::vector<assets::Bytes> layers;
   };
   struct Ready {
     std::weak_ptr<StreamedTexture> target;
     assets::TextureData data;
     std::string error;
     bool native = true;
+    unsigned layers = 1;
   };
   struct Slot {
     GLuint pbo = 0;
@@ -141,6 +146,23 @@ struct TextureStream::Impl {
       result.target = job.target;
       try {
         result.data = assets::readKtx2(job.bytes, job.semantic);
+        if (!job.layers.empty()) {
+          if (result.data.faces != 1)
+            throw std::runtime_error("array layers must be 2D");
+          result.layers = static_cast<unsigned>(job.layers.size());
+          for (std::size_t layer = 1; layer < job.layers.size(); ++layer) {
+            auto data = assets::readKtx2(job.layers[layer], job.semantic);
+            if (data.faces != 1 || data.width != result.data.width ||
+                data.height != result.data.height ||
+                data.format != result.data.format ||
+                data.levels.size() != result.data.levels.size())
+              throw std::runtime_error("array layer layouts differ");
+            for (std::size_t mip = 0; mip < data.levels.size(); ++mip)
+              result.data.levels[mip].insert(result.data.levels[mip].end(),
+                                             data.levels[mip].begin(),
+                                             data.levels[mip].end());
+          }
+        }
         auto f = result.data.format;
         result.native = bptc || f == assets::Format::BC4 ||
                         f == assets::Format::BC5 || f == assets::Format::RG16F;
@@ -150,7 +172,9 @@ struct TextureStream::Impl {
           for (auto &level : result.data.levels) {
             assets::Bytes decoded;
             auto size = assets::faceBytes(f, w, h);
-            for (unsigned face = 0; face < result.data.faces; ++face) {
+            for (unsigned face = 0;
+                 face < (result.layers > 1 ? result.layers : result.data.faces);
+                 ++face) {
               assets::Bytes compressed(
                   level.begin() + static_cast<std::ptrdiff_t>(face * size),
                   level.begin() +
@@ -194,11 +218,33 @@ TextureStream::TextureStream(bool force)
 TextureStream::~TextureStream() = default;
 std::shared_ptr<StreamedTexture>
 TextureStream::request(const assets::Bytes &bytes, assets::Semantic semantic) {
+  return requestLayers({bytes}, semantic, false);
+}
+std::shared_ptr<StreamedTexture>
+TextureStream::requestArray(const std::vector<assets::Bytes> &layers,
+                            assets::Semantic semantic) {
+  if (layers.size() < 2 || layers.size() > 256 ||
+      (semantic != assets::Semantic::Albedo &&
+       semantic != assets::Semantic::Normal &&
+       semantic != assets::Semantic::Orm &&
+       semantic != assets::Semantic::Scalar))
+    throw std::invalid_argument("surface array requires 2..256 layers");
+  return requestLayers(layers, semantic, true);
+}
+std::shared_ptr<StreamedTexture>
+TextureStream::requestLayers(const std::vector<assets::Bytes> &layers,
+                             assets::Semantic semantic, bool array) {
+  const auto &bytes = layers.front();
   std::uint64_t hash = 14695981039346656037ULL;
-  for (auto c : bytes) {
-    hash ^= c;
+  for (const auto &layer : layers) {
+    for (auto c : layer) {
+      hash ^= c;
+      hash *= 1099511628211ULL;
+    }
+    hash ^= layer.size();
     hash *= 1099511628211ULL;
   }
+  hash ^= array ? 1u : 0u;
   std::string key = std::to_string(hash) + ":" + std::to_string(bytes.size()) +
                     ":" + std::to_string(static_cast<unsigned>(semantic));
   auto &cached = impl_->cache[key];
@@ -206,7 +252,8 @@ TextureStream::request(const assets::Bytes &bytes, assets::Semantic semantic) {
     return value;
   Binding saved;
   auto ticket = std::make_shared<StreamedTexture>();
-  ticket->target = semantic == assets::Semantic::Environment
+  ticket->target = array ? GL_TEXTURE_2D_ARRAY
+                   : semantic == assets::Semantic::Environment
                        ? GL_TEXTURE_CUBE_MAP
                        : GL_TEXTURE_2D;
   glGenTextures(1, &ticket->placeholder);
@@ -217,22 +264,35 @@ TextureStream::request(const assets::Bytes &bytes, assets::Semantic semantic) {
       : semantic == assets::Semantic::Orm
           ? std::array<unsigned char, 4>{255, 204, 0, 255}
           : std::array<unsigned char, 4>{128, 128, 128, 255};
-  for (unsigned f = 0; f < (ticket->target == GL_TEXTURE_CUBE_MAP ? 6u : 1u);
-       ++f)
-    glTexImage2D(
-        ticket->target == GL_TEXTURE_CUBE_MAP
-            ? GL_TEXTURE_CUBE_MAP_POSITIVE_X + f
-            : GL_TEXTURE_2D,
-        0, semantic == assets::Semantic::Albedo ? GL_SRGB8_ALPHA8 : GL_RGBA8, 1,
-        1, 0, GL_RGBA, GL_UNSIGNED_BYTE, pixel.data());
+  if (array) {
+    assets::Bytes pixels;
+    for (std::size_t layer = 0; layer < layers.size(); ++layer)
+      pixels.insert(pixels.end(), pixel.begin(), pixel.end());
+    glTexImage3D(GL_TEXTURE_2D_ARRAY, 0,
+                 semantic == assets::Semantic::Albedo ? GL_SRGB8_ALPHA8
+                                                      : GL_RGBA8,
+                 1, 1, static_cast<GLsizei>(layers.size()), 0, GL_RGBA,
+                 GL_UNSIGNED_BYTE, pixels.data());
+  } else
+    for (unsigned f = 0; f < (ticket->target == GL_TEXTURE_CUBE_MAP ? 6u : 1u);
+         ++f)
+      glTexImage2D(
+          ticket->target == GL_TEXTURE_CUBE_MAP
+              ? GL_TEXTURE_CUBE_MAP_POSITIVE_X + f
+              : GL_TEXTURE_2D,
+          0, semantic == assets::Semantic::Albedo ? GL_SRGB8_ALPHA8 : GL_RGBA8,
+          1, 1, 0, GL_RGBA, GL_UNSIGNED_BYTE, pixel.data());
   glTexParameteri(ticket->target, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
   glTexParameteri(ticket->target, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
   glTexParameteri(ticket->target, GL_TEXTURE_MAX_LEVEL, 0);
-  ticket->residentBytes = ticket->target == GL_TEXTURE_CUBE_MAP ? 24 : 4;
+  ticket->residentBytes = array ? layers.size() * 4
+                          : ticket->target == GL_TEXTURE_CUBE_MAP ? 24
+                                                                  : 4;
   cached = ticket;
   {
     std::lock_guard<std::mutex> lock(impl_->mutex);
-    impl_->jobs.push_back({ticket, bytes, semantic});
+    impl_->jobs.push_back({ticket, bytes, semantic,
+                           array ? layers : std::vector<assets::Bytes>{}});
   }
   impl_->wake.notify_one();
   return ticket;
@@ -296,34 +356,52 @@ void TextureStream::pump() {
     unsigned w = data.width, h = data.height;
     std::size_t resident = 0;
     for (unsigned level = 0; level < data.levels.size(); ++level) {
-      auto faceSize = data.levels[level].size() / data.faces;
-      for (unsigned face = 0; face < data.faces; ++face) {
-        auto target = t->target == GL_TEXTURE_CUBE_MAP
-                          ? GL_TEXTURE_CUBE_MAP_POSITIVE_X + face
-                          : GL_TEXTURE_2D;
-        if (item.native && data.format != assets::Format::RG16F) {
-          glCompressedTexImage2D(
-              target, static_cast<GLint>(level), internal(data.format),
-              static_cast<GLsizei>(w), static_cast<GLsizei>(h), 0,
-              static_cast<GLsizei>(faceSize), byteOffset(offset));
-          resident += faceSize;
-        } else {
-          bool hdr = data.format == assets::Format::BC6H,
-               lut = data.format == assets::Format::RG16F;
-          glTexImage2D(target, static_cast<GLint>(level),
-                       lut                           ? GL_RG16F
-                       : hdr                         ? GL_RGBA16F
-                       : assets::isSrgb(data.format) ? GL_SRGB8_ALPHA8
-                                                     : GL_RGBA8,
-                       static_cast<GLsizei>(w), static_cast<GLsizei>(h), 0,
-                       lut ? GL_RG : GL_RGBA,
-                       lut   ? GL_HALF_FLOAT
-                       : hdr ? GL_FLOAT
-                             : GL_UNSIGNED_BYTE,
-                       byteOffset(offset));
-          resident += std::size_t(w) * h * (lut ? 4 : hdr ? 8 : 4);
+      if (t->target == GL_TEXTURE_2D_ARRAY) {
+        auto bytes = data.levels[level].size();
+        if (item.native)
+          glCompressedTexImage3D(
+              GL_TEXTURE_2D_ARRAY, static_cast<GLint>(level),
+              internal(data.format), static_cast<GLsizei>(w),
+              static_cast<GLsizei>(h), static_cast<GLsizei>(item.layers), 0,
+              static_cast<GLsizei>(bytes), byteOffset(offset));
+        else
+          glTexImage3D(GL_TEXTURE_2D_ARRAY, static_cast<GLint>(level),
+                       assets::isSrgb(data.format) ? GL_SRGB8_ALPHA8 : GL_RGBA8,
+                       static_cast<GLsizei>(w), static_cast<GLsizei>(h),
+                       static_cast<GLsizei>(item.layers), 0, GL_RGBA,
+                       GL_UNSIGNED_BYTE, byteOffset(offset));
+        resident += bytes;
+        offset += bytes;
+      } else {
+        auto faceSize = data.levels[level].size() / data.faces;
+        for (unsigned face = 0; face < data.faces; ++face) {
+          auto target = t->target == GL_TEXTURE_CUBE_MAP
+                            ? GL_TEXTURE_CUBE_MAP_POSITIVE_X + face
+                            : GL_TEXTURE_2D;
+          if (item.native && data.format != assets::Format::RG16F) {
+            glCompressedTexImage2D(
+                target, static_cast<GLint>(level), internal(data.format),
+                static_cast<GLsizei>(w), static_cast<GLsizei>(h), 0,
+                static_cast<GLsizei>(faceSize), byteOffset(offset));
+            resident += faceSize;
+          } else {
+            bool hdr = data.format == assets::Format::BC6H,
+                 lut = data.format == assets::Format::RG16F;
+            glTexImage2D(target, static_cast<GLint>(level),
+                         lut                           ? GL_RG16F
+                         : hdr                         ? GL_RGBA16F
+                         : assets::isSrgb(data.format) ? GL_SRGB8_ALPHA8
+                                                       : GL_RGBA8,
+                         static_cast<GLsizei>(w), static_cast<GLsizei>(h), 0,
+                         lut ? GL_RG : GL_RGBA,
+                         lut   ? GL_HALF_FLOAT
+                         : hdr ? GL_FLOAT
+                               : GL_UNSIGNED_BYTE,
+                         byteOffset(offset));
+            resident += std::size_t(w) * h * (lut ? 4 : hdr ? 8 : 4);
+          }
+          offset += faceSize;
         }
-        offset += faceSize;
       }
       w = std::max(1u, w / 2);
       h = std::max(1u, h / 2);
@@ -342,7 +420,8 @@ void TextureStream::pump() {
                               data.format == assets::Format::RG16F
                           ? GL_CLAMP_TO_EDGE
                           : GL_REPEAT);
-    if (impl_->anisotropic && t->target == GL_TEXTURE_2D &&
+    if (impl_->anisotropic &&
+        (t->target == GL_TEXTURE_2D || t->target == GL_TEXTURE_2D_ARRAY) &&
         data.format != assets::Format::RG16F)
       glTexParameterf(t->target, GL_TEXTURE_MAX_ANISOTROPY_EXT,
                       impl_->anisotropy);

@@ -20,6 +20,8 @@ void MainApp::config()
     PUtil::setDebugLevel(DEBUGLEVEL_DEVELOPER);// serve pour 
 
     cfg.loadConfig();
+    if(!validation::run.options.quality.empty())cfg.setRenderQuality(trackrs::parseQuality(validation::run.options.quality));
+    if(!validation::run.options.renderer.empty())cfg.setPbrTerrain(validation::run.options.renderer=="pbr");
     setTextureAnisotropy(cfg.getAnisotropy());
     setScreenMode(cfg.getVideoCx(), cfg.getVideoCy(), cfg.getVideoFullscreen());
     if (validation::run.options.enabled) {

@@ -26,7 +26,19 @@ def main():
             result=subprocess.run([args.validator,'-l',*files],text=True,capture_output=True)
             if result.returncode: raise RuntimeError(f'{fragment}: {result.stdout}\n{result.stderr}')
             auxiliary.append({'fragment':fragment,'compile_and_link':'pass'})
-    report={'permutations':results,'auxiliary':auxiliary}
+        terrain=[]
+        for shadow,coverage in itertools.product((False,True),repeat=2):
+            defines=['TERRAIN']+(['USE_CSM'] if shadow else [])+(['ALPHA_TO_COVERAGE'] if coverage else [])
+            files=[]
+            for source,stage in (('terrain','vert'),('pbr','frag')):
+                path=pathlib.Path(temp)/f'terrain.{stage}'
+                text=expand(ROOT/f'data/shaders/pbr/{source}.{stage}')
+                text=text.replace('#version 330 core','#version 330 core\n'+''.join(f'#define {d} 1\n' for d in defines),1)
+                path.write_text(text);files.append(str(path))
+            result=subprocess.run([args.validator,'-l',*files],text=True,capture_output=True)
+            if result.returncode:raise RuntimeError(f'{defines}: {result.stdout}\n{result.stderr}')
+            terrain.append({'defines':defines,'compile_and_link':'pass'})
+    report={'permutations':results,'auxiliary':auxiliary,'terrain':terrain}
     if args.output:pathlib.Path(args.output).write_text(json.dumps(report,indent=2)+'\n')
     print(f'PASS: {len(results)} PBR shader permutations compile and link')
 if __name__=='__main__': main()

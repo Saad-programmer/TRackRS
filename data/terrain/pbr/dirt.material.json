@@ -1,0 +1,7 @@
+{
+  "name": "dirt",
+  "albedo": "dirt-albedo.ktx2",
+  "normal": "dirt-normal.ktx2",
+  "orm": "dirt-orm.ktx2",
+  "atlas": false
+}

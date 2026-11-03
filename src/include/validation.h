@@ -17,7 +17,7 @@ struct Options {
     bool enabled = false, headless = false, benchmark = false, help = false;
     unsigned frames = 1500, seed = 1000;
     std::string stage = "/maps/ahead/ahead.level", vehicle = "cordo_kitcar";
-    std::string replay, dump, json, screenshot, data;
+    std::string replay, dump, json, screenshot, data, renderer, quality;
 };
 struct Run {
     Options options;

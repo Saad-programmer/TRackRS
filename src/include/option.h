@@ -29,6 +29,7 @@ private:
     OptionCodriverSigns,
     OptionTextureQuality,
     OptionRenderQuality,
+    OptionTerrainRenderer,
     OptionSnowflakes,
     OptionSpeedUnits,
     OptionGhostCars,

@@ -33,6 +33,8 @@ Options parse(int argc, char** argv) {
         else if (key == "--headless") o.headless = o.enabled = true;
         else if (key == "--benchmark") o.benchmark = o.enabled = true;
         else if (key == "--stage") { o.stage = value(); o.enabled = true; }
+        else if (key == "--renderer") { o.renderer=value(); if(o.renderer!="legacy"&&o.renderer!="pbr")throw std::runtime_error("renderer must be legacy or pbr"); }
+        else if (key == "--quality") { o.quality=value(); if(o.quality!="low"&&o.quality!="medium"&&o.quality!="high"&&o.quality!="ultra")throw std::runtime_error("invalid render quality"); }
         else if (key == "--vehicle") o.vehicle = value();
         else if (key == "--data-dir") o.data = value();
         else if (key == "--frames") o.frames = number(value());

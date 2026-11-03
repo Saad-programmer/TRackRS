@@ -100,10 +100,18 @@ const float PI    = 3.14159265359;
 // ============================================================================
 #include "brdf.glsl"
 // ============================================================================
+#ifdef TERRAIN
+#include "terrain_material.glsl"
+#endif
 void main()
 {
     // ---- fetch material (3 texture reads for the whole surface) -----------
+#ifdef TERRAIN
+    TerrainSurface terrain = terrainMaterial(fs.worldPos, normalize(fs.N));
+    vec4 baseSample = vec4(terrain.albedo,1.0);
+#else
     vec4 baseSample = texture(uAlbedoMap, fs.uv) * uBaseColorFactor;
+#endif
     #ifdef ALPHA_TO_COVERAGE
     if (uAlphaCutoff > 0.0) baseSample.a = clamp((baseSample.a-uAlphaCutoff)/max(fwidth(baseSample.a),0.001)+0.5,0.0,1.0);
 #else
@@ -111,7 +119,11 @@ void main()
 #endif
 
     vec3 albedo = baseSample.rgb * fs.color.rgb;            // vertex colour = baked wear/AO tint (white if unused)
-    vec3 mr     = texture(uMetalRoughMap, fs.uv).rgb;
+#ifdef TERRAIN
+    vec3 mr = terrain.orm;
+#else
+    vec3 mr = texture(uMetalRoughMap, fs.uv).rgb;
+#endif
     float ao        = mix(1.0, mr.r, uAOStrength) * fs.color.a;
     float roughness = clamp(mr.g * uRoughnessFactor, 0.04, 1.0);
     float metallic  = clamp(mr.b * uMetallicFactor, 0.0, 1.0);
@@ -121,10 +133,14 @@ void main()
     roughness  = mix(roughness, min(roughness, 0.12), uWetness);
 
     // ---- tangent-space normal mapping ---------------------------------------
+#ifdef TERRAIN
+    vec3 N = terrain.normal;
+#else
     vec2 nxy = (texture(uNormalMap, fs.uv).xy * 2.0 - 1.0) * uNormalScale;
     vec3 nts = vec3(nxy, sqrt(max(1.0 - dot(nxy, nxy), 0.0)));
     mat3 TBN = mat3(normalize(fs.T), normalize(fs.B), normalize(fs.N));
     vec3 N   = normalize(TBN * nts);
+#endif
     if (!gl_FrontFacing) N = -N;                            // two-sided foliage / panels
     vec3 V   = normalize(uCamPos - fs.worldPos);
     float NdotV = max(dot(N, V), 1e-4);

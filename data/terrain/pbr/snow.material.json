@@ -1,0 +1,7 @@
+{
+  "name": "snow",
+  "albedo": "snow-albedo.ktx2",
+  "normal": "snow-normal.ktx2",
+  "orm": "snow-orm.ktx2",
+  "atlas": false
+}

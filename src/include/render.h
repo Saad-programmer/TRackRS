@@ -1,4 +1,6 @@
 #include "engine/render/basic.h"
+#include "engine/core/lru_cache.h"
+namespace trackrs::terrain { class Renderer; }
 namespace trackrs::mesh { struct MeshData; }
 namespace trackrs::pbr { class Model; }
 #include "../../engine/core/pcg32.h"
@@ -549,7 +551,8 @@ protected:
   std::vector<PTerrainFoliageBand> foliageband;
   std::vector<road_sign> roadsigns;
 
-  std::list<PTerrainTile> tile;
+  trackrs::LruCache<trackrs::TileKey, std::unique_ptr<PTerrainTile>, trackrs::TileHash> tile{128};
+  std::unique_ptr<trackrs::terrain::Renderer> worldRenderer;
 
   // tiles share index buffers
   PVBuffer ind;
@@ -570,7 +573,7 @@ public:
 
   void unload();
 
-  void render(const vec3f &campos, const mat44f &camorim);
+  void render(const vec3f &campos, const mat44f &camorim, bool reflectionCapture = false);
 
   void drawSplat(float x, float y, float scale, float angle);
 

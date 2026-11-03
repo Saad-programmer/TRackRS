@@ -1,0 +1,7 @@
+{
+  "name": "gravel",
+  "albedo": "gravel-albedo.ktx2",
+  "normal": "gravel-normal.ktx2",
+  "orm": "gravel-orm.ktx2",
+  "atlas": false
+}

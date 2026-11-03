@@ -29,6 +29,8 @@ POption::POption(Gui &parent, PConfig &config) :
     { "off", "abon", "glossy", "plain", "white" }, 0 });
   options.push_back({ OptionTextureQuality, "Texture quality",
     { "off", "1", "2", "4", "8", "16", "32" }, 0 });
+  options.push_back({ OptionTerrainRenderer, "World renderer",
+    { "Legacy", "PBR" }, 0 });
   options.push_back({ OptionRenderQuality, "Render quality",
     { "Low", "Medium", "High", "Ultra" }, 1 });
   options.push_back({ OptionSnowflakes, "Snowflakes",
@@ -105,6 +107,9 @@ void POption::select(int index)
       cfg.setAnisotropy(pow(2, column - 1));
     else
       cfg.setAnisotropy(0.0f);
+    break;
+  case OptionTerrainRenderer:
+    cfg.setPbrTerrain(column!=0);
     break;
   case OptionRenderQuality:
     cfg.setRenderQuality(static_cast<trackrs::RenderQuality>(column));
@@ -215,6 +220,9 @@ void POption::updateSelect(Option &option)
       option.select = 0;
     break;
   }
+  case OptionTerrainRenderer:
+    option.select=cfg.getPbrTerrain()?1:0;
+    break;
   case OptionRenderQuality:
     option.select = static_cast<unsigned>(cfg.getRenderQuality());
     break;

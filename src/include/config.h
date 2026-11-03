@@ -105,6 +105,8 @@ public:
   float getHudSpeedoMpsSpeedMult() const;
   Speedunit getSpeedUnit() const;
   GLfloat getAnisotropy() const;
+  bool getPbrTerrain() const { return cfg_pbr_terrain; }
+  void setPbrTerrain(bool enabled);
   trackrs::RenderQuality getRenderQuality() const { return cfg_render_quality; }
   void setRenderQuality(trackrs::RenderQuality quality);
 
@@ -178,6 +180,7 @@ private:
 
   bool cfg_dirteffect = true;
 
+  bool cfg_pbr_terrain = false;
   trackrs::RenderQuality cfg_render_quality = trackrs::RenderQuality::Medium;
   GLfloat cfg_anisotropy = 1.0f;    ///< Anisotropic filter quality.
   bool cfg_foliage = true;          ///< Foliage on/off flag.
