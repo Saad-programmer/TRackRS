@@ -8,6 +8,7 @@
 #include <array>
 #include <glm/gtc/type_ptr.hpp>
 #include <limits>
+#include <fstream>
 #include <map>
 #include <stdexcept>
 namespace trackrs::pbr {
@@ -297,11 +298,38 @@ struct Model::Impl {
            std::make_unique<Texture>(m.normal, false, assets::Semantic::Normal),
            std::make_unique<Texture>(m.metalRough, false,
                                      assets::Semantic::Orm)});
+    // Coalesce opaque/masked primitives once at upload time. Blended
+    // primitives retain their source order because ordering affects blending.
+    std::vector<mesh::Submesh> batches;
+    std::map<std::size_t, std::size_t> materialBatch;
     for (const auto &sub : data.submeshes) {
       if (sub.material >= materials.size())
         throw std::runtime_error("material index out of bounds");
-      meshes.push_back(std::make_unique<Geometry>(sub));
+      if (materials[sub.material].alpha == mesh::AlphaMode::Blend) {
+        batches.push_back(sub);
+        materialBatch.clear();
+        continue;
+      }
+      auto found = materialBatch.find(sub.material);
+      if (found == materialBatch.end()) {
+        materialBatch.emplace(sub.material, batches.size());
+        batches.push_back(sub);
+        continue;
+      }
+      auto &batch = batches[found->second];
+      if (batch.vertices.size() + sub.vertices.size() >
+          std::numeric_limits<std::uint32_t>::max())
+        throw std::overflow_error("material batch vertex limit");
+      const auto offset = static_cast<std::uint32_t>(batch.vertices.size());
+      batch.vertices.insert(batch.vertices.end(), sub.vertices.begin(),
+                            sub.vertices.end());
+      batch.packed.insert(batch.packed.end(), sub.packed.begin(),
+                          sub.packed.end());
+      for (auto index : sub.indices)
+        batch.indices.push_back(index + offset);
     }
+    for (const auto &batch : batches)
+      meshes.push_back(std::make_unique<Geometry>(batch));
   }
   GLuint program(unsigned flags) {
     auto &p = programs[flags];
@@ -464,7 +492,7 @@ Statistics Model::draw(const Frame &frame, const std::vector<glm::mat4> &models,
     integer(p, "uIrradianceMap", 3);
     integer(p, "uPrefilterMap", 4);
     integer(p, "uBrdfLUT", 5);
-    integer(p,"uLocalProbe",7);
+    integer(p, "uLocalProbe", 7);
     auto baseColor = m.baseColor;
     baseColor[3] *= frame.alpha;
     glUniform4fv(glGetUniformLocation(p, "uBaseColorFactor"), 1,
@@ -554,6 +582,14 @@ Statistics Model::draw(const Frame &frame, const std::vector<glm::mat4> &models,
   return stats;
 }
 void Model::drawCurrent(float alpha) {
+  drawCurrentInstances({}, alpha);
+}
+bool Model::drawCurrentInstances(const std::vector<glm::mat4> &models, float alpha) {
+  if (!models.empty())
+    for (const auto &material : impl_->materials)
+      if (material.path == mesh::MaterialPath::Legacy)
+        return false;
+
   draw::SavedState saved;
   draw::flush();
   glm::mat4 mv, projection;
@@ -594,7 +630,9 @@ void Model::drawCurrent(float alpha) {
     }
   }
 
-  const auto stats = draw(frame, {mv});
+  if (validation::run.capture)
+    profileEnabled(true);
+  const auto stats = models.empty() ? draw(frame, {mv}) : draw(frame, models, true, true);
   draw::invalidateGpuState();
   if (impl_->legacy.empty())
     impl_->legacy.resize(impl_->source.submeshes.size());
@@ -629,5 +667,19 @@ void Model::drawCurrent(float alpha) {
     validation::run.frameDraws += stats.draws;
     validation::run.frameTriangles += stats.triangles;
   }
+  return true;
+}
+void writeProfile(const std::filesystem::path &path) {
+  if (!runtimeIbl)
+    return;
+  glFinish(); // Validation endpoint only: collect timestamps before teardown.
+  auto stream = textureStream();
+  nlohmann::json report = {{"materials", materialReport()},
+                           {"environment_texture_bytes", runtimeIbl->bytes()},
+                           {"pbo_bytes", stream->pboBytes()},
+                           {"unique_streamed_texture_bytes", stream->residentBytes()}};
+  if (runtimeProbe)
+    report["probe"] = runtimeProbe->report();
+  std::ofstream(path) << report.dump(2) << '\n';
 }
 } // namespace trackrs::pbr

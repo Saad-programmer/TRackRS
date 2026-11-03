@@ -125,3 +125,32 @@ integrates that shared production BRDF, using the PDF at the reflected light
 sample; reciprocity and a mirrored-UV sphere are tested on the GPU. Full IBL furnace
 validation remains at the 2d gate. CSM is a tested borrowed-resource interface,
 not a cascade generator in this gate.
+
+### Phase 2d: native BC KTX2 caches and sky IBL
+
+KTX2 files carry native BC7 sRGB albedo, BC5 linear normals, BC7 linear ORM
+(AO/R, roughness/G, metallic/B), BC4 scalar data, BC6H unsigned HDR cubes, or
+RG16F integration LUTs. They are not Basis Universal payloads and do not claim
+the glTF KHR_texture_basisu extension. Standard glTF images retain PNG fallbacks;
+optional image extras.trackrsKtx2 selects the native cache for TrackRS. Every
+level is required and colour-space/role validation runs before GPU publication.
+
+Native BPTC is used when available. Otherwise an independent pinned bcdec CPU
+decoder produces portable uncompressed uploads. Three fenced PBO slots publish
+complete textures only after a zero-timeout fence poll; placeholders remain
+valid meanwhile. Anisotropy applies to surface textures, not convolution cubes
+or integration LUTs. Diffuse IBL samples the already-convolved base level
+explicitly, avoiding derivative-dependent sampling of irradiance.
+
+The original analytic sky is baked deterministically to diffuse irradiance/pi,
+a full GGX roughness chain and a 256-square RG16F split-sum LUT. Multiple-scatter
+energy compensation preserves a white rough conductor in the production shader
+furnace. The local car probe captures six low-resolution faces and convolves
+all roughness levels; its default refresh interval is 500 ms and the API rejects
+intervals below 250 ms. No Phase 3 scheduling or LOD implementation is implied.
+
+Opaque/masked primitives are combined by material at GPU creation; blended
+primitives retain source order. Existing PNG/OBJ legacy rendering remains the
+default unless an asset supplies PBR maps. GPU timestamps and logical storage
+counts distinguish software-renderer measurements from hardware performance
+claims and exclude driver allocation padding.

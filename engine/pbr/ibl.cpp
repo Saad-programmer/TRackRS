@@ -159,7 +159,7 @@ struct ReflectionProbe::Impl {
       : clock(clockSource ? std::move(clockSource)
                           : std::function<double()>(now)),
         size(dimension), interval(seconds) {
-    check(size && size <= 128 && !(size & (size - 1)) && interval >= .25,
+    check(size >= 4 && size <= 128 && !(size & (size - 1)) && interval >= .25,
           "probe requires POT <=128 and interval >=250ms");
     CaptureState state;
     sky = std::make_unique<rhi::ShaderProgram>(path / "cube.vert",

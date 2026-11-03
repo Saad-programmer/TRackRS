@@ -76,3 +76,5 @@ if(UNIX AND NOT APPLE)
     COMMAND "${CMAKE_SOURCE_DIR}/tools/package_appimage.sh" "${CMAKE_BINARY_DIR}"
     DEPENDS trackrs USES_TERMINAL)
 endif()
+
+install(FILES third_party/bcdec/bcdec.h third_party/bcdec/README.md DESTINATION share/doc/trackrs/dependency-notices/bcdec)

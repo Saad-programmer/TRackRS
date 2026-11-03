@@ -10,7 +10,10 @@ parser.add_argument('--compiler', default='clang-tidy')
 args = parser.parse_args()
 command = [args.compiler, 'engine/rhi/rhi.cpp', 'engine/rhi/core_device.cpp',
            'engine/media/movie.cpp', 'engine/render/basic.cpp', 'engine/mesh/mesh_importer.cpp',
-           'engine/mesh/tangents.cpp', 'engine/pbr/renderer.cpp', '-p', str(args.database)]
+           'engine/mesh/tangents.cpp', 'engine/pbr/renderer.cpp',
+           'engine/pbr/texture_stream.cpp', 'engine/pbr/ibl.cpp',
+           'engine/assets/ktx2.cpp', 'engine/assets/ibl_bake.cpp',
+           'engine/assets/material_manifest.cpp', '-p', str(args.database)]
 result = subprocess.run(command, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True)
 print(result.stdout, end='')
 if result.returncode:

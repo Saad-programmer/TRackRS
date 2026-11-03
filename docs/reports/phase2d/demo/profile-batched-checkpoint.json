@@ -1,0 +1,187 @@
+{
+  "draw_calls": 15,
+  "environment_texture_bytes": 417664,
+  "frames": 34,
+  "materials": [
+    {
+      "gpu_ms_max": 5.809798,
+      "gpu_ms_mean": 3.1307512666666684,
+      "gpu_samples": 30,
+      "name": "chrome",
+      "resident_texture_bytes": 1116
+    },
+    {
+      "gpu_ms_max": 24.302115,
+      "gpu_ms_mean": 10.228079000000001,
+      "gpu_samples": 30,
+      "name": "clear-coat paint",
+      "resident_texture_bytes": 1116
+    },
+    {
+      "gpu_ms_max": 29.156969,
+      "gpu_ms_mean": 10.740635033333332,
+      "gpu_samples": 30,
+      "name": "dielectric roughness 0.100000",
+      "resident_texture_bytes": 1116
+    },
+    {
+      "gpu_ms_max": 33.470982,
+      "gpu_ms_mean": 11.219615633333335,
+      "gpu_samples": 30,
+      "name": "dielectric roughness 0.300000",
+      "resident_texture_bytes": 1116
+    },
+    {
+      "gpu_ms_max": 16.695153,
+      "gpu_ms_mean": 10.419731366666666,
+      "gpu_samples": 30,
+      "name": "dielectric roughness 0.500000",
+      "resident_texture_bytes": 1116
+    },
+    {
+      "gpu_ms_max": 18.787182,
+      "gpu_ms_mean": 12.22917213333333,
+      "gpu_samples": 30,
+      "name": "dielectric roughness 0.700000",
+      "resident_texture_bytes": 1116
+    },
+    {
+      "gpu_ms_max": 15.626695,
+      "gpu_ms_mean": 12.282656333333334,
+      "gpu_samples": 30,
+      "name": "dielectric roughness 0.900000",
+      "resident_texture_bytes": 1116
+    },
+    {
+      "gpu_ms_max": 8.188942,
+      "gpu_ms_mean": 2.784941466666667,
+      "gpu_samples": 30,
+      "name": "glass",
+      "resident_texture_bytes": 1116
+    },
+    {
+      "gpu_ms_max": 12.12208,
+      "gpu_ms_mean": 9.516766366666666,
+      "gpu_samples": 30,
+      "name": "metal roughness 0.100000",
+      "resident_texture_bytes": 1116
+    },
+    {
+      "gpu_ms_max": 14.659389,
+      "gpu_ms_mean": 9.629589066666664,
+      "gpu_samples": 30,
+      "name": "metal roughness 0.300000",
+      "resident_texture_bytes": 1116
+    },
+    {
+      "gpu_ms_max": 14.267327,
+      "gpu_ms_mean": 10.762398633333333,
+      "gpu_samples": 30,
+      "name": "metal roughness 0.500000",
+      "resident_texture_bytes": 1116
+    },
+    {
+      "gpu_ms_max": 18.84205,
+      "gpu_ms_mean": 12.5329705,
+      "gpu_samples": 30,
+      "name": "metal roughness 0.700000",
+      "resident_texture_bytes": 1116
+    },
+    {
+      "gpu_ms_max": 20.510049,
+      "gpu_ms_mean": 12.133772633333335,
+      "gpu_samples": 30,
+      "name": "metal roughness 0.900000",
+      "resident_texture_bytes": 1116
+    },
+    {
+      "gpu_ms_max": 19.608529,
+      "gpu_ms_mean": 4.524010366666667,
+      "gpu_samples": 30,
+      "name": "rubber",
+      "resident_texture_bytes": 1116
+    },
+    {
+      "gpu_ms_max": 28.016352,
+      "gpu_ms_mean": 8.761254966666668,
+      "gpu_samples": 30,
+      "name": "wet asphalt",
+      "resident_texture_bytes": 16476
+    }
+  ],
+  "measured_frames": 30,
+  "memory_scope": "logical texture/PBO/depth storage; per-material bindings include shared textures; driver padding excluded",
+  "pbo_bytes": 350260,
+  "probe": {
+    "capture_gpu_ms": [
+      314.125888,
+      10.946101,
+      11.733279,
+      12.7516,
+      12.697364,
+      11.172382,
+      12.512567,
+      13.072442,
+      11.161651,
+      12.099583,
+      13.619356,
+      10.993832,
+      14.089022,
+      11.983825,
+      11.727641,
+      12.620851,
+      12.118228
+    ],
+    "depth_bytes": 4096,
+    "faces": 6,
+    "interval_seconds": 0.5,
+    "prefilter_gpu_ms": [
+      24.849755,
+      9.008292,
+      9.898117,
+      10.256148,
+      12.820762,
+      9.721745,
+      8.052655,
+      10.066911,
+      8.821878,
+      9.632601,
+      11.126073,
+      9.889077,
+      15.090093,
+      14.547669,
+      10.470004,
+      10.012925,
+      9.442539
+    ],
+    "resident_bytes": 135136,
+    "size": 32,
+    "texture_bytes": 131040,
+    "update_times": [
+      1701.589541683,
+      1704.064809715,
+      1704.783923704,
+      1705.616717198,
+      1706.400939177,
+      1707.214520434,
+      1708.020898009,
+      1708.782903489,
+      1709.600340579,
+      1710.412605011,
+      1711.226079263,
+      1712.036341132,
+      1712.825177987,
+      1713.652957675,
+      1714.527792507,
+      1715.371145221,
+      1716.181584303
+    ],
+    "updates": 17
+  },
+  "profiling_warmup_frames": 3,
+  "ready_frames": 33,
+  "renderer": "llvmpipe (LLVM 19.1.7, 256 bits)",
+  "schema": "trackrs.phase2d-profile/1",
+  "triangles": 9756,
+  "unique_streamed_texture_bytes": 438604
+}

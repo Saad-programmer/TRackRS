@@ -1,0 +1,130 @@
+[
+  {
+    "file": "data/scenes/material_preview/ibl/brdf.ktx2",
+    "khronos": "pass"
+  },
+  {
+    "file": "data/scenes/material_preview/ibl/irradiance.ktx2",
+    "khronos": "pass"
+  },
+  {
+    "file": "data/scenes/material_preview/ibl/prefilter.ktx2",
+    "khronos": "pass"
+  },
+  {
+    "file": "data/scenes/material_preview/ibl/sky.ktx2",
+    "khronos": "pass"
+  },
+  {
+    "file": "data/vehicles/pbr_test/asphalt-albedo.ktx2",
+    "khronos": "pass"
+  },
+  {
+    "file": "data/vehicles/pbr_test/asphalt-normal.ktx2",
+    "khronos": "pass"
+  },
+  {
+    "file": "data/vehicles/pbr_test/asphalt-orm.ktx2",
+    "khronos": "pass"
+  },
+  {
+    "file": "data/vehicles/pbr_test/chrome-albedo.ktx2",
+    "khronos": "pass"
+  },
+  {
+    "file": "data/vehicles/pbr_test/chrome-normal.ktx2",
+    "khronos": "pass"
+  },
+  {
+    "file": "data/vehicles/pbr_test/chrome-orm.ktx2",
+    "khronos": "pass"
+  },
+  {
+    "file": "data/vehicles/pbr_test/glass-albedo.ktx2",
+    "khronos": "pass"
+  },
+  {
+    "file": "data/vehicles/pbr_test/glass-normal.ktx2",
+    "khronos": "pass"
+  },
+  {
+    "file": "data/vehicles/pbr_test/glass-orm.ktx2",
+    "khronos": "pass"
+  },
+  {
+    "file": "data/vehicles/pbr_test/paint-albedo.ktx2",
+    "khronos": "pass"
+  },
+  {
+    "file": "data/vehicles/pbr_test/paint-normal.ktx2",
+    "khronos": "pass"
+  },
+  {
+    "file": "data/vehicles/pbr_test/paint-orm.ktx2",
+    "khronos": "pass"
+  },
+  {
+    "file": "data/vehicles/pbr_test/rubber-albedo.ktx2",
+    "khronos": "pass"
+  },
+  {
+    "file": "data/vehicles/pbr_test/rubber-normal.ktx2",
+    "khronos": "pass"
+  },
+  {
+    "file": "data/vehicles/pbr_test/rubber-orm.ktx2",
+    "khronos": "pass"
+  },
+  {
+    "file": "data/vehicles/pbr_test/white-albedo.ktx2",
+    "khronos": "pass"
+  },
+  {
+    "file": "data/vehicles/pbr_test/white-normal.ktx2",
+    "khronos": "pass"
+  },
+  {
+    "file": "data/vehicles/pbr_test/white-orm.ktx2",
+    "khronos": "pass"
+  },
+  {
+    "file": "tests/fixtures/ibl_white/brdf.ktx2",
+    "khronos": "pass"
+  },
+  {
+    "file": "tests/fixtures/ibl_white/irradiance.ktx2",
+    "khronos": "pass"
+  },
+  {
+    "file": "tests/fixtures/ibl_white/prefilter.ktx2",
+    "khronos": "pass"
+  },
+  {
+    "file": "tests/fixtures/ibl_white/sky.ktx2",
+    "khronos": "pass"
+  },
+  {
+    "file": "data/vehicles/pbr_test/asphalt.material.json",
+    "material": "pass"
+  },
+  {
+    "file": "data/vehicles/pbr_test/chrome.material.json",
+    "material": "pass"
+  },
+  {
+    "file": "data/vehicles/pbr_test/glass.material.json",
+    "material": "pass"
+  },
+  {
+    "file": "data/vehicles/pbr_test/paint.material.json",
+    "material": "pass"
+  },
+  {
+    "file": "data/vehicles/pbr_test/rubber.material.json",
+    "material": "pass"
+  },
+  {
+    "file": "data/vehicles/pbr_test/white.material.json",
+    "material": "pass"
+  }
+]

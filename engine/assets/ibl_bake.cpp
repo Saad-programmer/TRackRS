@@ -65,7 +65,7 @@ glm::vec3 analyticSky(glm::vec3 n) {
   return color;
 }
 IblCache bakeIbl(const Environment &env, unsigned size, unsigned samples) {
-  if (!size || size > 256 || (size & (size - 1)) || samples < 32 ||
+  if (size < 4 || size > 256 || (size & (size - 1)) || samples < 32 ||
       samples > 4096)
     throw std::invalid_argument("invalid IBL bake quality");
   IblCache cache;

@@ -16,7 +16,17 @@ def main():
             result=subprocess.run([args.validator,'-l',*files],text=True,capture_output=True)
             if result.returncode: raise RuntimeError(f'{defines}: {result.stdout}\n{result.stderr}')
             results.append({'defines':defines,'compile_and_link':'pass'})
-    report={'permutations':results}
+        auxiliary=[]
+        for fragment in ('probe_sky', 'probe_filter', 'background'):
+            files=[]
+            for source,stage in (('cube','vert'),(fragment,'frag')):
+                path=pathlib.Path(temp)/f'{source}.{stage}'
+                path.write_text(expand(ROOT/f'data/shaders/pbr/{source}.{stage}'))
+                files.append(str(path))
+            result=subprocess.run([args.validator,'-l',*files],text=True,capture_output=True)
+            if result.returncode: raise RuntimeError(f'{fragment}: {result.stdout}\n{result.stderr}')
+            auxiliary.append({'fragment':fragment,'compile_and_link':'pass'})
+    report={'permutations':results,'auxiliary':auxiliary}
     if args.output:pathlib.Path(args.output).write_text(json.dumps(report,indent=2)+'\n')
     print(f'PASS: {len(results)} PBR shader permutations compile and link')
 if __name__=='__main__': main()

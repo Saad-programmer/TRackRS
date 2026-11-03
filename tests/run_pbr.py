@@ -49,6 +49,13 @@ for name, binary, options, artifact in cases:
         report = json.loads(target.read_text())
         if report['ticks'] != 300 or report['vehicle'] != 'pbr_test' or report['passes']['mesh_submit']['calls'] <= 0:
             raise RuntimeError('PBR game integration did not submit the test car')
+        profile_path = Path(str(target)+'.pbr.json')
+        if not profile_path.is_file():
+            raise RuntimeError('PBR game omitted GPU/VRAM profile')
+        profile_report = json.loads(profile_path.read_text())
+        probe = profile_report.get('probe', {})
+        if not profile_report.get('materials') or not probe.get('updates'):
+            raise RuntimeError('PBR game did not profile materials and scene probe')
         from run_baselines import png_from_ppm
         png_from_ppm(args.output/'game.ppm', args.output/'game.png')
         (args.output/'game.ppm').unlink()
