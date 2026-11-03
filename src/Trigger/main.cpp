@@ -25,6 +25,7 @@ void MainApp::config()
     setTextureAnisotropy(cfg.getAnisotropy());
     setScreenMode(cfg.getVideoCx(), cfg.getVideoCy(), cfg.getVideoFullscreen());
     if (validation::run.options.enabled) {
+        automaticVideoMode(false);
         setScreenMode(static_cast<int>(validation::run.options.width), static_cast<int>(validation::run.options.height), false);
         setStereoMode(StereoNone);
     }
