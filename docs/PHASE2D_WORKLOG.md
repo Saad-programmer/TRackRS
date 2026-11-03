@@ -54,3 +54,6 @@ Expanded strict clang-tidy passes for all new assets/streaming/IBL production tr
 
 ## Legacy hash item completed
 All13 scenarios completed1500 ticks with1499 measured frames. Aggregated each fresh JSON/state file and checked its work count and dump consistency, then compared the complete manifest to Phase 2c: all13 state hashes and all8 framebuffer RGB hashes are unchanged. reports/phase2d/manifest.json is identical in content to the accepted Phase 2c manifest. No golden files or tolerances changed. Eight screenshot pairs were already visually reviewed. Final native sanitizer graphics check and final profiling/CI remain before gate closure.
+
+## Final native sanitizer item completed
+Final native ASan/UBSan CPU13/13, production GPU probes, preview and300-tick PBR race all pass. Existing lsan.supp allocation-origin policy is unchanged; no application-origin leak is suppressed. Final sanitized runtime also records299 draws per each of four materials and the required probe storage/rate. Evidence saved under checkpoints/asan-final*. Newer GCC CI job125935176766 is green, including texture/material and graphics checks. All13 legacy states and8screenshots are now verified unchanged. Next: final isolated120-frame profile, report/AppendixD, final current-commitCI, then main merge/tag only after acceptance.
