@@ -64,3 +64,10 @@ Software timings do not establish reference-GPU compliance.
 include raw per-pass measurements and reviewed side-by-side images. New terrain
 materials intentionally change appearance; exact image preservation applies to
 the selectable legacy path.
+
+A [full moving 1,500-tick Ahead pair](phase3a/moving/PERFORMANCE.md) also preserves
+the accepted `6c59e5730498f6bb` state. Its matching-tick images were inspected:
+car/HUD/particles and terrain are present, with the intentional new terrain
+appearance. Mean draws/triangles fall from 217/477,008 to 198/260,663; software
+frame time rises from 67.70 to 259.35 ms. This is a geometry improvement and a
+software timing regression, not a claim of hardware frame-budget compliance.
