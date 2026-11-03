@@ -154,3 +154,22 @@ primitives retain source order. Existing PNG/OBJ legacy rendering remains the
 default unless an asset supplies PBR maps. GPU timestamps and logical storage
 counts distinguish software-renderer measurements from hardware performance
 claims and exclude driver allocation padding.
+
+## Phase 3a: opt-in CDLOD and periodic GPU terrain
+
+Keep the old renderer selectable and default until Phase 3d. Copy the original
+height field to R32F for rendering; leave CPU physics interpolation, contacts,
+terrain categories and wrapCoord unchanged. Shared indexed grids morph onto the
+parent lattice, with radius eight patch spans and refinement at half that range.
+Parent subdivision includes every child quadrant: the relevant bound is twice
+sqrt(2) fine-patch spans. A four-span range failed edge tests and was rejected.
+CPU edge coincidence and GPU raster coverage are both required; coverage alone
+can conceal overlaps. Hash/list LRU bounds metadata and retained foliage tiles.
+
+Nine KTX2 texture-array layers reuse the existing PBR BRDF; explicit gradients
+outside categorical branches keep mip selection defined. Existing sky/foliage
+remain until their own gates. Software Mesa decodes BPTC on the worker once;
+hardware keeps native compression. Reports distinguish logical decoded/native
+payload storage and software timings from hardware budgets. Probe resolution is
+quality-scaled, and a frame token prevents body/wheel draws from scheduling two
+refreshes in a slow frame while preserving the time-based rate limit.

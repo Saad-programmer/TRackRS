@@ -1,0 +1,288 @@
+{
+  "passed": true,
+  "viewport": [
+    1920,
+    1080
+  ],
+  "frames": 120,
+  "renderer": "software llvmpipe; not reference hardware",
+  "timing_scope": "functional verification; concurrent machine load possible; no hardware performance claim",
+  "runs": [
+    {
+      "name": "ahead-legacy",
+      "state_hash": "3eebeb4e28341a5d",
+      "native_exit": 0,
+      "accepted_driver_allocations": [],
+      "frame_ms": 39.81245755,
+      "draw_calls": 217.8655462,
+      "triangles": 476954.7059,
+      "passes": {
+        "mesh_submit": {
+          "calls": 595,
+          "cpu_ms_per_frame": 0.3484010084,
+          "gpu_ms_per_frame": 0.0002077142857
+        },
+        "particles": {
+          "calls": 119,
+          "cpu_ms_per_frame": 0.1462664034,
+          "gpu_ms_per_frame": 2.181091445
+        },
+        "sky": {
+          "calls": 119,
+          "cpu_ms_per_frame": 0.1879465378,
+          "gpu_ms_per_frame": 3.231092437e-05
+        },
+        "terrain": {
+          "calls": 119,
+          "cpu_ms_per_frame": 10.80121655,
+          "gpu_ms_per_frame": 0.1060236723
+        },
+        "terrain_probe": {
+          "calls": 0,
+          "cpu_ms_per_frame": 0,
+          "gpu_ms_per_frame": null
+        },
+        "ui_text": {
+          "calls": 1190,
+          "cpu_ms_per_frame": 0.235769521,
+          "gpu_ms_per_frame": 0.01558853782
+        },
+        "water": {
+          "calls": 0,
+          "cpu_ms_per_frame": 0,
+          "gpu_ms_per_frame": null
+        }
+      }
+    },
+    {
+      "name": "ahead-pbr",
+      "state_hash": "3eebeb4e28341a5d",
+      "native_exit": 0,
+      "accepted_driver_allocations": [],
+      "frame_ms": 231.1648704,
+      "draw_calls": 110.2016807,
+      "triangles": 112252.1513,
+      "passes": {
+        "mesh_submit": {
+          "calls": 595,
+          "cpu_ms_per_frame": 0.3678916639,
+          "gpu_ms_per_frame": 0.001593890756
+        },
+        "particles": {
+          "calls": 119,
+          "cpu_ms_per_frame": 0.3182511597,
+          "gpu_ms_per_frame": 2.398265294
+        },
+        "sky": {
+          "calls": 119,
+          "cpu_ms_per_frame": 0.1888465882,
+          "gpu_ms_per_frame": 4.721848739e-05
+        },
+        "terrain": {
+          "calls": 119,
+          "cpu_ms_per_frame": 12.19262551,
+          "gpu_ms_per_frame": 4.359068504
+        },
+        "terrain_probe": {
+          "calls": 0,
+          "cpu_ms_per_frame": 0,
+          "gpu_ms_per_frame": null
+        },
+        "ui_text": {
+          "calls": 1190,
+          "cpu_ms_per_frame": 0.4461787983,
+          "gpu_ms_per_frame": 0.01802072269
+        },
+        "water": {
+          "calls": 0,
+          "cpu_ms_per_frame": 0,
+          "gpu_ms_per_frame": null
+        }
+      }
+    },
+    {
+      "name": "country-legacy",
+      "state_hash": "c48e0f747e02d622",
+      "native_exit": 0,
+      "accepted_driver_allocations": [],
+      "frame_ms": 30.96797715,
+      "draw_calls": 149.0084034,
+      "triangles": 135786.0168,
+      "passes": {
+        "mesh_submit": {
+          "calls": 595,
+          "cpu_ms_per_frame": 0.3042918067,
+          "gpu_ms_per_frame": 0.0601019916
+        },
+        "particles": {
+          "calls": 119,
+          "cpu_ms_per_frame": 0.03928267227,
+          "gpu_ms_per_frame": 0.02208777311
+        },
+        "sky": {
+          "calls": 119,
+          "cpu_ms_per_frame": 0.1689955714,
+          "gpu_ms_per_frame": 3.508403361e-05
+        },
+        "terrain": {
+          "calls": 119,
+          "cpu_ms_per_frame": 3.773600084,
+          "gpu_ms_per_frame": 0.1501123445
+        },
+        "terrain_probe": {
+          "calls": 0,
+          "cpu_ms_per_frame": 0,
+          "gpu_ms_per_frame": null
+        },
+        "ui_text": {
+          "calls": 1190,
+          "cpu_ms_per_frame": 0.1102036807,
+          "gpu_ms_per_frame": 0.0003988655462
+        },
+        "water": {
+          "calls": 119,
+          "cpu_ms_per_frame": 0.622662521,
+          "gpu_ms_per_frame": 0.01464661345
+        }
+      }
+    },
+    {
+      "name": "country-pbr",
+      "state_hash": "c48e0f747e02d622",
+      "native_exit": 0,
+      "accepted_driver_allocations": [],
+      "frame_ms": 213.0813027,
+      "draw_calls": 76.47058824,
+      "triangles": 77717.63025,
+      "passes": {
+        "mesh_submit": {
+          "calls": 595,
+          "cpu_ms_per_frame": 0.4986331597,
+          "gpu_ms_per_frame": 0.0009909411765
+        },
+        "particles": {
+          "calls": 119,
+          "cpu_ms_per_frame": 0.0462952605,
+          "gpu_ms_per_frame": 0.02514411765
+        },
+        "sky": {
+          "calls": 119,
+          "cpu_ms_per_frame": 0.1862714958,
+          "gpu_ms_per_frame": 5.085714286e-05
+        },
+        "terrain": {
+          "calls": 119,
+          "cpu_ms_per_frame": 6.854360824,
+          "gpu_ms_per_frame": 4.340579874
+        },
+        "terrain_probe": {
+          "calls": 0,
+          "cpu_ms_per_frame": 0,
+          "gpu_ms_per_frame": null
+        },
+        "ui_text": {
+          "calls": 1190,
+          "cpu_ms_per_frame": 0.1179600672,
+          "gpu_ms_per_frame": 0.0007112521008
+        },
+        "water": {
+          "calls": 119,
+          "cpu_ms_per_frame": 0.7724230084,
+          "gpu_ms_per_frame": 0.01548515966
+        }
+      }
+    },
+    {
+      "name": "glacier-legacy",
+      "state_hash": "fee3dc44e996d10c",
+      "native_exit": 0,
+      "accepted_driver_allocations": [],
+      "frame_ms": 38.34112824,
+      "draw_calls": 172.697479,
+      "triangles": 134785.395,
+      "passes": {
+        "mesh_submit": {
+          "calls": 595,
+          "cpu_ms_per_frame": 0.3739212017,
+          "gpu_ms_per_frame": 0.01683798319
+        },
+        "particles": {
+          "calls": 119,
+          "cpu_ms_per_frame": 0.1396204622,
+          "gpu_ms_per_frame": 1.99139384
+        },
+        "sky": {
+          "calls": 119,
+          "cpu_ms_per_frame": 0.2611103782,
+          "gpu_ms_per_frame": 4.612605042e-05
+        },
+        "terrain": {
+          "calls": 119,
+          "cpu_ms_per_frame": 4.88692095,
+          "gpu_ms_per_frame": 0.2596951008
+        },
+        "terrain_probe": {
+          "calls": 0,
+          "cpu_ms_per_frame": 0,
+          "gpu_ms_per_frame": null
+        },
+        "ui_text": {
+          "calls": 1190,
+          "cpu_ms_per_frame": 0.257316084,
+          "gpu_ms_per_frame": 0.02020004202
+        },
+        "water": {
+          "calls": 0,
+          "cpu_ms_per_frame": 0,
+          "gpu_ms_per_frame": null
+        }
+      }
+    },
+    {
+      "name": "glacier-pbr",
+      "state_hash": "fee3dc44e996d10c",
+      "native_exit": 0,
+      "accepted_driver_allocations": [],
+      "frame_ms": 210.4696579,
+      "draw_calls": 89.44537815,
+      "triangles": 86932.42017,
+      "passes": {
+        "mesh_submit": {
+          "calls": 595,
+          "cpu_ms_per_frame": 0.3673437983,
+          "gpu_ms_per_frame": 0.003013159664
+        },
+        "particles": {
+          "calls": 119,
+          "cpu_ms_per_frame": 0.1209811849,
+          "gpu_ms_per_frame": 2.050161
+        },
+        "sky": {
+          "calls": 119,
+          "cpu_ms_per_frame": 0.1911113782,
+          "gpu_ms_per_frame": 4.642857143e-05
+        },
+        "terrain": {
+          "calls": 119,
+          "cpu_ms_per_frame": 7.193184824,
+          "gpu_ms_per_frame": 3.891435639
+        },
+        "terrain_probe": {
+          "calls": 0,
+          "cpu_ms_per_frame": 0,
+          "gpu_ms_per_frame": null
+        },
+        "ui_text": {
+          "calls": 1190,
+          "cpu_ms_per_frame": 0.2233526723,
+          "gpu_ms_per_frame": 0.005624613445
+        },
+        "water": {
+          "calls": 0,
+          "cpu_ms_per_frame": 0,
+          "gpu_ms_per_frame": null
+        }
+      }
+    }
+  ]
+}
