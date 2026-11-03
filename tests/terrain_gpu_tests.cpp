@@ -46,6 +46,7 @@ nlohmann::json terrainGpuTests(const std::filesystem::path &data) {
           "terrain test FBO incomplete");
   float maximumError = 0;
   unsigned covered = 0;
+  nlohmann::json distanceSubmissions = nlohmann::json::array();
   std::vector<float> surfaceRoughness;
   std::vector<std::array<float, 3>> surfaceColours;
   {
@@ -130,13 +131,30 @@ nlohmann::json terrainGpuTests(const std::filesystem::path &data) {
             "grass layer lost its green albedo");
     require(surfaceColours[8][2] > surfaceColours[8][0] * 2.f,
             "water layer lost its blue albedo");
+    terrain::configure({true, RenderQuality::High});
+    for (float distance : {32.f, 256.f, 1024.f}) {
+      glm::vec3 camera(0, -distance, 20.f + distance * .35f);
+      auto vp = glm::perspective(glm::radians(60.f), 16.f / 9.f, .1f, 2400.f) *
+                glm::lookAt(camera, glm::vec3(0), glm::vec3(0, 0, 1));
+      auto draws = renderer.draw(camera, vp, false, 7);
+      auto triangles = draws * terrain::GridCells * terrain::GridCells * 2;
+      require(draws > 0 && draws < 1500 && triangles < 3000000,
+              "terrain distance submission budget exceeded");
+      distanceSubmissions.push_back(
+          {{"camera_ground_distance_m", distance},
+           {"camera_height_m", camera.z},
+           {"draw_calls", draws},
+           {"triangles", triangles},
+           {"nodes_culled", renderer.report()["nodes_culled"]}});
+    }
   }
   glBindFramebuffer(GL_FRAMEBUFFER, 0);
   glDeleteFramebuffers(1, &framebuffer);
   glDeleteTextures(1, &colour);
   glViewport(0, 0, 960, 640);
   terrain::configure(previous);
-  return {{"gpu_periodic_height_normals_max_error", maximumError},
+  return {{"terrain_only_distance_submissions", distanceSubmissions},
+          {"gpu_periodic_height_normals_max_error", maximumError},
           {"negative_world_coordinates", true},
           {"shared_cpu_height_source", true},
           {"frustum_culling", "pass"},

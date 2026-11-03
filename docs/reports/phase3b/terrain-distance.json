@@ -1,0 +1,23 @@
+[
+  {
+    "camera_ground_distance_m": 32.0,
+    "camera_height_m": 31.200000762939453,
+    "draw_calls": 34,
+    "nodes_culled": 84,
+    "triangles": 69632
+  },
+  {
+    "camera_ground_distance_m": 256.0,
+    "camera_height_m": 109.5999984741211,
+    "draw_calls": 216,
+    "nodes_culled": 106,
+    "triangles": 442368
+  },
+  {
+    "camera_ground_distance_m": 1024.0,
+    "camera_height_m": 378.3999938964844,
+    "draw_calls": 144,
+    "nodes_culled": 70,
+    "triangles": 294912
+  }
+]

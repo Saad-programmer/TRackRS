@@ -41,3 +41,7 @@ for layer,(name,colour,rough,strength) in enumerate(surfaces):
  (output/f'{name}.material.json').write_text(json.dumps(manifest,indent=2)+'\n')
 (output/'surfaces.json').write_text(json.dumps({'layers':[x[0] for x in surfaces],'size':64,'source':'original seeded periodic fractal grain; CC0'},indent=2)+'\n')
 (output/'LICENSE.txt').write_text('Original TrackRS analytic terrain material inputs and generated textures.\nDedicated to the public domain under CC0 1.0 Universal.\nhttps://creativecommons.org/publicdomain/zero/1.0/\n')
+
+# Keep provenance synchronized when authoring or rebaking the original fixtures.
+from terrain_provenance import write
+write(output)
