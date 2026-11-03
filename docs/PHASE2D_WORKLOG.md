@@ -45,3 +45,6 @@ Native ASan/UBSan GPU probes, preview and real PBR race pass using the unchanged
 
 ## Legacy screenshot item completed
 All eight required legacy screenshots compare pixel-identically to Phase 2c (MAE0, p99 error0, over-threshold fraction0, SSIM1, HUD error0). Frozen Phase 2c tolerance was not changed. Full side-by-side sheet was visually reviewed; evidence in reports/phase2d/legacy-review. The remaining five non-screenshot scenarios are still running; no claim of all13 state acceptance until their reports finish.
+
+## Real-race material batching item completed
+The corrected frozen release executable passes all GPU probes, preview and the 300-tick PBR race. Runtime timestamps prove exactly299 submissions each for paint, glass, rubber and chrome over299 rendered frames: one draw per material, including all four instanced wheels. Scene-aware probe updates obey the configured interval. CI now asserts those exact counts and the <=4Hz rate and135136-byte probe storage. WIP CI runs cancel obsolete runs on the same branch to preserve runners. GCC13 isolated tests pass locally; latest diagnostic CI and final strict lint remain pending.

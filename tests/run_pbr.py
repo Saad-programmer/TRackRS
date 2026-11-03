@@ -56,6 +56,15 @@ for name, binary, options, artifact in cases:
         probe = profile_report.get('probe', {})
         if not profile_report.get('materials') or not probe.get('updates'):
             raise RuntimeError('PBR game did not profile materials and scene probe')
+        materials = {m['name']: m for m in profile_report['materials']}
+        for material in ('chrome', 'clear-coat paint', 'glass', 'rubber'):
+            if materials.get(material, {}).get('gpu_samples') != 299:
+                raise RuntimeError(f'{material} must submit one material draw per rendered frame')
+        times = probe.get('update_times', [])
+        if any(b-a < .25-1e-6 for a, b in zip(times, times[1:])):
+            raise RuntimeError('runtime reflection probe exceeded 4 Hz')
+        if probe.get('resident_bytes') != 135136:
+            raise RuntimeError('unexpected 32-square probe storage')
         from run_baselines import png_from_ppm
         png_from_ppm(args.output/'game.ppm', args.output/'game.png')
         (args.output/'game.ppm').unlink()
