@@ -376,7 +376,7 @@ nlohmann::json ReflectionProbe::report() {
 void profileEnabled(bool value) { profiling = value; }
 void materialMeasurement(const std::string &name, std::size_t bytes,
                          const std::function<void()> &draw) {
-  if (!profiling) {
+  if (!profiling || world::state().depthPass) {
     draw();
     return;
   }

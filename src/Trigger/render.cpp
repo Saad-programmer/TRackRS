@@ -837,7 +837,7 @@ void MainApp::renderStateGame(float eyetranslation)
     auto drawVehicles = [&]() {
     for (unsigned int v=0; v<game->vehicle.size(); ++v)
     {
-        if (!renderowncar && v == 0) continue;
+        if (!renderowncar && v == 0 && !trackrs::world::state().depthPass) continue;
 
         PVehicle *vehic = game->vehicle[v];
         trackrs::draw::push();

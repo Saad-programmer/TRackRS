@@ -59,7 +59,9 @@ Log/uniform split blending, fixed bounding spheres, light-space texel snapping,
 a solar-path-safe light basis, slope/normal bias, 3×3 PCF, overlapping cascade
 cross-fades and far-distance fade reduce seams and shimmer. Shadow reach is
 512m/768m respectively. Terrain, vehicles and alpha-cutout foliage cast shadows.
-The blob is suppressed only when PBR CSM is selected; PBR Blob and Legacy keep it.
+A player car hidden by a first-person view still casts into CSM. Shadow-pass
+material work has separate cascade timing and does not inflate main-view
+per-material sample counts. The blob is suppressed only when PBR CSM is selected; PBR Blob and Legacy keep it.
 
 ## Verification
 
@@ -88,7 +90,8 @@ build/linux-release/bin/trackrs --benchmark --data-dir data --stage ahead --rend
 ```
 
 Use the Windows executable path if appropriate. Repeat with `--shadows blob`,
-`--renderer legacy`, and another time preset. The JSON includes renderer identity,
+`--renderer legacy`, and another time preset. Use `--vehicle pbr_test` as well
+to exercise PBR materials and the local car probe. The JSON includes renderer identity,
 whole-frame submissions and CPU/GPU pass timings; `.world.json` includes cascade
 submissions and logical shadow storage. Please retain the GPU/driver, resolution,
 quality and command with results. Software measurements cannot certify the
