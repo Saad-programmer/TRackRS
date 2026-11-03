@@ -51,3 +51,6 @@ The corrected frozen release executable passes all GPU probes, preview and the 3
 
 ## Production lint item completed
 Expanded strict clang-tidy passes for all new assets/streaming/IBL production translation units, including header diagnostics. Wire-value enum width and conventional bit-packing/PBO offset APIs have narrowly documented lint exceptions; no broad checker disable was added. Integer widening/narrowing is explicit and texture construction uses named RAII owners. Logs, GCC13 texture tests and release/sanitized CPU suite evidence are saved in checkpoints. Eleven legacy hashes now match; two remaining cases are running. Final sanitizer graphics run, final metrics and current CI are still required.
+
+## Legacy hash item completed
+All13 scenarios completed1500 ticks with1499 measured frames. Aggregated each fresh JSON/state file and checked its work count and dump consistency, then compared the complete manifest to Phase 2c: all13 state hashes and all8 framebuffer RGB hashes are unchanged. reports/phase2d/manifest.json is identical in content to the accepted Phase 2c manifest. No golden files or tolerances changed. Eight screenshot pairs were already visually reviewed. Final native sanitizer graphics check and final profiling/CI remain before gate closure.
