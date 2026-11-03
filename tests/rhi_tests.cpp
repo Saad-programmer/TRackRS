@@ -5,10 +5,13 @@
  */
 #include "engine/rhi/rhi.h"
 #include <SDL2/SDL.h>
+#include <chrono>
 #include <filesystem>
 #include <fstream>
 #include <iostream>
+#include <iterator>
 #include <stdexcept>
+#include <thread>
 #include <vector>
 using namespace trackrs::rhi;
 static void require(bool condition, const char *message) {
@@ -160,11 +163,36 @@ int main(int argc, char **argv) {
       glDeleteTextures(1, &texture);
       glDeleteVertexArrays(1, &vao);
     }
-    const auto basicShaders = temporary / "basic";
-    std::filesystem::create_directory(basicShaders);
+    const auto basicShaders = temporary / "shaders" / "basic";
+    std::filesystem::create_directories(basicShaders);
     for (const auto &file : std::filesystem::directory_iterator(argv[2]))
       std::filesystem::copy_file(file.path(),
                                  basicShaders / file.path().filename());
+    const auto sharedShaders = temporary / "shaders" / "world";
+    std::filesystem::copy(
+        std::filesystem::path(argv[2]).parent_path() / "world", sharedShaders,
+        std::filesystem::copy_options::recursive);
+    {
+      ShaderProgram shared(basicShaders / "basic.vert",
+                           basicShaders / "basic.frag");
+      const auto include = sharedShaders / "scene.glsl";
+      std::ifstream input(include);
+      const std::string original((std::istreambuf_iterator<char>(input)), {});
+      input.close();
+      auto good = shared.id();
+      std::ofstream(include, std::ios::app)
+          << "\n// shared dependency reload probe\n";
+      std::this_thread::sleep_for(std::chrono::milliseconds(300));
+      require(shared.poll() && shared.id() != good,
+              "shared-tree include reload failed");
+      good = shared.id();
+      std::ofstream(temporary / "outside.glsl") << original;
+      std::ofstream(include) << "#include \"../../outside.glsl\"\n";
+      require(!shared.poll(true) && shared.id() == good,
+              "shared include escaped bounded shader tree");
+      std::ofstream(include) << original;
+      require(shared.poll(true), "shared dependency recovery failed");
+    }
     coreRenderTests(basicShaders);
     debug.check();
     std::cerr << "EXPECTED_KHR_DEBUG_API_ERROR canary follows\n";

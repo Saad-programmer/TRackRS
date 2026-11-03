@@ -1,0 +1,10 @@
+[1/2] Processing file /workspace/TRackRS/engine/pbr/ibl.cpp.
+34042 warnings generated.
+[2/2] Processing file /workspace/TRackRS/engine/pbr/ibl.cpp.
+68083 warnings generated.
+[3/2] Processing file /workspace/TRackRS/engine/world/renderer.cpp.
+119273 warnings generated.
+[4/2] Processing file /workspace/TRackRS/engine/world/renderer.cpp.
+170462 warnings generated.
+Suppressed 170500 warnings (170460 in non-user code, 38 NOLINT, 2 with check filters).
+Use -header-filter=.* to display errors from all non-system headers. Use -system-headers to display errors from system headers as well.
