@@ -1,0 +1,29 @@
+Test project /workspace/TRackRS/build/linux-release
+      Start  1: ktx2-materials
+ 1/12 Test  #1: ktx2-materials ...................   Passed    0.00 sec
+      Start  2: mesh-importer
+ 2/12 Test  #2: mesh-importer ....................   Passed    0.01 sec
+      Start  3: pbr-shader-permutations
+ 3/12 Test  #3: pbr-shader-permutations ..........   Passed    0.64 sec
+      Start  4: core-primitives
+ 4/12 Test  #4: core-primitives ..................   Passed    0.00 sec
+      Start  5: movie-decoder
+ 5/12 Test  #5: movie-decoder ....................   Passed    0.01 sec
+      Start  6: validation-unit
+ 6/12 Test  #6: validation-unit ..................   Passed    0.01 sec
+      Start  7: cli-help
+ 7/12 Test  #7: cli-help .........................   Passed    0.02 sec
+      Start  8: cli-invalid
+ 8/12 Test  #8: cli-invalid ......................   Passed    0.01 sec
+      Start  9: module-layering
+ 9/12 Test  #9: module-layering ..................   Passed    0.13 sec
+      Start 10: core-only-source
+10/12 Test #10: core-only-source .................   Passed    0.05 sec
+      Start 11: legacy-content
+11/12 Test #11: legacy-content ...................   Passed    0.11 sec
+      Start 12: lsan-audit-policy
+12/12 Test #12: lsan-audit-policy ................   Passed    0.10 sec
+
+100% tests passed, 0 tests failed out of 12
+
+Total Test time (real) =   1.09 sec

@@ -1,0 +1,7 @@
+{
+  "name": "white",
+  "albedo": "white-albedo.ktx2",
+  "normal": "white-normal.ktx2",
+  "orm": "white-orm.ktx2",
+  "atlas": false
+}

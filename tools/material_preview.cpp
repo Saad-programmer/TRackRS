@@ -10,6 +10,13 @@
 #include <glm/gtc/type_ptr.hpp>
 #include <iostream>
 #include <nlohmann/json.hpp>
+nlohmann::json iblIntegrationTests(const std::filesystem::path &data);
+nlohmann::json runMaterialScene(
+    SDL_Window *window, const std::filesystem::path &data, unsigned frames,
+    bool profiling,
+    const std::function<trackrs::mesh::MeshData(const std::filesystem::path &)>
+        &sphereFactory,
+    const std::function<void()> &capture);
 namespace validation {
 Run run;
 }
@@ -382,6 +389,8 @@ nlohmann::json probes(const std::filesystem::path &data) {
     glDeleteTextures(1, &texture);
   }
   debug.check();
+  report["phase2d"] = iblIntegrationTests(data);
+  debug.check();
   report["KHR_debug_errors"] = debug.errors.load();
   return report;
 }
@@ -412,7 +421,7 @@ int main(int argc, char **argv) {
       else if (arg == "--help") {
         std::cout << "material_preview [--data-dir data] [--frames N --output "
                      "image.png] [--test --report results.json]\n0-6 debug "
-                     "views; H toggles headlights; Esc quits\n";
+                     "views; H headlights, I IBL, P probe; Esc quits\n";
         return 0;
       } else
         throw std::runtime_error("unknown material preview option: " + arg);
@@ -448,85 +457,17 @@ int main(int argc, char **argv) {
           std::ofstream(reportPath) << report.dump(2) << '\n';
         std::cout << report.dump(2) << '\n';
       } else {
-        auto document = nlohmann::json::parse(
-            std::ifstream(data / "scenes/material_preview/scene.json"));
-        auto imported =
-            mesh::MeshImporter::load((data / "scenes/material_preview" /
-                                      document["car"].get<std::string>())
-                                         .lexically_normal()
-                                         .string());
-        pbr::Model car(imported, data / "shaders/pbr");
-        std::vector<std::unique_ptr<pbr::Model>> swatches;
-        for (int row = 0; row < 2; ++row)
-          for (float rough : document["roughness"].get<std::vector<float>>()) {
-            auto fixture = sphere(data / "vehicles/pbr_test");
-            auto &material = fixture.materials[0];
-            material.metallic = static_cast<float>(row);
-            material.roughness = rough;
-            material.metalRough = {"white",
-                                   read(data / "vehicles/pbr_test/white.png")};
-            material.normal = {"flat",
-                               read(data / "vehicles/pbr_test/normal.png")};
-            swatches.push_back(
-                std::make_unique<pbr::Model>(fixture, data / "shaders/pbr"));
-          }
-        bool running = true;
-        pbr::Frame frame;
-        frame.headlightPositions = {
-            {glm::vec3(-.55f, .45f, -1.8f), glm::vec3(.55f, .45f, -1.8f)}};
-        unsigned count = 0;
-        while (running) {
-          SDL_Event event;
-          while (SDL_PollEvent(&event)) {
-            if (event.type == SDL_QUIT)
-              running = false;
-            if (event.type == SDL_KEYDOWN) {
-              auto key = event.key.keysym.sym;
-              if (key == SDLK_ESCAPE)
-                running = false;
-              if (key >= SDLK_0 && key <= SDLK_6)
-                frame.debugView = key - SDLK_0;
-              if (key >= SDLK_F1 && key <= SDLK_F7)
-                frame.debugView = key - SDLK_F1;
-              if (key == SDLK_h)
-                frame.headlights = !frame.headlights;
-            }
-          }
-          glViewport(0, 0, 960, 640);
-          glClearColor(.035f, .045f, .065f, 1);
-          glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-          frame.camera = {5, 3, 7};
-          frame.viewProjection =
-              glm::perspective(glm::radians(45.f), 1.5f, .1f, 100.f) *
-              glm::lookAt(frame.camera, glm::vec3(0, .5f, 0),
-                          glm::vec3(0, 1, 0));
-          frame.sunDirection = {-1, 2, 3};
-          auto stats = car.draw(frame, {glm::mat4(1)});
-          auto swatchFrame = frame;
-          swatchFrame.headlights = false;
-          for (std::size_t i = 0; i < swatches.size(); ++i) {
-            auto transform = glm::translate(
-                glm::mat4(1),
-                glm::vec3((static_cast<float>(i % 5) - 2) * 1.05f,
-                          2.2f + static_cast<float>(i / 5) * .9f, -2.5f));
-            transform = glm::scale(transform, glm::vec3(.5f));
-            auto sub = swatches[i]->draw(swatchFrame, {transform});
-            stats.draws += sub.draws;
-            stats.triangles += sub.triangles;
-          }
-          debug.check();
-          ++count;
-          if (frames && count == frames) {
-            if (!output.empty())
-              save(output, 960, 640);
-            std::cout << "Preview draws=" << stats.draws
-                      << " triangles=" << stats.triangles << '\n';
-            running = false;
-          }
-          SDL_GL_SwapWindow(window);
-          if (!frames)
-            SDL_Delay(16);
-        }
+        auto report = runMaterialScene(
+            window, data, frames, !reportPath.empty(),
+            [](const std::filesystem::path &path) { return sphere(path); },
+            [&] {
+              if (!output.empty())
+                save(output, 960, 640);
+            });
+        if (!reportPath.empty())
+          std::ofstream(reportPath) << report.dump(2) << '\n';
+        std::cout << "Preview draws=" << report["draw_calls"]
+                  << " triangles=" << report["triangles"] << '\n';
       }
       debug.check();
     }
@@ -535,6 +476,7 @@ int main(int argc, char **argv) {
     result = 1;
   }
   if (context) {
+    pbr::shutdown();
     glDebugMessageCallback(nullptr, nullptr);
     SDL_GL_DeleteContext(context);
   }

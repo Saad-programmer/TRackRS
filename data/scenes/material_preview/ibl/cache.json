@@ -1,0 +1,8 @@
+{
+  "brdf_lut": "256x256 RG16F, split-sum",
+  "irradiance_convention": "cosine integral divided by pi",
+  "samples": 256,
+  "schema": "trackrs.ibl/1",
+  "size": 64,
+  "source": "original analytic sky"
+}

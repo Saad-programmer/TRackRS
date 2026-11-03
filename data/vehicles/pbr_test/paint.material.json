@@ -1,0 +1,7 @@
+{
+  "name": "paint",
+  "albedo": "paint-albedo.ktx2",
+  "normal": "paint-normal.ktx2",
+  "orm": "paint-orm.ktx2",
+  "atlas": false
+}

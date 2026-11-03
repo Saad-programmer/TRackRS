@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 #pragma once
 #include "engine/mesh/mesh_importer.h"
+#include "ibl.h"
 #include <filesystem>
 #include <glm/glm.hpp>
 #include <memory>
@@ -27,6 +28,11 @@ struct Frame {
   std::array<glm::vec3, 2> headlightPositions{
       {glm::vec3(-.55f, 1.8f, .45f), glm::vec3(.55f, 1.8f, .45f)}};
   Shadows shadows;
+  const Ibl *environment = nullptr;
+  GLuint reflectionProbe = 0;
+  float probeMaxLod = 0;
+  glm::mat3 environmentRotation{1}, probeRotation{1};
+  float wetness = 0;
   float alpha = 1;
   int debugView = 0;
   bool toneMap = true, headlights = true;
@@ -47,16 +53,23 @@ public:
   // Adapter to the existing CPU transform stack. Uses eye-space lighting;
   // preview/tool callers supply world-space Frame and model matrices directly.
   void drawCurrent(float alpha = 1);
+  bool canInstance() const;
+  bool drawCurrentInstances(const std::vector<glm::mat4> &models, float alpha = 1);
 };
 // Vehicle composition supplies one shared pair, including wheel draws.
 class HeadlightScope {
   std::vector<PointLight> previous_;
+  glm::vec3 previousCenter_;
 
 public:
   explicit HeadlightScope(const glm::mat4 &bodyToEye);
   ~HeadlightScope();
   HeadlightScope(const HeadlightScope &) = delete;
 };
+void setWorldView(const glm::mat4 &view);
+void setProbeScene(SceneCapture scene);
+void writeProfile(const std::filesystem::path &path);
+void shutdown();
 void configure(const std::filesystem::path &shaders);
 const std::filesystem::path &shaderDirectory();
 } // namespace trackrs::pbr

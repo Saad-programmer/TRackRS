@@ -11,6 +11,7 @@ struct CoreDevice::Impl {
   DebugMessages debug;
   Impl(SDL_Window *w, SDL_GLContext c) : window(w), context(c) {}
   ~Impl() {
+    pbr::shutdown();
     draw::shutdown();
     glDebugMessageCallback(nullptr, nullptr);
   }

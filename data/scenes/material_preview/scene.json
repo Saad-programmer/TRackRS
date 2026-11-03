@@ -1,8 +1,19 @@
 {
-  "name": "Phase 2c material preview",
+  "name": "Phase 2d PBR materials and local IBL",
   "car": "../../vehicles/pbr_test/car.gltf",
-  "rows": ["dielectric", "metal"],
-  "roughness": [0.1, 0.3, 0.5, 0.7, 0.9],
-  "lighting": "direct sun plus two point headlights; ambient fallback; no baked IBL",
-  "controls": "0-6 / F1-F7 debug views, H headlights, Escape exit"
+  "rows": [
+    "dielectric",
+    "metal"
+  ],
+  "roughness": [
+    0.1,
+    0.3,
+    0.5,
+    0.7,
+    0.9
+  ],
+  "lighting": "sky split-sum IBL and point headlights; local HDR reflection probe at 2Hz",
+  "controls": "0-6 / F1-F7 debug views, H headlights, Escape exit",
+  "asphalt": "../../vehicles/pbr_test/asphalt.gltf",
+  "ibl": "ibl"
 }

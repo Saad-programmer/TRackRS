@@ -1,0 +1,40 @@
+{
+  "checkpoint": "saved Phase 2d implementation revalidated",
+  "implementation_commit": "9d08d0b2d54cc10ad67e56bfda93a41b85d75f0f",
+  "cpu_tests": {
+    "passed": 12,
+    "failed": 0
+  },
+  "khronos": {
+    "tool": "KTX-Software 4.4.2 ktx validate",
+    "passed": 23,
+    "failed": 0,
+    "files": [
+      "data/vehicles/pbr_test/asphalt-albedo.ktx2",
+      "data/vehicles/pbr_test/asphalt-normal.ktx2",
+      "data/vehicles/pbr_test/asphalt-orm.ktx2",
+      "data/vehicles/pbr_test/chrome-albedo.ktx2",
+      "data/vehicles/pbr_test/chrome-normal.ktx2",
+      "data/vehicles/pbr_test/chrome-orm.ktx2",
+      "data/vehicles/pbr_test/glass-albedo.ktx2",
+      "data/vehicles/pbr_test/glass-normal.ktx2",
+      "data/vehicles/pbr_test/glass-orm.ktx2",
+      "data/vehicles/pbr_test/paint-albedo.ktx2",
+      "data/vehicles/pbr_test/paint-normal.ktx2",
+      "data/vehicles/pbr_test/paint-orm.ktx2",
+      "data/vehicles/pbr_test/rubber-albedo.ktx2",
+      "data/vehicles/pbr_test/rubber-normal.ktx2",
+      "data/vehicles/pbr_test/rubber-orm.ktx2",
+      "data/scenes/material_preview/ibl/brdf.ktx2",
+      "data/scenes/material_preview/ibl/irradiance.ktx2",
+      "data/scenes/material_preview/ibl/prefilter.ktx2",
+      "data/scenes/material_preview/ibl/sky.ktx2",
+      "tests/fixtures/ibl_white/brdf.ktx2",
+      "tests/fixtures/ibl_white/irradiance.ktx2",
+      "tests/fixtures/ibl_white/prefilter.ktx2",
+      "tests/fixtures/ibl_white/sky.ktx2"
+    ]
+  },
+  "gpu": "saved-gpu.json",
+  "status": "WIP; demo, profiling and final acceptance remain"
+}

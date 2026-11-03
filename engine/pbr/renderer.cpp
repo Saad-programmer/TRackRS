@@ -2,9 +2,11 @@
 #include "renderer.h"
 #include "engine/render/basic.h"
 #include "engine/rhi/rhi.h"
+#include "texture_stream.h"
 #include "validation.h"
 #include <SDL2/SDL_image.h>
 #include <array>
+#include <fstream>
 #include <glm/gtc/type_ptr.hpp>
 #include <limits>
 #include <map>
@@ -13,6 +15,12 @@ namespace trackrs::pbr {
 namespace {
 std::filesystem::path shaderRoot;
 std::vector<PointLight> currentHeadlights;
+std::unique_ptr<Ibl> runtimeIbl;
+std::unique_ptr<ReflectionProbe> runtimeProbe;
+glm::mat4 worldView(1);
+glm::vec3 currentCarCenter(0);
+SceneCapture probeScene;
+
 // Preserve caller GL state as well as invalidating the legacy renderer cache.
 // This guard also covers lazy VAO/texture creation and exceptional exits.
 class State {
@@ -20,11 +28,14 @@ class State {
         cull = 0, srcRGB = 0, dstRGB = 0, srcAlpha = 0, dstAlpha = 0;
   GLint rowLength = 0, shadowTexture = 0;
   GLboolean depthWrite = 0;
-  std::array<GLboolean, 5> enabled{};
-  std::array<GLint, 3> textures{};
-  static constexpr std::array<GLenum, 5> caps = {
-      GL_BLEND, GL_CULL_FACE, GL_DEPTH_TEST, GL_SAMPLE_ALPHA_TO_COVERAGE,
-      GL_FRAMEBUFFER_SRGB};
+  std::array<GLboolean, 6> enabled{};
+  std::array<GLint, 8> textures{}, cubes{};
+  static constexpr std::array<GLenum, 6> caps = {GL_BLEND,
+                                                 GL_CULL_FACE,
+                                                 GL_DEPTH_TEST,
+                                                 GL_SAMPLE_ALPHA_TO_COVERAGE,
+                                                 GL_FRAMEBUFFER_SRGB,
+                                                 GL_TEXTURE_CUBE_MAP_SEAMLESS};
 
 public:
   State() {
@@ -45,9 +56,10 @@ public:
     glGetBooleanv(GL_DEPTH_WRITEMASK, &depthWrite);
     for (std::size_t i = 0; i < caps.size(); ++i)
       enabled[i] = glIsEnabled(caps[i]);
-    for (unsigned i = 0; i < 3; ++i) {
+    for (unsigned i = 0; i < textures.size(); ++i) {
       glActiveTexture(GL_TEXTURE0 + i);
       glGetIntegerv(GL_TEXTURE_BINDING_2D, &textures[i]);
+      glGetIntegerv(GL_TEXTURE_BINDING_CUBE_MAP, &cubes[i]);
     }
   }
   ~State() {
@@ -61,9 +73,10 @@ public:
     glPixelStorei(GL_UNPACK_ROW_LENGTH, rowLength);
     glActiveTexture(GL_TEXTURE6);
     glBindTexture(GL_TEXTURE_2D_ARRAY, static_cast<GLuint>(shadowTexture));
-    for (unsigned i = 0; i < 3; ++i) {
+    for (unsigned i = 0; i < textures.size(); ++i) {
       glActiveTexture(GL_TEXTURE0 + i);
       glBindTexture(GL_TEXTURE_2D, static_cast<GLuint>(textures[i]));
+      glBindTexture(GL_TEXTURE_CUBE_MAP, static_cast<GLuint>(cubes[i]));
     }
     glActiveTexture(static_cast<GLenum>(active));
     glUseProgram(static_cast<GLuint>(program));
@@ -87,7 +100,24 @@ void vector(GLuint p, const char *name, glm::vec3 v) {
 }
 struct Texture {
   GLuint id = 0;
-  Texture(const mesh::Texture &source, bool srgb) {
+  std::shared_ptr<TextureStream> stream;
+  std::shared_ptr<StreamedTexture> ticket;
+  std::size_t bytes = 4;
+  std::size_t resident() const {
+    return ticket ? ticket->residentBytes : bytes;
+  }
+  GLuint name() const {
+    if (ticket && !ticket->error.empty())
+      throw std::runtime_error(ticket->error);
+    return ticket ? ticket->id() : id;
+  }
+  Texture(const mesh::Texture &source, bool srgb, assets::Semantic semantic) {
+    if (assets::isKtx2(source.encoded)) {
+      stream = textureStream();
+      ticket = stream->request(source.encoded, semantic);
+      return;
+    }
+
     try {
       glGenTextures(1, &id);
       glBindTexture(GL_TEXTURE_2D, id);
@@ -125,6 +155,16 @@ struct Texture {
                       GL_LINEAR_MIPMAP_LINEAR);
       glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
       glGenerateMipmap(GL_TEXTURE_2D);
+      if (rgba) {
+        bytes = 0;
+        for (int w = rgba->w, h = rgba->h;;
+             w = std::max(1, w / 2), h = std::max(1, h / 2)) {
+          bytes += std::size_t(w) * std::size_t(h) * 4;
+          if (w == 1 && h == 1)
+            break;
+        }
+      }
+
     } catch (...) {
       glDeleteTextures(1, &id);
       throw;
@@ -250,16 +290,49 @@ struct Model::Impl {
       : shaders(path), materials(data.materials), source(data) {
     State guard;
     glActiveTexture(GL_TEXTURE0);
-    for (const auto &m : materials)
-      surfaces.push_back({std::make_unique<Texture>(
-                              m.albedo, m.path == mesh::MaterialPath::Pbr),
-                          std::make_unique<Texture>(m.normal, false),
-                          std::make_unique<Texture>(m.metalRough, false)});
+    for (const auto &m : materials) {
+      Surface surface;
+      surface.albedo =
+          std::make_unique<Texture>(m.albedo, m.path == mesh::MaterialPath::Pbr,
+                                    assets::Semantic::Albedo);
+      surface.normal =
+          std::make_unique<Texture>(m.normal, false, assets::Semantic::Normal);
+      surface.mr =
+          std::make_unique<Texture>(m.metalRough, false, assets::Semantic::Orm);
+      surfaces.push_back(std::move(surface));
+    }
+    // Coalesce opaque/masked primitives once at upload time. Blended
+    // primitives retain their source order because ordering affects blending.
+    std::vector<mesh::Submesh> batches;
+    std::map<std::size_t, std::size_t> materialBatch;
     for (const auto &sub : data.submeshes) {
       if (sub.material >= materials.size())
         throw std::runtime_error("material index out of bounds");
-      meshes.push_back(std::make_unique<Geometry>(sub));
+      if (materials[sub.material].alpha == mesh::AlphaMode::Blend) {
+        batches.push_back(sub);
+        materialBatch.clear();
+        continue;
+      }
+      auto found = materialBatch.find(sub.material);
+      if (found == materialBatch.end()) {
+        materialBatch.emplace(sub.material, batches.size());
+        batches.push_back(sub);
+        continue;
+      }
+      auto &batch = batches[found->second];
+      if (batch.vertices.size() + sub.vertices.size() >
+          std::numeric_limits<std::uint32_t>::max())
+        throw std::overflow_error("material batch vertex limit");
+      const auto offset = static_cast<std::uint32_t>(batch.vertices.size());
+      batch.vertices.insert(batch.vertices.end(), sub.vertices.begin(),
+                            sub.vertices.end());
+      batch.packed.insert(batch.packed.end(), sub.packed.begin(),
+                          sub.packed.end());
+      for (auto index : sub.indices)
+        batch.indices.push_back(index + offset);
     }
+    for (const auto &batch : batches)
+      meshes.push_back(std::make_unique<Geometry>(batch));
   }
   GLuint program(unsigned flags) {
     auto &p = programs[flags];
@@ -291,10 +364,23 @@ HeadlightScope::HeadlightScope(const glm::mat4 &bodyToEye) {
   for (float x : {-.55f, .55f})
     points.push_back({glm::vec3(bodyToEye * glm::vec4(x, 1.8f, .45f, 1)),
                       glm::vec3(8, 7.5f, 6), 12});
+  previousCenter_ = currentCarCenter;
+  currentCarCenter = glm::vec3(bodyToEye[3]);
   previous_ = std::move(currentHeadlights);
   currentHeadlights = std::move(points);
 }
-HeadlightScope::~HeadlightScope() { currentHeadlights = std::move(previous_); }
+HeadlightScope::~HeadlightScope() {
+  currentHeadlights = std::move(previous_);
+  currentCarCenter = previousCenter_;
+}
+void setWorldView(const glm::mat4 &view) { worldView = view; }
+void setProbeScene(SceneCapture scene) { probeScene = std::move(scene); }
+void shutdown() {
+  runtimeProbe.reset();
+  runtimeIbl.reset();
+  probeScene = {};
+  clearMeasurements();
+}
 void configure(const std::filesystem::path &shaders) { shaderRoot = shaders; }
 const std::filesystem::path &shaderDirectory() { return shaderRoot; }
 Model::Model(const mesh::MeshData &data, const std::filesystem::path &shaders)
@@ -305,6 +391,11 @@ Statistics Model::draw(const Frame &frame, const std::vector<glm::mat4> &models,
   if (models.empty())
     return {};
   State guard;
+  for (const auto &surface : impl_->surfaces)
+    if (surface.albedo->stream) {
+      surface.albedo->stream->pump();
+      break;
+    }
   Statistics stats;
   glDisable(GL_FRAMEBUFFER_SRGB);
   glEnable(GL_DEPTH_TEST);
@@ -356,7 +447,31 @@ Statistics Model::draw(const Frame &frame, const std::vector<glm::mat4> &models,
     vector(p, "uAmbientColor", frame.ambient);
     integer(p, "uDebugView", frame.debugView);
     integer(p, "uToneMap", frame.toneMap);
-    integer(p, "uHasIBL", 0);
+    bool hasIbl = frame.environment && frame.environment->ready();
+    integer(p, "uHasIBL", hasIbl);
+    scalar(p, "uWetness", frame.wetness);
+    if (hasIbl) {
+      glEnable(GL_TEXTURE_CUBE_MAP_SEAMLESS);
+      glActiveTexture(GL_TEXTURE3);
+      glBindTexture(GL_TEXTURE_CUBE_MAP, frame.environment->irradiance());
+      glActiveTexture(GL_TEXTURE4);
+      glBindTexture(GL_TEXTURE_CUBE_MAP, frame.environment->prefilter());
+      glActiveTexture(GL_TEXTURE5);
+      glBindTexture(GL_TEXTURE_2D, frame.environment->brdf());
+      scalar(p, "uPrefilterMaxLod", frame.environment->maxLod());
+      glUniformMatrix3fv(glGetUniformLocation(p, "uEnvironmentRotation"), 1,
+                         GL_FALSE, glm::value_ptr(frame.environmentRotation));
+      glUniformMatrix3fv(glGetUniformLocation(p, "uProbeRotation"), 1, GL_FALSE,
+                         glm::value_ptr(frame.probeRotation));
+      integer(p, "uUseLocalProbe", frame.reflectionProbe != 0);
+      integer(p, "uLocalProbe", 7);
+      scalar(p, "uProbeMaxLod", frame.probeMaxLod);
+      if (frame.reflectionProbe) {
+        glActiveTexture(GL_TEXTURE7);
+        glBindTexture(GL_TEXTURE_CUBE_MAP, frame.reflectionProbe);
+      }
+    }
+
     if (frame.shadows.texture) {
       if (frame.shadows.count < 1 || frame.shadows.count > 4)
         throw std::runtime_error("CSM count must be 1..4");
@@ -380,6 +495,7 @@ Statistics Model::draw(const Frame &frame, const std::vector<glm::mat4> &models,
     integer(p, "uIrradianceMap", 3);
     integer(p, "uPrefilterMap", 4);
     integer(p, "uBrdfLUT", 5);
+    integer(p, "uLocalProbe", 7);
     auto baseColor = m.baseColor;
     baseColor[3] *= frame.alpha;
     glUniform4fv(glGetUniformLocation(p, "uBaseColorFactor"), 1,
@@ -393,11 +509,11 @@ Statistics Model::draw(const Frame &frame, const std::vector<glm::mat4> &models,
     scalar(p, "uAlphaCutoff",
            m.alpha == mesh::AlphaMode::Mask ? m.alphaCutoff : 0);
     glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, textures.albedo->id);
+    glBindTexture(GL_TEXTURE_2D, textures.albedo->name());
     glActiveTexture(GL_TEXTURE1);
-    glBindTexture(GL_TEXTURE_2D, textures.normal->id);
+    glBindTexture(GL_TEXTURE_2D, textures.normal->name());
     glActiveTexture(GL_TEXTURE2);
-    glBindTexture(GL_TEXTURE_2D, textures.mr->id);
+    glBindTexture(GL_TEXTURE_2D, textures.mr->name());
     glBindVertexArray(geometry->vao[packed ? 1 : 0]);
 
     auto lights = [&](const glm::mat4 &model) {
@@ -434,8 +550,15 @@ Statistics Model::draw(const Frame &frame, const std::vector<glm::mat4> &models,
       glBufferData(GL_ARRAY_BUFFER,
                    static_cast<GLsizeiptr>(stream.size() * sizeof(Instance)),
                    stream.data(), GL_STREAM_DRAW);
-      glDrawElementsInstanced(GL_TRIANGLES, geometry->count, GL_UNSIGNED_INT,
-                              nullptr, static_cast<GLsizei>(models.size()));
+      materialMeasurement(
+          m.name,
+          textures.albedo->resident() + textures.normal->resident() +
+              textures.mr->resident(),
+          [&] {
+            glDrawElementsInstanced(GL_TRIANGLES, geometry->count,
+                                    GL_UNSIGNED_INT, nullptr,
+                                    static_cast<GLsizei>(models.size()));
+          });
       ++stats.draws;
     } else
       for (std::size_t i = 0; i < models.size(); ++i) {
@@ -446,7 +569,14 @@ Statistics Model::draw(const Frame &frame, const std::vector<glm::mat4> &models,
         glUniformMatrix3fv(glGetUniformLocation(p, "uNormalMatrix"), 1,
                            GL_FALSE, stream[i].normal);
         scalar(p, "uModelParity", stream[i].parity);
-        glDrawElements(GL_TRIANGLES, geometry->count, GL_UNSIGNED_INT, nullptr);
+        materialMeasurement(m.name,
+                            textures.albedo->resident() +
+                                textures.normal->resident() +
+                                textures.mr->resident(),
+                            [&] {
+                              glDrawElements(GL_TRIANGLES, geometry->count,
+                                             GL_UNSIGNED_INT, nullptr);
+                            });
         ++stats.draws;
       }
     stats.triangles +=
@@ -454,7 +584,18 @@ Statistics Model::draw(const Frame &frame, const std::vector<glm::mat4> &models,
   }
   return stats;
 }
-void Model::drawCurrent(float alpha) {
+bool Model::canInstance() const {
+  for (const auto &submesh : impl_->source.submeshes)
+    if (impl_->materials[submesh.material].path == mesh::MaterialPath::Legacy)
+      return false;
+  return true;
+}
+void Model::drawCurrent(float alpha) { drawCurrentInstances({}, alpha); }
+bool Model::drawCurrentInstances(const std::vector<glm::mat4> &models,
+                                 float alpha) {
+  if (!models.empty() && !canInstance())
+    return false;
+
   draw::SavedState saved;
   draw::flush();
   glm::mat4 mv, projection;
@@ -467,7 +608,38 @@ void Model::drawCurrent(float alpha) {
   frame.lights = currentHeadlights;
   frame.sunDirection = glm::vec3(.2f, .5f, 1);
   frame.camera = glm::vec3(0);
-  const auto stats = draw(frame, {mv});
+  if (!runtimeIbl) {
+    auto directory =
+        shaderRoot.parent_path().parent_path() / "scenes/material_preview/ibl";
+    if (std::filesystem::exists(directory / "cache.json"))
+      runtimeIbl = std::make_unique<Ibl>(directory);
+  }
+  if (runtimeIbl) {
+    runtimeIbl->pump();
+    frame.environment = runtimeIbl.get();
+    auto inverse = glm::inverse(worldView);
+    frame.probeRotation = glm::mat3(inverse);
+    frame.environmentRotation =
+        glm::mat3(glm::rotate(glm::mat4(1), glm::radians(-90.f),
+                              glm::vec3(1, 0, 0))) *
+        frame.probeRotation;
+    if (runtimeIbl->ready()) {
+      if (!runtimeProbe)
+        runtimeProbe = std::make_unique<ReflectionProbe>(shaderRoot);
+      runtimeProbe->update(
+          *runtimeIbl, glm::vec3(inverse * glm::vec4(currentCarCenter, 1)),
+          probeScene,
+          glm::mat3(glm::rotate(glm::mat4(1), glm::radians(-90.f),
+                                glm::vec3(1, 0, 0))));
+      frame.reflectionProbe = runtimeProbe->texture();
+      frame.probeMaxLod = runtimeProbe->maxLod();
+    }
+  }
+
+  if (validation::run.capture)
+    profileEnabled(true);
+  const auto stats =
+      models.empty() ? draw(frame, {mv}) : draw(frame, models, true, true);
   draw::invalidateGpuState();
   if (impl_->legacy.empty())
     impl_->legacy.resize(impl_->source.submeshes.size());
@@ -491,7 +663,7 @@ void Model::drawCurrent(float alpha) {
     else {
       draw::enable(GL_TEXTURE_2D);
       draw::bindTexture(GL_TEXTURE_2D,
-                        impl_->surfaces[sub.material].albedo->id);
+                        impl_->surfaces[sub.material].albedo->name());
     }
     draw::color(m.baseColor[0], m.baseColor[1], m.baseColor[2],
                 m.baseColor[3] * alpha);
@@ -502,5 +674,20 @@ void Model::drawCurrent(float alpha) {
     validation::run.frameDraws += stats.draws;
     validation::run.frameTriangles += stats.triangles;
   }
+  return true;
+}
+void writeProfile(const std::filesystem::path &path) {
+  if (!runtimeIbl)
+    return;
+  glFinish(); // Validation endpoint only: collect timestamps before teardown.
+  auto stream = textureStream();
+  nlohmann::json report = {
+      {"materials", materialReport()},
+      {"environment_texture_bytes", runtimeIbl->bytes()},
+      {"pbo_bytes", stream->pboBytes()},
+      {"unique_streamed_texture_bytes", stream->residentBytes()}};
+  if (runtimeProbe)
+    report["probe"] = runtimeProbe->report();
+  std::ofstream(path) << report.dump(2) << '\n';
 }
 } // namespace trackrs::pbr

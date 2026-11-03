@@ -1,0 +1,6 @@
+{"mip_counts":[7,7,7],"name":"asphalt","texture_bytes":16464,"valid":true}
+{"mip_counts":[5,5,5],"name":"chrome","texture_bytes":1104,"valid":true}
+{"mip_counts":[5,5,5],"name":"glass","texture_bytes":1104,"valid":true}
+{"mip_counts":[5,5,5],"name":"paint","texture_bytes":1104,"valid":true}
+{"mip_counts":[5,5,5],"name":"rubber","texture_bytes":1104,"valid":true}
+{"mip_counts":[5,5,5],"name":"white","texture_bytes":1104,"valid":true}

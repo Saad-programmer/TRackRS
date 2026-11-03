@@ -373,6 +373,7 @@ public:
   std::shared_ptr<trackrs::mesh::MeshData> imported;
   std::shared_ptr<trackrs::pbr::Model> materialGpu;
   bool drawImported(float alpha=1);
+  bool drawImportedInstances(const std::vector<glm::mat4> &models, float alpha=1);
 	std::pair<vec3f, vec3f> getExtents() const;
 };
 

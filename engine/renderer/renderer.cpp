@@ -39,6 +39,7 @@ void trackrs::Renderer::vehiclePart(PApp& context, const PVehicleType &type, con
 
     if (type.wheelmodel)
     {
+        std::vector<glm::mat4> wheelMatrices;
         for (unsigned int i=0; i<typepart.wheel.size(); ++i)
         {
             trackrs::draw::push();
@@ -52,9 +53,22 @@ void trackrs::Renderer::vehiclePart(PApp& context, const PVehicleType &type, con
             float scale = type.wheelscale * typepart.wheel[i].radius;
             trackrs::draw::scale(scale,scale,scale);
 
-            context.drawModel(*type.wheelmodel, alpha);
+            if (type.wheelmodel->imported) {
+                glm::mat4 matrix;
+                trackrs::draw::read(trackrs::draw::ViewMatrix,glm::value_ptr(matrix));
+                wheelMatrices.push_back(matrix);
+            } else context.drawModel(*type.wheelmodel, alpha);
 
             trackrs::draw::pop();
+        }
+        if (!wheelMatrices.empty() && !type.wheelmodel->drawImportedInstances(wheelMatrices,alpha)) {
+            for (const auto &matrix : wheelMatrices) {
+                trackrs::draw::push();
+                trackrs::draw::identity();
+                trackrs::draw::multiply(glm::value_ptr(matrix));
+                context.drawModel(*type.wheelmodel,alpha);
+                trackrs::draw::pop();
+            }
         }
     }
 }

@@ -1,0 +1,151 @@
+{
+  "asset": {
+    "version": "2.0",
+    "generator": "TrackRS Phase 2d original CC0 test art"
+  },
+  "extensionsUsed": [
+    "KHR_materials_clearcoat"
+  ],
+  "buffers": [
+    {
+      "uri": "asphalt.bin",
+      "byteLength": 1152
+    }
+  ],
+  "bufferViews": [
+    {
+      "buffer": 0,
+      "byteOffset": 0,
+      "byteLength": 432
+    },
+    {
+      "buffer": 0,
+      "byteOffset": 432,
+      "byteLength": 432
+    },
+    {
+      "buffer": 0,
+      "byteOffset": 864,
+      "byteLength": 288
+    }
+  ],
+  "accessors": [
+    {
+      "bufferView": 0,
+      "componentType": 5126,
+      "count": 36,
+      "type": "VEC3",
+      "min": [
+        -12,
+        -0.25,
+        -12
+      ],
+      "max": [
+        12,
+        -0.21000000000000002,
+        12
+      ]
+    },
+    {
+      "bufferView": 1,
+      "componentType": 5126,
+      "count": 36,
+      "type": "VEC3",
+      "min": [
+        -1,
+        -1,
+        -1
+      ],
+      "max": [
+        1,
+        1,
+        1
+      ]
+    },
+    {
+      "bufferView": 2,
+      "componentType": 5126,
+      "count": 36,
+      "type": "VEC2"
+    }
+  ],
+  "images": [
+    {
+      "uri": "asphalt.png",
+      "extras": {
+        "trackrsKtx2": "asphalt-albedo.ktx2"
+      }
+    },
+    {
+      "uri": "asphalt-orm.png",
+      "extras": {
+        "trackrsKtx2": "asphalt-orm.ktx2"
+      }
+    },
+    {
+      "uri": "asphalt-normal.png",
+      "extras": {
+        "trackrsKtx2": "asphalt-normal.ktx2"
+      }
+    }
+  ],
+  "textures": [
+    {
+      "source": 0
+    },
+    {
+      "source": 1
+    },
+    {
+      "source": 2
+    }
+  ],
+  "materials": [
+    {
+      "name": "wet asphalt",
+      "pbrMetallicRoughness": {
+        "baseColorTexture": {
+          "index": 0
+        },
+        "metallicRoughnessTexture": {
+          "index": 1
+        }
+      },
+      "normalTexture": {
+        "index": 2
+      },
+      "occlusionTexture": {
+        "index": 1,
+        "strength": 1
+      }
+    }
+  ],
+  "meshes": [
+    {
+      "primitives": [
+        {
+          "attributes": {
+            "POSITION": 0,
+            "NORMAL": 1,
+            "TEXCOORD_0": 2
+          },
+          "material": 0
+        }
+      ]
+    }
+  ],
+  "nodes": [
+    {
+      "mesh": 0,
+      "name": "Fictional TrackRS PBR test car"
+    }
+  ],
+  "scenes": [
+    {
+      "nodes": [
+        0
+      ]
+    }
+  ],
+  "scene": 0
+}

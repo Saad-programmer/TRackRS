@@ -1,0 +1,7 @@
+{
+  "name": "glass",
+  "albedo": "glass-albedo.ktx2",
+  "normal": "glass-normal.ktx2",
+  "orm": "glass-orm.ktx2",
+  "atlas": false
+}

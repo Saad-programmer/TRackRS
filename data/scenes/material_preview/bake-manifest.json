@@ -1,0 +1,34 @@
+{
+  "generator": "tools/bake_demo_materials.py",
+  "texture_formats": {
+    "albedo": "BC7 sRGB",
+    "normal": "BC5 linear",
+    "orm": "BC7 linear; AO/Roughness/Metallic in R/G/B",
+    "environment": "BC6H unsigned HDR",
+    "lut": "RG16F"
+  },
+  "sha256": {
+    "data/vehicles/pbr_test/asphalt-albedo.ktx2": "67260ca6e1eca624681cda7fa20b5c349a48443a140bedc0d7579aacd22b55f5",
+    "data/vehicles/pbr_test/asphalt-normal.ktx2": "b5ff8d53bf55132877da50f864c2b0ea861ed2b734b58a4ebe713ef94bad4355",
+    "data/vehicles/pbr_test/asphalt-orm.ktx2": "c960a2e27a7a31b943289f229576dbf8a44f63292c4b51caf4ad0fdf1d263c0a",
+    "data/vehicles/pbr_test/chrome-albedo.ktx2": "a7555b9bf8384a3a61b00514a2b7edf56a1a58aa521c50967d6d2bf75646e54b",
+    "data/vehicles/pbr_test/chrome-normal.ktx2": "054741dffefb58fa54c06cb69c92e0acbc5a539b23c16738bb57f5181686d8a7",
+    "data/vehicles/pbr_test/chrome-orm.ktx2": "5e0f7e66d7a4d84bd1f29b1174b064bfe5021fc9a1e2c1309fa269794f1d8d91",
+    "data/vehicles/pbr_test/glass-albedo.ktx2": "2e3d4aef84c5d211f5e306ce48d337ac60ce0519b05b0c3e6e9bd16d9e5304df",
+    "data/vehicles/pbr_test/glass-normal.ktx2": "054741dffefb58fa54c06cb69c92e0acbc5a539b23c16738bb57f5181686d8a7",
+    "data/vehicles/pbr_test/glass-orm.ktx2": "5be8c4ce6065aa43f5603f4f81fb760a5c814e220e91ec4d472905c757ba93da",
+    "data/vehicles/pbr_test/paint-albedo.ktx2": "c4d6f021ce298fc487e648f39aa1fead76ad52df2ead1f070c0e2121b9c1f0e1",
+    "data/vehicles/pbr_test/paint-normal.ktx2": "28380bfa15fd66688a23435574dc89b792b8840e9f7bcc129a039e993e07cf8a",
+    "data/vehicles/pbr_test/paint-orm.ktx2": "ef78c0dcf228ec2536fd34f3f9ee700313249a16f2d88d3a239c2a2eb3a14d81",
+    "data/vehicles/pbr_test/rubber-albedo.ktx2": "529e275cb0c3912da5c5ff8a65dcbc594e949d5a719533b73276c56359bdd757",
+    "data/vehicles/pbr_test/rubber-normal.ktx2": "054741dffefb58fa54c06cb69c92e0acbc5a539b23c16738bb57f5181686d8a7",
+    "data/vehicles/pbr_test/rubber-orm.ktx2": "1e4b973c0ce64f673ce9795c87b54bad73feafab845d508a38bf01a86b04a863",
+    "data/vehicles/pbr_test/white-albedo.ktx2": "5021640bdec6a61fff4c1f71dabc2639eeed3148ac767976af2b81e46f2fb20f",
+    "data/vehicles/pbr_test/white-normal.ktx2": "054741dffefb58fa54c06cb69c92e0acbc5a539b23c16738bb57f5181686d8a7",
+    "data/vehicles/pbr_test/white-orm.ktx2": "956dde8b6ecd57ae47bef90b030651a91079e060eae27e3d8c0f83d781203f8f",
+    "data/scenes/material_preview/ibl/brdf.ktx2": "2c8f2a96b0e6fcda40a3d1df175f21c43686cb23e21169f823b296cfe9029673",
+    "data/scenes/material_preview/ibl/irradiance.ktx2": "8cc3e89d3ae2e57936af1165707143a43654bc702d14fd0de1a2110331807d11",
+    "data/scenes/material_preview/ibl/prefilter.ktx2": "111898cfbcf7fcac4752206c6637bfc3f665188e86e44b05671e80b1a4bcb5b4",
+    "data/scenes/material_preview/ibl/sky.ktx2": "6abe81a4c6918f79e9e87afe42d80dea210dceb3f0464ce4d0dc2f2db167c31b"
+  }
+}

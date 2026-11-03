@@ -163,6 +163,13 @@ bool PModel::drawImported(float alpha) {
   return true;
 }
 
+bool PModel::drawImportedInstances(const std::vector<glm::mat4> &models, float alpha) {
+  if (!imported) return false;
+  trackrs::draw::flush();
+  if (!materialGpu) materialGpu=std::make_shared<trackrs::pbr::Model>(*imported,trackrs::pbr::shaderDirectory());
+  return materialGpu->drawCurrentInstances(models,alpha);
+}
+
 /*! Load an .obj model from file to the pengine structures.
  * \note: All model faces must be triangles;
  * \note: Not setting the pengine per face normal (mesh.facenormal) as the 

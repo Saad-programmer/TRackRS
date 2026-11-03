@@ -1,5 +1,8 @@
 name: Engine safety net
 on: [push, pull_request, workflow_dispatch]
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 permissions:
   contents: read
 jobs:
@@ -44,6 +47,13 @@ jobs:
           sanitizer_args=()
           if [ '${{ matrix.preset }}' = 'linux-debug-asan' ]; then sanitizer_args+=(--asan); fi
           xvfb-run -a -s '-screen 0 640x480x24' python3 tests/run_rhi.py --binary build/${{ matrix.preset }}/bin/rhi_tests --output build/rhi-gate "${sanitizer_args[@]}"
+      - name: Khronos KTX2 and material validation
+        if: matrix.compiler == 'g++' && matrix.preset == 'linux-release'
+        run: |
+          curl -fL https://github.com/KhronosGroup/KTX-Software/releases/download/v4.4.2/KTX-Software-4.4.2-Linux-x86_64.tar.bz2 -o build/ktx.tar.bz2
+          echo 'a8781bad05f9624edbf910b7f258cd0a4ba7d3e63b49ecc0a0ab440bf6a0a245  build/ktx.tar.bz2' | sha256sum -c
+          tar -xjf build/ktx.tar.bz2 -C build
+          python3 tests/validate_material_assets.py --ktx "$PWD/build/KTX-Software-4.4.2-Linux-x86_64/bin/ktx" --material-validator "$PWD/build/linux-release/bin/material-validator" --output build/pbr-gate/ktx-validation.json
       - name: PBR shader and material integration
         run: |
           sanitizer_args=()

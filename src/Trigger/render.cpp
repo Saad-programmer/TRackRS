@@ -1,6 +1,8 @@
 #include "../../engine/renderer/renderer.h"
 #include "../../engine/core/interpolation.h"
 #include "validation.h"
+#include "engine/pbr/renderer.h"
+#include <glm/gtc/type_ptr.hpp>
 // Creator: Saad AIT YAHIA - @github: Saad-programmer
 #include "damage.h"
 #include "main.h"
@@ -808,6 +810,18 @@ void MainApp::renderStateGame(float eyetranslation)
     trackrs::draw::multiply(cammat);
 
     trackrs::draw::translate(-campos.x, -campos.y, -campos.z);
+    glm::mat4 pbrView;trackrs::draw::read(trackrs::draw::ViewMatrix,glm::value_ptr(pbrView));
+    trackrs::pbr::setWorldView(pbrView);
+    trackrs::pbr::setProbeScene([this](const glm::mat4& projection,const glm::mat4& view,const glm::vec3& center){
+        if(!game||!game->terrain)return;
+        trackrs::draw::SavedState saved;
+        trackrs::draw::matrix(trackrs::draw::Projection);trackrs::draw::identity();trackrs::draw::multiply(glm::value_ptr(projection));
+        trackrs::draw::matrix(trackrs::draw::View);trackrs::draw::identity();trackrs::draw::multiply(glm::value_ptr(view));
+        float sun[]={.2f,.5f,1,0};trackrs::draw::light(trackrs::draw::LightPosition,sun);
+        game->terrain->render(vec3f(center.x,center.y,center.z),mat44f::identity());
+        trackrs::draw::flush();
+    });
+
 
     float lpos[] = { 0.2, 0.5, 1.0, 0.0 };
     trackrs::draw::light( trackrs::draw::LightPosition, lpos);
