@@ -208,6 +208,7 @@ std::size_t Renderer::draw(glm::vec3 camera, const glm::mat4 &vp, bool capture,
   State guard;
   auto &p = *impl_;
   p.shader->poll();
+  p.depthShader->poll();
   p.environment->pump();
   p.ready = p.environment->ready();
   for (const auto &map : p.maps) {

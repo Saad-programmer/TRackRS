@@ -3,6 +3,7 @@
 #include "engine/rhi/rhi.h"
 #include "engine/world/renderer.h"
 #include <chrono>
+#include <fstream>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 #include <thread>
@@ -12,7 +13,8 @@ void require(bool test, const char *message) {
     throw std::runtime_error(message);
 }
 } // namespace
-nlohmann::json worldGpuTests(const std::filesystem::path &data) {
+nlohmann::json worldGpuTests(const std::filesystem::path &data,
+                             const std::filesystem::path &output) {
   using namespace trackrs;
   const auto previous = world::state().settings;
   draw::initialize(data / "shaders/basic", false);
@@ -22,6 +24,8 @@ nlohmann::json worldGpuTests(const std::filesystem::path &data) {
   auto projection =
       glm::perspective(glm::radians(60.f), 16.f / 9.f, .1f, 2400.f);
   float dark = 1, light = 0;
+  unsigned stars = 0;
+  float moonCenter = 0;
   {
     auto deadline = std::chrono::steady_clock::now() + std::chrono::seconds(30);
     do {
@@ -91,6 +95,44 @@ nlohmann::json worldGpuTests(const std::filesystem::path &data) {
     };
     dark = sample({0, 0, 0});
     light = sample({5, 5, 0});
+
+    world::configure({true, true, 22});
+    auto moon = glm::normalize(-world::state().sun.direction +
+                               glm::vec3(.15f, 0, .18f));
+    auto moonView = glm::lookAt(glm::vec3(0), moon, glm::vec3(0, 0, 1));
+    auto moonProjection =
+        glm::perspective(glm::radians(30.f), 16.f / 9.f, .1f, 2400.f);
+    world::prepare(moonView, moonProjection, RenderQuality::Low, data);
+    glBindFramebuffer(GL_FRAMEBUFFER, fbo);
+    glBindTexture(GL_TEXTURE_2D, colour);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, 640, 360, 0, GL_RGBA, GL_FLOAT,
+                 nullptr);
+    glViewport(0, 0, 640, 360);
+    world::drawSky(moonProjection, moonView, glm::vec3(0));
+    std::vector<unsigned char> skyPixels(640 * 360 * 3);
+    glReadPixels(0, 0, 640, 360, GL_RGB, GL_UNSIGNED_BYTE, skyPixels.data());
+    for (int y = 0; y < 360; ++y)
+      for (int x = 0; x < 640; ++x) {
+        auto index = static_cast<std::size_t>((y * 640 + x) * 3);
+        auto peak = std::max(
+            {skyPixels[index], skyPixels[index + 1], skyPixels[index + 2]});
+        if (std::abs(x - 320) > 12 || std::abs(y - 180) > 12) {
+          if (peak > 100)
+            ++stars;
+        } else
+          moonCenter = std::max(moonCenter, float(peak) / 255.f);
+      }
+    require(moonCenter > .4f, "procedural moon did not appear");
+    require(stars > 5, "night sky has no resolved stars");
+    if (!output.empty()) {
+      std::filesystem::create_directories(output);
+      std::ofstream image(output / "night-sky.ppm", std::ios::binary);
+      image << "P6\n640 360\n255\n";
+      for (int y = 359; y >= 0; --y)
+        image.write(
+            reinterpret_cast<const char *>(skyPixels.data() + y * 640 * 3),
+            640 * 3);
+    }
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
     glDeleteFramebuffers(1, &fbo);
     glDeleteTextures(1, &colour);
@@ -101,6 +143,8 @@ nlohmann::json worldGpuTests(const std::filesystem::path &data) {
   auto result = world::report();
   result["known_occluded_visibility"] = dark;
   result["known_lit_visibility"] = light;
+  result["resolved_star_pixels"] = stars;
+  result["moon_peak_srgb"] = moonCenter;
   world::shutdown();
   world::configure(previous);
   draw::shutdown();

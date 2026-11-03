@@ -2,7 +2,7 @@
 uniform bool uSceneEnabled=false;
 uniform bool uDepthOnly=false;
 uniform mat4 uSceneFromLocal,uSceneView,uSceneLight[4];
-uniform vec3 uSceneCamera,uSolarDirection,uSolarRadiance,uSceneAmbient;
+uniform vec3 uSceneCamera,uSolarDirection,uSolarRadiance,uSolarSkyRadiance,uSceneAmbient;
 uniform sampler2DArrayShadow uSceneShadow;
 uniform int uSceneShadowCount=0;
 uniform vec4 uSceneSplits,uSceneBias;
@@ -35,6 +35,6 @@ vec3 sceneFog(vec3 colour,vec3 world) {
  float transmission=exp(-max(optical,0.));
  float cosine=dot(delta/max(distance,.0001),uSolarDirection);
  float phase=.08+.12*pow(max(cosine,0.),8.);
- vec3 scattering=uSceneAmbient*1.5+uSolarRadiance*phase;
+ vec3 scattering=uSceneAmbient*1.5+uSolarSkyRadiance*.02+uSolarRadiance*phase;
  return colour*transmission+scattering*(1.-transmission);
 }

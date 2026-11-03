@@ -9,7 +9,7 @@ struct Settings {
   float hour = 12;
 };
 struct Sun {
-  glm::vec3 direction{0, 0, 1}, radiance{3}, ambient{.08f};
+  glm::vec3 direction{0, 0, 1}, radiance{3}, skyRadiance{3}, ambient{.08f};
   float daylight = 1;
 };
 Sun sunlight(float hour);
@@ -21,7 +21,9 @@ struct Cascades {
   glm::vec4 splits{0}, bias{0};
   unsigned count = 0, resolution = 0;
 };
-Cascades makeCascades(const glm::mat4 &view, const glm::mat4 &projection,
-                      glm::vec3 sun, unsigned count, unsigned resolution,
-                      float distance);
+struct CameraMatrices {
+  glm::mat4 view{1}, projection{1};
+};
+Cascades makeCascades(const CameraMatrices &camera, glm::vec3 sun,
+                      unsigned count, unsigned resolution, float distance);
 } // namespace trackrs::world

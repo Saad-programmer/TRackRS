@@ -904,6 +904,7 @@ void MainApp::renderStateGame(float eyetranslation)
 
     if (renderowncar && !(cfg.getPbrTerrain() && cfg.getCsm()))
     {
+        if(cfg.getPbrTerrain())++trackrs::world::state().blobDraws;
         trackrs::draw::blend(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
         tex_shadow->bind();

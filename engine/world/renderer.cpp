@@ -15,7 +15,7 @@ struct Guard {
   GLint draw = 0, read = 0, program = 0, vao = 0, depth = 0, active = 0;
   std::array<GLint, 4> viewport{};
   std::array<GLboolean, 4> colour{};
-  GLboolean mask = 0, depthTest = 0, cull = 0, blend = 0;
+  GLboolean mask = 0, depthTest = 0, cull = 0, blend = 0, scissor = 0, srgb = 0;
   Guard() {
     glGetIntegerv(GL_DRAW_FRAMEBUFFER_BINDING, &draw);
     glGetIntegerv(GL_READ_FRAMEBUFFER_BINDING, &read);
@@ -29,6 +29,8 @@ struct Guard {
     depthTest = glIsEnabled(GL_DEPTH_TEST);
     cull = glIsEnabled(GL_CULL_FACE);
     blend = glIsEnabled(GL_BLEND);
+    scissor = glIsEnabled(GL_SCISSOR_TEST);
+    srgb = glIsEnabled(GL_FRAMEBUFFER_SRGB);
   }
   ~Guard() {
     glBindFramebuffer(GL_DRAW_FRAMEBUFFER, static_cast<GLuint>(draw));
@@ -51,6 +53,16 @@ struct Guard {
       glEnable(GL_BLEND);
     else
       glDisable(GL_BLEND);
+    glDisable(GL_SCISSOR_TEST);
+    glDisable(GL_FRAMEBUFFER_SRGB);
+    if (scissor)
+      glEnable(GL_SCISSOR_TEST);
+    else
+      glDisable(GL_SCISSOR_TEST);
+    if (srgb)
+      glEnable(GL_FRAMEBUFFER_SRGB);
+    else
+      glDisable(GL_FRAMEBUFFER_SRGB);
     glActiveTexture(static_cast<GLenum>(active));
     draw::invalidateGpuState();
   }
@@ -102,6 +114,8 @@ void solar(GLuint p) {
   glUniform3fv(glGetUniformLocation(p, "uSunRadiance"), 1,
                glm::value_ptr(s.sun.radiance));
   glUniform1f(glGetUniformLocation(p, "uDaylight"), s.sun.daylight);
+  glUniform3fv(glGetUniformLocation(p, "uSunSkyRadiance"), 1,
+               glm::value_ptr(s.sun.skyRadiance));
 }
 } // namespace
 void drawSky(const glm::mat4 &projection, const glm::mat4 &view,
@@ -120,6 +134,8 @@ void drawSky(const glm::mat4 &projection, const glm::mat4 &view,
   glDepthMask(GL_FALSE);
   glDisable(GL_CULL_FACE);
   glDisable(GL_BLEND);
+  glDisable(GL_SCISSOR_TEST);
+  glDisable(GL_FRAMEBUFFER_SRGB);
   auto inverse = glm::inverse(projection * view);
   glUniformMatrix4fv(glGetUniformLocation(p, "uInverseViewProjection"), 1,
                      GL_FALSE, glm::value_ptr(inverse));
@@ -136,6 +152,9 @@ void prepare(const glm::mat4 &view, const glm::mat4 &projection,
              RenderQuality quality, const std::filesystem::path &data) {
   auto &s = state();
   s.scene = s.settings.enabled;
+  s.blobDraws = 0;
+  s.shadowDraws.fill(0);
+  s.shadowTriangles.fill(0);
   s.view = view;
   s.shadowView = view;
   if (!s.settings.enabled)
@@ -145,6 +164,8 @@ void prepare(const glm::mat4 &view, const glm::mat4 &projection,
   if (!renderer)
     renderer = std::make_unique<Renderer>(data);
   auto &r = *renderer;
+  if (r.sky.poll() | r.irradiance.poll())
+    r.bakedHour = -1;
   r.base.pump();
   if (r.base.ready() && r.bakedHour != s.settings.hour) {
     validation::PassScope timing("sky_ibl_bake");
@@ -156,6 +177,8 @@ void prepare(const glm::mat4 &view, const glm::mat4 &projection,
     glViewport(0, 0, 8, 8);
     glDisable(GL_DEPTH_TEST);
     glDisable(GL_BLEND);
+    glDisable(GL_SCISSOR_TEST);
+    glDisable(GL_FRAMEBUFFER_SRGB);
     glDisable(GL_CULL_FACE);
     glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
     glBindVertexArray(r.vao);
@@ -182,7 +205,7 @@ void prepare(const glm::mat4 &view, const glm::mat4 &projection,
   const bool high =
       quality == RenderQuality::High || quality == RenderQuality::Ultra;
   auto count = high ? 4u : 3u, size = high ? 2048u : 1024u;
-  s.cascades = makeCascades(view, projection, s.sun.direction, count, size,
+  s.cascades = makeCascades({view, projection}, s.sun.direction, count, size,
                             high ? 768.f : 512.f);
   if (s.settings.csm && (r.shadowSize != size || r.shadowCount != count)) {
     glDeleteTextures(1, &r.shadow);
@@ -231,6 +254,8 @@ void renderShadows(const std::function<void(const glm::mat4 &)> &casters) {
     glEnable(GL_DEPTH_TEST);
     glDepthFunc(GL_LESS);
     glDisable(GL_BLEND);
+    glDisable(GL_SCISSOR_TEST);
+    glDisable(GL_FRAMEBUFFER_SRGB);
     for (unsigned i = 0; i < s.cascades.count; ++i) {
       const auto name = "shadow_cascade_" + std::to_string(i);
       validation::PassScope timing(name.c_str());
@@ -239,8 +264,12 @@ void renderShadows(const std::function<void(const glm::mat4 &)> &casters) {
       if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
         throw std::runtime_error("CSM framebuffer incomplete");
       glClear(GL_DEPTH_BUFFER_BIT);
+      const auto beforeDraws = validation::run.frameDraws,
+                 beforeTriangles = validation::run.frameTriangles;
       casters(s.cascades.matrices[i]);
       draw::flush();
+      s.shadowDraws[i] = validation::run.frameDraws - beforeDraws;
+      s.shadowTriangles[i] = validation::run.frameTriangles - beforeTriangles;
     }
   } catch (...) {
     s.depthPass = false;
@@ -268,6 +297,8 @@ nlohmann::json report() {
       {"hour", s.settings.hour},
       {"sun_direction",
        {s.sun.direction.x, s.sun.direction.y, s.sun.direction.z}},
+      {"sky_source_radiance",
+       {s.sun.skyRadiance.x, s.sun.skyRadiance.y, s.sun.skyRadiance.z}},
       {"sun_radiance", {s.sun.radiance.x, s.sun.radiance.y, s.sun.radiance.z}},
       {"ibl_ready", s.sky != 0},
       {"csm", s.settings.csm},
@@ -277,6 +308,9 @@ nlohmann::json report() {
                                    s.cascades.resolution *
                                    s.cascades.resolution * 3},
       {"depth_pass", s.depthPass},
+      {"blob_draw_calls", s.blobDraws},
+      {"cascade_draw_calls", s.shadowDraws},
+      {"cascade_triangles", s.shadowTriangles},
       {"environment_probe", renderer && renderer->environment
                                 ? renderer->environment->report()
                                 : nlohmann::json(nullptr)}};

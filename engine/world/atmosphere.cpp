@@ -14,13 +14,17 @@ Sun sunlight(float hour) {
   result.direction = glm::normalize(
       glm::vec3(.25f * std::cos(angle), std::cos(angle), std::sin(angle)));
   float elevation = result.direction.z;
-  result.daylight = glm::smoothstep(-.12f, .08f, elevation);
+  result.daylight = glm::smoothstep(-.25f, .1f, elevation);
   float height = std::clamp(elevation, 0.f, 1.f);
   auto colour = glm::mix(glm::vec3(1, .24f, .07f), glm::vec3(1, .97f, .9f),
                          std::sqrt(height));
   result.radiance = colour * (3.f * glm::smoothstep(-.025f, .25f, elevation) *
                               (.2f + .8f * std::sqrt(height)));
-  result.ambient = glm::mix(glm::vec3(.001f, .002f, .005f), glm::vec3(.08f),
+  result.skyRadiance =
+      colour * std::max(std::max({result.radiance.x, result.radiance.y,
+                                  result.radiance.z}),
+                        2.f * result.daylight);
+  result.ambient = glm::mix(glm::vec3(.008f, .012f, .025f), glm::vec3(.08f),
                             result.daylight);
   return result;
 }
@@ -51,17 +55,16 @@ float fogOpticalDepth(float density, float falloff, float a, float b,
   return density * distance * std::exp(std::clamp(-falloff * a, -50.f, 50.f)) *
          integral;
 }
-Cascades makeCascades(const glm::mat4 &view, const glm::mat4 &projection,
-                      glm::vec3 sun, unsigned count, unsigned resolution,
-                      float distance) {
+Cascades makeCascades(const CameraMatrices &camera, glm::vec3 sun,
+                      unsigned count, unsigned resolution, float distance) {
   if (count < 3 || count > 4 || resolution < 32 || distance <= 1)
     throw std::invalid_argument("invalid cascade configuration");
   Cascades result;
   result.count = count;
   result.resolution = resolution;
-  auto inverse = glm::inverse(view);
-  const float near = .1f, tangent = 1.f / projection[1][1],
-              aspect = projection[1][1] / projection[0][0];
+  auto inverse = glm::inverse(camera.view);
+  const float near = .1f, tangent = 1.f / camera.projection[1][1],
+              aspect = camera.projection[1][1] / camera.projection[0][0];
   sun = glm::normalize(sun);
   auto up = std::abs(sun.z) > .95f ? glm::vec3(0, 1, 0) : glm::vec3(0, 0, 1);
   auto rotation = glm::lookAt(glm::vec3(0), -sun, up);
@@ -70,7 +73,7 @@ Cascades makeCascades(const glm::mat4 &view, const glm::mat4 &projection,
     float fraction = float(i + 1) / float(count);
     float end = glm::mix(near + (distance - near) * fraction,
                          near * std::pow(distance / near, fraction), .7f);
-    result.splits[i] = end;
+    result.splits[static_cast<int>(i)] = end;
     std::array<glm::vec3, 8> corners{};
     unsigned index = 0;
     // Overlap the preceding split by 10% for continuous cross-fades.
@@ -99,7 +102,7 @@ Cascades makeCascades(const glm::mat4 &view, const glm::mat4 &projection,
     result.matrices[i] = glm::ortho(-radius, radius, -radius, radius, .1f,
                                     2.f * (radius + casterPadding)) *
                          lightView;
-    result.bias[i] = texel / (2.f * (radius + casterPadding));
+    result.bias[static_cast<int>(i)] = texel / (2.f * (radius + casterPadding));
     previous = end;
   }
   return result;

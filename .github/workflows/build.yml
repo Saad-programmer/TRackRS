@@ -64,6 +64,11 @@ jobs:
           sanitizer_args=()
           if [ '${{ matrix.preset }}' = 'linux-debug-asan' ]; then sanitizer_args+=(--asan); fi
           xvfb-run -a -s '-screen 0 640x480x24' python3 tests/run_terrain.py --binary build/${{ matrix.preset }}/bin/trackrs --output build/terrain-gate --frames 32 "${sanitizer_args[@]}"
+      - name: Shared atmosphere and CSM integration
+        run: |
+          sanitizer_args=()
+          if [ '${{ matrix.preset }}' = 'linux-debug-asan' ]; then sanitizer_args+=(--asan); fi
+          xvfb-run -a -s '-screen 0 1024x768x24' python3 tests/run_world.py --binary build/${{ matrix.preset }}/bin/trackrs --output build/world-gate "${sanitizer_args[@]}"
       - name: In-window intro playback and skip
         if: matrix.compiler == 'g++' && matrix.preset == 'linux-release'
         run: xvfb-run -a -s '-screen 0 640x480x24' python3 tests/test_intro.py --binary build/linux-release/bin/trackrs --output build/intro-proof
@@ -93,6 +98,7 @@ jobs:
             build/rhi-gate
             build/pbr-gate
             build/terrain-gate
+            build/world-gate
             build/intro-proof
             build/edition-ui
             build/${{ matrix.preset }}/Testing

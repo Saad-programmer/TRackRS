@@ -39,7 +39,7 @@ def main():
             if result.returncode:raise RuntimeError(f'{defines}: {result.stdout}\n{result.stderr}')
             terrain.append({'defines':defines,'compile_and_link':'pass'})
         world=[]
-        for vertex,fragment in [('basic/basic.vert','basic/basic.frag'),('basic/particle.vert','basic/basic.frag'),('world/sky.vert','world/sky.frag'),('pbr/cube.vert','world/irradiance.frag'),('pbr/terrain.vert','world/depth.frag')]:
+        for vertex,fragment in [('basic/basic.vert','basic/basic.frag'),('basic/particle.vert','basic/basic.frag'),('world/sky.vert','world/sky.frag'),('pbr/cube.vert','world/irradiance.frag'),('pbr/terrain.vert','world/depth.frag'),('pbr/cube.vert','world/visibility_test.frag')]:
             files=[]
             for source,stage in [(vertex,'vert'),(fragment,'frag')]:
                 path=pathlib.Path(temp)/('world.'+stage);path.write_text(expand(ROOT/'data/shaders'/source));files.append(str(path))

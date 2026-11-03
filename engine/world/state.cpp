@@ -32,6 +32,8 @@ void apply(GLuint p, const glm::mat4 &localToWorld, bool scene) {
                glm::value_ptr(s.sun.radiance));
   glUniform3fv(glGetUniformLocation(p, "uSceneAmbient"), 1,
                glm::value_ptr(s.sun.ambient));
+  glUniform3fv(glGetUniformLocation(p, "uSolarSkyRadiance"), 1,
+               glm::value_ptr(s.sun.skyRadiance));
   const bool shadow = s.settings.csm && s.shadow && !s.depthPass;
   glUniform1i(glGetUniformLocation(p, "uSceneShadowCount"),
               shadow ? static_cast<int>(s.cascades.count) : 0);

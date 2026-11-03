@@ -16,6 +16,8 @@ TEST_CASE("one periodic sun state feeds world lighting") {
   CHECK(glm::length(sunlight(0).direction - sunlight(24).direction) < 1e-5);
   CHECK(sunlight(12).radiance.x > sunlight(17).radiance.x);
   CHECK(sunlight(22).radiance.x == 0);
+  CHECK(sunlight(18.5f).skyRadiance.x > 0);
+  CHECK(sunlight(22).skyRadiance.x == 0);
   CHECK(presetHour("dusk") == 18.5f);
   CHECK_THROWS(presetHour("invalid"));
 }
@@ -39,10 +41,11 @@ TEST_CASE("cascades cover split corners and remain stable under subtexel "
   auto projection =
       glm::perspective(glm::radians(60.f), 16.f / 9.f, .1f, 10000.f);
   for (unsigned count : {3u, 4u}) {
-    auto a = makeCascades(view, projection, {.2f, .5f, 1}, count, 2048, 768);
+    auto a = makeCascades({view, projection}, {.2f, .5f, 1}, count, 2048, 768);
     auto b = makeCascades(
-        view * glm::translate(glm::mat4(1), glm::vec3(.00001f, 0, 0)),
-        projection, {.2f, .5f, 1}, count, 2048, 768);
+        {view * glm::translate(glm::mat4(1), glm::vec3(.00001f, 0, 0)),
+         projection},
+        {.2f, .5f, 1}, count, 2048, 768);
     float previous = .1f;
     for (unsigned i = 0; i < count; ++i) {
       CHECK(a.splits[i] > previous);
