@@ -38,6 +38,10 @@ it at night. The moon follows a simple opposite-sun direction, not an astronomic
 ephemeris. Six time presets are provided; no post-processing auto-exposure is
 introduced at this gate.
 
+Probe captures retain linear light for both PBR and retained legacy geometry;
+the main view applies its display transform separately. GPU readback checks this
+domain boundary (0.22524 linear versus 0.61116 display-encoded for a known sample).
+
 The same sky is GPU-baked into a 64² GGX-prefiltered cubemap with all mips and
 an 8² diffuse irradiance/pi cube. Existing split-sum BRDF LUTs are reused.
 The bake updates when solar time or sky/irradiance shader source changes. Local

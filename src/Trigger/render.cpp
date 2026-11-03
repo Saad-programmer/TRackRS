@@ -825,11 +825,12 @@ void MainApp::renderStateGame(float eyetranslation)
         trackrs::draw::matrix(trackrs::draw::Projection);trackrs::draw::identity();trackrs::draw::multiply(glm::value_ptr(projection));
         trackrs::draw::matrix(trackrs::draw::View);trackrs::draw::identity();trackrs::draw::multiply(glm::value_ptr(view));
         const auto previousWorldView=trackrs::world::state().view;
+        const bool previousLinear=trackrs::world::state().linearCapture;trackrs::world::state().linearCapture=true;
         trackrs::world::state().view=view;
         float sun[]={.2f,.5f,1,0};trackrs::draw::light(trackrs::draw::LightPosition,sun);
         game->terrain->render(vec3f(center.x,center.y,center.z),mat44f::identity(),true);
         trackrs::draw::flush();
-        trackrs::world::state().view=previousWorldView;
+        trackrs::world::state().view=previousWorldView;trackrs::world::state().linearCapture=previousLinear;
     });
 
 

@@ -36,8 +36,8 @@ void main(){
   float visibility=sceneVisibility(world,normal);
   vec3 light=uSceneAmbient+uSolarRadiance*(max(dot(normal,uSolarDirection),0.)*visibility/3.14159265);
   vec3 c=sceneFog(pow(max(color.rgb,vec3(0)),vec3(2.2))*light,world);
-  c=clamp((c*(2.51*c+.03))/(c*(2.43*c+.59)+.14),0.,1.);
-  color.rgb=pow(c,vec3(1./2.2));
+  if(uSceneToneMap){c=clamp((c*(2.51*c+.03))/(c*(2.43*c+.59)+.14),0.,1.);c=pow(c,vec3(1./2.2));}
+  color.rgb=c;
  }else if(uFog)color.rgb=mix(uFogColor.rgb,color.rgb,clamp(exp(-uDensity*vFog),0.0,1.0));
  outColor=color;
 }

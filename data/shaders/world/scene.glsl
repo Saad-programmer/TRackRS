@@ -1,6 +1,7 @@
 // Shared world-space light, stabilised CSM and analytic exponential height fog.
 uniform bool uSceneEnabled=false;
 uniform bool uDepthOnly=false;
+uniform bool uSceneToneMap=true;
 uniform mat4 uSceneFromLocal,uSceneView,uSceneLight[4];
 uniform vec3 uSceneCamera,uSolarDirection,uSolarRadiance,uSolarSkyRadiance,uSceneAmbient;
 uniform sampler2DArrayShadow uSceneShadow;

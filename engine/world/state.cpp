@@ -15,6 +15,7 @@ void apply(GLuint p, const glm::mat4 &localToWorld, bool scene) {
   bool enabled = s.settings.enabled && scene;
   glUniform1i(glGetUniformLocation(p, "uSceneEnabled"), enabled);
   glUniform1i(glGetUniformLocation(p, "uDepthOnly"), s.depthPass);
+  glUniform1i(glGetUniformLocation(p, "uSceneToneMap"), !s.linearCapture);
   glUniform1i(glGetUniformLocation(p, "uSceneShadow"), 10);
   glUniform1i(glGetUniformLocation(p, "uSceneShadowCount"), 0);
   if (!enabled)

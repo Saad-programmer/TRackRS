@@ -13,7 +13,7 @@ struct State {
   float environmentLod = 0;
   std::array<std::uint64_t, 4> shadowDraws{}, shadowTriangles{};
   std::uint64_t blobDraws = 0;
-  bool scene = false, depthPass = false;
+  bool scene = false, depthPass = false, linearCapture = false;
 };
 State &state();
 void configure(Settings settings);

@@ -23,7 +23,7 @@ nlohmann::json worldGpuTests(const std::filesystem::path &data,
       glm::lookAt(glm::vec3(0, -12, 5), glm::vec3(0, 0, 1), glm::vec3(0, 0, 1));
   auto projection =
       glm::perspective(glm::radians(60.f), 16.f / 9.f, .1f, 2400.f);
-  float dark = 1, light = 0;
+  float dark = 1, light = 0, linearRed = 0, displayRed = 0;
   unsigned stars = 0;
   float moonCenter = 0;
   {
@@ -96,6 +96,49 @@ nlohmann::json worldGpuTests(const std::filesystem::path &data,
     dark = sample({0, 0, 0});
     light = sample({5, 5, 0});
 
+    world::configure({true, false, 12});
+    world::state().view = glm::mat4(1);
+    {
+      draw::SavedState saved;
+      draw::matrix(draw::Projection);
+      draw::identity();
+      draw::matrix(draw::View);
+      draw::identity();
+      draw::disable(GL_TEXTURE_2D);
+      draw::disable(GL_CULL_FACE);
+      draw::disable(GL_DEPTH_TEST);
+      draw::disable(GL_BLEND);
+      draw::color(.5f, .5f, .5f);
+      float normal[] = {0, 0, 1};
+      draw::normal(normal);
+      auto render = [&](bool linear) {
+        world::state().linearCapture = linear;
+        draw::begin(draw::Quads);
+        draw::vertex(-1, -1, 0);
+        draw::vertex(1, -1, 0);
+        draw::vertex(1, 1, 0);
+        draw::vertex(-1, 1, 0);
+        draw::end();
+        draw::flush();
+        std::array<float, 4> pixel{};
+        glReadPixels(0, 0, 1, 1, GL_RGBA, GL_FLOAT, pixel.data());
+        return pixel[0];
+      };
+      linearRed = render(true);
+      displayRed = render(false);
+      const float expected =
+          std::pow(.5f, 2.2f) * (3.f / glm::pi<float>() + .08f);
+      require(std::abs(linearRed - expected) < .002f,
+              "probe capture is not linear light");
+      const float mapped =
+          std::pow((linearRed * (2.51f * linearRed + .03f)) /
+                       (linearRed * (2.43f * linearRed + .59f) + .14f),
+                   1.f / 2.2f);
+      require(std::abs(displayRed - mapped) < .002f,
+              "main-view display encoding changed linear probe output");
+      require(displayRed > linearRed,
+              "linear and display capture paths were not distinguished");
+    }
     world::configure({true, true, 22});
     auto moon = glm::normalize(-world::state().sun.direction +
                                glm::vec3(.15f, 0, .18f));
@@ -143,6 +186,9 @@ nlohmann::json worldGpuTests(const std::filesystem::path &data,
   auto result = world::report();
   result["known_occluded_visibility"] = dark;
   result["known_lit_visibility"] = light;
+  result["probe_linear_red"] = linearRed;
+  result["main_display_red"] = displayRed;
+  result["occlusion_hour"] = 12;
   result["resolved_star_pixels"] = stars;
   result["moon_peak_srgb"] = moonCenter;
   world::shutdown();
