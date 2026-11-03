@@ -1,7 +1,8 @@
 # Phase 3b — shared sky, light, fog and cascaded shadows
 
-The Phase 3a follow-ups and Phase 3b candidate are implemented. The release gate
-is recorded by `phase-3b-done`; until that tag exists, final checks are pending.
+The Phase 3a follow-ups and Phase 3b are implemented. The annotated
+`phase-3b-done` tag records the final main revision and green CI run; the gate
+is complete when that tag is present.
 Legacy remains the default and selectable. Phase 3c has not started.
 
 ## Phase 3a follow-ups
@@ -65,15 +66,24 @@ per-material sample counts. The blob is suppressed only when PBR CSM is selected
 
 ## Verification
 
-The accepted 13 simulation hashes and eight legacy RGB hashes remain unchanged;
+The final 13-stage manifest equals the accepted Phase 3a manifest, and all eight
+legacy screenshot pairs pass exact RGB comparison and visual review. No simulation
+or screenshot hash changed;
 no golden or tolerance was rewritten. Checkpoint manifests, native sanitizer
 results and the exact screenshot comparison are under [phase3b](phase3b/).
+Release CPU15/15, native ASan/UBSan CPU16/16, native PBR/IBL/CSM GPU probes,
+PBR-car/probe integration and world controls pass. All29shader pairs/permutations
+compile/link and68Khronos/material checks pass. Core RHI integration exercises
+shared-include reload/recovery and bounded-tree rejection in release and native
+ASan. The approved LSan allocation-origin policy is unchanged.
+
 CPU tests compare height fog with a numerical integral, cover cascade frusta,
 check sub-texel camera stability and solar-path basis continuity. GPU readback
 checks a known occluded receiver (0.0 visibility), a known lit receiver (1.0),
 sky IBL readiness, and resolved stars/moon. Existing PBR white-furnace and normal
 handedness checks remain enabled. Shader tests compile/link all material,
-terrain, depth, sky, irradiance, Basic and particle pairs/permutations.
+terrain, depth, sky, irradiance, Basic and particle pairs/permutations. Offscreen
+IBL capture/filter helper draws are included in whole-frame submission totals.
 
 The integration runner compares Legacy, time presets and Blob controls using
 identical replay input; it checks physics equality, dimensions, IBL readiness,
@@ -96,3 +106,25 @@ whole-frame submissions and CPU/GPU pass timings; `.world.json` includes cascade
 submissions and logical shadow storage. Please retain the GPU/driver, resolution,
 quality and command with results. Software measurements cannot certify the
 master prompt's reference-hardware FPS, GPU-time or total VRAM budgets.
+
+## Images and measured costs
+
+[Before/after tables and all full-resolution captures](phase3b/performance/PERFORMANCE.md)
+include every time preset, the Legacy control and the Blob control. The tables
+distinguish whole-frame means from last-frame terrain/cascade submissions and
+identify the timed revision. [Night sky detail](phase3b/night-sky.png) directly
+shows the procedural stars and moon at30degree FOV.
+
+![Six time presets](phase3b/performance/times-of-day.png)
+
+![Phase 3a versus Phase 3b](phase3b/performance/before-after.png)
+
+[Exact legacy image review](phase3b/legacy-review/review.html) preserves all eight
+accepted pairs. Final CPU/GPU, sanitizer, shader, license and validation evidence
+is under [checkpoints](phase3b/checkpoints/).
+
+The isolated Noon comparison changes from 110.20 draws / 112,252 triangles in 3a to
+640.97 draws / 778,389 triangles with 3b CSM. Software frame mean increases from
+231.16 ms to 375.17 ms; these results do not satisfy or certify the reference-hardware
+frame-time target. The Blob control and per-cascade breakdown isolate the added
+shadow work. Your real-GPU measurements remain the performance follow-up.

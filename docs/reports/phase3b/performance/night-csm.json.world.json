@@ -1,0 +1,56 @@
+{
+  "active_cascade_count": 4,
+  "blob_draw_calls": 0,
+  "cascade_count": 4,
+  "cascade_draw_calls": [
+    28,
+    50,
+    110,
+    370
+  ],
+  "cascade_triangles": [
+    21702,
+    42120,
+    105986,
+    548772
+  ],
+  "csm": true,
+  "depth_pass": false,
+  "environment_probe": {
+    "capture_gpu_ms": [
+      7.751662
+    ],
+    "depth_bytes": 16384,
+    "faces": 6,
+    "interval_seconds": 0.5,
+    "prefilter_gpu_ms": [
+      53.613004
+    ],
+    "resident_bytes": 540640,
+    "size": 64,
+    "texture_bytes": 524256,
+    "update_times": [
+      36374.784823719
+    ],
+    "updates": 1
+  },
+  "hour": 22.0,
+  "ibl_ready": true,
+  "shadow_payload_bytes": 50331648,
+  "shadow_resolution": 2048,
+  "sky_source_radiance": [
+    0.0,
+    0.0,
+    0.0
+  ],
+  "sun_direction": [
+    -0.12403471022844315,
+    -0.4961388409137726,
+    -0.8593378663063049
+  ],
+  "sun_radiance": [
+    0.0,
+    0.0,
+    0.0
+  ]
+}

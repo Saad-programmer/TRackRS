@@ -1,0 +1,35 @@
+Test project /workspace/TRackRS/build/linux-release
+      Start  1: atmosphere-cascades
+ 1/15 Test  #1: atmosphere-cascades ..............   Passed    0.00 sec
+      Start  2: terrain-lod
+ 2/15 Test  #2: terrain-lod ......................   Passed    0.01 sec
+      Start  3: ktx2-materials
+ 3/15 Test  #3: ktx2-materials ...................   Passed    0.00 sec
+      Start  4: mesh-importer
+ 4/15 Test  #4: mesh-importer ....................   Passed    0.01 sec
+      Start  5: pbr-shader-permutations
+ 5/15 Test  #5: pbr-shader-permutations ..........   Passed    1.31 sec
+      Start  6: core-primitives
+ 6/15 Test  #6: core-primitives ..................   Passed    0.00 sec
+      Start  7: movie-decoder
+ 7/15 Test  #7: movie-decoder ....................   Passed    0.01 sec
+      Start  8: validation-unit
+ 8/15 Test  #8: validation-unit ..................   Passed    0.00 sec
+      Start  9: cli-help
+ 9/15 Test  #9: cli-help .........................   Passed    0.01 sec
+      Start 10: cli-invalid
+10/15 Test #10: cli-invalid ......................   Passed    0.01 sec
+      Start 11: module-layering
+11/15 Test #11: module-layering ..................   Passed    0.16 sec
+      Start 12: core-only-source
+12/15 Test #12: core-only-source .................   Passed    0.07 sec
+      Start 13: terrain-license-provenance
+13/15 Test #13: terrain-license-provenance .......   Passed    0.04 sec
+      Start 14: legacy-content
+14/15 Test #14: legacy-content ...................   Passed    0.12 sec
+      Start 15: lsan-audit-policy
+15/15 Test #15: lsan-audit-policy ................   Passed    0.11 sec
+
+100% tests passed, 0 tests failed out of 15
+
+Total Test time (real) =   1.86 sec
