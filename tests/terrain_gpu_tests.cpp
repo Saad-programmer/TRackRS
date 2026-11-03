@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
-#include "engine/terrain/renderer.h"
 #include "engine/render/basic.h"
+#include "engine/terrain/renderer.h"
 #include <chrono>
 #include <cmath>
 #include <glad/gl.h>
@@ -14,7 +14,12 @@ void require(bool value, const char *message) {
 } // namespace
 nlohmann::json terrainGpuTests(const std::filesystem::path &data) {
   using namespace trackrs;
-  struct BasicScope { BasicScope(const std::filesystem::path &root){draw::initialize(root / "shaders/basic",false);} ~BasicScope(){draw::shutdown();} } basic(data);
+  struct BasicScope {
+    BasicScope(const std::filesystem::path &root) {
+      draw::initialize(root / "shaders/basic", false);
+    }
+    ~BasicScope() { draw::shutdown(); }
+  } basic(data);
   auto previous = terrain::settings();
   terrain::configure({true, RenderQuality::Low});
   std::vector<float> height(256);
@@ -40,6 +45,9 @@ nlohmann::json terrainGpuTests(const std::filesystem::path &data) {
   require(glCheckFramebufferStatus(GL_FRAMEBUFFER) == GL_FRAMEBUFFER_COMPLETE,
           "terrain test FBO incomplete");
   float maximumError = 0;
+  unsigned covered = 0;
+  std::vector<float> surfaceRoughness;
+  std::vector<std::array<float, 3>> surfaceColours;
   {
     terrain::Renderer renderer(height, 16, 1, types, 16, data);
     auto view =
@@ -79,6 +87,49 @@ nlohmann::json terrainGpuTests(const std::filesystem::path &data) {
             "GPU height normals differ from periodic CPU source derivatives");
     require(renderer.report().at("nodes_culled").get<unsigned>() > 0,
             "terrain frustum did not cull nodes");
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, colour);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, 128, 128, 0, GL_RGBA, GL_FLOAT,
+                 nullptr);
+    glViewport(0, 0, 128, 128);
+    glClearColor(0, 0, 0, 0);
+    glClear(GL_COLOR_BUFFER_BIT);
+    auto wide = glm::ortho(-700.f, 700.f, -700.f, 700.f, .1f, 200.f) * view;
+    auto mainDraws = renderer.draw({0, 0, 50}, wide, false, 7);
+    std::vector<float> coverage(128 * 128 * 4);
+    glReadPixels(0, 0, 128, 128, GL_RGBA, GL_FLOAT, coverage.data());
+    for (unsigned y = 0; y < 128; ++y)
+      for (unsigned x = 0; x < 128; ++x) {
+        float wx = (float(x) + .5f) * 1400.f / 128.f - 700.f,
+              wy = (float(y) + .5f) * 1400.f / 128.f - 700.f;
+        if (wx * wx + wy * wy < 640.f * 640.f) {
+          require(coverage[(std::size_t(y) * 128 + x) * 4 + 3] > .999f,
+                  "GPU CDLOD boundary has an uncovered pixel");
+          ++covered;
+        }
+      }
+    require(covered > 8000, "crack test did not cover LOD transition regions");
+    auto probeDraws = renderer.draw({0, 0, 50}, wide, true, 7);
+    require(probeDraws < mainDraws,
+            "low-resolution capture did not reduce terrain geometry");
+    glViewport(0, 0, 16, 16);
+    auto materials = glm::ortho(-.5f, 15.5f, -.5f, 15.5f, .1f, 200.f) * view;
+    renderer.draw({0, 0, 50}, materials, false, 3);
+    glReadPixels(0, 0, 16, 16, GL_RGBA, GL_FLOAT, pixels.data());
+    for (unsigned layer = 0; layer < 9; ++layer)
+      surfaceRoughness.push_back(pixels[layer * 4]);
+    require(surfaceRoughness[5] > .65f && surfaceRoughness[6] < .5f &&
+                surfaceRoughness[8] < .5f,
+            "terrain surface roughness layers are missing or reordered");
+    renderer.draw({0, 0, 50}, materials, false, 1);
+    glReadPixels(0, 0, 16, 16, GL_RGBA, GL_FLOAT, pixels.data());
+    for (unsigned layer = 0; layer < 9; ++layer)
+      surfaceColours.push_back(
+          {pixels[layer * 4], pixels[layer * 4 + 1], pixels[layer * 4 + 2]});
+    require(surfaceColours[3][1] > surfaceColours[3][0] * 1.5f,
+            "grass layer lost its green albedo");
+    require(surfaceColours[8][2] > surfaceColours[8][0] * 2.f,
+            "water layer lost its blue albedo");
   }
   glBindFramebuffer(GL_FRAMEBUFFER, 0);
   glDeleteFramebuffers(1, &framebuffer);
@@ -88,5 +139,8 @@ nlohmann::json terrainGpuTests(const std::filesystem::path &data) {
   return {{"gpu_periodic_height_normals_max_error", maximumError},
           {"negative_world_coordinates", true},
           {"shared_cpu_height_source", true},
-          {"frustum_culling", "pass"}};
+          {"frustum_culling", "pass"},
+          {"crack_free_transition_pixels", covered},
+          {"nine_surface_roughness", surfaceRoughness},
+          {"nine_surface_linear_albedo", surfaceColours}};
 }

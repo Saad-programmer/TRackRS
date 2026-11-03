@@ -153,7 +153,7 @@ Renderer::Renderer(const std::vector<float> &heights, unsigned size,
            b = static_cast<std::uint16_t>(a + 1),
            c = static_cast<std::uint16_t>(a + GridCells + 1),
            d = static_cast<std::uint16_t>(c + 1);
-      indices.insert(indices.end(), {a, b, d, a, d, c});
+      indices.insert(indices.end(), {c, a, d, d, a, b});
     }
   glGenVertexArrays(1, &p.vao);
   glBindVertexArray(p.vao);
@@ -195,8 +195,8 @@ void writeReport(const std::filesystem::path &path) {
   if (activeRenderer)
     std::ofstream(path) << activeRenderer->report().dump(2) << '\n';
 }
-void Renderer::draw(glm::vec3 camera, const glm::mat4 &vp, bool capture,
-                    int debugView) {
+std::size_t Renderer::draw(glm::vec3 camera, const glm::mat4 &vp, bool capture,
+                           int debugView) {
   draw::flush();
   State guard;
   auto &p = *impl_;
@@ -292,6 +292,7 @@ void Renderer::draw(glm::vec3 camera, const glm::mat4 &vp, bool capture,
                    static_cast<GLsizei>(GridCells * GridCells * 6),
                    GL_UNSIGNED_SHORT, nullptr);
   }
+  return selection.patches.size();
 }
 nlohmann::json Renderer::report() const {
   const auto &p = *impl_;

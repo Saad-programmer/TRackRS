@@ -467,8 +467,8 @@ PTerrainTile *PTerrain::getTile(int tilex, int tiley)
   tileptr->posy = tiley;
   tileptr->lru_counter = 0;
 
-  tileptr->mins = vec3f((float)tilex * scale_hz, (float)tiley * scale_hz, 1000000000.0);
-  tileptr->maxs = vec3f((float)(tilex+1) * scale_hz, (float)(tiley+1) * scale_hz, -1000000000.0);
+  tileptr->mins = vec3f((float)(tilex * tilesize) * scale_hz, (float)(tiley * tilesize) * scale_hz, 1000000000.0);
+  tileptr->maxs = vec3f((float)((tilex+1) * tilesize) * scale_hz, (float)((tiley+1) * tilesize) * scale_hz, -1000000000.0);
 
   // TODO: quadtree based thing
 
@@ -502,8 +502,8 @@ PTerrainTile *PTerrain::getTile(int tilex, int tiley)
 
   //tileptr->maxs.z += 10.0;
 
-  //tileptr->mins = vec3f((float)tilex * scale_hz, (float)tiley * scale_hz, 0.0);
-  //tileptr->maxs = vec3f((float)(tilex+1) * scale_hz, (float)(tiley+1) * scale_hz, 100.0);
+  //tileptr->mins = vec3f((float)(tilex * tilesize) * scale_hz, (float)(tiley * tilesize) * scale_hz, 0.0);
+  //tileptr->maxs = vec3f((float)((tilex+1) * tilesize) * scale_hz, (float)((tiley+1) * tilesize) * scale_hz, 100.0);
 
   tileptr->numverts = tilesizep1 * tilesizep1;
 
@@ -545,6 +545,14 @@ PTerrainTile *PTerrain::getTile(int tilex, int tiley)
       //tileptr->foliage[b].inst.back().scale = (foliageband[b].scalemin + fol * 0.5f) * (tileRng.unit() * tileRng.unit() + 0.5) * foliageband[b].scalemax;
       tileptr->foliage[b].inst.back().scale = (foliageband[b].scale + fol * 0.5f) * (tileRng.unit() * tileRng.unit() + 0.5) * 1.4;
 
+      const auto &instance=tileptr->foliage[b].inst.back();
+      const float pad=std::abs(instance.scale)*3.f;
+      tileptr->mins.x=std::min(tileptr->mins.x,instance.pos.x-pad);
+      tileptr->mins.y=std::min(tileptr->mins.y,instance.pos.y-pad);
+      tileptr->mins.z=std::min(tileptr->mins.z,instance.pos.z-pad);
+      tileptr->maxs.x=std::max(tileptr->maxs.x,instance.pos.x+pad);
+      tileptr->maxs.y=std::max(tileptr->maxs.y,instance.pos.y+pad);
+      tileptr->maxs.z=std::max(tileptr->maxs.z,instance.pos.z+pad);
       rigidityvalue = rigidity.getRigidity(foliageband[b].sprite_tex->getName());
       if (rigidityvalue != 0.0f) {
         tileptr->foliage[b].inst.back().rigidity = rigidityvalue;
@@ -803,11 +811,24 @@ void PTerrain::render(const vec3f &campos, const mat44f &camorim, bool reflectio
     glm::mat4 view,projection;
     trackrs::draw::read(trackrs::draw::ViewMatrix,glm::value_ptr(view));
     trackrs::draw::read(trackrs::draw::ProjectionMatrix,glm::value_ptr(projection));
-    worldRenderer->draw({campos.x,campos.y,campos.z},projection*view,reflectionCapture);
+    auto draws=worldRenderer->draw({campos.x,campos.y,campos.z},projection*view,reflectionCapture);
     if(validation::run.capture) {
-      auto report=worldRenderer->report();
-      validation::run.frameDraws+=report.at("draw_calls").get<std::uint64_t>();
-      validation::run.frameTriangles+=report.at("submitted_triangles").get<std::uint64_t>();
+      validation::run.frameDraws+=draws;
+      validation::run.frameTriangles+=draws*trackrs::terrain::GridCells*trackrs::terrain::GridCells*2;
+    }
+    trackrs::draw::disable(trackrs::draw::GenerateS);
+    trackrs::draw::disable(trackrs::draw::GenerateT);
+    PVBuffer::unbind();
+    // Keep every nearby tile resident for CPU foliage contacts, but submit only
+    // visible legacy cards. Native 3D vegetation is a separate Phase3c gate.
+    for(auto it=drawtile.begin();it!=drawtile.end();) {
+      const auto &t=**it;
+      const float dx=std::max({t.mins.x-campos.x,0.f,campos.x-t.maxs.x});
+      const float dy=std::max({t.mins.y-campos.y,0.f,campos.y-t.maxs.y});
+      const float range=trackrs::carProbeResolution(trackrs::terrain::settings().quality)==128?384.f:192.f;
+      const bool outside=trackrs::terrain::outside(projection*view,{t.mins.x,t.mins.y,t.mins.z},{t.maxs.x,t.maxs.y,t.maxs.z});
+      if(outside||(reflectionCapture&&dx*dx+dy*dy>range*range))it=drawtile.erase(it);
+      else ++it;
     }
   } else {
   // Draw terrain
@@ -929,6 +950,18 @@ void PTerrain::render(const vec3f &campos, const mat44f &camorim, bool reflectio
 
 void PTerrain::drawSplat(float x, float y, float scale, float angle)
 {
+  // New terrain and the legacy blob use different vertex programs. Bias only
+  // this retained decal so coplanar raster/depth rounding cannot form stripes.
+  const bool bias = trackrs::terrain::settings().enabled;
+  GLboolean oldOffset = GL_FALSE;
+  GLfloat oldFactor=0,oldUnits=0;
+  if(bias) {
+    trackrs::draw::flush();
+    oldOffset=glIsEnabled(GL_POLYGON_OFFSET_FILL);
+    glGetFloatv(GL_POLYGON_OFFSET_FACTOR,&oldFactor);glGetFloatv(GL_POLYGON_OFFSET_UNITS,&oldUnits);
+    glEnable(GL_POLYGON_OFFSET_FILL);glPolygonOffset(-1.f,-1.f);
+  }
+
   float *hmd = &hmap[0];
   int cx = totsize;
   int cy = totsize;
@@ -977,6 +1010,11 @@ void PTerrain::drawSplat(float x, float y, float scale, float angle)
   trackrs::draw::pop();
 
   trackrs::draw::matrix(trackrs::draw::View);
+  if(bias) {
+    trackrs::draw::flush();glPolygonOffset(oldFactor,oldUnits);
+    if(!oldOffset)glDisable(GL_POLYGON_OFFSET_FILL);
+    trackrs::draw::invalidateGpuState();
+  }
 }
 
 

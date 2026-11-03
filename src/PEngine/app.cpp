@@ -700,6 +700,7 @@ int PApp::run(int argc, char *argv[])
     if (exit_requested) break;
 
     if (active || repaint) {
+      trackrs::pbr::beginFrame();
       switch (stereo) {
         
       case StereoNone: // Normal, non-stereo rendering

@@ -22,8 +22,8 @@ public:
            const std::vector<std::uint8_t> &types, unsigned typeSize,
            const std::filesystem::path &data);
   ~Renderer();
-  void draw(glm::vec3 camera, const glm::mat4 &viewProjection,
-            bool capture = false, int debugView = 0);
+  std::size_t draw(glm::vec3 camera, const glm::mat4 &viewProjection,
+                   bool capture = false, int debugView = 0);
   nlohmann::json report() const;
 };
 } // namespace trackrs::terrain

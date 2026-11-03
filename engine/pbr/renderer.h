@@ -69,6 +69,7 @@ public:
   HeadlightScope(const HeadlightScope &) = delete;
 };
 void setQuality(RenderQuality quality);
+void beginFrame();
 void setWorldView(const glm::mat4 &view);
 void setProbeScene(SceneCapture scene);
 void writeProfile(const std::filesystem::path &path);

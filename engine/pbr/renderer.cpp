@@ -19,6 +19,7 @@ std::unique_ptr<Ibl> runtimeIbl;
 std::unique_ptr<ReflectionProbe> runtimeProbe;
 RenderQuality renderQuality = RenderQuality::Medium;
 unsigned runtimeProbeSize = 0;
+bool probeAttemptedThisFrame = false;
 glm::mat4 worldView(1);
 glm::vec3 currentCarCenter(0);
 SceneCapture probeScene;
@@ -592,6 +593,7 @@ bool Model::canInstance() const {
       return false;
   return true;
 }
+void beginFrame() { probeAttemptedThisFrame = false; }
 void setQuality(RenderQuality quality) { renderQuality = quality; }
 void Model::drawCurrent(float alpha) { drawCurrentInstances({}, alpha); }
 bool Model::drawCurrentInstances(const std::vector<glm::mat4> &models,
@@ -633,11 +635,14 @@ bool Model::drawCurrentInstances(const std::vector<glm::mat4> &models,
             std::make_unique<ReflectionProbe>(shaderRoot, resolution);
         runtimeProbeSize = resolution;
       }
-      runtimeProbe->update(
-          *runtimeIbl, glm::vec3(inverse * glm::vec4(currentCarCenter, 1)),
-          probeScene,
-          glm::mat3(glm::rotate(glm::mat4(1), glm::radians(-90.f),
-                                glm::vec3(1, 0, 0))));
+      if (!probeAttemptedThisFrame) {
+        probeAttemptedThisFrame = true;
+        runtimeProbe->update(
+            *runtimeIbl, glm::vec3(inverse * glm::vec4(currentCarCenter, 1)),
+            probeScene,
+            glm::mat3(glm::rotate(glm::mat4(1), glm::radians(-90.f),
+                                  glm::vec3(1, 0, 0))));
+      }
       frame.reflectionProbe = runtimeProbe->texture();
       frame.probeMaxLod = runtimeProbe->maxLod();
     }

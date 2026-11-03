@@ -37,6 +37,8 @@ Options parse(int argc, char** argv) {
         else if (key == "--quality") { o.quality=value(); if(o.quality!="low"&&o.quality!="medium"&&o.quality!="high"&&o.quality!="ultra")throw std::runtime_error("invalid render quality"); }
         else if (key == "--vehicle") o.vehicle = value();
         else if (key == "--data-dir") o.data = value();
+        else if (key == "--width") o.width=number(value());
+        else if (key == "--height") o.height=number(value());
         else if (key == "--frames") o.frames = number(value());
         else if (key == "--seed") o.seed = number(value());
         else if (key == "--replay") o.replay = value();
@@ -45,6 +47,7 @@ Options parse(int argc, char** argv) {
         else if (key == "--screenshot") o.screenshot = value();
         else throw std::runtime_error("unknown option: " + key);
     }
+    if(o.width<320||o.width>3840||o.height<200||o.height>2160)throw std::runtime_error("viewport outside320..3840 by200..2160");
     if (!o.frames) throw std::runtime_error("--frames must be positive");
     if (!o.enabled && (!o.replay.empty() || !o.dump.empty() || !o.json.empty() || !o.screenshot.empty()))
         throw std::runtime_error("validation output/replay needs --headless, --stage or --benchmark");

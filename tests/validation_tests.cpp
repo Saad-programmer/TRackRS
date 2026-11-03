@@ -60,3 +60,16 @@ TEST_CASE("legacy validation options, replay, hash and metrics") {
         CHECK(checks == 22);
     } catch (const std::exception& e) { FAIL(e.what()); }
 }
+
+TEST_CASE("world renderer quality and benchmark viewport options validate ranges") {
+  char name[]="trackrs", renderer[]="--renderer", modern[]="pbr", quality[]="--quality", high[]="high";
+  char width[]="--width", w[]="1920", height[]="--height", h[]="1080";
+  char *args[]={name,renderer,modern,quality,high,width,w,height,h};
+  auto options=validation::parse(9,args);
+  CHECK(options.renderer=="pbr");CHECK(options.quality=="high");CHECK(options.width==1920);CHECK(options.height==1080);
+  char invalid[]="999999";char *tooBig[]={name,width,invalid};
+  CHECK_THROWS(validation::parse(3,tooBig));
+  char unknown[]="cinematic";char *badQuality[]={name,quality,unknown};
+  CHECK_THROWS(validation::parse(3,badQuality));
+  char *badRenderer[]={name,renderer,unknown};CHECK_THROWS(validation::parse(3,badRenderer));
+}

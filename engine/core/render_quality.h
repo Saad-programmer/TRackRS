@@ -1,9 +1,11 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 #pragma once
+#include <cstdint>
+#include <initializer_list>
 #include <stdexcept>
 #include <string_view>
 namespace trackrs {
-enum class RenderQuality { Low, Medium, High, Ultra };
+enum class RenderQuality : std::uint8_t { Low, Medium, High, Ultra };
 constexpr unsigned carProbeResolution(RenderQuality quality) {
   return quality == RenderQuality::High || quality == RenderQuality::Ultra
              ? 128u
