@@ -8,6 +8,7 @@
 #include <map>
 #include <mutex>
 #include <stdexcept>
+#include <string_view>
 #include <thread>
 namespace trackrs::pbr {
 namespace {
@@ -462,7 +463,14 @@ std::shared_ptr<TextureStream> textureStream() {
   static std::weak_ptr<TextureStream> stream;
   if (auto s = stream.lock())
     return s;
-  auto s = std::make_shared<TextureStream>();
+  // Software drivers emulate BC sampling on the CPU. Decode once on the
+  // worker rather than repeating block decoding at every texture fetch.
+  // Explicit TextureStream(false) remains available for native-codec tests.
+  const auto *name = reinterpret_cast<const char *>(glGetString(GL_RENDERER));
+  const std::string_view renderer = name ? name : "";
+  const bool software = renderer.find("llvmpipe") != std::string_view::npos ||
+                        renderer.find("softpipe") != std::string_view::npos;
+  auto s = std::make_shared<TextureStream>(software);
   stream = s;
   return s;
 }

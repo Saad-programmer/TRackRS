@@ -1,0 +1,18 @@
+{
+  "cache_tiles": 7,
+  "draw_calls": 7,
+  "environment_texture_bytes": 417664,
+  "height_texture_bytes": 16777216,
+  "nodes_culled": 24,
+  "nodes_tested": 40,
+  "probe_capture_calls": 0,
+  "probe_draws_total": 0,
+  "probe_triangles_total": 0,
+  "quality": "high",
+  "ready": true,
+  "renderer": "cdlod",
+  "shared_grid_bytes": 21000,
+  "submitted_triangles": 14336,
+  "surface_texture_bytes": 148284,
+  "type_texture_bytes": 4194304
+}

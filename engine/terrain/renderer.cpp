@@ -303,6 +303,7 @@ nlohmann::json Renderer::report() const {
   for (const auto &map : p.maps)
     textures += map->residentBytes;
   return {{"renderer", "cdlod"},
+          {"native_bptc_uploads", p.maps[0]->native && p.maps[2]->native},
           {"probe_capture_calls", p.probeCalls},
           {"probe_draws_total", p.probeDraws},
           {"probe_triangles_total", p.probeTriangles},
