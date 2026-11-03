@@ -1,0 +1,472 @@
+{
+  "passed": true,
+  "frames": 32,
+  "quality": "medium",
+  "timing_scope": "software functional integration; concurrent load possible, not hardware performance",
+  "runs": [
+    {
+      "name": "legacy",
+      "state_hash": "72d1a3ffd170d57c",
+      "native_exit": 23,
+      "accepted_driver_allocations": [
+        {
+          "kind": "Direct",
+          "bytes": 604,
+          "objects": 1,
+          "origin": "/lib/x86_64-linux-gnu/libGLX_mesa.so.0",
+          "allocation_pc": "0x38538",
+          "build_id": "bf78ba17851731a2b44a35894165b350073fbf4a"
+        },
+        {
+          "kind": "Direct",
+          "bytes": 224,
+          "objects": 1,
+          "origin": "/lib/x86_64-linux-gnu/libGLX_mesa.so.0",
+          "allocation_pc": "0x3452e",
+          "build_id": "bf78ba17851731a2b44a35894165b350073fbf4a"
+        },
+        {
+          "kind": "Direct",
+          "bytes": 224,
+          "objects": 1,
+          "origin": "/lib/x86_64-linux-gnu/libGLX_mesa.so.0",
+          "allocation_pc": "0x3452e",
+          "build_id": "bf78ba17851731a2b44a35894165b350073fbf4a"
+        },
+        {
+          "kind": "Indirect",
+          "bytes": 84896,
+          "objects": 379,
+          "origin": "/lib/x86_64-linux-gnu/libGLX_mesa.so.0",
+          "allocation_pc": "0x3452e",
+          "build_id": "bf78ba17851731a2b44a35894165b350073fbf4a"
+        },
+        {
+          "kind": "Indirect",
+          "bytes": 22176,
+          "objects": 99,
+          "origin": "/lib/x86_64-linux-gnu/libGLX_mesa.so.0",
+          "allocation_pc": "0x3452e",
+          "build_id": "bf78ba17851731a2b44a35894165b350073fbf4a"
+        }
+      ],
+      "draw_calls": 219.483871,
+      "triangles": 477028.9677,
+      "passes": {
+        "mesh_submit": {
+          "calls": 155,
+          "cpu_ms_per_frame": 1.443388258,
+          "gpu_ms_per_frame": 0.4995692258
+        },
+        "particles": {
+          "calls": 31,
+          "cpu_ms_per_frame": 3.619470161,
+          "gpu_ms_per_frame": 3.00163729
+        },
+        "shadow_cascade_0": {
+          "calls": 0,
+          "cpu_ms_per_frame": 0,
+          "gpu_ms_per_frame": null
+        },
+        "shadow_cascade_1": {
+          "calls": 0,
+          "cpu_ms_per_frame": 0,
+          "gpu_ms_per_frame": null
+        },
+        "shadow_cascade_2": {
+          "calls": 0,
+          "cpu_ms_per_frame": 0,
+          "gpu_ms_per_frame": null
+        },
+        "shadow_cascade_3": {
+          "calls": 0,
+          "cpu_ms_per_frame": 0,
+          "gpu_ms_per_frame": null
+        },
+        "shadow_terrain": {
+          "calls": 0,
+          "cpu_ms_per_frame": 0,
+          "gpu_ms_per_frame": null
+        },
+        "sky": {
+          "calls": 31,
+          "cpu_ms_per_frame": 9.356882161,
+          "gpu_ms_per_frame": 0.0001704516129
+        },
+        "sky_ibl_bake": {
+          "calls": 0,
+          "cpu_ms_per_frame": 0,
+          "gpu_ms_per_frame": null
+        },
+        "terrain": {
+          "calls": 31,
+          "cpu_ms_per_frame": 38.20221203,
+          "gpu_ms_per_frame": 1.238108548
+        },
+        "terrain_probe": {
+          "calls": 0,
+          "cpu_ms_per_frame": 0,
+          "gpu_ms_per_frame": null
+        },
+        "ui_text": {
+          "calls": 372,
+          "cpu_ms_per_frame": 6.889419548,
+          "gpu_ms_per_frame": 0.05780222581
+        },
+        "water": {
+          "calls": 0,
+          "cpu_ms_per_frame": 0,
+          "gpu_ms_per_frame": null
+        }
+      }
+    },
+    {
+      "name": "noon-csm",
+      "state_hash": "72d1a3ffd170d57c",
+      "native_exit": 23,
+      "accepted_driver_allocations": [
+        {
+          "kind": "Direct",
+          "bytes": 604,
+          "objects": 1,
+          "origin": "/lib/x86_64-linux-gnu/libGLX_mesa.so.0",
+          "allocation_pc": "0x38538",
+          "build_id": "bf78ba17851731a2b44a35894165b350073fbf4a"
+        },
+        {
+          "kind": "Direct",
+          "bytes": 224,
+          "objects": 1,
+          "origin": "/lib/x86_64-linux-gnu/libGLX_mesa.so.0",
+          "allocation_pc": "0x3452e",
+          "build_id": "bf78ba17851731a2b44a35894165b350073fbf4a"
+        },
+        {
+          "kind": "Direct",
+          "bytes": 224,
+          "objects": 1,
+          "origin": "/lib/x86_64-linux-gnu/libGLX_mesa.so.0",
+          "allocation_pc": "0x3452e",
+          "build_id": "bf78ba17851731a2b44a35894165b350073fbf4a"
+        },
+        {
+          "kind": "Indirect",
+          "bytes": 84896,
+          "objects": 379,
+          "origin": "/lib/x86_64-linux-gnu/libGLX_mesa.so.0",
+          "allocation_pc": "0x3452e",
+          "build_id": "bf78ba17851731a2b44a35894165b350073fbf4a"
+        },
+        {
+          "kind": "Indirect",
+          "bytes": 22176,
+          "objects": 99,
+          "origin": "/lib/x86_64-linux-gnu/libGLX_mesa.so.0",
+          "allocation_pc": "0x3452e",
+          "build_id": "bf78ba17851731a2b44a35894165b350073fbf4a"
+        }
+      ],
+      "draw_calls": 295.1935484,
+      "triangles": 280543.6452,
+      "passes": {
+        "mesh_submit": {
+          "calls": 620,
+          "cpu_ms_per_frame": 4.363954323,
+          "gpu_ms_per_frame": 0.1923972581
+        },
+        "particles": {
+          "calls": 31,
+          "cpu_ms_per_frame": 2.806917194,
+          "gpu_ms_per_frame": 0.995135
+        },
+        "shadow_cascade_0": {
+          "calls": 31,
+          "cpu_ms_per_frame": 48.64598632,
+          "gpu_ms_per_frame": 50.44827932
+        },
+        "shadow_cascade_1": {
+          "calls": 31,
+          "cpu_ms_per_frame": 10.93911581,
+          "gpu_ms_per_frame": 11.30195539
+        },
+        "shadow_cascade_2": {
+          "calls": 31,
+          "cpu_ms_per_frame": 48.44502229,
+          "gpu_ms_per_frame": 54.31901871
+        },
+        "shadow_cascade_3": {
+          "calls": 0,
+          "cpu_ms_per_frame": 0,
+          "gpu_ms_per_frame": null
+        },
+        "shadow_terrain": {
+          "calls": 93,
+          "cpu_ms_per_frame": 100.1035856,
+          "gpu_ms_per_frame": 2.375339452
+        },
+        "sky": {
+          "calls": 31,
+          "cpu_ms_per_frame": 0.150221129,
+          "gpu_ms_per_frame": 0.01034751613
+        },
+        "sky_ibl_bake": {
+          "calls": 1,
+          "cpu_ms_per_frame": 24.12298297,
+          "gpu_ms_per_frame": 16.37967774
+        },
+        "terrain": {
+          "calls": 31,
+          "cpu_ms_per_frame": 14.26741816,
+          "gpu_ms_per_frame": 83.4391739
+        },
+        "terrain_probe": {
+          "calls": 0,
+          "cpu_ms_per_frame": 0,
+          "gpu_ms_per_frame": null
+        },
+        "ui_text": {
+          "calls": 372,
+          "cpu_ms_per_frame": 6.666006387,
+          "gpu_ms_per_frame": 0.0430266129
+        },
+        "water": {
+          "calls": 0,
+          "cpu_ms_per_frame": 0,
+          "gpu_ms_per_frame": null
+        }
+      }
+    },
+    {
+      "name": "night-csm",
+      "state_hash": "72d1a3ffd170d57c",
+      "native_exit": 23,
+      "accepted_driver_allocations": [
+        {
+          "kind": "Direct",
+          "bytes": 604,
+          "objects": 1,
+          "origin": "/lib/x86_64-linux-gnu/libGLX_mesa.so.0",
+          "allocation_pc": "0x38538",
+          "build_id": "bf78ba17851731a2b44a35894165b350073fbf4a"
+        },
+        {
+          "kind": "Direct",
+          "bytes": 224,
+          "objects": 1,
+          "origin": "/lib/x86_64-linux-gnu/libGLX_mesa.so.0",
+          "allocation_pc": "0x3452e",
+          "build_id": "bf78ba17851731a2b44a35894165b350073fbf4a"
+        },
+        {
+          "kind": "Direct",
+          "bytes": 224,
+          "objects": 1,
+          "origin": "/lib/x86_64-linux-gnu/libGLX_mesa.so.0",
+          "allocation_pc": "0x3452e",
+          "build_id": "bf78ba17851731a2b44a35894165b350073fbf4a"
+        },
+        {
+          "kind": "Indirect",
+          "bytes": 84896,
+          "objects": 379,
+          "origin": "/lib/x86_64-linux-gnu/libGLX_mesa.so.0",
+          "allocation_pc": "0x3452e",
+          "build_id": "bf78ba17851731a2b44a35894165b350073fbf4a"
+        },
+        {
+          "kind": "Indirect",
+          "bytes": 22176,
+          "objects": 99,
+          "origin": "/lib/x86_64-linux-gnu/libGLX_mesa.so.0",
+          "allocation_pc": "0x3452e",
+          "build_id": "bf78ba17851731a2b44a35894165b350073fbf4a"
+        }
+      ],
+      "draw_calls": 363,
+      "triangles": 361872.6129,
+      "passes": {
+        "mesh_submit": {
+          "calls": 620,
+          "cpu_ms_per_frame": 3.941092129,
+          "gpu_ms_per_frame": 0.1502062903
+        },
+        "particles": {
+          "calls": 31,
+          "cpu_ms_per_frame": 3.214651097,
+          "gpu_ms_per_frame": 0.7130376129
+        },
+        "shadow_cascade_0": {
+          "calls": 31,
+          "cpu_ms_per_frame": 7.248604226,
+          "gpu_ms_per_frame": 9.966619258
+        },
+        "shadow_cascade_1": {
+          "calls": 31,
+          "cpu_ms_per_frame": 12.72833648,
+          "gpu_ms_per_frame": 11.27046152
+        },
+        "shadow_cascade_2": {
+          "calls": 31,
+          "cpu_ms_per_frame": 44.11776426,
+          "gpu_ms_per_frame": 47.85432419
+        },
+        "shadow_cascade_3": {
+          "calls": 0,
+          "cpu_ms_per_frame": 0,
+          "gpu_ms_per_frame": null
+        },
+        "shadow_terrain": {
+          "calls": 93,
+          "cpu_ms_per_frame": 56.77351319,
+          "gpu_ms_per_frame": 1.896974387
+        },
+        "sky": {
+          "calls": 31,
+          "cpu_ms_per_frame": 0.1442657097,
+          "gpu_ms_per_frame": 0.151300129
+        },
+        "sky_ibl_bake": {
+          "calls": 1,
+          "cpu_ms_per_frame": 22.43616732,
+          "gpu_ms_per_frame": 15.67695261
+        },
+        "terrain": {
+          "calls": 31,
+          "cpu_ms_per_frame": 11.32560397,
+          "gpu_ms_per_frame": 75.39891239
+        },
+        "terrain_probe": {
+          "calls": 0,
+          "cpu_ms_per_frame": 0,
+          "gpu_ms_per_frame": null
+        },
+        "ui_text": {
+          "calls": 372,
+          "cpu_ms_per_frame": 6.437254097,
+          "gpu_ms_per_frame": 0.02411203226
+        },
+        "water": {
+          "calls": 0,
+          "cpu_ms_per_frame": 0,
+          "gpu_ms_per_frame": null
+        }
+      }
+    },
+    {
+      "name": "noon-blob",
+      "state_hash": "72d1a3ffd170d57c",
+      "native_exit": 23,
+      "accepted_driver_allocations": [
+        {
+          "kind": "Direct",
+          "bytes": 604,
+          "objects": 1,
+          "origin": "/lib/x86_64-linux-gnu/libGLX_mesa.so.0",
+          "allocation_pc": "0x38538",
+          "build_id": "bf78ba17851731a2b44a35894165b350073fbf4a"
+        },
+        {
+          "kind": "Direct",
+          "bytes": 224,
+          "objects": 1,
+          "origin": "/lib/x86_64-linux-gnu/libGLX_mesa.so.0",
+          "allocation_pc": "0x3452e",
+          "build_id": "bf78ba17851731a2b44a35894165b350073fbf4a"
+        },
+        {
+          "kind": "Direct",
+          "bytes": 224,
+          "objects": 1,
+          "origin": "/lib/x86_64-linux-gnu/libGLX_mesa.so.0",
+          "allocation_pc": "0x3452e",
+          "build_id": "bf78ba17851731a2b44a35894165b350073fbf4a"
+        },
+        {
+          "kind": "Indirect",
+          "bytes": 84896,
+          "objects": 379,
+          "origin": "/lib/x86_64-linux-gnu/libGLX_mesa.so.0",
+          "allocation_pc": "0x3452e",
+          "build_id": "bf78ba17851731a2b44a35894165b350073fbf4a"
+        },
+        {
+          "kind": "Indirect",
+          "bytes": 22176,
+          "objects": 99,
+          "origin": "/lib/x86_64-linux-gnu/libGLX_mesa.so.0",
+          "allocation_pc": "0x3452e",
+          "build_id": "bf78ba17851731a2b44a35894165b350073fbf4a"
+        }
+      ],
+      "draw_calls": 48.16129032,
+      "triangles": 16632.6129,
+      "passes": {
+        "mesh_submit": {
+          "calls": 155,
+          "cpu_ms_per_frame": 1.436535968,
+          "gpu_ms_per_frame": 0.1330532258
+        },
+        "particles": {
+          "calls": 31,
+          "cpu_ms_per_frame": 3.122520774,
+          "gpu_ms_per_frame": 0.7442929032
+        },
+        "shadow_cascade_0": {
+          "calls": 0,
+          "cpu_ms_per_frame": 0,
+          "gpu_ms_per_frame": null
+        },
+        "shadow_cascade_1": {
+          "calls": 0,
+          "cpu_ms_per_frame": 0,
+          "gpu_ms_per_frame": null
+        },
+        "shadow_cascade_2": {
+          "calls": 0,
+          "cpu_ms_per_frame": 0,
+          "gpu_ms_per_frame": null
+        },
+        "shadow_cascade_3": {
+          "calls": 0,
+          "cpu_ms_per_frame": 0,
+          "gpu_ms_per_frame": null
+        },
+        "shadow_terrain": {
+          "calls": 0,
+          "cpu_ms_per_frame": 0,
+          "gpu_ms_per_frame": null
+        },
+        "sky": {
+          "calls": 31,
+          "cpu_ms_per_frame": 0.122526129,
+          "gpu_ms_per_frame": 0.004943419355
+        },
+        "sky_ibl_bake": {
+          "calls": 1,
+          "cpu_ms_per_frame": 23.281119,
+          "gpu_ms_per_frame": 16.79701555
+        },
+        "terrain": {
+          "calls": 31,
+          "cpu_ms_per_frame": 196.7024736,
+          "gpu_ms_per_frame": 71.37717248
+        },
+        "terrain_probe": {
+          "calls": 0,
+          "cpu_ms_per_frame": 0,
+          "gpu_ms_per_frame": null
+        },
+        "ui_text": {
+          "calls": 372,
+          "cpu_ms_per_frame": 7.653635871,
+          "gpu_ms_per_frame": 0.02225587097
+        },
+        "water": {
+          "calls": 0,
+          "cpu_ms_per_frame": 0,
+          "gpu_ms_per_frame": null
+        }
+      }
+    }
+  ]
+}

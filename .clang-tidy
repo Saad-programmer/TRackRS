@@ -1,5 +1,5 @@
 Checks: '-*,clang-analyzer-*,bugprone-*,performance-*,modernize-use-nullptr'
 WarningsAsErrors: '*'
-HeaderFilterRegex: 'engine/(core|application|renderer|rhi|render|media|mesh|pbr|assets|terrain)/.*'
+HeaderFilterRegex: 'engine/(core|application|renderer|rhi|render|media|mesh|pbr|assets|terrain|world)/.*'
 CheckOptions:
   bugprone-unsafe-functions.ReportMoreUnsafeFunctions: true
