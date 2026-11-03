@@ -1,0 +1,7 @@
+{
+  "name": "asphalt",
+  "albedo": "asphalt-albedo.ktx2",
+  "normal": "asphalt-normal.ktx2",
+  "orm": "asphalt-orm.ktx2",
+  "atlas": false
+}

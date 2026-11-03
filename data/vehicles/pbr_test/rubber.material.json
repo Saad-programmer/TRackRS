@@ -1,0 +1,7 @@
+{
+  "name": "rubber",
+  "albedo": "rubber-albedo.ktx2",
+  "normal": "rubber-normal.ktx2",
+  "orm": "rubber-orm.ktx2",
+  "atlas": false
+}

@@ -99,8 +99,8 @@ TEST_CASE("cgltf test car carries complete PBR materials and optimized indexed "
           "submeshes") {
   auto file = std::filesystem::path(TRACKRS_TEST_ASSETS) / "car.gltf";
   auto mesh = MeshImporter::load(file.string());
-  REQUIRE(mesh.submeshes.size() == 8);
-  CHECK(mesh.sourceCorners == 288);
+  REQUIRE(mesh.submeshes.size() == 12);
+  CHECK(mesh.sourceCorners == 432);
   CHECK(mesh.optimized);
   for (const auto &sub : mesh.submeshes) {
     REQUIRE(sub.material < mesh.materials.size());

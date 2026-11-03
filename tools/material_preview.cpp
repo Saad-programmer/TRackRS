@@ -10,6 +10,7 @@
 #include <glm/gtc/type_ptr.hpp>
 #include <iostream>
 #include <nlohmann/json.hpp>
+nlohmann::json iblIntegrationTests(const std::filesystem::path &data);
 namespace validation {
 Run run;
 }
@@ -382,6 +383,8 @@ nlohmann::json probes(const std::filesystem::path &data) {
     glDeleteTextures(1, &texture);
   }
   debug.check();
+  report["phase2d"] = iblIntegrationTests(data);
+  debug.check();
   report["KHR_debug_errors"] = debug.errors.load();
   return report;
 }
@@ -535,6 +538,7 @@ int main(int argc, char **argv) {
     result = 1;
   }
   if (context) {
+    pbr::shutdown();
     glDebugMessageCallback(nullptr, nullptr);
     SDL_GL_DeleteContext(context);
   }

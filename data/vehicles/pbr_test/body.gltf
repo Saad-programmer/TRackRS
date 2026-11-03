@@ -1,7 +1,7 @@
 {
   "asset": {
     "version": "2.0",
-    "generator": "TrackRS original CC0 test fixture"
+    "generator": "TrackRS Phase 2d original CC0 test art"
   },
   "extensionsUsed": [
     "KHR_materials_clearcoat"
@@ -230,31 +230,40 @@
   ],
   "images": [
     {
-      "uri": "paint.png"
+      "uri": "paint-albedo.ktx2"
     },
     {
-      "uri": "paint-orm.png"
+      "uri": "paint-orm.ktx2"
     },
     {
-      "uri": "normal.png"
+      "uri": "paint-normal.ktx2"
     },
     {
-      "uri": "rubber.png"
+      "uri": "rubber-albedo.ktx2"
     },
     {
-      "uri": "rubber-orm.png"
+      "uri": "rubber-orm.ktx2"
     },
     {
-      "uri": "normal.png"
+      "uri": "rubber-normal.ktx2"
     },
     {
-      "uri": "glass.png"
+      "uri": "glass-albedo.ktx2"
     },
     {
-      "uri": "glass-orm.png"
+      "uri": "glass-orm.ktx2"
     },
     {
-      "uri": "normal.png"
+      "uri": "glass-normal.ktx2"
+    },
+    {
+      "uri": "chrome-albedo.ktx2"
+    },
+    {
+      "uri": "chrome-orm.ktx2"
+    },
+    {
+      "uri": "chrome-normal.ktx2"
     }
   ],
   "textures": [
@@ -284,11 +293,20 @@
     },
     {
       "source": 8
+    },
+    {
+      "source": 9
+    },
+    {
+      "source": 10
+    },
+    {
+      "source": 11
     }
   ],
   "materials": [
     {
-      "name": "paint",
+      "name": "clear-coat paint",
       "pbrMetallicRoughness": {
         "baseColorTexture": {
           "index": 0
@@ -300,10 +318,14 @@
       "normalTexture": {
         "index": 2
       },
+      "occlusionTexture": {
+        "index": 1,
+        "strength": 1
+      },
       "extensions": {
         "KHR_materials_clearcoat": {
           "clearcoatFactor": 1,
-          "clearcoatRoughnessFactor": 0.12
+          "clearcoatRoughnessFactor": 0.05
         }
       }
     },
@@ -319,6 +341,10 @@
       },
       "normalTexture": {
         "index": 5
+      },
+      "occlusionTexture": {
+        "index": 4,
+        "strength": 1
       }
     },
     {
@@ -333,6 +359,28 @@
       },
       "normalTexture": {
         "index": 8
+      },
+      "occlusionTexture": {
+        "index": 7,
+        "strength": 1
+      }
+    },
+    {
+      "name": "chrome",
+      "pbrMetallicRoughness": {
+        "baseColorTexture": {
+          "index": 9
+        },
+        "metallicRoughnessTexture": {
+          "index": 10
+        }
+      },
+      "normalTexture": {
+        "index": 11
+      },
+      "occlusionTexture": {
+        "index": 10,
+        "strength": 1
       }
     }
   ],

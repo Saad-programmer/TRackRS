@@ -1,0 +1,7 @@
+{
+  "name": "chrome",
+  "albedo": "chrome-albedo.ktx2",
+  "normal": "chrome-normal.ktx2",
+  "orm": "chrome-orm.ktx2",
+  "atlas": false
+}

@@ -60,6 +60,12 @@ uniform sampler2D   uBrdfLUT;
 uniform float uPrefilterMaxLod = 7.0;   // mip count - 1 of uPrefilterMap
 uniform float uEnvIntensity    = 1.0;
 uniform bool  uHasIBL          = false;
+uniform mat3 uEnvironmentRotation;
+uniform mat3 uProbeRotation;
+uniform samplerCube uLocalProbe;
+uniform bool uUseLocalProbe=false;
+uniform float uProbeMaxLod=0;
+vec3 environmentSpecular(vec3 direction,float rough){vec3 value=textureLod(uPrefilterMap,uEnvironmentRotation*direction,rough*uPrefilterMaxLod).rgb;if(uUseLocalProbe)value=textureLod(uLocalProbe,uProbeRotation*direction,rough*uProbeMaxLod).rgb;return value;}
 
 // CSM interface only. Phase 2c does not allocate or bake shadow cascades.
 #ifdef USE_CSM
@@ -156,23 +162,22 @@ void main()
     // ---- image based lighting (ambient) --------------------------------------
     vec3 ambient;
     if (uHasIBL) {
-        vec3 F  = F_SchlickRoughness(NdotV, F0, roughness);
-        vec3 kD = (1.0 - F) * (1.0 - metallic);
-        vec3 irradiance = texture(uIrradianceMap, N).rgb;
-        vec3 R = reflect(-V, N);
-        vec3 prefiltered = textureLod(uPrefilterMap, R, roughness * uPrefilterMaxLod).rgb;
-        vec2 brdf = texture(uBrdfLUT, vec2(NdotV, roughness)).rg;
-        vec3 specIBL = prefiltered * (F * brdf.x + brdf.y);
+        vec3 irradiance = textureLod(uIrradianceMap,uEnvironmentRotation*N,0.0).rgb;
+        vec3 R=reflect(-V,N);
+        vec3 prefiltered=environmentSpecular(R,roughness);
+        vec2 brdf=texture(uBrdfLUT,vec2(NdotV,roughness)).rg;
+        float Ess=clamp(brdf.x+brdf.y,0.0001,1.0),Ems=1.0-Ess;
+        vec3 FssEss=clamp(F0*brdf.x+brdf.y,0.0,1.0);
+        vec3 Favg=F0+(1.0-F0)/21.0;
+        // Fdez-Aguera multi-scattering compensation. A white conductor has
+        // FssEss=Ess and Fms=1, so roughness cannot lose furnace energy.
+        vec3 Fms=FssEss*Favg/max(1.0-Ems*Favg,vec3(0.0001));
+        vec3 multiple=Fms*Ems;
+        vec3 kD=max(vec3(0),1.0-FssEss-multiple)*(1.0-metallic);
+        ambient=prefiltered*FssEss+irradiance*(multiple+kD*albedo);
+        if(uClearcoat>0.0){vec3 coatN=normalize(fs.N);float coatNv=max(dot(coatN,V),0.0001);vec2 coatBrdf=texture(uBrdfLUT,vec2(coatNv,uClearcoatRough)).rg;float coatWeight=clamp(uClearcoat*(0.04*coatBrdf.x+coatBrdf.y),0.0,1.0);ambient=ambient*(1.0-coatWeight)+environmentSpecular(reflect(-V,coatN),uClearcoatRough)*coatWeight;}
+        ambient*=ao*uEnvIntensity;
 
-        // clear-coat reflection: sharp mip, own Fresnel
-        if (uClearcoat > 0.0) {
-            vec3  Rc  = reflect(-V, normalize(fs.N));       // coat ignores the base normal map: glassy orange-peel-free
-            vec3  cc  = textureLod(uPrefilterMap, Rc, uClearcoatRough * uPrefilterMaxLod).rgb;
-            float fc  = uClearcoat * F_SchlickRoughness(NdotV, vec3(0.04), uClearcoatRough).x;
-            specIBL   = specIBL * (1.0 - fc) + cc * fc;
-            kD       *= (1.0 - fc);
-        }
-        ambient = (kD * irradiance * albedo + specIBL) * ao * uEnvIntensity;
     } else {
         ambient = uAmbientColor * albedo * ao;
     }
