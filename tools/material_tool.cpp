@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 #include "engine/assets/ibl_bake.h"
 #include "engine/assets/ktx2.h"
+#include "engine/assets/material_manifest.h"
 #include <SDL2/SDL_image.h>
 #include <fstream>
 #include <iostream>
@@ -68,7 +69,9 @@ int main(int argc, char **argv) {
             << "bake-material --input image --semantic "
                "albedo|normal|orm|scalar --output map.ktx2 [--ao image "
                "--roughness image --metallic image] "
-               "[--atlas]\nmaterial-validator --input map.ktx2 --semantic "
+               "[--atlas]\nmaterial-validator --material "
+               "set.material.json\nmaterial-validator --input map.ktx2 "
+               "--semantic "
                "albedo|normal|orm|scalar|environment|brdf [--atlas]\nibl-baker "
                "--output directory [--size 64 --samples 256 --white]\n";
         return 0;
@@ -107,6 +110,16 @@ int main(int argc, char **argv) {
           {"brdf_lut", "256x256 RG16F, split-sum"}};
       std::ofstream(out / "cache.json") << metadata.dump(2) << '\n';
       std::cout << metadata.dump() << '\n';
+      return 0;
+    }
+    if (program == "material-validator" && options.count("--material")) {
+      auto info = validateMaterial(options["--material"]);
+      std::cout << nlohmann::json({{"valid", true},
+                                   {"name", info.name},
+                                   {"texture_bytes", info.textureBytes},
+                                   {"mip_counts", info.mipCounts}})
+                       .dump()
+                << '\n';
       return 0;
     }
     if (!options.count("--input"))

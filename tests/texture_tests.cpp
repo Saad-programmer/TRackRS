@@ -1,8 +1,11 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 #define DOCTEST_CONFIG_IMPLEMENT_WITH_MAIN
 #include "engine/assets/ktx2.h"
+#include "engine/assets/material_manifest.h"
+#include <chrono>
 #include <cmath>
 #include <doctest/doctest.h>
+#include <nlohmann/json.hpp>
 using namespace trackrs::assets;
 TEST_CASE(
     "standard BC blocks decode independently and preserve typed samples") {
@@ -81,4 +84,60 @@ TEST_CASE("KTX2 rejects malformed index, missing mips and wrong DFD transfer") {
   for (int i = 0; i < 8; ++i)
     bytes[80 + i] = 255;
   CHECK_THROWS(readKtx2(bytes));
+}
+TEST_CASE("material manifests validate all channel roles, mip chains and atlas "
+          "constraints") {
+  struct Temporary {
+    std::filesystem::path path;
+    ~Temporary() {
+      std::error_code error;
+      std::filesystem::remove_all(path, error);
+    }
+  } temp{std::filesystem::temp_directory_path() /
+         ("trackrs-material-test-" +
+          std::to_string(
+              std::chrono::steady_clock::now().time_since_epoch().count()))};
+  std::filesystem::create_directories(temp.path);
+  auto pixels = std::vector<Pixel>(64, Pixel{.5f, .5f, 1, 1});
+  auto a = bake2D(Format::BC7Srgb, 8, 8, pixels, Semantic::Albedo),
+       n = bake2D(Format::BC5, 8, 8, pixels, Semantic::Normal),
+       o = bake2D(Format::BC7, 8, 8, pixels, Semantic::Orm);
+  writeFile(temp.path / "a.ktx2", writeKtx2(a));
+  writeFile(temp.path / "n.ktx2", writeKtx2(n));
+  writeFile(temp.path / "o.ktx2", writeKtx2(o));
+  nlohmann::json manifest = {{"name", "test"},
+                             {"albedo", "a.ktx2"},
+                             {"normal", "n.ktx2"},
+                             {"orm", "o.ktx2"}};
+  auto save = [&] {
+    auto text = manifest.dump();
+    writeFile(temp.path / "material.json", Bytes(text.begin(), text.end()));
+  };
+  save();
+  auto info = validateMaterial(temp.path / "material.json");
+  CHECK(info.name == "test");
+  CHECK(info.textureBytes == a.bytes() + n.bytes() + o.bytes());
+  a.format = Format::BC7;
+  writeFile(temp.path / "a.ktx2", writeKtx2(a));
+  CHECK_THROWS(validateMaterial(temp.path / "material.json"));
+  a.format = Format::BC7Srgb;
+  writeFile(temp.path / "a.ktx2", writeKtx2(a));
+  auto bad = writeKtx2(n);
+  bad[40] = 1;
+  writeFile(temp.path / "n.ktx2", bad);
+  CHECK_THROWS(validateMaterial(temp.path / "material.json"));
+  writeFile(temp.path / "n.ktx2",
+            writeKtx2(bake2D(Format::BC5, 7, 8,
+                             std::vector<Pixel>(56, Pixel{.5f, .5f, 1, 1}),
+                             Semantic::Normal)));
+  manifest["atlas"] = true;
+  save();
+  CHECK_THROWS(validateMaterial(temp.path / "material.json"));
+  writeFile(temp.path / "n.ktx2", writeKtx2(n));
+  manifest["orm"] = "../outside.ktx2";
+  save();
+  CHECK_THROWS(validateMaterial(temp.path / "material.json"));
+  manifest.erase("orm");
+  save();
+  CHECK_THROWS(validateMaterial(temp.path / "material.json"));
 }

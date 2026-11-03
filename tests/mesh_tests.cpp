@@ -269,3 +269,21 @@ TEST_CASE("OBJ material textures resolve relative to the MTL directory") {
   CHECK(red.path == MaterialPath::Legacy);
   CHECK(model.materials[model.submeshes[1].material].name == "Blue");
 }
+TEST_CASE("portable PNG glTF fallbacks select typed TrackRS KTX2 caches") {
+  const auto file = std::filesystem::path(TRACKRS_TEST_ASSETS) / "car.gltf";
+  std::ifstream source(file);
+  auto json = nlohmann::json::parse(source);
+  for (const auto &image : json["images"]) {
+    CHECK(image["uri"].get<std::string>().find(".png") != std::string::npos);
+    CHECK(image["extras"]["trackrsKtx2"].get<std::string>().find(".ktx2") !=
+          std::string::npos);
+  }
+  auto model = MeshImporter::load(file.string());
+  for (const auto &m : model.materials)
+    if (m.path == MaterialPath::Pbr) {
+      REQUIRE(m.albedo.encoded.size() > 12);
+      CHECK(m.albedo.encoded[0] == 0xab);
+      CHECK(m.normal.encoded[0] == 0xab);
+      CHECK(m.metalRough.encoded[0] == 0xab);
+    }
+}

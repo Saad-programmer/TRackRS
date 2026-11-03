@@ -71,13 +71,22 @@
   ],
   "images": [
     {
-      "uri": "asphalt-albedo.ktx2"
+      "uri": "asphalt.png",
+      "extras": {
+        "trackrsKtx2": "asphalt-albedo.ktx2"
+      }
     },
     {
-      "uri": "asphalt-orm.ktx2"
+      "uri": "asphalt-orm.png",
+      "extras": {
+        "trackrsKtx2": "asphalt-orm.ktx2"
+      }
     },
     {
-      "uri": "asphalt-normal.ktx2"
+      "uri": "asphalt-normal.png",
+      "extras": {
+        "trackrsKtx2": "asphalt-normal.ktx2"
+      }
     }
   ],
   "textures": [

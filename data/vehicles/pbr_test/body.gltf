@@ -230,40 +230,76 @@
   ],
   "images": [
     {
-      "uri": "paint-albedo.ktx2"
+      "uri": "paint.png",
+      "extras": {
+        "trackrsKtx2": "paint-albedo.ktx2"
+      }
     },
     {
-      "uri": "paint-orm.ktx2"
+      "uri": "paint-orm-pbr.png",
+      "extras": {
+        "trackrsKtx2": "paint-orm.ktx2"
+      }
     },
     {
-      "uri": "paint-normal.ktx2"
+      "uri": "paint-normal.png",
+      "extras": {
+        "trackrsKtx2": "paint-normal.ktx2"
+      }
     },
     {
-      "uri": "rubber-albedo.ktx2"
+      "uri": "rubber.png",
+      "extras": {
+        "trackrsKtx2": "rubber-albedo.ktx2"
+      }
     },
     {
-      "uri": "rubber-orm.ktx2"
+      "uri": "rubber-orm.png",
+      "extras": {
+        "trackrsKtx2": "rubber-orm.ktx2"
+      }
     },
     {
-      "uri": "rubber-normal.ktx2"
+      "uri": "normal.png",
+      "extras": {
+        "trackrsKtx2": "rubber-normal.ktx2"
+      }
     },
     {
-      "uri": "glass-albedo.ktx2"
+      "uri": "glass.png",
+      "extras": {
+        "trackrsKtx2": "glass-albedo.ktx2"
+      }
     },
     {
-      "uri": "glass-orm.ktx2"
+      "uri": "glass-orm.png",
+      "extras": {
+        "trackrsKtx2": "glass-orm.ktx2"
+      }
     },
     {
-      "uri": "glass-normal.ktx2"
+      "uri": "normal.png",
+      "extras": {
+        "trackrsKtx2": "glass-normal.ktx2"
+      }
     },
     {
-      "uri": "chrome-albedo.ktx2"
+      "uri": "chrome.png",
+      "extras": {
+        "trackrsKtx2": "chrome-albedo.ktx2"
+      }
     },
     {
-      "uri": "chrome-orm.ktx2"
+      "uri": "chrome-orm.png",
+      "extras": {
+        "trackrsKtx2": "chrome-orm.ktx2"
+      }
     },
     {
-      "uri": "chrome-normal.ktx2"
+      "uri": "normal.png",
+      "extras": {
+        "trackrsKtx2": "chrome-normal.ktx2"
+      }
     }
   ],
   "textures": [

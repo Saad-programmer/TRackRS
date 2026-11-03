@@ -3,7 +3,7 @@
 Run from any directory: python tools/bake_demo_materials.py --bin build/linux-release/bin
 The accepted 2c PNG fixtures remain available for regression tests.
 """
-import argparse,hashlib,json,pathlib,runpy,subprocess,math
+import argparse,hashlib,json,pathlib,runpy,subprocess,math,struct
 ROOT=pathlib.Path(__file__).resolve().parents[1]
 p=argparse.ArgumentParser();p.add_argument('--bin',type=pathlib.Path,required=True);p.add_argument('--skip-ibl',action='store_true');args=p.parse_args();binary=args.bin.resolve()
 source=runpy.run_path(str(ROOT/'tools/generate_pbr_fixture.py'));out=source['OUT'];png=source['png'];scene=source['scene']
@@ -21,7 +21,8 @@ materials={
  'rubber':('rubber.png','normal.png','rubber-orm.png'),
  'glass':('glass.png','normal.png','glass-orm.png'),
  'chrome':('chrome.png','normal.png','chrome-orm.png'),
- 'asphalt':('asphalt.png','asphalt-normal.png','asphalt-orm.png')}
+ 'asphalt':('asphalt.png','asphalt-normal.png','asphalt-orm.png'),
+ 'white':('white.png','normal.png','white.png')}
 for name,images in materials.items():
  for semantic,image in zip(('albedo','normal','orm'),images):
   subprocess.run([str(binary/'bake-material'),'--input',str(out/image),'--semantic',semantic,'--output',str(out/f'{name}-{semantic}.ktx2')],check=True)
@@ -30,7 +31,8 @@ for name,images in materials.items():
 for path in (out/'body.gltf',out/'wheel.gltf',out/'car.gltf',out/'asphalt.gltf'):
  d=json.loads(path.read_text());d['asset']['generator']='TrackRS Phase 2d original CC0 test art'
  def texture(uri):
-  d['images'].append({'uri':uri});d['textures'].append({'source':len(d['images'])-1});return {'index':len(d['textures'])-1}
+  fallbacks={f'{name}-{role}.ktx2':image for name,inputs in materials.items() for role,image in zip(('albedo','normal','orm'),inputs)}
+  d['images'].append({'uri':fallbacks[uri],'extras':{'trackrsKtx2':uri}});d['textures'].append({'source':len(d['images'])-1});return {'index':len(d['textures'])-1}
  d['materials']=[]
  for name in ('asphalt',) if path.stem=='asphalt' else ('paint','rubber','glass','chrome'):
   m={'name':{'paint':'clear-coat paint','asphalt':'wet asphalt'}.get(name,name),'pbrMetallicRoughness':{'baseColorTexture':texture(f'{name}-albedo.ktx2'),'metallicRoughnessTexture':texture(f'{name}-orm.ktx2')},'normalTexture':texture(f'{name}-normal.ktx2')}
@@ -42,6 +44,13 @@ for path in (out/'body.gltf',out/'wheel.gltf',out/'car.gltf',out/'asphalt.gltf')
  remap={old:new for new,old in enumerate(sorted(referenced))};images=[d['images'][d['textures'][old]['source']] for old in sorted(referenced)];d['images']=images;d['textures']=[{'source':i} for i in range(len(images))]
  for m in d['materials']:
   for v in (m['pbrMetallicRoughness']['baseColorTexture'],m['pbrMetallicRoughness']['metallicRoughnessTexture'],m['normalTexture'],m['occlusionTexture']):v['index']=remap[v['index']]
+ if path.stem=='asphalt':
+  raw=bytearray(path.with_suffix('.bin').read_bytes())
+  for primitive in d['meshes'][0]['primitives']:
+   accessor=d['accessors'][primitive['attributes']['TEXCOORD_0']];view=d['bufferViews'][accessor['bufferView']]
+   for i in range(accessor['count']*2):
+    offset=view.get('byteOffset',0)+i*4;value=struct.unpack_from('<f',raw,offset)[0];struct.pack_into('<f',raw,offset,value*12)
+  path.with_suffix('.bin').write_bytes(raw)
  path.write_text(json.dumps(d,indent=2)+'\n')
 preview=ROOT/'data/scenes/material_preview';description=json.loads((preview/'scene.json').read_text());description.update(name='Phase 2d PBR materials and local IBL',asphalt='../../vehicles/pbr_test/asphalt.gltf',ibl='ibl',lighting='sky split-sum IBL and point headlights; local HDR reflection probe at 2Hz');(preview/'scene.json').write_text(json.dumps(description,indent=2)+'\n')
 if not args.skip_ibl:subprocess.run([str(binary/'ibl-baker'),'--output',str(preview/'ibl'),'--size','64','--samples','256'],check=True)

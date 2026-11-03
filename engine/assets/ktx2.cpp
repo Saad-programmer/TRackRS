@@ -267,6 +267,9 @@ void validate(const TextureData &t, Semantic s, bool atlas) {
   if (atlas || t.atlas)
     require((t.width & (t.width - 1)) == 0 && (t.height & (t.height - 1)) == 0,
             "atlas must have power-of-two dimensions");
+  if (s == Semantic::Albedo || s == Semantic::Normal || s == Semantic::Orm ||
+      s == Semantic::Scalar)
+    require(t.faces == 1, "material maps require 2D textures");
   if (s == Semantic::Albedo)
     require(isSrgb(t.format), "albedo must use sRGB BC7");
   else if (s != Semantic::Any)

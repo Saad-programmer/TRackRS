@@ -30,3 +30,6 @@ New tools/bake_demo_materials.py runs old2c originalgenerator then adds original
 
 ## Published WIP recovery checkpoint
 Branch `wip/phase-2d`, implementation saved as `9d08d0b`. Saved release CPU tests 12/12, Khronos validation of all 23 KTX2 assets, and actual production IBL furnace/probe tests pass again. No main changes or gate tag. Continue the remaining tasks above; push WIP after each completed item.
+
+## Material authoring item completed
+Full set manifests now validate all albedo/normal/ORM roles and reject wrong transfer flags, missing mip chains, NPOT atlases, missing roles and escaping paths. Six sets include a shared white test/swatch set. Standard glTF images keep PNG fallbacks and optional `extras.trackrsKtx2` selects native cached BC data; no BasisU extension is incorrectly claimed. Importer tests 9/9, 899 assertions; texture tests including negative manifest cases pass; all native KTX2 files pass Khronos4.4.2 validation. Evidence in reports/phase2d/checkpoints/material-*. Next: enable IBL/probe/wet floor/background in preview, warm async textures before capturing, add profiling reports and before/after images. Then Appendix D rendering batching, full checks/lint/sanitizers, legacy13+8 screenshots, finalCI, merge/tag only after acceptance. Keep pushing each completed item to wip/phase-2d.

@@ -11,6 +11,7 @@
 #include <map>
 #include <memory>
 #include <meshoptimizer.h>
+#include <nlohmann/json.hpp>
 #include <sstream>
 namespace trackrs::mesh {
 namespace {
@@ -117,7 +118,18 @@ Texture texture(Input &input, const cgltf_texture_view &view) {
   if (!image)
     throw std::runtime_error("texture has no supported PNG/JPEG source");
   out.name = image->name ? image->name : image->uri ? image->uri : "embedded";
-  if (image->uri)
+  // Keep portable glTF PNG/JPEG fallbacks. TrackRS native BC KTX2 caches
+  // are selected through optional image extras rather than mislabelled BasisU.
+  std::string native;
+  if (image->extras.data) {
+    auto extras = nlohmann::json::parse(image->extras.data);
+    if (extras.contains("trackrsKtx2"))
+      native = extras.at("trackrsKtx2").get<std::string>();
+  }
+  if (!native.empty()) {
+    out.name = native;
+    out.encoded = input.uri(native.c_str());
+  } else if (image->uri)
     out.encoded = input.uri(image->uri);
   else if (image->buffer_view) {
     auto v = image->buffer_view;
