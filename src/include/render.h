@@ -629,6 +629,7 @@ public:
 
 private:
   const PTerrainTile *getTileAtPos(const vec3f &pos) const;
+  void ensureWorldRenderer();
 
   // Rigidity map for foliage and road signs
   const PRigidity &rigidity;

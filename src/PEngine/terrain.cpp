@@ -420,6 +420,7 @@ PTerrain::PTerrain (XMLElement *element, const std::string &filepath, PSSTexture
   ramfile.clear();
 
   loaded = true;
+  if(trackrs::terrain::settings().enabled)ensureWorldRenderer();
 }
 
 ///
@@ -736,6 +737,43 @@ PTerrainTile *PTerrain::getTile(int tilex, int tiley)
 }
 
 
+void PTerrain::ensureWorldRenderer() {
+  if(worldRenderer)return;
+
+      const unsigned dimension = tmap.getData() ? static_cast<unsigned>(tmap.getcx()) : static_cast<unsigned>(cmap.getcx());
+      std::vector<std::uint8_t> types(std::size_t(dimension)*dimension);
+      for (unsigned y=0;y<dimension;++y) for(unsigned x=0;x<dimension;++x) {
+        TerrainType surface = TerrainType::Unknown;
+        if(tmap.getData()) {
+          const auto offset=(std::size_t(y)*dimension+x)*static_cast<unsigned>(tmap.getcc());
+          surface=PUtil::decideRoadSurface(rgbcolor(tmap.getByte(static_cast<int>(offset)),tmap.getByte(static_cast<int>(offset+1)),tmap.getByte(static_cast<int>(offset+2))));
+        }
+        std::uint8_t layer=2;
+        switch(surface) {
+        case TerrainType::RacingTarmac: case TerrainType::CountryRoad: case TerrainType::SlipperyRoad: layer=0;break;
+        case TerrainType::FineGravel: case TerrainType::RoughGravel: layer=1;break;
+        case TerrainType::PressedEarth: case TerrainType::LooseEarth: case TerrainType::MoistEarth: layer=2;break;
+        case TerrainType::Grass: case TerrainType::Shrubbery: layer=3;break;
+        case TerrainType::FirmSand: case TerrainType::LooseSand: layer=4;break;
+        case TerrainType::DeepSnow: layer=5;break;
+        case TerrainType::Ice: layer=6;break;
+        case TerrainType::Mud: layer=7;break;
+        case TerrainType::DeepWater: layer=8;break;
+        default: {
+          auto colour=getCmapColor(vec3f(static_cast<float>(x)*getMapSize()/dimension,static_cast<float>(y)*getMapSize()/dimension,0));
+          if(colour.x>.7f&&colour.y>.7f&&colour.z>.7f)layer=5;
+          else if(colour.y>colour.x*1.1f&&colour.y>colour.z*1.1f)layer=3;
+          else if(colour.x>.55f&&colour.y>.4f)layer=4;
+          break;
+        }
+        }
+        types[std::size_t(y)*dimension+x]=layer;
+      }
+      auto data=trackrs::pbr::shaderDirectory().parent_path().parent_path();
+      worldRenderer=std::make_unique<trackrs::terrain::Renderer>(hmap,static_cast<unsigned>(totsize),scale_hz,types,dimension,data);
+    
+}
+
 void PTerrain::render(const vec3f &campos, const mat44f &camorim, bool reflectionCapture)
 {
   validation::PassScope timing(reflectionCapture ? "terrain_probe" : "terrain");
@@ -775,39 +813,7 @@ void PTerrain::render(const vec3f &campos, const mat44f &camorim, bool reflectio
   }
 
   if (trackrs::terrain::settings().enabled) {
-    if (!worldRenderer) {
-      const unsigned dimension = tmap.getData() ? static_cast<unsigned>(tmap.getcx()) : static_cast<unsigned>(cmap.getcx());
-      std::vector<std::uint8_t> types(std::size_t(dimension)*dimension);
-      for (unsigned y=0;y<dimension;++y) for(unsigned x=0;x<dimension;++x) {
-        TerrainType surface = TerrainType::Unknown;
-        if(tmap.getData()) {
-          const auto offset=(std::size_t(y)*dimension+x)*static_cast<unsigned>(tmap.getcc());
-          surface=PUtil::decideRoadSurface(rgbcolor(tmap.getByte(static_cast<int>(offset)),tmap.getByte(static_cast<int>(offset+1)),tmap.getByte(static_cast<int>(offset+2))));
-        }
-        std::uint8_t layer=2;
-        switch(surface) {
-        case TerrainType::RacingTarmac: case TerrainType::CountryRoad: case TerrainType::SlipperyRoad: layer=0;break;
-        case TerrainType::FineGravel: case TerrainType::RoughGravel: layer=1;break;
-        case TerrainType::PressedEarth: case TerrainType::LooseEarth: case TerrainType::MoistEarth: layer=2;break;
-        case TerrainType::Grass: case TerrainType::Shrubbery: layer=3;break;
-        case TerrainType::FirmSand: case TerrainType::LooseSand: layer=4;break;
-        case TerrainType::DeepSnow: layer=5;break;
-        case TerrainType::Ice: layer=6;break;
-        case TerrainType::Mud: layer=7;break;
-        case TerrainType::DeepWater: layer=8;break;
-        default: {
-          auto colour=getCmapColor(vec3f(static_cast<float>(x)*getMapSize()/dimension,static_cast<float>(y)*getMapSize()/dimension,0));
-          if(colour.x>.7f&&colour.y>.7f&&colour.z>.7f)layer=5;
-          else if(colour.y>colour.x*1.1f&&colour.y>colour.z*1.1f)layer=3;
-          else if(colour.x>.55f&&colour.y>.4f)layer=4;
-          break;
-        }
-        }
-        types[std::size_t(y)*dimension+x]=layer;
-      }
-      auto data=trackrs::pbr::shaderDirectory().parent_path().parent_path();
-      worldRenderer=std::make_unique<trackrs::terrain::Renderer>(hmap,static_cast<unsigned>(totsize),scale_hz,types,dimension,data);
-    }
+    ensureWorldRenderer();
     glm::mat4 view,projection;
     trackrs::draw::read(trackrs::draw::ViewMatrix,glm::value_ptr(view));
     trackrs::draw::read(trackrs::draw::ProjectionMatrix,glm::value_ptr(projection));

@@ -1,0 +1,18 @@
+{
+  "float PTerrain::getInterp": {
+    "unchanged": true,
+    "sha256": "cb3744fe836fbb9925a541d3d6374c5baf47aed0be821374478ead1167fb7c7b"
+  },
+  "void PTerrain::getContactInfo": {
+    "unchanged": true,
+    "sha256": "82c2a445318fb00afbb901bdc83c4ced1578e66dc5260688c9ea8f4fc663ed1b"
+  },
+  "TerrainType PTerrain::getRoadSurface": {
+    "unchanged": true,
+    "sha256": "d34341b85f3494e0bfd0009ce826ecb32356ba9e33548e9c4198b5869f41ad9b"
+  },
+  "engine/core/wrap.h": {
+    "unchanged": true,
+    "sha256": "714f0dfc600377fd447dd96c73db417588a18436f49668d4bd38f0ce2b9400ce"
+  }
+}

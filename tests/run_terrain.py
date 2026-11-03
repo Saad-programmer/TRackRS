@@ -3,6 +3,7 @@
 import argparse,json,os,subprocess,tempfile
 from pathlib import Path
 from run_baselines import STAGES,CARS,png_from_ppm
+from review_gate_images import read_png
 from run_asan import audit,read_policy
 ROOT=Path(__file__).resolve().parents[1]
 p=argparse.ArgumentParser()
@@ -27,6 +28,8 @@ def run(stage,vehicle,renderer,name,frames):
  report=json.loads(target.read_text())
  if report['ticks']!=frames or report['samples']!=frames-1:raise RuntimeError('incorrect terrain replay work count')
  png_from_ppm(image,target.with_suffix('.png'));image.unlink()
+ width,height,_=read_png(target.with_suffix('.png'))
+ if (width,height)!=(a.width,a.height):raise RuntimeError('benchmark viewport differs from requested dimensions')
  if renderer=='pbr':
   terrain=json.loads(Path(str(target)+'.terrain.json').read_text())
   if terrain['renderer']!='cdlod' or not terrain['ready'] or terrain['nodes_culled']<=0:raise RuntimeError('new terrain was not ready/culling')
