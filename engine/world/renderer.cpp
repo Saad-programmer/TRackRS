@@ -304,9 +304,12 @@ nlohmann::json report() {
       {"csm", s.settings.csm},
       {"cascade_count", s.cascades.count},
       {"shadow_resolution", s.cascades.resolution},
-      {"shadow_payload_bytes", std::uint64_t(s.cascades.count) *
-                                   s.cascades.resolution *
-                                   s.cascades.resolution * 3},
+      {"shadow_payload_bytes", renderer && renderer->shadow
+                                   ? std::uint64_t(renderer->shadowCount) *
+                                         renderer->shadowSize *
+                                         renderer->shadowSize * 3
+                                   : 0},
+      {"active_cascade_count", s.settings.csm ? s.cascades.count : 0},
       {"depth_pass", s.depthPass},
       {"blob_draw_calls", s.blobDraws},
       {"cascade_draw_calls", s.shadowDraws},

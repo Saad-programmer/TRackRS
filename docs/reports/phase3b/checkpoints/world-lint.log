@@ -1,0 +1,14 @@
+[1/2] Processing file /workspace/TRackRS/engine/world/atmosphere.cpp.
+17010 warnings generated.
+[2/2] Processing file /workspace/TRackRS/engine/world/atmosphere.cpp.
+34020 warnings generated.
+[3/2] Processing file /workspace/TRackRS/engine/world/atmosphere.cpp.
+51040 warnings generated.
+[4/2] Processing file /workspace/TRackRS/engine/world/atmosphere.cpp.
+68050 warnings generated.
+[5/2] Processing file /workspace/TRackRS/engine/world/renderer.cpp.
+119240 warnings generated.
+[6/2] Processing file /workspace/TRackRS/engine/world/renderer.cpp.
+170429 warnings generated.
+Suppressed 170447 warnings (170428 in non-user code, 18 NOLINT, 1 with check filters).
+Use -header-filter=.* to display errors from all non-system headers. Use -system-headers to display errors from system headers as well.

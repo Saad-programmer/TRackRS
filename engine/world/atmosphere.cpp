@@ -66,7 +66,7 @@ Cascades makeCascades(const CameraMatrices &camera, glm::vec3 sun,
   const float near = .1f, tangent = 1.f / camera.projection[1][1],
               aspect = camera.projection[1][1] / camera.projection[0][0];
   sun = glm::normalize(sun);
-  auto up = std::abs(sun.z) > .95f ? glm::vec3(0, 1, 0) : glm::vec3(0, 0, 1);
+  auto up = std::abs(sun.x) > .95f ? glm::vec3(0, 1, 0) : glm::vec3(1, 0, 0);
   auto rotation = glm::lookAt(glm::vec3(0), -sun, up);
   float previous = near;
   for (unsigned i = 0; i < count; ++i) {

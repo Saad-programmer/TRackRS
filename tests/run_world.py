@@ -27,6 +27,8 @@ def run(name,renderer,time,shadows):
  if renderer=='pbr':
   world=json.loads(Path(str(target)+'.world.json').read_text());assert world['ibl_ready'] and not world['depth_pass']
   assert world['blob_draw_calls']==(0 if shadows=='csm' else 1), 'blob replacement does not match shadow selection'
+  assert world['active_cascade_count']==(world['cascade_count'] if shadows=='csm' else 0)
+  if shadows=='blob':assert world['shadow_payload_bytes']==0,'blob-only process allocated a CSM texture'
   assert world['csm']==(shadows=='csm');assert world['cascade_count']==(4 if a.quality in ('high','ultra') else 3)
   assert report['draw_calls']<=1500 and report['triangles']<=3000000, 'High submission budgets exceeded'
   for i in range(world['cascade_count']):assert report['passes'][f'shadow_cascade_{i}']['calls']==(a.frames-1 if shadows=='csm' else 0)

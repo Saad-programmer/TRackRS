@@ -1,0 +1,250 @@
+{
+  "CSM_interface": "synthetic depth comparison passed; no cascade generation",
+  "KHR_debug_errors": 0,
+  "alpha_to_coverage": {
+    "pass": true,
+    "resolved_red": 64,
+    "samples": 4
+  },
+  "driver_shader_permutations": 16,
+  "normal_handedness": {
+    "instancing": "pass",
+    "layouts": [
+      56,
+      32
+    ],
+    "max_channel_error": 0,
+    "mirrored_sphere": "pass",
+    "mirrored_uv": "pass",
+    "negative_scale_and_shear": "pass",
+    "two_instances": "pass"
+  },
+  "phase2d": {
+    "cpu_fallback": {
+      "passed": true,
+      "pbo_bytes": 340,
+      "placeholder_first": true,
+      "resident_bytes": 344,
+      "uploads": 1
+    },
+    "ibl_white_furnace": {
+      "clearcoat": [
+        0,
+        1
+      ],
+      "linear_hdr_before_tonemap": true,
+      "loss_limit": 0.05,
+      "max_energy": 1.0000001192092896,
+      "metal": [
+        0,
+        1
+      ],
+      "min_energy": 0.9999998807907104,
+      "roughness": [
+        0.04,
+        1
+      ],
+      "roughness_one_min": 0.9999998807907104,
+      "view_angles": 2
+    },
+    "material_batching": {
+      "instance_draws": 4,
+      "instance_triangles": 288,
+      "materials": 4,
+      "single_draws": 4
+    },
+    "native_pbo": {
+      "passed": true,
+      "pbo_bytes": 112,
+      "placeholder_first": true,
+      "resident_bytes": 116,
+      "uploads": 1
+    },
+    "probe": {
+      "capture_gpu_ms": [
+        1.823099,
+        0.222698
+      ],
+      "clock": "synthetic rate-limit test",
+      "depth_bytes": 1024,
+      "faces": 6,
+      "interval_seconds": 0.5,
+      "prefilter_gpu_ms": [
+        10.94468,
+        4.601042
+      ],
+      "resident_bytes": 33760,
+      "size": 16,
+      "texture_bytes": 32736,
+      "update_times": [
+        0.0,
+        0.5
+      ],
+      "updates": 2
+    },
+    "surface_array_cpu_fallback": "pass",
+    "surface_array_native": "pass"
+  },
+  "point_lights": "pass",
+  "reciprocity": {
+    "maximum_relative_error": 1.4145389570785483e-07,
+    "upper_bound": 1e-05
+  },
+  "terrain": {
+    "crack_free_transition_pixels": 10756,
+    "frustum_culling": "pass",
+    "gpu_periodic_height_normals_max_error": 1.1920928955078125e-07,
+    "negative_world_coordinates": true,
+    "nine_surface_linear_albedo": [
+      [
+        0.02301168628036976,
+        0.02301168628036976,
+        0.025002559646964073
+      ],
+      [
+        0.26505807042121887,
+        0.19283035397529602,
+        0.11811918765306473
+      ],
+      [
+        0.1712457537651062,
+        0.07273998856544495,
+        0.024059606716036797
+      ],
+      [
+        0.04316755756735802,
+        0.13103626668453217,
+        0.015264738351106644
+      ],
+      [
+        0.5684001445770264,
+        0.38035085797309875,
+        0.1560598909854889
+      ],
+      [
+        0.7659707069396973,
+        0.8266944289207458,
+        0.8901841044425964
+      ],
+      [
+        0.21378383040428162,
+        0.43153896927833557,
+        0.5567208528518677
+      ],
+      [
+        0.06196983531117439,
+        0.028296390548348427,
+        0.011138691566884518
+      ],
+      [
+        0.006422408856451511,
+        0.041903432458639145,
+        0.0637313649058342
+      ]
+    ],
+    "nine_surface_roughness": [
+      0.8211376070976257,
+      0.9264863133430481,
+      0.9543079733848572,
+      0.9301937222480774,
+      0.8872111439704895,
+      0.7908123135566711,
+      0.15693821012973785,
+      0.4068741500377655,
+      0.07362904399633408
+    ],
+    "shared_cpu_height_source": true,
+    "terrain_only_distance_submissions": [
+      {
+        "camera_ground_distance_m": 32.0,
+        "camera_height_m": 31.200000762939453,
+        "draw_calls": 34,
+        "nodes_culled": 84,
+        "triangles": 69632
+      },
+      {
+        "camera_ground_distance_m": 256.0,
+        "camera_height_m": 109.5999984741211,
+        "draw_calls": 216,
+        "nodes_culled": 106,
+        "triangles": 442368
+      },
+      {
+        "camera_ground_distance_m": 1024.0,
+        "camera_height_m": 378.3999938964844,
+        "draw_calls": 144,
+        "nodes_culled": 70,
+        "triangles": 294912
+      }
+    ]
+  },
+  "white_furnace": {
+    "maximum_energy": 0.9999920725822449,
+    "minimum_energy": 0.30695751309394836,
+    "roughness_max": 1,
+    "roughness_min": 0.04,
+    "samples_per_cell": 4096,
+    "scope": "direct Appendix A BRDF; no Phase 2d IBL",
+    "upper_bound": 1.0001
+  },
+  "world": {
+    "active_cascade_count": 3,
+    "blob_draw_calls": 0,
+    "cascade_count": 3,
+    "cascade_draw_calls": [
+      0,
+      0,
+      0,
+      0
+    ],
+    "cascade_triangles": [
+      0,
+      0,
+      0,
+      0
+    ],
+    "csm": true,
+    "depth_pass": false,
+    "environment_probe": {
+      "capture_gpu_ms": [
+        3.046559
+      ],
+      "depth_bytes": 16384,
+      "faces": 6,
+      "interval_seconds": 0.5,
+      "prefilter_gpu_ms": [
+        27.904129
+      ],
+      "resident_bytes": 540640,
+      "size": 64,
+      "texture_bytes": 524256,
+      "update_times": [
+        32935.601262458
+      ],
+      "updates": 1
+    },
+    "hour": 22.0,
+    "ibl_ready": true,
+    "known_lit_visibility": 1.0,
+    "known_occluded_visibility": 0.0,
+    "moon_peak_srgb": 0.7803921699523926,
+    "resolved_star_pixels": 688,
+    "shadow_payload_bytes": 9437184,
+    "shadow_resolution": 1024,
+    "sky_source_radiance": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "sun_direction": [
+      -0.12403471022844315,
+      -0.4961388409137726,
+      -0.8593378663063049
+    ],
+    "sun_radiance": [
+      0.0,
+      0.0,
+      0.0
+    ]
+  }
+}

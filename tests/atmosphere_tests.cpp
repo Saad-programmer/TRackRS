@@ -69,3 +69,22 @@ TEST_CASE("cascades cover split corners and remain stable under subtexel "
     CHECK(a.splits[count - 1] == doctest::Approx(768));
   }
 }
+
+TEST_CASE("solar motion does not flip the stabilised shadow basis") {
+  auto view = glm::lookAt(glm::vec3(10, -20, 5), glm::vec3(10, 0, 5),
+                          glm::vec3(0, 0, 1));
+  auto projection =
+      glm::perspective(glm::radians(60.f), 16.f / 9.f, .1f, 10000.f);
+  glm::vec3 previous(0);
+  for (int step = 0; step <= 240; ++step) {
+    auto cascades =
+        makeCascades({view, projection}, sunlight(float(step) * .1f).direction,
+                     3, 2048, 768);
+    auto matrix = cascades.matrices[0];
+    glm::vec3 axis =
+        glm::normalize(glm::vec3(matrix[0][0], matrix[1][0], matrix[2][0]));
+    if (step)
+      CHECK(glm::dot(axis, previous) > .99f);
+    previous = axis;
+  }
+}

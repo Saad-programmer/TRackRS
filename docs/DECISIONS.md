@@ -173,3 +173,27 @@ hardware keeps native compression. Reports distinguish logical decoded/native
 payload storage and software timings from hardware budgets. Probe resolution is
 quality-scaled, and a frame token prevents body/wheel draws from scheduling two
 refreshes in a slow frame while preserving the time-based rate limit.
+
+## Phase 3b: one solar source and selectable stabilised CSM
+
+Use one world solar state for direct lighting, procedural sky/IBL, fog and shadow
+orientation. Preetham/Perez daylight (Preetham, Shirley and Smits, 1999,
+"A Practical Analytic Model for Daylight") supplies an analytic sky distribution;
+its source colour/intensity includes twilight so the attenuated direct beam can
+vanish while the sky still illuminates dusk. Night uses procedural stars and a
+simple full moon. These are equations and original shader code, not imported art.
+
+Rebake sky-derived diffuse and GGX IBL on solar-preset/source changes, and reuse
+the existing split-sum LUT and local-probe machinery. This is an explicit preset
+update cost, not a continuous every-frame bake. The height-fog line integral has
+a series limit near horizontal rays to avoid cancellation. Legacy remains a
+separate selectable appearance, including its accepted image hashes.
+
+CSM uses conservative split spheres, texel-snapped centers and an up axis that
+never becomes parallel to this solar trajectory. Test both camera sub-texel
+stability and whole-day orientation continuity: changing up axes near the solar
+zenith would otherwise cause an abrupt basis flip. Retain alpha cutouts in the
+caster pass, cross-fade overlapping cascades, and fade distant shadows. Keep the
+blob when CSM is not selected. Report nominal depth payload separately from
+unknown driver padding/physical allocation, and distinguish software pass times
+from reference-hardware compliance. No Phase 3c vegetation/weather work is implied.

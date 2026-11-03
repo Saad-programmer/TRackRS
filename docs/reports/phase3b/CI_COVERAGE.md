@@ -1,0 +1,5 @@
+# License and renderer CI coverage
+
+`terrain-license-provenance` is registered in CMake's Python CTest block. `.github/workflows/build.yml` runs CTest in GCC/Clang release+ASan, MinGW and MSVC jobs, so the nine original surface sets are covered on all six configurations. The checker requires CC0-1.0 and the full text, author/source/method/recipe/seed fields, all63PNG/KTX2/material-manifest hashes, exact discovered-asset coverage and current generator hash. No earlier terrain provenance checker existed.
+
+All four Linux jobs also run `material_preview --test` through the PBR integration driver (including GPU CSM known-receiver, sky IBL, stars/moon readback), selectable CDLOD integration and the new `run_world.py` Legacy/noon/night/Blob controls. Native sanitizer jobs audit only the previously approved Mesa-origin allocation stacks; TrackRS-origin leaks remain fatal. Shader glslang tests compile/link29pairs/permutations. Final CI URLs and exact revision are recorded in the annotated gate tag.
