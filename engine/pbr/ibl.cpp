@@ -6,6 +6,7 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 #include <map>
+#include <set>
 namespace trackrs::pbr {
 namespace {
 void check(bool v, const char *text) {
@@ -132,11 +133,14 @@ GLuint Ibl::prefilter() const { return maps_[2]->id(); }
 GLuint Ibl::brdf() const { return maps_[3]->id(); }
 float Ibl::maxLod() const { return float(maps_[2]->levels - 1); }
 std::size_t Ibl::bytes() const {
-  std::size_t n = 0;
-  for (const auto &t : maps_)
-    n += t->residentBytes;
-  return n;
+  std::size_t bytes = 0;
+  std::set<const StreamedTexture *> seen;
+  for (const auto &map : maps_)
+    if (seen.insert(map.get()).second)
+      bytes += map->residentBytes;
+  return bytes;
 }
+
 struct ReflectionProbe::Impl {
   std::function<double()> clock;
   unsigned size;
@@ -231,6 +235,8 @@ bool ReflectionProbe::update(const Ibl &env, glm::vec3 center,
   double time = p.clock();
   if (!env.ready() || time - p.last < p.interval)
     return false;
+  p.sky->poll();
+  p.convolve->poll();
   CaptureState saved;
   bool previous = profiling;
   profiling = false;
@@ -325,6 +331,7 @@ GLuint ReflectionProbe::texture() const {
 float ReflectionProbe::maxLod() const {
   return float(assets::mipCount(impl_->size, impl_->size) - 1);
 }
+std::size_t ReflectionProbe::updates() const { return impl_->updates; }
 nlohmann::json ReflectionProbe::report() {
   auto &p = *impl_;
   p.collect();

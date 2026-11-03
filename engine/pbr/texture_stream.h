@@ -28,6 +28,7 @@ public:
   bool idle() const;
   std::size_t pboBytes() const;
   std::size_t uploads() const;
+  std::size_t residentBytes() const;
 };
 std::shared_ptr<TextureStream> textureStream();
 } // namespace trackrs::pbr

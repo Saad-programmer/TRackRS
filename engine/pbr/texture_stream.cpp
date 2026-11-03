@@ -371,6 +371,13 @@ std::size_t TextureStream::pboBytes() const {
   return n;
 }
 std::size_t TextureStream::uploads() const { return impl_->uploaded; }
+std::size_t TextureStream::residentBytes() const {
+  std::size_t bytes = 0;
+  for (const auto &item : impl_->cache)
+    if (auto texture = item.second.lock())
+      bytes += texture->residentBytes;
+  return bytes;
+}
 std::shared_ptr<TextureStream> textureStream() {
   static std::weak_ptr<TextureStream> stream;
   if (auto s = stream.lock())

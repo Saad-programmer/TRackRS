@@ -39,6 +39,7 @@ public:
   GLuint texture() const;
   float maxLod() const;
   nlohmann::json report();
+  std::size_t updates() const;
 };
 void profileEnabled(bool enabled);
 void materialMeasurement(const std::string &name, std::size_t residentBytes,
