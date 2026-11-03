@@ -5,10 +5,14 @@
 #include <glm/gtc/matrix_access.hpp>
 #include <stdexcept>
 namespace trackrs::terrain {
+// Distance is in world units; cells and spacing follow the CDLOD radius
+// equation. NOLINTNEXTLINE(bugprone-easily-swappable-parameters)
 float morphFactor(float distance, unsigned cells, float spacing) {
   const float radius = 8.f * static_cast<float>(cells) * spacing;
   return std::clamp((distance - .7f * radius) / (.3f * radius), 0.f, 1.f);
 }
+// Grid is in patch-cell coordinates; camera is in world XY coordinates.
+// NOLINTNEXTLINE(bugprone-easily-swappable-parameters)
 glm::vec2 morphPosition(const Patch &patch, glm::vec2 grid, glm::vec2 camera,
                         float spacing) {
   glm::vec2 origin(patch.key.x, patch.key.y);
@@ -37,8 +41,8 @@ Selection Selector::select(glm::vec3 camera, const glm::mat4 &vp, float spacing,
   if (minimumLevel > 8 || !std::isfinite(spacing) || spacing <= 0 ||
       !std::isfinite(distance) || distance <= 0 ||
       distance / spacing > 1048576 || !std::isfinite(camera.x) ||
-      !std::isfinite(camera.y) || std::abs(camera.x / spacing) > 100000000 ||
-      std::abs(camera.y / spacing) > 100000000)
+      !std::isfinite(camera.y) || std::abs(camera.x / spacing) > 100000000.f ||
+      std::abs(camera.y / spacing) > 100000000.f)
     throw std::invalid_argument("invalid CDLOD domain");
   unsigned root = GridCells << minimumLevel;
   int level = static_cast<int>(minimumLevel);
@@ -47,7 +51,8 @@ Selection Selector::select(glm::vec3 camera, const glm::mat4 &vp, float spacing,
     ++level;
   }
   Selection result;
-  auto visit = [&](auto &&self, int x, int y, unsigned cells, int lod) -> void {
+  auto visit = [&](auto &&self, TileKey key, unsigned cells) -> void {
+    const auto [x, y, lod] = key;
     ++result.tested;
     glm::vec2 minimum = glm::vec2(x, y) * spacing;
     glm::vec2 maximum = minimum + static_cast<float>(cells) * spacing;
@@ -63,10 +68,11 @@ Selection Selector::select(glm::vec3 camera, const glm::mat4 &vp, float spacing,
       const auto half = cells / 2;
       for (int dy = 0; dy < 2; ++dy)
         for (int dx = 0; dx < 2; ++dx)
-          self(self, x + dx * static_cast<int>(half),
-               y + dy * static_cast<int>(half), half, lod - 1);
+          self(self,
+               {x + dx * static_cast<int>(half),
+                y + dy * static_cast<int>(half), lod - 1},
+               half);
     } else {
-      TileKey key{x, y, lod};
       result.patches.push_back(
           tiles_.get(key, [&] { return Patch{key, cells}; }));
     }
@@ -78,8 +84,9 @@ Selection Selector::select(glm::vec3 camera, const glm::mat4 &vp, float spacing,
   int y1 = static_cast<int>(std::floor((camera.y + distance) / span));
   for (int y = y0; y <= y1; ++y)
     for (int x = x0; x <= x1; ++x)
-      visit(visit, x * static_cast<int>(root), y * static_cast<int>(root), root,
-            level);
+      visit(visit,
+            {x * static_cast<int>(root), y * static_cast<int>(root), level},
+            root);
   return result;
 }
 } // namespace trackrs::terrain

@@ -134,6 +134,7 @@ Renderer::Renderer(const std::vector<float> &heights, unsigned size,
       assets::Semantic::Orm};
   for (unsigned role = 0; role < 3; ++role) {
     std::vector<assets::Bytes> layers;
+    layers.reserve(names.size());
     for (auto name : names)
       layers.push_back(
           assets::readFile(data / "terrain/pbr" /
@@ -144,6 +145,8 @@ Renderer::Renderer(const std::vector<float> &heights, unsigned size,
       std::make_unique<pbr::Ibl>(data / "scenes/material_preview/ibl");
   std::vector<glm::vec2> grid;
   std::vector<std::uint16_t> indices;
+  grid.reserve(std::size_t(GridCells + 1) * (GridCells + 1));
+  indices.reserve(std::size_t(GridCells) * GridCells * 6);
   for (unsigned y = 0; y <= GridCells; ++y)
     for (unsigned x = 0; x <= GridCells; ++x)
       grid.emplace_back(x, y);

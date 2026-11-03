@@ -1,0 +1,52 @@
+[1/14] Processing file /workspace/TRackRS/engine/rhi/rhi.cpp.
+29951 warnings generated.
+[2/14] Processing file /workspace/TRackRS/engine/rhi/rhi.cpp.
+59901 warnings generated.
+[3/14] Processing file /workspace/TRackRS/engine/rhi/rhi.cpp.
+89851 warnings generated.
+[4/14] Processing file /workspace/TRackRS/engine/rhi/core_device.cpp.
+140693 warnings generated.
+[5/14] Processing file /workspace/TRackRS/engine/media/movie.cpp.
+160993 warnings generated.
+[6/14] Processing file /workspace/TRackRS/engine/media/movie.cpp.
+181293 warnings generated.
+[7/14] Processing file /workspace/TRackRS/engine/render/basic.cpp.
+213021 warnings generated.
+[8/14] Processing file /workspace/TRackRS/engine/render/basic.cpp.
+244748 warnings generated.
+[9/14] Processing file /workspace/TRackRS/engine/render/basic.cpp.
+276475 warnings generated.
+[10/14] Processing file /workspace/TRackRS/engine/mesh/mesh_importer.cpp.
+310115 warnings generated.
+[11/14] Processing file /workspace/TRackRS/engine/mesh/tangents.cpp.
+328550 warnings generated.
+[12/14] Processing file /workspace/TRackRS/engine/pbr/renderer.cpp.
+379785 warnings generated.
+[13/14] Processing file /workspace/TRackRS/engine/pbr/renderer.cpp.
+431014 warnings generated.
+[14/14] Processing file /workspace/TRackRS/engine/pbr/texture_stream.cpp.
+460107 warnings generated.
+[15/14] Processing file /workspace/TRackRS/engine/pbr/texture_stream.cpp.
+489199 warnings generated.
+[16/14] Processing file /workspace/TRackRS/engine/pbr/ibl.cpp.
+523241 warnings generated.
+[17/14] Processing file /workspace/TRackRS/engine/pbr/ibl.cpp.
+557282 warnings generated.
+[18/14] Processing file /workspace/TRackRS/engine/assets/ktx2.cpp.
+583504 warnings generated.
+[19/14] Processing file /workspace/TRackRS/engine/assets/ibl_bake.cpp.
+612190 warnings generated.
+[20/14] Processing file /workspace/TRackRS/engine/assets/material_manifest.cpp.
+645207 warnings generated.
+[21/14] Processing file /workspace/TRackRS/engine/terrain/cdlod.cpp.
+666640 warnings generated.
+[22/14] Processing file /workspace/TRackRS/engine/terrain/cdlod.cpp.
+688073 warnings generated.
+[23/14] Processing file /workspace/TRackRS/engine/terrain/cdlod.cpp.
+709516 warnings generated.
+[24/14] Processing file /workspace/TRackRS/engine/terrain/renderer.cpp.
+744010 warnings generated.
+[25/14] Processing file /workspace/TRackRS/engine/terrain/renderer.cpp.
+778504 warnings generated.
+Suppressed 778621 warnings (778494 in non-user code, 117 NOLINT, 10 with check filters).
+Use -header-filter=.* to display errors from all non-system headers. Use -system-headers to display errors from system headers as well.
