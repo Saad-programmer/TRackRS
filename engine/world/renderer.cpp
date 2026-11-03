@@ -169,6 +169,9 @@ void prepare(const glm::mat4 &view, const glm::mat4 &projection,
   r.base.pump();
   if (r.base.ready() && r.bakedHour != s.settings.hour) {
     validation::PassScope timing("sky_ibl_bake");
+    s.sky = 0;
+    s.irradiance = 0;
+    s.prefilter = 0;
     r.environment = std::make_unique<pbr::ReflectionProbe>(r.shaders, 64, .5);
     r.environment->update(r.base, glm::vec3(0),
                           [](const glm::mat4 &p, const glm::mat4 &v,

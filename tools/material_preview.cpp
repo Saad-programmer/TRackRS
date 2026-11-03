@@ -458,6 +458,7 @@ int main(int argc, char **argv) {
       debug.install();
       if (test) {
         auto report = probes(data);
+        debug.install();
         report["terrain"] = terrainGpuTests(data);
         report["world"] = worldGpuTests(data,reportPath.parent_path());
         debug.install();
