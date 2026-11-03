@@ -2,6 +2,7 @@
 #include "ibl.h"
 #include "engine/render/basic.h"
 #include "engine/world/state.h"
+#include "validation.h"
 #include <algorithm>
 #include <chrono>
 #include <glm/gtc/matrix_transform.hpp>
@@ -304,6 +305,10 @@ bool ReflectionProbe::update(const Ibl &env, glm::vec3 center,
     glUniformMatrix3fv(glGetUniformLocation(p.sky->id(), "uSkyRotation"), 1,
                        GL_FALSE, glm::value_ptr(skyRotation));
     glDrawArrays(GL_TRIANGLES, 0, 3);
+    if (validation::run.capture) {
+      ++validation::run.frameDraws;
+      ++validation::run.frameTriangles;
+    }
     if (scene) {
       glEnable(GL_DEPTH_TEST);
       glDepthFunc(GL_LESS);
@@ -338,6 +343,10 @@ bool ReflectionProbe::update(const Ibl &env, glm::vec3 center,
       glUniform1i(glGetUniformLocation(p.convolve->id(), "uFace"),
                   static_cast<GLint>(face));
       glDrawArrays(GL_TRIANGLES, 0, 3);
+      if (validation::run.capture) {
+        ++validation::run.frameDraws;
+        ++validation::run.frameTriangles;
+      }
     }
   }
   glQueryCounter(query.q[2], GL_TIMESTAMP);
