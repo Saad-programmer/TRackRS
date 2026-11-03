@@ -19,6 +19,8 @@ glm::vec3 basis(glm::vec3 n, glm::vec3 h) {
       std::abs(n.z) < .999f ? glm::vec3(0, 0, 1) : glm::vec3(1, 0, 0), n));
   return glm::normalize(t * h.x + glm::cross(n, t) * h.y + n * h.z);
 }
+// Sampling coordinates follow the reference equations in argument order.
+// NOLINTNEXTLINE(bugprone-easily-swappable-parameters)
 glm::vec3 ggx(float x, float y, float rough) {
   float a = rough * rough;
   float ct = std::sqrt((1 - y) / (1 + (a * a - 1) * y));
@@ -28,6 +30,8 @@ glm::vec3 ggx(float x, float y, float rough) {
 }
 float geometry(float n, float k) { return n / (n * (1 - k) + k); }
 } // namespace
+// Sampling coordinates follow the reference equations in argument order.
+// NOLINTNEXTLINE(bugprone-easily-swappable-parameters)
 glm::vec3 cubeDirection(unsigned f, float u, float v) {
   glm::vec3 d;
   switch (f) {
@@ -149,7 +153,7 @@ IblCache bakeIbl(const Environment &env, unsigned size, unsigned samples) {
     if (w == 1)
       break;
   }
-  std::vector<Pixel> lut(256 * 256);
+  std::vector<Pixel> lut(std::size_t{256} * 256);
   for (unsigned y = 0; y < 256; ++y)
     for (unsigned x = 0; x < 256; ++x) {
       float nv = (float(x) + .5f) / 256, rough = (float(y) + .5f) / 256;

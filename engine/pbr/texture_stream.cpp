@@ -63,7 +63,8 @@ struct Binding {
 };
 // OpenGL's buffer-offset API does not dereference this pointer on the CPU.
 const void *byteOffset(std::size_t n) {
-  return reinterpret_cast<const void *>(n);
+  // OpenGL interprets this argument as a PBO byte offset, never a CPU pointer.
+  return reinterpret_cast<const void *>(n); // NOLINT(performance-no-int-to-ptr)
 } // NOLINT(performance-no-int-to-ptr)
 } // namespace
 StreamedTexture::~StreamedTexture() {
@@ -169,7 +170,7 @@ struct TextureStream::Impl {
               }
             }
             total += decoded.size();
-            if (total > 256 * 1024 * 1024)
+            if (total > std::size_t{256} * 1024 * 1024)
               throw std::runtime_error(
                   "decoded texture exceeds staging budget");
             level = std::move(decoded);

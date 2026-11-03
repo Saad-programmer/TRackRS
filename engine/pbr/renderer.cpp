@@ -6,9 +6,9 @@
 #include "validation.h"
 #include <SDL2/SDL_image.h>
 #include <array>
+#include <fstream>
 #include <glm/gtc/type_ptr.hpp>
 #include <limits>
-#include <fstream>
 #include <map>
 #include <stdexcept>
 namespace trackrs::pbr {
@@ -290,14 +290,17 @@ struct Model::Impl {
       : shaders(path), materials(data.materials), source(data) {
     State guard;
     glActiveTexture(GL_TEXTURE0);
-    for (const auto &m : materials)
-      surfaces.push_back(
-          {std::make_unique<Texture>(m.albedo,
-                                     m.path == mesh::MaterialPath::Pbr,
-                                     assets::Semantic::Albedo),
-           std::make_unique<Texture>(m.normal, false, assets::Semantic::Normal),
-           std::make_unique<Texture>(m.metalRough, false,
-                                     assets::Semantic::Orm)});
+    for (const auto &m : materials) {
+      Surface surface;
+      surface.albedo =
+          std::make_unique<Texture>(m.albedo, m.path == mesh::MaterialPath::Pbr,
+                                    assets::Semantic::Albedo);
+      surface.normal =
+          std::make_unique<Texture>(m.normal, false, assets::Semantic::Normal);
+      surface.mr =
+          std::make_unique<Texture>(m.metalRough, false, assets::Semantic::Orm);
+      surfaces.push_back(std::move(surface));
+    }
     // Coalesce opaque/masked primitives once at upload time. Blended
     // primitives retain their source order because ordering affects blending.
     std::vector<mesh::Submesh> batches;
@@ -581,14 +584,17 @@ Statistics Model::draw(const Frame &frame, const std::vector<glm::mat4> &models,
   }
   return stats;
 }
-void Model::drawCurrent(float alpha) {
-  drawCurrentInstances({}, alpha);
+bool Model::canInstance() const {
+  for (const auto &submesh : impl_->source.submeshes)
+    if (impl_->materials[submesh.material].path == mesh::MaterialPath::Legacy)
+      return false;
+  return true;
 }
-bool Model::drawCurrentInstances(const std::vector<glm::mat4> &models, float alpha) {
-  if (!models.empty())
-    for (const auto &material : impl_->materials)
-      if (material.path == mesh::MaterialPath::Legacy)
-        return false;
+void Model::drawCurrent(float alpha) { drawCurrentInstances({}, alpha); }
+bool Model::drawCurrentInstances(const std::vector<glm::mat4> &models,
+                                 float alpha) {
+  if (!models.empty() && !canInstance())
+    return false;
 
   draw::SavedState saved;
   draw::flush();
@@ -632,7 +638,8 @@ bool Model::drawCurrentInstances(const std::vector<glm::mat4> &models, float alp
 
   if (validation::run.capture)
     profileEnabled(true);
-  const auto stats = models.empty() ? draw(frame, {mv}) : draw(frame, models, true, true);
+  const auto stats =
+      models.empty() ? draw(frame, {mv}) : draw(frame, models, true, true);
   draw::invalidateGpuState();
   if (impl_->legacy.empty())
     impl_->legacy.resize(impl_->source.submeshes.size());
@@ -674,10 +681,11 @@ void writeProfile(const std::filesystem::path &path) {
     return;
   glFinish(); // Validation endpoint only: collect timestamps before teardown.
   auto stream = textureStream();
-  nlohmann::json report = {{"materials", materialReport()},
-                           {"environment_texture_bytes", runtimeIbl->bytes()},
-                           {"pbo_bytes", stream->pboBytes()},
-                           {"unique_streamed_texture_bytes", stream->residentBytes()}};
+  nlohmann::json report = {
+      {"materials", materialReport()},
+      {"environment_texture_bytes", runtimeIbl->bytes()},
+      {"pbo_bytes", stream->pboBytes()},
+      {"unique_streamed_texture_bytes", stream->residentBytes()}};
   if (runtimeProbe)
     report["probe"] = runtimeProbe->report();
   std::ofstream(path) << report.dump(2) << '\n';

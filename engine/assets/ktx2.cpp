@@ -16,6 +16,8 @@ void require(bool v, const char *text) {
   if (!v)
     throw std::runtime_error(text);
 }
+// Wire packing convention: value followed by bit/byte count.
+// NOLINTNEXTLINE(bugprone-easily-swappable-parameters)
 void put(Bytes &out, std::uint64_t value, unsigned count) {
   for (unsigned i = 0; i < count; ++i)
     out.push_back(static_cast<std::uint8_t>(value >> (8 * i)));
@@ -28,6 +30,8 @@ std::uint64_t get(const Bytes &b, std::size_t offset, unsigned count) {
     v |= std::uint64_t(b[offset + i]) << (8 * i);
   return v;
 }
+// Wire packing convention: value followed by bit/byte count.
+// NOLINTNEXTLINE(bugprone-easily-swappable-parameters)
 void set(Bytes &b, std::size_t offset, std::uint64_t value, unsigned count) {
   for (unsigned i = 0; i < count; ++i)
     b.at(offset + i) = static_cast<std::uint8_t>(value >> (8 * i));
@@ -44,7 +48,7 @@ unsigned blockBytes(Format f) {
   case Format::RG16F:
     return 4;
   }
-  throw std::runtime_error("unsupported KTX2 Vulkan format");
+  throw std::runtime_error("unsupported KTX2 Vulkan format " + std::to_string(static_cast<std::uint32_t>(f)));
 }
 Bytes descriptor(Format f) {
   bool rg = f == Format::RG16F, two = rg || f == Format::BC5;
@@ -81,6 +85,8 @@ float linearToSrgb(float v) {
 struct Bits {
   Bytes data = Bytes(16, 0);
   unsigned pos = 0;
+  // Wire packing convention: value followed by bit/byte count.
+  // NOLINTNEXTLINE(bugprone-easily-swappable-parameters)
   void add(unsigned v, unsigned n) {
     for (unsigned i = 0; i < n; ++i, ++pos) {
       require(pos < 128, "block encoder overflow");
@@ -172,7 +178,7 @@ Bytes colorBlock(Format format, const std::array<Pixel, 16> &p) {
     }
   }
   auto makePalette = [&]() {
-    for (unsigned i = 0; i < 16; ++i)
+    for (std::size_t i = 0; i < 16; ++i)
       for (unsigned c = 0; c < channels; ++c) {
         if (hdr) {
           auto unq = [](unsigned q) {
@@ -194,7 +200,7 @@ Bytes colorBlock(Format format, const std::array<Pixel, 16> &p) {
   unsigned indices[16]{};
   for (unsigned pixel = 0; pixel < 16; ++pixel) {
     float error = std::numeric_limits<float>::max();
-    for (unsigned i = 0; i < 16; ++i) {
+    for (std::size_t i = 0; i < 16; ++i) {
       float sum = 0;
       for (unsigned c = 0; c < channels; ++c) {
         float delta = p[pixel][c] - palette[i][c];
@@ -226,7 +232,7 @@ Bytes colorBlock(Format format, const std::array<Pixel, 16> &p) {
     b.add(ep[0][0] & 1, 1);
     b.add(ep[1][0] & 1, 1);
   }
-  for (unsigned i = 0; i < 16; ++i)
+  for (std::size_t i = 0; i < 16; ++i)
     b.add(indices[i], i ? 4 : 3);
   require(b.pos == 128, "incorrect encoded block size");
   return b.data;
@@ -293,7 +299,7 @@ void validate(const TextureData &t, Semantic s, bool atlas) {
     w = std::max(1u, w / 2);
     h = std::max(1u, h / 2);
   }
-  require(t.bytes() <= 512 * 1024 * 1024, "KTX2 exceeds upload budget");
+  require(t.bytes() <= 512LL * 1024 * 1024, "KTX2 exceeds upload budget");
 }
 Bytes writeKtx2(const TextureData &t) {
   validate(t);
@@ -351,7 +357,7 @@ Bytes writeKtx2(const TextureData &t) {
   return b;
 }
 TextureData readKtx2(const Bytes &b, Semantic s, bool atlas) {
-  require(isKtx2(b) && b.size() >= 80 && b.size() <= 512 * 1024 * 1024,
+  require(isKtx2(b) && b.size() >= 80 && b.size() <= 512LL * 1024 * 1024,
           "invalid KTX2 header/budget");
   TextureData t;
   t.format = static_cast<Format>(get(b, 12, 4));
@@ -419,7 +425,8 @@ Bytes readFile(const std::filesystem::path &path) {
   std::ifstream f(path, std::ios::binary | std::ios::ate);
   require(bool(f), "cannot open texture file");
   auto length = f.tellg();
-  require(length >= 0 && length <= 512 * 1024 * 1024, "texture file too large");
+  require(length >= 0 && length <= 512LL * 1024 * 1024,
+          "texture file too large");
   Bytes b(static_cast<std::size_t>(length));
   f.seekg(0);
   require(bool(f.read(reinterpret_cast<char *>(b.data()), length)),
@@ -502,16 +509,17 @@ std::vector<Pixel> decode(Format f, unsigned w, unsigned h,
       for (unsigned row = 0; row < 4 && y + row < h; ++row)
         for (unsigned col = 0; col < 4 && x + col < w; ++col) {
           auto &p = out[std::size_t(y + row) * w + x + col];
-          unsigned i = row * 4 + col;
+          std::size_t i = std::size_t(row) * 4 + col;
           if (f == Format::BC6H)
             p = {hdr[i * 3], hdr[i * 3 + 1], hdr[i * 3 + 2], 1};
           else if (f == Format::BC4)
-            p = {rgba[i] / 255.f, 0, 0, 1};
+            p = {static_cast<float>(rgba[i]) / 255.f, 0, 0, 1};
           else if (f == Format::BC5)
-            p = {rgba[i * 2] / 255.f, rgba[i * 2 + 1] / 255.f, 0, 1};
+            p = {static_cast<float>(rgba[i * 2]) / 255.f,
+                 static_cast<float>(rgba[i * 2 + 1]) / 255.f, 0, 1};
           else
             for (unsigned c = 0; c < 4; ++c)
-              p[c] = rgba[i * 4 + c] / 255.f;
+              p[c] = static_cast<float>(rgba[i * 4 + c]) / 255.f;
         }
     }
   return out;

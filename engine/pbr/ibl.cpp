@@ -154,6 +154,8 @@ struct ReflectionProbe::Impl {
   };
   std::vector<Query> pending;
   std::vector<double> captureMs, filterMs;
+  // Resolution in texels and refresh interval in seconds have distinct units.
+  // NOLINTNEXTLINE(bugprone-easily-swappable-parameters)
   Impl(const std::filesystem::path &path, unsigned dimension, double seconds,
        std::function<double()> clockSource)
       : clock(clockSource ? std::move(clockSource)

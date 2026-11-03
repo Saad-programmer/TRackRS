@@ -8,6 +8,8 @@
 namespace trackrs::assets {
 using Bytes = std::vector<std::uint8_t>;
 using Pixel = std::array<float, 4>;
+// Vulkan wire values are 32-bit; preserve invalid values for strict rejection.
+// NOLINTNEXTLINE(performance-enum-size)
 enum class Format : std::uint32_t {
   BC4 = 139,
   BC5 = 141,

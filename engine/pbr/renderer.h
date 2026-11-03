@@ -53,6 +53,7 @@ public:
   // Adapter to the existing CPU transform stack. Uses eye-space lighting;
   // preview/tool callers supply world-space Frame and model matrices directly.
   void drawCurrent(float alpha = 1);
+  bool canInstance() const;
   bool drawCurrentInstances(const std::vector<glm::mat4> &models, float alpha = 1);
 };
 // Vehicle composition supplies one shared pair, including wheel draws.

@@ -193,19 +193,23 @@ nlohmann::json iblIntegrationTests(const std::filesystem::path &data) {
                                  {"loss_limit", .05},
                                  {"linear_hdr_before_tonemap", true}};
   {
-    auto fixture = mesh::MeshImporter::load((data / "vehicles/pbr_test/car.gltf").string());
+    auto fixture = mesh::MeshImporter::load(
+        (data / "vehicles/pbr_test/car.gltf").string());
     pbr::Model car(fixture, data / "shaders/pbr");
     pbr::Frame frame;
     frame.headlights = false;
     auto single = car.draw(frame, {glm::mat4(1)});
     auto instances = car.draw(frame, {glm::mat4(1), glm::mat4(1)}, true, true);
+    require(car.canInstance(),
+            "unused glTF default material must not reject instance adapter");
     require(single.draws == 4 && single.triangles == 144,
             "car must submit one draw per material");
     require(instances.draws == 4 && instances.triangles == 288,
             "car instances must share material draws");
-    report["material_batching"] = {{"materials", 4}, {"single_draws", single.draws},
-                                    {"instance_draws", instances.draws},
-                                    {"instance_triangles", instances.triangles}};
+    report["material_batching"] = {{"materials", 4},
+                                   {"single_draws", single.draws},
+                                   {"instance_draws", instances.draws},
+                                   {"instance_triangles", instances.triangles}};
   }
   double clock = 0;
   {

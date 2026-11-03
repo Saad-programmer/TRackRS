@@ -62,16 +62,16 @@
     },
     "probe": {
       "capture_gpu_ms": [
-        85.371153,
-        0.964285
+        58.720165,
+        1.446688
       ],
       "clock": "synthetic rate-limit test",
       "depth_bytes": 1024,
       "faces": 6,
       "interval_seconds": 0.5,
       "prefilter_gpu_ms": [
-        13.566105,
-        8.243082
+        9.293221,
+        4.334731
       ],
       "resident_bytes": 33760,
       "size": 16,

@@ -28,6 +28,7 @@ TEST_CASE(
 TEST_CASE("complete KTX2 mip chains round trip and validate semantic formats") {
   for (auto format : {Format::BC4, Format::BC5, Format::BC6H, Format::BC7,
                       Format::BC7Srgb, Format::RG16F}) {
+    INFO("Vulkan format ", static_cast<unsigned>(format));
     auto t =
         bake2D(format, 16, 8, std::vector<Pixel>(128, Pixel{.2f, .4f, .6f, 1}),
                Semantic::Any);
