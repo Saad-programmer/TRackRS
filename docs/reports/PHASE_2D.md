@@ -97,6 +97,6 @@ not changed. New PBR scene images intentionally change through IBL; they are not
 substituted for legacy goldens.
 
 A WIP commit was pushed after every completed item. The recovery history and
-commands are retained in [PHASE 2D_WORKLOG.md](../PHASE 2D_WORKLOG.md). Main merge
+commands are retained in [PHASE2D_WORKLOG.md](../PHASE2D_WORKLOG.md). Main merge
 and gate tag require the final candidate CI to pass; final main CI is verified
 before publishing the gate tag. The next authorized boundary is the end of 2d.
