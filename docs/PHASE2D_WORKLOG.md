@@ -60,3 +60,6 @@ Final native ASan/UBSan CPU13/13, production GPU probes, preview and300-tick PBR
 
 ## GPU time and VRAM item completed
 Final isolated120-frame preview profile and refreshed demo capture are saved in reports/phase2d/demo/profile.json and after.png. Reviewed the final capture. GPU_MEMORY.md reports every material's timestamp duration and texture residency, plus cold/warm six-face capture and GGX filtering costs for both demo and real terrain-aware car probes. Logical32-square probe storage135136B; no new texture/depth allocation per refresh. Shared environment417664B, unique streamed pool438604B, three PBO capacities350260B. Software llvmpipe timings are explicitly identified and do not claim hardwareFPS. Final preview15draws/9756triangles. Final CI/gate report remains before merge/tag.
+
+## Phase 2d candidate report ready
+PHASE_2D.md records every Appendix D check, tool/texture/IBL behavior, exact legacy compatibility, sanitizer policy, demo images and final measurements. PBR_MATERIALS.md documents practical authoring/validation/preview commands. All local acceptance items are complete and pushed incrementally. Final candidate CI must be green before main is fast-forwarded; verify final main CI before annotated phase-2d-done. Stop there; no Phase3. The annotated tag will record the exact final commit and successful workflow URLs.

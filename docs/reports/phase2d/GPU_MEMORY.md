@@ -33,14 +33,14 @@ Demo probe: 64 updates; configured interval 0.5 s; minimum observed interval 0.5
 
 | Storage | Logical bytes |
 |---|---:|
-| Per 32² probe, both RGBA16F full cube chains | 131040 |
+| Per 32² probe, both RGBA 16F full cube chains | 131040 |
 | Per probe depth attachment | 4096 |
 | Total per probe | 135136 |
 | Additional texture/depth allocation per refresh | 0 |
-| Shared sky, irradiance, prefilter and 256² RG16F LUT mip chains | 417664 |
+| Shared sky, irradiance, prefilter and 256² RG 16F LUT mip chains | 417664 |
 | Unique streamed texture pool, including retained placeholders | 438604 |
 | Three PBO staging slots, allocated capacities | 350260 |
 
-The shared environment is already included in the unique texture pool. PBOs are separate. The probe owns its storage independently of the texture pool. BC7/BC5 material sets use 1,104 payload bytes at16²; the64² asphalt set uses16,464 bytes. Three4-byte placeholders add12 bytes per three-map set. BC6H environments remain linear HDR; the albedo maps use hardware sRGB decoding.
+The shared environment is already included in the unique texture pool. PBOs are separate. The probe owns its storage independently of the texture pool. BC 7/BC 5 material sets use 1,104 payload bytes at 16²; the 64² asphalt set uses 16,464 bytes. Three 4-byte placeholders add 12 bytes per three-map set. BC 6H environments remain linear HDR; the albedo maps use hardware sRGB decoding.
 
-Final preview: **15 material draws, 9,756 triangles**. The initial unbatched2d scene used23 draws for the same9,756 triangles. The real race proves299 draws per each of four materials over299 rendered frames, with four wheels instanced.
+Final preview: **15 material draws, 9,756 triangles**. The initial unbatched 2d scene used 23 draws for the same 9,756 triangles. The real race proves 299 draws per each of four materials over 299 rendered frames, with four wheels instanced.
