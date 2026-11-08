@@ -128,7 +128,7 @@ TEST_CASE("cloud cover dims the beam but keeps a sky source") {
 }
 TEST_CASE("headlights sit at the car nose, aim forward and slightly down") {
   const glm::vec3 p(10, 20, 3), right(1, 0, 0), forward(0, 1, 0), up(0, 0, 1);
-  auto lamps = headlights(p, right, forward, up);
+  auto lamps = headlights({p, right, forward, up});
   CHECK(lamps[0].position.x < p.x);
   CHECK(lamps[1].position.x > p.x);
   for (const auto &l : lamps) {
@@ -140,7 +140,7 @@ TEST_CASE("headlights sit at the car nose, aim forward and slightly down") {
     CHECK(l.radiance.x > 0);
   }
   // Rotated body: lamps follow the body axes.
-  auto turned = headlights(p, {0, -1, 0}, {1, 0, 0}, up);
+  auto turned = headlights({p, {0, -1, 0}, {1, 0, 0}, up});
   CHECK(turned[0].direction.x > .99f);
   CHECK(headlightsOn(sunlight(22), 0));
   CHECK_FALSE(headlightsOn(sunlight(12), 0));

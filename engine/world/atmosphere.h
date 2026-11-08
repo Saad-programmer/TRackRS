@@ -40,8 +40,12 @@ struct SpotLight {
   float range = 70, cosInner = .94f, cosOuter = .82f;
 };
 constexpr unsigned MaxSceneLights = 8;
-/// Two low-beam headlamps for a car body with world axes right/forward/up.
-std::array<SpotLight, 2> headlights(glm::vec3 position, glm::vec3 right, glm::vec3 forward, glm::vec3 up);
+/// A rigid body's world position and axes (car frame: +x right, +y forward, +z up).
+struct BodyFrame {
+  glm::vec3 position{0}, right{1, 0, 0}, forward{0, 1, 0}, up{0, 0, 1};
+};
+/// Two low-beam headlamps at the nose of a car body.
+std::array<SpotLight, 2> headlights(const BodyFrame &body);
 /// Headlights are on when daylight is low or the (cloud-attenuated) beam is weak.
 bool headlightsOn(const Sun &sun, float overcast);
 struct Cascades {

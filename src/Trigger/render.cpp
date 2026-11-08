@@ -829,8 +829,9 @@ void MainApp::renderStateGame(float eyetranslation)
                 const vec3f p = vehic->body->getPosition();
                 const mat44f &axes = vehic->body->getInverseOrientationMatrix(); // rows: right, forward, up
                 auto g = [](const vec3f &v) { return glm::vec3(v.x, v.y, v.z); };
-                for (const auto &lamp : trackrs::world::headlights(g(p), g(makevec3f(axes.row[0])),
-                                                                   g(makevec3f(axes.row[1])), g(makevec3f(axes.row[2]))))
+                const trackrs::world::BodyFrame frame{g(p), g(makevec3f(axes.row[0])), g(makevec3f(axes.row[1])),
+                                                      g(makevec3f(axes.row[2]))};
+                for (const auto &lamp : trackrs::world::headlights(frame))
                     trackrs::world::addLight(lamp);
             }
     }

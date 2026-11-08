@@ -78,9 +78,10 @@ Weather weatherPreset(std::string_view name, const Weather &level) {
     throw std::invalid_argument("weather must be level, clear, rain, snow or fog");
   return w;
 }
-std::array<SpotLight, 2> headlights(glm::vec3 p, glm::vec3 right, glm::vec3 forward, glm::vec3 up) {
+std::array<SpotLight, 2> headlights(const BodyFrame &body) {
   std::array<SpotLight, 2> lamps{};
-  const glm::vec3 f = glm::normalize(forward), r = glm::normalize(right), u = glm::normalize(up);
+  const glm::vec3 p = body.position, f = glm::normalize(body.forward), r = glm::normalize(body.right),
+                  u = glm::normalize(body.up);
   for (int side = 0; side < 2; ++side) {
     auto &l = lamps[static_cast<std::size_t>(side)];
     l.position = p + f * 1.9f + u * .15f + r * (side ? .62f : -.62f);
