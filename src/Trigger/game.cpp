@@ -70,7 +70,11 @@ bool TriggerGame::loadVehicles()
         sim = std::make_unique<PSim>();
 
     // find names of all vehicle types
-    const std::list<std::string> vehiclefiles = PUtil::findFiles("/vehicles", ".vehicle");
+    std::list<std::string> vehiclefiles = PUtil::findFiles("/vehicles", ".vehicle");
+    // Car Definition v2 entries (data/vehicles/<id>/car.json)
+    for (const auto &file : PUtil::findFiles("/vehicles", ".json"))
+        if (file.size() >= 9 && file.compare(file.size() - 9, 9, "/car.json") == 0)
+            vehiclefiles.push_back(file);
 
     // if there is any vehicle
     if (!vehiclefiles.empty())

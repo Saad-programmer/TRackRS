@@ -17,3 +17,9 @@
   ivy, post, first-branch, snowy-tree, bland-birch, berry-bush, big-bush, bush-dry)
   remain instanced cards at every distance until faithful forms exist
   (`data/vegetation/species.json`, `"form": "card"`).
+- Phase 4a: the eleven real cars exist only as unverified `car.json` seeds
+  (`verified:false`, no sources; synthetic gearing) on fictional placeholder
+  bodies. They need cited specifications and licensed meshes (Phase 4d).
+- `data/vehicles/lancer_evo` names a real marque without license metadata, and
+  its physics goes non-finite within ~0.4 s on every stage (pre-existing; seen
+  with the pre-4a build too). It is left unchanged. Fix or retire it in Phase 4d.

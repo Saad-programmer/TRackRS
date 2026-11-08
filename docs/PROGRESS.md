@@ -15,7 +15,7 @@ rendering (Mesa llvmpipe). Real-GPU numbers come from the maintainer.
 | 3c World: 3D vegetation, weather surfaces, headlights, water | Done | [PHASE_3C](reports/PHASE_3C.md) |
 | 3d Post-FX: HDR target, auto-exposure, bloom, ACES, SSAO | Done (core) | [PHASE_3D](reports/PHASE_3D.md) |
 | **3e** TAA + golden manifest regeneration | Planned (below) | — |
-| 4 Real rally cars, gated 4a–4d | Next (below) | — |
+| 4 Real rally cars, gated 4a–4d | 4a done (gate) | [PHASE_4A](reports/PHASE_4A.md) |
 | 5 Stage dressing | 5a people done; rest planned | [PHASE_5A](reports/PHASE_5A.md) |
 | 6 Physics realism | Not started | — |
 | 7 Audio, cameras, HUD, replay, photo mode, co-driver | Not started | — |

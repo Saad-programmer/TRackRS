@@ -1,0 +1,163 @@
+{
+  "alpine_a110_1800": {
+    "body": "fox_wrc",
+    "triangles": 778,
+    "mesh_bytes": 74688,
+    "texture_bytes": 5592405,
+    "mesh_submit_gpu_ms": 0.06311725446
+  },
+  "audi_quattro_a2": {
+    "body": "evo_rally",
+    "triangles": 3618,
+    "mesh_bytes": 347328,
+    "texture_bytes": 11184810,
+    "mesh_submit_gpu_ms": 0.1235842386
+  },
+  "bmw_m3_e30_group_a": {
+    "body": "fox_wrc",
+    "triangles": 778,
+    "mesh_bytes": 74688,
+    "texture_bytes": 5592405,
+    "mesh_submit_gpu_ms": 0.06417300473
+  },
+  "cordo_kitcar": {
+    "body": "cordo_kitcar",
+    "triangles": 838,
+    "mesh_bytes": 80448,
+    "texture_bytes": 11184810,
+    "mesh_submit_gpu_ms": 0.05363754758
+  },
+  "cordo_super500": {
+    "body": "cordo_super500",
+    "triangles": 838,
+    "mesh_bytes": 80448,
+    "texture_bytes": 5592405,
+    "mesh_submit_gpu_ms": 0.06273002024
+  },
+  "cordo_wrc": {
+    "body": "cordo_wrc",
+    "triangles": 838,
+    "mesh_bytes": 80448,
+    "texture_bytes": 5592405,
+    "mesh_submit_gpu_ms": 0.0592044192
+  },
+  "evo_kitcar": {
+    "body": "evo_kitcar",
+    "triangles": 760,
+    "mesh_bytes": 72960,
+    "texture_bytes": 11184810,
+    "mesh_submit_gpu_ms": 0.05910636683
+  },
+  "evo_rally": {
+    "body": "evo_rally",
+    "triangles": 3618,
+    "mesh_bytes": 347328,
+    "texture_bytes": 11184810,
+    "mesh_submit_gpu_ms": 0.1288102906
+  },
+  "evo_super500": {
+    "body": "evo_super500",
+    "triangles": 760,
+    "mesh_bytes": 72960,
+    "texture_bytes": 5592405,
+    "mesh_submit_gpu_ms": 0.0607740354
+  },
+  "evo_wrc": {
+    "body": "evo_wrc",
+    "triangles": 760,
+    "mesh_bytes": 72960,
+    "texture_bytes": 5592405,
+    "mesh_submit_gpu_ms": 0.06080122912
+  },
+  "ford_escort_rs_cosworth": {
+    "body": "evo_rally",
+    "triangles": 3618,
+    "mesh_bytes": 347328,
+    "texture_bytes": 11184810,
+    "mesh_submit_gpu_ms": 0.1263364587
+  },
+  "fox_kitcar": {
+    "body": "fox_kitcar",
+    "triangles": 778,
+    "mesh_bytes": 74688,
+    "texture_bytes": 11184810,
+    "mesh_submit_gpu_ms": 0.06937871609
+  },
+  "fox_super500": {
+    "body": "fox_super500",
+    "triangles": 778,
+    "mesh_bytes": 74688,
+    "texture_bytes": 5592405,
+    "mesh_submit_gpu_ms": 0.06807373621
+  },
+  "fox_wrc": {
+    "body": "fox_wrc",
+    "triangles": 778,
+    "mesh_bytes": 74688,
+    "texture_bytes": 5592405,
+    "mesh_submit_gpu_ms": 0.06661929155
+  },
+  "lancer_evo": {
+    "body": "lancer_evo",
+    "triangles": 3042,
+    "mesh_bytes": 292032,
+    "texture_bytes": 5592405,
+    "mesh_submit_gpu_ms": null
+  },
+  "lancia_delta_hf_integrale": {
+    "body": "evo_rally",
+    "triangles": 3618,
+    "mesh_bytes": 347328,
+    "texture_bytes": 11184810,
+    "mesh_submit_gpu_ms": 0.1313173159
+  },
+  "lancia_stratos_hf": {
+    "body": "fox_wrc",
+    "triangles": 778,
+    "mesh_bytes": 74688,
+    "texture_bytes": 5592405,
+    "mesh_submit_gpu_ms": 0.07190193381
+  },
+  "pbr_test": {
+    "body": "pbr_test",
+    "triangles": 0,
+    "mesh_bytes": 0,
+    "texture_bytes": 0,
+    "mesh_submit_gpu_ms": 1.370588669
+  },
+  "peugeot_205_t16_e2": {
+    "body": "evo_rally",
+    "triangles": 3618,
+    "mesh_bytes": 347328,
+    "texture_bytes": 11184810,
+    "mesh_submit_gpu_ms": 0.1293035311
+  },
+  "peugeot_206_wrc": {
+    "body": "evo_rally",
+    "triangles": 3618,
+    "mesh_bytes": 347328,
+    "texture_bytes": 11184810,
+    "mesh_submit_gpu_ms": 0.1244533254
+  },
+  "porsche_911_sc_rs": {
+    "body": "fox_wrc",
+    "triangles": 778,
+    "mesh_bytes": 74688,
+    "texture_bytes": 5592405,
+    "mesh_submit_gpu_ms": 0.06032997345
+  },
+  "subaru_impreza_wrc97": {
+    "body": "evo_rally",
+    "triangles": 3618,
+    "mesh_bytes": 347328,
+    "texture_bytes": 11184810,
+    "mesh_submit_gpu_ms": 0.1508593518
+  },
+  "toyota_celica_gt4_st185": {
+    "body": "evo_rally",
+    "triangles": 3618,
+    "mesh_bytes": 347328,
+    "texture_bytes": 11184810,
+    "mesh_submit_gpu_ms": 0.1575727275
+  }
+}

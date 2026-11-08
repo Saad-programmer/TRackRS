@@ -2,6 +2,8 @@
 #include "collision.h"
 #include "psim.h"
 #include "render.h"
+#include "engine/content/car_definition.h"
+#include <physfs.h>
 
 // default vehicle type values
 #define DEF_VEHICLE_NAME "Vehicle"
@@ -127,7 +129,41 @@ bool PVehicleType::load(const std::string &filename, PSSModel &ssModel)
   // Read stats from file
 
   XMLDocument xmlfile;
-  XMLElement *rootelem = PUtil::loadRootElement(xmlfile, filename, "vehicle");
+  XMLElement *rootelem = nullptr;
+  // Models resolve relative to this path: the .vehicle itself, or for a
+  // Car Definition v2 (car.json) the fictional fallback body it borrows.
+  std::string modelBase = filename;
+  if (filename.size() >= 9 && filename.compare(filename.size() - 9, 9, "/car.json") == 0) {
+    auto readText = [](const std::string &path, std::string &out) {
+      PHYSFS_file *file = PHYSFS_openRead(path.c_str());
+      if (!file) return false;
+      out.resize(static_cast<std::size_t>(PHYSFS_fileLength(file)));
+      const auto got = PHYSFS_readBytes(file, out.data(), out.size());
+      PHYSFS_close(file);
+      return got == static_cast<PHYSFS_sint64>(out.size());
+    };
+    try {
+      std::string json, fallbackXml;
+      if (!readText(filename, json)) throw std::runtime_error("cannot read " + filename);
+      const auto car = trackrs::content::parseCar(json);
+      const auto check = trackrs::content::validate(car);
+      if (!check.ok()) throw std::runtime_error(check.errors.front());
+      if (car.body.mesh.empty()) {
+        modelBase = "/vehicles/" + car.body.fallback + "/" + car.body.fallback + ".vehicle";
+        if (!readText(modelBase, fallbackXml)) throw std::runtime_error("missing fallback body " + modelBase);
+      } else {
+        throw std::runtime_error("own car meshes are a Phase 4b feature");
+      }
+      const auto xml = trackrs::content::toLegacyVehicle(car, fallbackXml);
+      if (xmlfile.Parse(xml.c_str(), xml.size()) == tinyxml2::XML_SUCCESS)
+        rootelem = xmlfile.FirstChildElement("vehicle");
+    } catch (const std::exception &e) {
+      PUtil::outLog() << "Load failed: car definition " << filename << ": " << e.what() << "\n";
+      return false;
+    }
+  } else {
+    rootelem = PUtil::loadRootElement(xmlfile, filename, "vehicle");
+  }
   if (!rootelem) {
     PUtil::outLog() << "Load failed: TinyXML error\n";
     return false;
@@ -192,7 +228,7 @@ bool PVehicleType::load(const std::string &filename, PSSModel &ssModel)
       if (val) wheelscale = atof(val);
 
       val = walk->Attribute("wheelmodel");
-      if (val) wheelmodel = ssModel.loadModel(PUtil::assemblePath(val, filename));
+      if (val) wheelmodel = ssModel.loadModel(PUtil::assemblePath(val, modelBase));
 
 	// params
     } else if (!strcmp(walk->Value(), "ctrlparams")) {
@@ -339,7 +375,7 @@ bool PVehicleType::load(const std::string &filename, PSSModel &ssModel)
       if (val) vtp->scale = atof(val);
 
       val = walk->Attribute("model");
-      if (val) vtp->model = ssModel.loadModel(PUtil::assemblePath(val, filename));
+      if (val) vtp->model = ssModel.loadModel(PUtil::assemblePath(val, modelBase));
 
       for (XMLElement *walk2 = walk->FirstChildElement();
         walk2; walk2 = walk2->NextSiblingElement()) {

@@ -330,6 +330,9 @@ public:
     ///
     bool isVehicleLocked(const std::string &vefi) const
     {
+        // Car Definition v2 entries carry no legacy "locked" attribute.
+        if (vefi.size() >= 9 && vefi.compare(vefi.size() - 9, 9, "/car.json") == 0)
+            return false;
         XMLDocument xmlfile;
         XMLElement *rootelem = PUtil::loadRootElement(xmlfile, vefi, "vehicle");
 

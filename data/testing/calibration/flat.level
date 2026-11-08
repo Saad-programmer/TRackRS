@@ -1,0 +1,12 @@
+<?xml version="1.0" ?>
+<!-- Calibration stage (not listed in the game: lives outside /maps).
+     Flat, periodic, uniform dry racing tarmac, no foliage, no weather.
+     Used only by tests/run_calibration.py (report-only in Phase 4a). -->
+<level name="Calibration flat" comment="calibration" author="TrackRS">
+	<terrain heightmap="h.png" colormap="c.png" terrainmap="t.png" roadmap="r.png"
+		tilesize="32" horizontalscale="16" verticalscale="0.05" />
+	<race coordscale="1, 1" targettime="600">
+		<startposition pos="1024, 200" oridegrees="0" />
+		<checkpoint coords="1024, 1900" />
+	</race>
+</level>

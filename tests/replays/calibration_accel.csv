@@ -1,0 +1,4 @@
+# tick (250 Hz), throttle, steering, foot brake, handbrake
+# Calibration: hold through the 3 s countdown (750 ticks), then full throttle.
+0,0,0,0,0
+750,1,0,0,0

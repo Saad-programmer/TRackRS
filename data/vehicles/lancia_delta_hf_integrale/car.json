@@ -1,0 +1,102 @@
+{
+  "schema": "trackrs.car/2",
+  "id": "lancia_delta_hf_integrale",
+  "display_name": "Lancia Delta HF Integrale",
+  "marque": "Lancia",
+  "year": 1989,
+  "class": "Group A",
+  "era": "1987-1992",
+  "license": {
+    "data": "GPL-2.0-or-later",
+    "model": "",
+    "author": "TrackRS contributors",
+    "source_url": "",
+    "trademark_notice": "Lancia and Delta HF Integrale are trademarks of their respective owners. TrackRS is not affiliated with or endorsed by them; the name identifies the real car this data approximates."
+  },
+  "verified": {
+    "mass": false,
+    "engine": false,
+    "gearbox": false,
+    "tyres": false,
+    "aero": false,
+    "brakes": false
+  },
+  "sources": [],
+  "provenance": "Unverified seed: approximate commonly published figures recalled by the TrackRS author without access to a source (reference sites unreachable when generated). Gear ratios and final drive are synthetic. Do not treat as homologation data; cite a source and set verified.",
+  "body": {
+    "mesh": "",
+    "fallback": "evo_rally",
+    "import_scale": 1.0,
+    "unit": "m"
+  },
+  "mass": {
+    "kerb_kg": 1150,
+    "front_weight_dist": 0.6
+  },
+  "engine": {
+    "layout": "2.0 I4 turbo front-mounted",
+    "idle_rpm": 950,
+    "redline_rpm": 7500,
+    "torque_curve_nm": [
+      [
+        950.0,
+        120.0
+      ],
+      [
+        2900.0,
+        288.0
+      ],
+      [
+        4500.0,
+        400.0
+      ],
+      [
+        5750.0,
+        362.7
+      ],
+      [
+        7000.0,
+        301.5
+      ],
+      [
+        7500.0,
+        253.2
+      ]
+    ]
+  },
+  "drivetrain": {
+    "layout": "AWD",
+    "front_torque_share": 0.47,
+    "gearbox": {
+      "ratios": [
+        2.772,
+        2.269,
+        1.857,
+        1.52,
+        1.244,
+        1.018
+      ],
+      "final_drive": 4.1,
+      "reverse": 2.911,
+      "shift_time_s": 0.25,
+      "derivation": "synthetic: final drive 4.1, top gear reaches the claimed top speed at the redline, first gear traction-limited (mu 1.3), geometric spacing"
+    }
+  },
+  "tyres": {
+    "radius_m": 0.31,
+    "width_m": 0.225
+  },
+  "aero": {
+    "cd": 0.38,
+    "frontal_area_m2": 2.0,
+    "cl_front": 0.0,
+    "cl_rear": 0.0
+  },
+  "brakes": {
+    "bias_front": 0.62
+  },
+  "claims": {
+    "top_speed_kmh": 210,
+    "zero_to_100_s": 0
+  }
+}

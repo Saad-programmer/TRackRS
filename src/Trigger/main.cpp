@@ -918,6 +918,13 @@ void MainApp::tickStateGame(float delta)
           const auto w = vehic->body->getAngularVel();
           for (float value : {p.x, p.y, p.z, q.x, q.y, q.z, q.w, v.x, v.y, v.z, w.x, w.y, w.z})
               validation::hashFloat(hash, value);
+          if (!validation::run.options.telemetry.empty()) { // calibration: observation only
+              static std::ofstream telemetry(validation::run.options.telemetry);
+              if (validation::run.ticks == 0) telemetry << "tick,x,y,z,speed_ms,rpm,gear\n";
+              telemetry << validation::run.ticks << ',' << p.x << ',' << p.y << ',' << p.z << ','
+                        << std::sqrt(v.x * v.x + v.y * v.y + v.z * v.z) << ',' << vehic->getEngineRPM() << ','
+                        << vehic->getCurrentGear() << '\n';
+          }
           if (++validation::run.ticks >= validation::run.options.frames)
               validation::run.complete = true;
       } catch (const std::exception& e) {
@@ -1644,6 +1651,7 @@ int main(int argc, char *argv[])
                 << "  --renderer legacy|pbr --quality low|medium|high|ultra --shadows blob|csm\n"
                 << "  --time-of-day dawn|noon|golden-hour|dusk|night|midnight --vegetation 3d|cards\n"
                 << "  --weather level|clear|rain|snow|fog --post on|off --crowd on|off\n"
+                << "  --telemetry <csv> (per-tick position, speed, rpm, gear)\n"
                 << "Headless mode uses a real OpenGL context; run under Xvfb on headless Linux.\n";
             return 0;
         }

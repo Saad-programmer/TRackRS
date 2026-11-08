@@ -254,3 +254,23 @@ there is no GPU->CPU read-back stall. Adaptation is driven by the deterministic
 animation clock, never wall time. The CPU reference functions are the tested
 specification of the shader math. Legacy stays the default renderer; switching
 the default waits for TAA/SSAO and real-GPU budget data.
+
+## Phase 4a: Car Definition v2 bridges into the legacy physics
+
+Context: the brief's eleven real-car `.vehicle` stubs are not in this repository
+(see ASSETS_TODO), reference sites were unreachable from the build session, and
+the legacy physics is not SI (wheel spin integrates torque with no inertia).
+Decision:
+* `car.json` (schema trackrs.car/2) is the source of truth, in SI units, with a
+  validator that enforces honesty: nothing is verified without an https source,
+  a provenance note otherwise, a trademark notice for real marques, and a
+  fictional fallback body labelled "(placeholder model)" when there is no
+  licensed mesh.
+* The eleven real cars are authored as unverified seeds. Their torque curves
+  come from each car's own peak figures; their gearing is synthetic and
+  labelled so (traction-limited first gear, top gear at the claimed top speed).
+* The adapter maps gearing exactly, and power through one constant calibrated
+  from lancer_evo.
+* The fictional cars keep driving from their XML, so legacy hashes do not
+  change, and are converted only for reports.
+* Calibration is report-only until Phase 6 replaces the drivetrain.
