@@ -78,6 +78,24 @@ Weather weatherPreset(std::string_view name, const Weather &level) {
     throw std::invalid_argument("weather must be level, clear, rain, snow or fog");
   return w;
 }
+std::array<SpotLight, 2> headlights(glm::vec3 p, glm::vec3 right, glm::vec3 forward, glm::vec3 up) {
+  std::array<SpotLight, 2> lamps{};
+  const glm::vec3 f = glm::normalize(forward), r = glm::normalize(right), u = glm::normalize(up);
+  for (int side = 0; side < 2; ++side) {
+    auto &l = lamps[static_cast<std::size_t>(side)];
+    l.position = p + f * 1.9f + u * .15f + r * (side ? .62f : -.62f);
+    l.range = 90.f;
+    l.direction = glm::normalize(f - u * .02f);   // low beam: ~1 degree down, reaches ~40-60 m
+    l.radiance = glm::vec3(1.f, .93f, .8f) * 420.f; // warm halogen, finite range
+  }
+  return lamps;
+}
+bool headlightsOn(const Sun &sun, float overcast) {
+  // `sun` is already attenuated by cloud cover; heavy fog/cloud with a low
+  // sun (weak beam) also counts as gloomy.
+  const float beam = std::max({sun.radiance.x, sun.radiance.y, sun.radiance.z});
+  return sun.daylight < .65f || beam < .6f || (overcast > .9f && beam < 1.f);
+}
 float presetHour(std::string_view name) {
   if (name == "dawn")
     return 6;

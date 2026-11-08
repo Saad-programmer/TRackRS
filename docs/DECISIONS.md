@@ -225,3 +225,12 @@ shaders in world space; attenuate the solar beam with cloud cover and rebake sky
 IBL on change. Puddles are restricted to flat road-like terrain classes. Weather
 never feeds physics in this phase (grip is Phase 6). Consequence: wet/snowy/
 foggy stages finally look like their data; physics and legacy goldens unchanged.
+
+## Phase 3c (item 3): world spot lights for headlights
+
+Decision: a small fixed array (8) of world-space spot lights in the shared scene
+uniforms, evaluated in pbr.frag for every PBR draw (not a clustered list yet; the
+count is tiny and bounded). Lamp placement/aim is a pure function of the body
+axes; on/off depends on daylight and the cloud-attenuated beam. Depth passes skip
+them. A clustered/tiled list is deferred until trackside floodlights or many cars
+need more than eight lights.

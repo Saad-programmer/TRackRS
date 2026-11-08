@@ -18,13 +18,13 @@
       "passes": {
         "mesh_submit": {
           "calls": 155,
-          "cpu_ms_per_frame": 0.2966829677,
-          "gpu_ms_per_frame": 0.03231706452
+          "cpu_ms_per_frame": 0.274041871,
+          "gpu_ms_per_frame": 0.01304787097
         },
         "particles": {
           "calls": 31,
-          "cpu_ms_per_frame": 4.023428645,
-          "gpu_ms_per_frame": 0.3583918065
+          "cpu_ms_per_frame": 3.704324613,
+          "gpu_ms_per_frame": 0.330294
         },
         "shadow_cascade_0": {
           "calls": 0,
@@ -58,8 +58,8 @@
         },
         "sky": {
           "calls": 31,
-          "cpu_ms_per_frame": 0.1206046774,
-          "gpu_ms_per_frame": 6.241935484e-05
+          "cpu_ms_per_frame": 0.1003909032,
+          "gpu_ms_per_frame": 6.212903226e-05
         },
         "sky_ibl_bake": {
           "calls": 0,
@@ -68,8 +68,8 @@
         },
         "terrain": {
           "calls": 31,
-          "cpu_ms_per_frame": 6.978503645,
-          "gpu_ms_per_frame": 0.06591264516
+          "cpu_ms_per_frame": 7.374782645,
+          "gpu_ms_per_frame": 0.05111958065
         },
         "terrain_probe": {
           "calls": 0,
@@ -78,8 +78,8 @@
         },
         "ui_text": {
           "calls": 310,
-          "cpu_ms_per_frame": 0.1228902581,
-          "gpu_ms_per_frame": 0.01155487097
+          "cpu_ms_per_frame": 0.09816503226,
+          "gpu_ms_per_frame": 0.01624696774
         },
         "vegetation": {
           "calls": 0,
@@ -108,28 +108,28 @@
       "passes": {
         "mesh_submit": {
           "calls": 620,
-          "cpu_ms_per_frame": 1.256520387,
-          "gpu_ms_per_frame": 0.0009901935484
+          "cpu_ms_per_frame": 1.237111097,
+          "gpu_ms_per_frame": 0.0009764516129
         },
         "particles": {
           "calls": 31,
-          "cpu_ms_per_frame": 0.2457964516,
-          "gpu_ms_per_frame": 0.3718763226
+          "cpu_ms_per_frame": 0.2647469355,
+          "gpu_ms_per_frame": 0.3834697097
         },
         "shadow_cascade_0": {
           "calls": 31,
-          "cpu_ms_per_frame": 2.684943097,
-          "gpu_ms_per_frame": 3.000733677
+          "cpu_ms_per_frame": 2.215816484,
+          "gpu_ms_per_frame": 3.024730387
         },
         "shadow_cascade_1": {
           "calls": 31,
-          "cpu_ms_per_frame": 2.102924581,
-          "gpu_ms_per_frame": 3.520136839
+          "cpu_ms_per_frame": 2.523166806,
+          "gpu_ms_per_frame": 3.090257839
         },
         "shadow_cascade_2": {
           "calls": 31,
-          "cpu_ms_per_frame": 14.11223003,
-          "gpu_ms_per_frame": 17.03167142
+          "cpu_ms_per_frame": 15.0462919,
+          "gpu_ms_per_frame": 18.35505868
         },
         "shadow_cascade_3": {
           "calls": 0,
@@ -138,28 +138,28 @@
         },
         "shadow_terrain": {
           "calls": 93,
-          "cpu_ms_per_frame": 17.68879697,
-          "gpu_ms_per_frame": 1.032897742
+          "cpu_ms_per_frame": 18.41062106,
+          "gpu_ms_per_frame": 0.5245587097
         },
         "shadow_vegetation": {
           "calls": 93,
-          "cpu_ms_per_frame": 2.800891258,
-          "gpu_ms_per_frame": 0.7668299355
+          "cpu_ms_per_frame": 2.421544774,
+          "gpu_ms_per_frame": 0.3657532903
         },
         "sky": {
           "calls": 31,
-          "cpu_ms_per_frame": 0.03890158065,
-          "gpu_ms_per_frame": 0.006156741935
+          "cpu_ms_per_frame": 0.0359476129,
+          "gpu_ms_per_frame": 0.007278580645
         },
         "sky_ibl_bake": {
           "calls": 1,
-          "cpu_ms_per_frame": 0.9797474839,
-          "gpu_ms_per_frame": 1.603492387
+          "cpu_ms_per_frame": 0.8031017742,
+          "gpu_ms_per_frame": 1.476719774
         },
         "terrain": {
           "calls": 31,
-          "cpu_ms_per_frame": 7.383741387,
-          "gpu_ms_per_frame": 65.45384677
+          "cpu_ms_per_frame": 7.422437161,
+          "gpu_ms_per_frame": 67.12789403
         },
         "terrain_probe": {
           "calls": 0,
@@ -168,13 +168,13 @@
         },
         "ui_text": {
           "calls": 310,
-          "cpu_ms_per_frame": 0.1165805484,
-          "gpu_ms_per_frame": 0.01414948387
+          "cpu_ms_per_frame": 0.1226514516,
+          "gpu_ms_per_frame": 0.01549229032
         },
         "vegetation": {
           "calls": 31,
-          "cpu_ms_per_frame": 0.1598128065,
-          "gpu_ms_per_frame": 0.0001071612903
+          "cpu_ms_per_frame": 0.154536871,
+          "gpu_ms_per_frame": 0.0001194193548
         },
         "vegetation_probe": {
           "calls": 0,
@@ -198,28 +198,28 @@
       "passes": {
         "mesh_submit": {
           "calls": 620,
-          "cpu_ms_per_frame": 1.103117677,
-          "gpu_ms_per_frame": 0.001371387097
+          "cpu_ms_per_frame": 1.080767419,
+          "gpu_ms_per_frame": 0.001280096774
         },
         "particles": {
           "calls": 31,
-          "cpu_ms_per_frame": 0.2124622258,
-          "gpu_ms_per_frame": 0.3516313226
+          "cpu_ms_per_frame": 0.2640261935,
+          "gpu_ms_per_frame": 0.3210777097
         },
         "shadow_cascade_0": {
           "calls": 31,
-          "cpu_ms_per_frame": 1.939101129,
-          "gpu_ms_per_frame": 2.001592032
+          "cpu_ms_per_frame": 9.343308258,
+          "gpu_ms_per_frame": 9.802219935
         },
         "shadow_cascade_1": {
           "calls": 31,
-          "cpu_ms_per_frame": 1.249336484,
-          "gpu_ms_per_frame": 1.712602871
+          "cpu_ms_per_frame": 1.265443935,
+          "gpu_ms_per_frame": 1.693198387
         },
         "shadow_cascade_2": {
           "calls": 31,
-          "cpu_ms_per_frame": 6.105649323,
-          "gpu_ms_per_frame": 4.410924968
+          "cpu_ms_per_frame": 6.228490419,
+          "gpu_ms_per_frame": 4.564741677
         },
         "shadow_cascade_3": {
           "calls": 0,
@@ -228,28 +228,28 @@
         },
         "shadow_terrain": {
           "calls": 93,
-          "cpu_ms_per_frame": 8.298904806,
-          "gpu_ms_per_frame": 0.4854786774
+          "cpu_ms_per_frame": 15.85858229,
+          "gpu_ms_per_frame": 8.010828613
         },
         "shadow_vegetation": {
           "calls": 93,
-          "cpu_ms_per_frame": 2.036243452,
-          "gpu_ms_per_frame": 0.4836941613
+          "cpu_ms_per_frame": 9.452118806,
+          "gpu_ms_per_frame": 8.009048516
         },
         "sky": {
           "calls": 31,
-          "cpu_ms_per_frame": 0.03027009677,
-          "gpu_ms_per_frame": 0.005478580645
+          "cpu_ms_per_frame": 0.02922496774,
+          "gpu_ms_per_frame": 0.006470483871
         },
         "sky_ibl_bake": {
           "calls": 1,
-          "cpu_ms_per_frame": 0.8290233871,
-          "gpu_ms_per_frame": 1.594648032
+          "cpu_ms_per_frame": 0.9714745161,
+          "gpu_ms_per_frame": 1.617073161
         },
         "terrain": {
           "calls": 31,
-          "cpu_ms_per_frame": 1.568026097,
-          "gpu_ms_per_frame": 65.30841829
+          "cpu_ms_per_frame": 1.504338032,
+          "gpu_ms_per_frame": 67.12592671
         },
         "terrain_probe": {
           "calls": 0,
@@ -258,13 +258,13 @@
         },
         "ui_text": {
           "calls": 310,
-          "cpu_ms_per_frame": 0.1113984516,
-          "gpu_ms_per_frame": 0.01687354839
+          "cpu_ms_per_frame": 0.103344129,
+          "gpu_ms_per_frame": 0.01584022581
         },
         "vegetation": {
           "calls": 31,
-          "cpu_ms_per_frame": 0.1277906774,
-          "gpu_ms_per_frame": 0.0001050322581
+          "cpu_ms_per_frame": 0.1289345484,
+          "gpu_ms_per_frame": 0.0001146774194
         },
         "vegetation_probe": {
           "calls": 0,
@@ -288,13 +288,13 @@
       "passes": {
         "mesh_submit": {
           "calls": 155,
-          "cpu_ms_per_frame": 0.3064545484,
-          "gpu_ms_per_frame": 0.0002493225806
+          "cpu_ms_per_frame": 0.3249268065,
+          "gpu_ms_per_frame": 0.0002605806452
         },
         "particles": {
           "calls": 31,
-          "cpu_ms_per_frame": 0.2422670323,
-          "gpu_ms_per_frame": 0.3377319677
+          "cpu_ms_per_frame": 0.2581373226,
+          "gpu_ms_per_frame": 0.3620524516
         },
         "shadow_cascade_0": {
           "calls": 0,
@@ -328,18 +328,18 @@
         },
         "sky": {
           "calls": 31,
-          "cpu_ms_per_frame": 0.03066441935,
-          "gpu_ms_per_frame": 0.003240645161
+          "cpu_ms_per_frame": 0.03417570968,
+          "gpu_ms_per_frame": 0.003124032258
         },
         "sky_ibl_bake": {
           "calls": 1,
-          "cpu_ms_per_frame": 0.8625614839,
-          "gpu_ms_per_frame": 1.561541161
+          "cpu_ms_per_frame": 0.9428895484,
+          "gpu_ms_per_frame": 1.617643097
         },
         "terrain": {
           "calls": 31,
-          "cpu_ms_per_frame": 23.72775868,
-          "gpu_ms_per_frame": 84.07951752
+          "cpu_ms_per_frame": 30.15937897,
+          "gpu_ms_per_frame": 91.11258377
         },
         "terrain_probe": {
           "calls": 0,
@@ -348,13 +348,13 @@
         },
         "ui_text": {
           "calls": 310,
-          "cpu_ms_per_frame": 0.1109736129,
-          "gpu_ms_per_frame": 0.01218216129
+          "cpu_ms_per_frame": 0.114551871,
+          "gpu_ms_per_frame": 0.0140246129
         },
         "vegetation": {
           "calls": 31,
-          "cpu_ms_per_frame": 9.033209226,
-          "gpu_ms_per_frame": 9.370967742e-05
+          "cpu_ms_per_frame": 13.73513974,
+          "gpu_ms_per_frame": 0.0001031612903
         },
         "vegetation_probe": {
           "calls": 0,
@@ -378,28 +378,28 @@
       "passes": {
         "mesh_submit": {
           "calls": 620,
-          "cpu_ms_per_frame": 1.10099,
-          "gpu_ms_per_frame": 0.000894516129
+          "cpu_ms_per_frame": 1.06764329,
+          "gpu_ms_per_frame": 0.001987935484
         },
         "particles": {
           "calls": 31,
-          "cpu_ms_per_frame": 0.2187008387,
-          "gpu_ms_per_frame": 0.360329871
+          "cpu_ms_per_frame": 0.2435017097,
+          "gpu_ms_per_frame": 0.3904772581
         },
         "shadow_cascade_0": {
           "calls": 31,
-          "cpu_ms_per_frame": 1.282619226,
-          "gpu_ms_per_frame": 2.571703065
+          "cpu_ms_per_frame": 1.176035387,
+          "gpu_ms_per_frame": 2.503033903
         },
         "shadow_cascade_1": {
           "calls": 31,
-          "cpu_ms_per_frame": 2.579571774,
-          "gpu_ms_per_frame": 3.361399194
+          "cpu_ms_per_frame": 2.621043516,
+          "gpu_ms_per_frame": 3.051266677
         },
         "shadow_cascade_2": {
           "calls": 31,
-          "cpu_ms_per_frame": 16.35070697,
-          "gpu_ms_per_frame": 19.17829503
+          "cpu_ms_per_frame": 15.94382865,
+          "gpu_ms_per_frame": 18.47212465
         },
         "shadow_cascade_3": {
           "calls": 0,
@@ -408,8 +408,8 @@
         },
         "shadow_terrain": {
           "calls": 93,
-          "cpu_ms_per_frame": 19.08515281,
-          "gpu_ms_per_frame": 0.134663129
+          "cpu_ms_per_frame": 18.64835706,
+          "gpu_ms_per_frame": 0.1262916129
         },
         "shadow_vegetation": {
           "calls": 0,
@@ -418,18 +418,18 @@
         },
         "sky": {
           "calls": 31,
-          "cpu_ms_per_frame": 0.039134,
-          "gpu_ms_per_frame": 0.006622774194
+          "cpu_ms_per_frame": 0.03754003226,
+          "gpu_ms_per_frame": 0.006578548387
         },
         "sky_ibl_bake": {
           "calls": 1,
-          "cpu_ms_per_frame": 0.9060563548,
-          "gpu_ms_per_frame": 1.55153029
+          "cpu_ms_per_frame": 0.9303692903,
+          "gpu_ms_per_frame": 1.586334355
         },
         "terrain": {
           "calls": 31,
-          "cpu_ms_per_frame": 7.296669097,
-          "gpu_ms_per_frame": 66.52494961
+          "cpu_ms_per_frame": 7.277216032,
+          "gpu_ms_per_frame": 66.02734848
         },
         "terrain_probe": {
           "calls": 0,
@@ -438,8 +438,8 @@
         },
         "ui_text": {
           "calls": 310,
-          "cpu_ms_per_frame": 0.1066352903,
-          "gpu_ms_per_frame": 0.01517951613
+          "cpu_ms_per_frame": 0.09811151613,
+          "gpu_ms_per_frame": 0.01674364516
         },
         "vegetation": {
           "calls": 0,
@@ -468,28 +468,28 @@
       "passes": {
         "mesh_submit": {
           "calls": 620,
-          "cpu_ms_per_frame": 1.156822161,
-          "gpu_ms_per_frame": 0.0008749677419
+          "cpu_ms_per_frame": 1.182676161,
+          "gpu_ms_per_frame": 0.002053483871
         },
         "particles": {
           "calls": 31,
-          "cpu_ms_per_frame": 0.02530203226,
-          "gpu_ms_per_frame": 3.867741935e-05
+          "cpu_ms_per_frame": 0.06524670968,
+          "gpu_ms_per_frame": 3.85483871e-05
         },
         "shadow_cascade_0": {
           "calls": 31,
-          "cpu_ms_per_frame": 2.198545903,
-          "gpu_ms_per_frame": 3.069199613
+          "cpu_ms_per_frame": 9.49548871,
+          "gpu_ms_per_frame": 10.20178723
         },
         "shadow_cascade_1": {
           "calls": 31,
-          "cpu_ms_per_frame": 2.081910065,
-          "gpu_ms_per_frame": 2.746575194
+          "cpu_ms_per_frame": 2.315170677,
+          "gpu_ms_per_frame": 3.270982161
         },
         "shadow_cascade_2": {
           "calls": 31,
-          "cpu_ms_per_frame": 13.06040935,
-          "gpu_ms_per_frame": 15.16049245
+          "cpu_ms_per_frame": 13.46175032,
+          "gpu_ms_per_frame": 16.34099035
         },
         "shadow_cascade_3": {
           "calls": 0,
@@ -498,28 +498,28 @@
         },
         "shadow_terrain": {
           "calls": 93,
-          "cpu_ms_per_frame": 16.27082535,
-          "gpu_ms_per_frame": 0.5363786452
+          "cpu_ms_per_frame": 24.11207384,
+          "gpu_ms_per_frame": 7.863663935
         },
         "shadow_vegetation": {
           "calls": 93,
-          "cpu_ms_per_frame": 2.188987871,
-          "gpu_ms_per_frame": 0.3552284839
+          "cpu_ms_per_frame": 9.558413387,
+          "gpu_ms_per_frame": 7.575211484
         },
         "sky": {
           "calls": 31,
-          "cpu_ms_per_frame": 0.03438616129,
-          "gpu_ms_per_frame": 0.005839064516
+          "cpu_ms_per_frame": 0.03197764516,
+          "gpu_ms_per_frame": 0.006899806452
         },
         "sky_ibl_bake": {
           "calls": 1,
-          "cpu_ms_per_frame": 0.7970526129,
-          "gpu_ms_per_frame": 1.488362839
+          "cpu_ms_per_frame": 0.798694,
+          "gpu_ms_per_frame": 1.513231226
         },
         "terrain": {
           "calls": 31,
-          "cpu_ms_per_frame": 6.731097742,
-          "gpu_ms_per_frame": 64.96805568
+          "cpu_ms_per_frame": 7.17419271,
+          "gpu_ms_per_frame": 66.47877655
         },
         "terrain_probe": {
           "calls": 0,
@@ -528,13 +528,13 @@
         },
         "ui_text": {
           "calls": 310,
-          "cpu_ms_per_frame": 0.1141359032,
-          "gpu_ms_per_frame": 0.04433974194
+          "cpu_ms_per_frame": 0.1065936774,
+          "gpu_ms_per_frame": 0.0190023871
         },
         "vegetation": {
           "calls": 31,
-          "cpu_ms_per_frame": 0.1390826452,
-          "gpu_ms_per_frame": 8.9e-05
+          "cpu_ms_per_frame": 0.1391145161,
+          "gpu_ms_per_frame": 9.858064516e-05
         },
         "vegetation_probe": {
           "calls": 0,
@@ -558,28 +558,28 @@
       "passes": {
         "mesh_submit": {
           "calls": 620,
-          "cpu_ms_per_frame": 3.298808968,
-          "gpu_ms_per_frame": 0.001988258065
+          "cpu_ms_per_frame": 1.26044671,
+          "gpu_ms_per_frame": 0.002877548387
         },
         "particles": {
           "calls": 31,
-          "cpu_ms_per_frame": 0.1895722258,
-          "gpu_ms_per_frame": 0.5341855806
+          "cpu_ms_per_frame": 4.316318226,
+          "gpu_ms_per_frame": 0.5806029677
         },
         "shadow_cascade_0": {
           "calls": 31,
-          "cpu_ms_per_frame": 4.48622071,
-          "gpu_ms_per_frame": 4.687820194
+          "cpu_ms_per_frame": 2.335498258,
+          "gpu_ms_per_frame": 2.894261839
         },
         "shadow_cascade_1": {
           "calls": 31,
-          "cpu_ms_per_frame": 1.964116903,
-          "gpu_ms_per_frame": 2.946237516
+          "cpu_ms_per_frame": 2.134244161,
+          "gpu_ms_per_frame": 2.973023419
         },
         "shadow_cascade_2": {
           "calls": 31,
-          "cpu_ms_per_frame": 12.31301548,
-          "gpu_ms_per_frame": 15.08495365
+          "cpu_ms_per_frame": 13.57974861,
+          "gpu_ms_per_frame": 16.61884429
         },
         "shadow_cascade_3": {
           "calls": 0,
@@ -588,28 +588,28 @@
         },
         "shadow_terrain": {
           "calls": 93,
-          "cpu_ms_per_frame": 15.51954397,
-          "gpu_ms_per_frame": 2.800621871
+          "cpu_ms_per_frame": 16.88769332,
+          "gpu_ms_per_frame": 0.4631107097
         },
         "shadow_vegetation": {
           "calls": 93,
-          "cpu_ms_per_frame": 2.322540968,
-          "gpu_ms_per_frame": 2.628974129
+          "cpu_ms_per_frame": 2.394636774,
+          "gpu_ms_per_frame": 0.3285621935
         },
         "sky": {
           "calls": 31,
-          "cpu_ms_per_frame": 0.03376616129,
-          "gpu_ms_per_frame": 0.006661645161
+          "cpu_ms_per_frame": 0.03804858065,
+          "gpu_ms_per_frame": 0.007506064516
         },
         "sky_ibl_bake": {
           "calls": 1,
-          "cpu_ms_per_frame": 0.8014384839,
-          "gpu_ms_per_frame": 1.508532806
+          "cpu_ms_per_frame": 0.8672303871,
+          "gpu_ms_per_frame": 1.612760484
         },
         "terrain": {
           "calls": 31,
-          "cpu_ms_per_frame": 6.553395452,
-          "gpu_ms_per_frame": 64.98341081
+          "cpu_ms_per_frame": 17.63561465,
+          "gpu_ms_per_frame": 76.163409
         },
         "terrain_probe": {
           "calls": 0,
@@ -618,13 +618,13 @@
         },
         "ui_text": {
           "calls": 310,
-          "cpu_ms_per_frame": 0.1115287419,
-          "gpu_ms_per_frame": 0.01849806452
+          "cpu_ms_per_frame": 0.1213960968,
+          "gpu_ms_per_frame": 0.02174816129
         },
         "vegetation": {
           "calls": 31,
-          "cpu_ms_per_frame": 0.1323839355,
-          "gpu_ms_per_frame": 0.0009628064516
+          "cpu_ms_per_frame": 10.35724423,
+          "gpu_ms_per_frame": 0.0001132580645
         },
         "vegetation_probe": {
           "calls": 0,
@@ -648,28 +648,28 @@
       "passes": {
         "mesh_submit": {
           "calls": 620,
-          "cpu_ms_per_frame": 1.265354032,
-          "gpu_ms_per_frame": 0.0009625806452
+          "cpu_ms_per_frame": 3.355623645,
+          "gpu_ms_per_frame": 0.0007969032258
         },
         "particles": {
           "calls": 31,
-          "cpu_ms_per_frame": 0.2584670323,
-          "gpu_ms_per_frame": 0.3782653226
+          "cpu_ms_per_frame": 0.2408959677,
+          "gpu_ms_per_frame": 0.3573050968
         },
         "shadow_cascade_0": {
           "calls": 31,
-          "cpu_ms_per_frame": 10.67185713,
-          "gpu_ms_per_frame": 11.94697755
+          "cpu_ms_per_frame": 4.551572677,
+          "gpu_ms_per_frame": 5.059206645
         },
         "shadow_cascade_1": {
           "calls": 31,
-          "cpu_ms_per_frame": 2.128595258,
-          "gpu_ms_per_frame": 2.898966742
+          "cpu_ms_per_frame": 2.297364774,
+          "gpu_ms_per_frame": 3.415430355
         },
         "shadow_cascade_2": {
           "calls": 31,
-          "cpu_ms_per_frame": 13.50923723,
-          "gpu_ms_per_frame": 15.80922645
+          "cpu_ms_per_frame": 13.07671932,
+          "gpu_ms_per_frame": 15.64241765
         },
         "shadow_cascade_3": {
           "calls": 0,
@@ -678,28 +678,28 @@
         },
         "shadow_terrain": {
           "calls": 93,
-          "cpu_ms_per_frame": 25.0941311,
-          "gpu_ms_per_frame": 8.972356968
+          "cpu_ms_per_frame": 16.62028974,
+          "gpu_ms_per_frame": 2.873873935
         },
         "shadow_vegetation": {
           "calls": 93,
-          "cpu_ms_per_frame": 10.73786587,
-          "gpu_ms_per_frame": 8.835455387
+          "cpu_ms_per_frame": 2.418000355,
+          "gpu_ms_per_frame": 2.612658452
         },
         "sky": {
           "calls": 31,
-          "cpu_ms_per_frame": 0.03964974194,
-          "gpu_ms_per_frame": 0.006140354839
+          "cpu_ms_per_frame": 0.0340553871,
+          "gpu_ms_per_frame": 0.006798774194
         },
         "sky_ibl_bake": {
           "calls": 1,
-          "cpu_ms_per_frame": 0.8082402258,
-          "gpu_ms_per_frame": 1.480460323
+          "cpu_ms_per_frame": 1.163009,
+          "gpu_ms_per_frame": 1.855916419
         },
         "terrain": {
           "calls": 31,
-          "cpu_ms_per_frame": 7.44998329,
-          "gpu_ms_per_frame": 65.64436161
+          "cpu_ms_per_frame": 6.778807419,
+          "gpu_ms_per_frame": 65.7505679
         },
         "terrain_probe": {
           "calls": 0,
@@ -708,13 +708,13 @@
         },
         "ui_text": {
           "calls": 310,
-          "cpu_ms_per_frame": 0.110112,
-          "gpu_ms_per_frame": 0.01365216129
+          "cpu_ms_per_frame": 0.1107416774,
+          "gpu_ms_per_frame": 0.0138993871
         },
         "vegetation": {
           "calls": 31,
-          "cpu_ms_per_frame": 0.1490362903,
-          "gpu_ms_per_frame": 9.277419355e-05
+          "cpu_ms_per_frame": 0.1359490645,
+          "gpu_ms_per_frame": 9.670967742e-05
         },
         "vegetation_probe": {
           "calls": 0,

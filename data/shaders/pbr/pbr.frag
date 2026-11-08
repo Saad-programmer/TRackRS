@@ -222,6 +222,18 @@ void main()
         Lo += uTranslucency * albedo * uSunColor * sunVisibility() * back / PI;
     }
 #endif
+    // ---- world spot lights (headlights): world space, rotated into this
+    //      draw's local frame (rigid model matrices) for the shared BRDF.
+    if (uSceneEnabled && !uDepthOnly) {
+        vec3 worldP = (uSceneFromLocal * vec4(fs.worldPos, 1.0)).xyz;
+        mat3 toLocal = transpose(mat3(uSceneFromLocal));
+        for (int i = 0; i < clamp(uSceneLightCount, 0, MAX_SCENE_LIGHTS); ++i) {
+            vec3 toLight;
+            vec3 radiance = sceneSpot(i, worldP, toLight);
+            if (max(radiance.r, max(radiance.g, radiance.b)) > 0.0)
+                Lo += evalLight(normalize(toLocal * toLight), radiance, N, V, NdotV, albedo, metallic, roughness, F0);
+        }
+    }
     // ---- clear-coat lobe (fixed F0 = 0.04) ------------------------------------
     float Fcc = 0.0;
     if (uClearcoat > 0.0) {

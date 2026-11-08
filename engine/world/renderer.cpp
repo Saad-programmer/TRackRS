@@ -154,6 +154,7 @@ void prepare(const glm::mat4 &view, const glm::mat4 &projection,
   auto &s = state();
   s.scene = s.settings.enabled;
   s.blobDraws = 0;
+  s.lightCount = 0; // the game adds this frame's lights after prepare()
   s.shadowDraws.fill(0);
   s.shadowTriangles.fill(0);
   s.view = view;
@@ -327,6 +328,7 @@ nlohmann::json report() {
                                          renderer->shadowSize * 3
                                    : 0},
       {"active_cascade_count", s.settings.csm ? s.cascades.count : 0},
+      {"scene_lights", s.lightCount},
       {"depth_pass", s.depthPass},
       {"blob_draw_calls", s.blobDraws},
       {"cascade_draw_calls", s.shadowDraws},

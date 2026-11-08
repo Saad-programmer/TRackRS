@@ -44,5 +44,11 @@ SHA-256 on all 13 stages. The committed manifest is not rewritten.
   >= .28 (plants .45); only puddles are mirrors. Physics hash identical for
   every preset; legacy A/B re-run on ahead, glacier, mudbath.
 
-Next Phase 3c items (not started): water reflections, road ribbon/decals, night lighting. Real-GPU timing
+## Item 3: headlights
+
+- First aim (5 degrees down) lit only a few metres; changed to ~1 degree with a
+  longer range. Golden-hour storm test exposed that daylight alone is a poor
+  switch; rule now also uses the cloud-attenuated beam.
+
+Next Phase 3c items (not started): water reflections, road ribbon/decals. Real-GPU timing
 of `--vegetation 3d` vs `cards` is requested from the maintainer.

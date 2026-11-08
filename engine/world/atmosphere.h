@@ -34,6 +34,16 @@ Sun overcastSun(Sun sun, float overcast);
 float presetHour(std::string_view name);
 float fogOpticalDepth(float density, float falloff, float cameraHeight,
                       float targetHeight, float distance);
+/// World-space spot light (car headlights, later: trackside floodlights).
+struct SpotLight {
+  glm::vec3 position{0}, direction{0, 1, 0}, radiance{0};
+  float range = 70, cosInner = .94f, cosOuter = .82f;
+};
+constexpr unsigned MaxSceneLights = 8;
+/// Two low-beam headlamps for a car body with world axes right/forward/up.
+std::array<SpotLight, 2> headlights(glm::vec3 position, glm::vec3 right, glm::vec3 forward, glm::vec3 up);
+/// Headlights are on when daylight is low or the (cloud-attenuated) beam is weak.
+bool headlightsOn(const Sun &sun, float overcast);
 struct Cascades {
   std::array<glm::mat4, 4> matrices{};
   glm::vec4 splits{0}, bias{0};

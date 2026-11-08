@@ -126,3 +126,26 @@ TEST_CASE("cloud cover dims the beam but keeps a sky source") {
   CHECK(overcastSun(clear, std::nanf("")).radiance == clear.radiance);
   CHECK(glm::length(cloudy.direction - clear.direction) < 1e-6f);
 }
+TEST_CASE("headlights sit at the car nose, aim forward and slightly down") {
+  const glm::vec3 p(10, 20, 3), right(1, 0, 0), forward(0, 1, 0), up(0, 0, 1);
+  auto lamps = headlights(p, right, forward, up);
+  CHECK(lamps[0].position.x < p.x);
+  CHECK(lamps[1].position.x > p.x);
+  for (const auto &l : lamps) {
+    CHECK(l.position.y > p.y + 1.5f);
+    CHECK(glm::length(l.direction) == doctest::Approx(1));
+    CHECK(l.direction.y > .99f);
+    CHECK(l.direction.z < 0);
+    CHECK(l.cosInner > l.cosOuter);
+    CHECK(l.radiance.x > 0);
+  }
+  // Rotated body: lamps follow the body axes.
+  auto turned = headlights(p, {0, -1, 0}, {1, 0, 0}, up);
+  CHECK(turned[0].direction.x > .99f);
+  CHECK(headlightsOn(sunlight(22), 0));
+  CHECK_FALSE(headlightsOn(sunlight(12), 0));
+  CHECK(headlightsOn(overcastSun(sunlight(17), 1), 1));
+}
+TEST_CASE("headlights stay off on a bright overcast noon") {
+  CHECK_FALSE(headlightsOn(overcastSun(sunlight(12), .85f), .85f));
+}

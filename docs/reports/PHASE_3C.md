@@ -1,8 +1,8 @@
 # Phase 3c — world dressing: vegetation and weather
 
-Status: **in progress.** Item 1 (instanced 3D vegetation) and item 2 (weather
-surfaces, puddles, snow cover, overcast sky, stage fog) are done. Remaining:
-water reflections, road ribbon, night headlights; post-FX is Phase 3d. No `phase-3c-done` tag is warranted yet.
+Status: **in progress.** Item 1 (instanced 3D vegetation), item 2 (weather
+surfaces, puddles, snow cover, overcast sky, stage fog) and item 3 (headlights)
+are done. Remaining: water reflections and the road ribbon; post-FX is Phase 3d. No `phase-3c-done` tag is warranted yet.
 Legacy remains the default renderer; nothing in the Legacy path changed.
 
 ## What shipped
@@ -184,3 +184,25 @@ Known gaps: rain streaks, windscreen droplets, splashes and lightning are not
 implemented (the legacy rain particles remain). Weather is static for a stage;
 dynamic transitions are backlog §8.1. The legacy cards/basic shader path (Legacy
 renderer, retained legacy car meshes) does not receive wetness or snow.
+
+
+# Item 3: night headlights
+
+`world::headlights()` places two warm low-beam spot lamps at each car's nose
+(body axes: right, forward, up), aimed about 1° down with a 90 m finite range.
+They switch on automatically when daylight is low, or when the cloud-attenuated
+sun beam is weak (a gloomy storm at golden hour). The world state collects up to
+eight lights per frame, enough for four cars. `pbr.frag` evaluates them in world
+space with a smooth cone and a range window, rotated into each draw's local
+frame for the shared BRDF, so terrain, plants and PBR cars receive the beams.
+Lights are skipped in the CSM depth passes. The world report exposes
+`scene_lights`. The runner asserts at least two lights at night and none at
+clear noon, with the physics hash unchanged; a legacy A/B on ahead and glacier
+is identical. Unit tests cover lamp placement, aim and rotation with the body,
+and the on/off rule.
+
+![night headlights](phase3c/night-headlights.png)
+
+Known gaps: no headlight shadows, no volumetric beams in fog, and no emissive
+lamp lenses, tail lights or brake lights on the legacy car meshes (Phase 4 car
+renderer). Bloom/glare comes with Phase 3d post-FX.

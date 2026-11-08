@@ -33,6 +33,8 @@ def run(name,renderer,time,shadows,vegetation='3d',weather='level'):
   assert report['draw_calls']<=1500 and report['triangles']<=3000000, 'High submission budgets exceeded'
   for i in range(world['cascade_count']):assert report['passes'][f'shadow_cascade_{i}']['calls']==(a.frames-1 if shadows=='csm' else 0)
   w=world['weather'];assert w['selection']==weather
+  if time in ('night','midnight'):assert world['scene_lights']>=2,'no headlights at night'
+  if time=='noon' and weather in ('level','clear'):assert world['scene_lights']==0,'headlights on at clear noon'
   for k in ('wetness','puddles','snow','overcast'):assert 0<=w[k]<=1
   if weather=='rain':assert w['puddles']>0 and w['wetness']>0 and w['overcast']>0
   if weather=='snow':assert w['snow']>0

@@ -4,6 +4,7 @@
 #include "engine/pbr/renderer.h"
 #include "engine/world/renderer.h"
 #include "engine/vegetation/renderer.h"
+#include "engine/world/state.h"
 #include <glm/gtc/type_ptr.hpp>
 // Creator: Saad AIT YAHIA - @github: Saad-programmer
 #include "damage.h"
@@ -821,6 +822,18 @@ void MainApp::renderStateGame(float eyetranslation)
     glm::mat4 worldProjection;trackrs::draw::read(trackrs::draw::ProjectionMatrix,glm::value_ptr(worldProjection));
     trackrs::world::prepare(pbrView,worldProjection,cfg.getRenderQuality(),trackrs::pbr::shaderDirectory().parent_path().parent_path());
     trackrs::vegetation::setAnimationTime(game->animationtime); // deterministic under replays
+    {
+        auto &world = trackrs::world::state();
+        if (world.settings.enabled && trackrs::world::headlightsOn(world.sun, world.settings.weather.overcast))
+            for (auto *vehic : game->vehicle) {
+                const vec3f p = vehic->body->getPosition();
+                const mat44f &axes = vehic->body->getInverseOrientationMatrix(); // rows: right, forward, up
+                auto g = [](const vec3f &v) { return glm::vec3(v.x, v.y, v.z); };
+                for (const auto &lamp : trackrs::world::headlights(g(p), g(makevec3f(axes.row[0])),
+                                                                   g(makevec3f(axes.row[1])), g(makevec3f(axes.row[2]))))
+                    trackrs::world::addLight(lamp);
+            }
+    }
     trackrs::pbr::setProbeScene([this](const glm::mat4& projection,const glm::mat4& view,const glm::vec3& center){
         if(!game||!game->terrain)return;
         trackrs::draw::SavedState saved;

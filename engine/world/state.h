@@ -15,6 +15,8 @@ struct State {
   std::array<std::uint64_t, 4> shadowDraws{}, shadowTriangles{};
   std::uint64_t blobDraws = 0;
   bool scene = false, depthPass = false, linearCapture = false;
+  std::array<SpotLight, MaxSceneLights> lights{};
+  unsigned lightCount = 0;          ///< reset by prepare(); filled per frame
   std::string weatherName = "level"; ///< user selection (config / --weather)
   Weather levelWeather;              ///< parsed from the loaded stage
 };
@@ -24,5 +26,7 @@ State &state();
 void configure(Settings settings);
 void selectWeather(const std::string &name);
 void setLevelWeather(const Weather &weather);
+/// Adds a light for this frame; ignored beyond MaxSceneLights.
+void addLight(const SpotLight &light);
 void apply(GLuint program, const glm::mat4 &localToWorld, bool scene);
 } // namespace trackrs::world

@@ -19,6 +19,11 @@ void selectWeather(const std::string &name) {
   state().weatherName = name;
   configure(state().settings);
 }
+void addLight(const SpotLight &light) {
+  auto &s = state();
+  if (s.lightCount < MaxSceneLights)
+    s.lights[s.lightCount++] = light;
+}
 void setLevelWeather(const Weather &weather) {
   state().levelWeather = weather;
   configure(state().settings);
@@ -36,6 +41,22 @@ void apply(GLuint p, const glm::mat4 &localToWorld, bool scene) {
   const auto &w = s.settings.weather;
   glUniform4f(glGetUniformLocation(p, "uSceneWeather"), w.wetness, w.puddles, w.snow, w.overcast);
   glUniform1f(glGetUniformLocation(p, "uSceneFogDensity"), w.fogDensity);
+  const auto lights = static_cast<GLsizei>(s.depthPass ? 0 : s.lightCount);
+  glUniform1i(glGetUniformLocation(p, "uSceneLightCount"), lights);
+  if (lights) {
+    std::array<glm::vec3, MaxSceneLights> pos{}, dir{}, rad{};
+    std::array<glm::vec3, MaxSceneLights> cone{};
+    for (unsigned i = 0; i < s.lightCount; ++i) {
+      pos[i] = s.lights[i].position;
+      dir[i] = s.lights[i].direction;
+      rad[i] = s.lights[i].radiance;
+      cone[i] = {s.lights[i].cosInner, s.lights[i].cosOuter, s.lights[i].range};
+    }
+    glUniform3fv(glGetUniformLocation(p, "uSceneLightPos[0]"), lights, glm::value_ptr(pos[0]));
+    glUniform3fv(glGetUniformLocation(p, "uSceneLightDir[0]"), lights, glm::value_ptr(dir[0]));
+    glUniform3fv(glGetUniformLocation(p, "uSceneLightRadiance[0]"), lights, glm::value_ptr(rad[0]));
+    glUniform3fv(glGetUniformLocation(p, "uSceneLightCone[0]"), lights, glm::value_ptr(cone[0]));
+  }
   glUniformMatrix4fv(glGetUniformLocation(p, "uSceneFromLocal"), 1, GL_FALSE,
                      glm::value_ptr(localToWorld));
   glUniformMatrix4fv(glGetUniformLocation(p, "uSceneView"), 1, GL_FALSE,

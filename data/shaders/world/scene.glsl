@@ -9,6 +9,18 @@ uniform int uSceneShadowCount=0;
 uniform vec4 uSceneSplits,uSceneBias;
 uniform vec4 uSceneWeather=vec4(0);      // wetness, puddles, snow, overcast (0..1)
 uniform float uSceneFogDensity=.003;     // extinction per metre at sea level
+#define MAX_SCENE_LIGHTS 8
+uniform int uSceneLightCount=0;          // world-space spot lights (headlights)
+uniform vec3 uSceneLightPos[MAX_SCENE_LIGHTS],uSceneLightDir[MAX_SCENE_LIGHTS];
+uniform vec3 uSceneLightRadiance[MAX_SCENE_LIGHTS],uSceneLightCone[MAX_SCENE_LIGHTS]; // cos inner, cos outer, range
+// Radiance arriving at `world` from spot light i, and the world direction to it.
+vec3 sceneSpot(int i,vec3 world,out vec3 toLight){
+ vec3 d=uSceneLightPos[i]-world;float distance=max(length(d),.0001);toLight=d/distance;
+ vec3 cone=uSceneLightCone[i];
+ float spot=smoothstep(cone.y,cone.x,dot(-toLight,uSceneLightDir[i]));
+ float window=clamp(1.-pow(distance/max(cone.z,.001),4.),0.,1.);
+ return uSceneLightRadiance[i]*spot*window*window/(distance*distance+1.);
+}
 // Smooth 2D value noise (world metres in, 0..1 out) for weather masks.
 float sceneHash(vec2 p){return fract(sin(dot(p,vec2(127.1,311.7)))*43758.5453);}
 float sceneNoise(vec2 p){vec2 i=floor(p),f=fract(p);f=f*f*(3.-2.*f);
