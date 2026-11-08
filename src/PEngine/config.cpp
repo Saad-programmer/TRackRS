@@ -4,6 +4,7 @@
 #include "engine/terrain/renderer.h"
 #include "engine/world/state.h"
 #include "engine/vegetation/renderer.h"
+#include "engine/post/post.h"
 #include "exception.h"
 #include "app.h"
 #include "pengine.h"
@@ -267,6 +268,7 @@ void PConfig::loadConfig()
         val = walk->Attribute("timeofday");
         if(val){try{setTimeOfDay(val);}catch(const std::invalid_argument&){setTimeOfDay("noon");}}
         val = walk->Attribute("shadows");setCsm(!val||std::string(val)!="blob");
+        val = walk->Attribute("post");setPostProcessing(!val||std::string(val)!="off");
         val = walk->Attribute("weatherpreset");
         if(val){try{setWeatherPreset(val);}catch(const std::invalid_argument&){setWeatherPreset("level");}}
         val = walk->Attribute("vegetation");setVegetationMeshes(!val||std::string(val)!="cards");
@@ -603,6 +605,7 @@ void PConfig::storeConfig()
       walk->SetAttribute("renderer",cfg_pbr_terrain ? "pbr" : "legacy");
       walk->SetAttribute("timeofday",cfg_time_of_day.c_str());
       walk->SetAttribute("shadows",cfg_csm?"csm":"blob");
+      walk->SetAttribute("post",cfg_post?"on":"off");
       walk->SetAttribute("weatherpreset",cfg_weather_preset.c_str());
       walk->SetAttribute("vegetation",cfg_vegetation_meshes?"3d":"cards");
       walk->SetAttribute("renderquality", std::string(trackrs::qualityName(cfg_render_quality)).c_str());
@@ -928,6 +931,7 @@ void PConfig::setTimeOfDay(const std::string &name){
   const float hour=trackrs::world::presetHour(name);cfg_time_of_day=name;
   trackrs::world::configure({cfg_pbr_terrain,cfg_csm,hour});
 }
+void PConfig::setPostProcessing(bool enabled){cfg_post=enabled;auto s=trackrs::post::settings();s.enabled=enabled;trackrs::post::configure(s);}
 void PConfig::setWeatherPreset(const std::string &name){trackrs::world::selectWeather(name);cfg_weather_preset=name;}
 void PConfig::setVegetationMeshes(bool enabled){cfg_vegetation_meshes=enabled;trackrs::vegetation::configure({enabled});}
 void PConfig::setCsm(bool enabled){cfg_csm=enabled;trackrs::world::configure({cfg_pbr_terrain,cfg_csm,trackrs::world::presetHour(cfg_time_of_day)});}

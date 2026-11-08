@@ -269,7 +269,7 @@ std::size_t Renderer::draw(glm::vec3 camera, const glm::mat4 &vp, bool capture,
   integer(program, "uDebugView", debugView);
   integer(program, "uHasIBL", p.environment->ready() ? 1 : 0);
   integer(program, "uUseLocalProbe", 0);
-  integer(program, "uToneMap", capture ? 0 : 1);
+  integer(program, "uToneMap", capture || world::state().linearCapture ? 0 : 1);
   constexpr std::array<const char *, 3> names = {
       "uTerrainAlbedo", "uTerrainNormal", "uTerrainOrm"};
   for (unsigned i = 0; i < 3; ++i) {

@@ -4,6 +4,7 @@
 #include "engine/pbr/renderer.h"
 #include "engine/world/renderer.h"
 #include "engine/vegetation/renderer.h"
+#include "engine/post/post.h"
 #include "engine/world/state.h"
 #include <glm/gtc/type_ptr.hpp>
 // Creator: Saad AIT YAHIA - @github: Saad-programmer
@@ -154,7 +155,7 @@ void MainApp::renderSky(const mat44f &cammat)
     validation::PassScope timing("sky");
     if(cfg.getPbrTerrain()){
       glm::mat4 projection,view;trackrs::draw::read(trackrs::draw::ProjectionMatrix,glm::value_ptr(projection));trackrs::draw::read(trackrs::draw::ViewMatrix,glm::value_ptr(view));
-      trackrs::world::drawSky(projection,view,{campos.x,campos.y,campos.z});return;
+      trackrs::world::drawSky(projection,view,{campos.x,campos.y,campos.z},trackrs::world::state().linearCapture);return;
     }
     trackrs::draw::fog(trackrs::draw::FogDensity, game->weather.fog.density_sky);
     trackrs::draw::depthRange(0.999,1.0);
@@ -797,6 +798,14 @@ void MainApp::renderStateGame(float eyetranslation)
 {
     PVehicle *vehic = game->vehicle[0];
 
+    // PBR + post: the 3D scene renders linear HDR into an offscreen target that
+    // trackrs::post resolves (exposure, bloom, tone map) before the HUD.
+    const bool postProcess = cfg.getPbrTerrain() && trackrs::post::settings().enabled;
+    if (postProcess) {
+        trackrs::post::begin(getWidth(), getHeight(), trackrs::pbr::shaderDirectory().parent_path().parent_path());
+        trackrs::world::state().linearCapture = true;
+    }
+
     trackrs::draw::clear(GL_DEPTH_BUFFER_BIT);
     //trackrs::draw::clear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
 
@@ -1241,6 +1250,10 @@ void MainApp::renderStateGame(float eyetranslation)
 
     if(trackrs::world::state().scene){trackrs::draw::flush();trackrs::world::state().scene=false;}
     trackrs::draw::pop(); // 0
+    if (postProcess) {
+        trackrs::world::state().linearCapture = false;
+        trackrs::post::end(game->animationtime);
+    }
 
     trackrs::draw::disable(GL_DEPTH_TEST);
 

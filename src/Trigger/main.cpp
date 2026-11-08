@@ -24,6 +24,7 @@ void MainApp::config()
     if(!validation::run.options.renderer.empty())cfg.setPbrTerrain(validation::run.options.renderer=="pbr");
     if(!validation::run.options.timeOfDay.empty())cfg.setTimeOfDay(validation::run.options.timeOfDay);
     if(!validation::run.options.shadows.empty())cfg.setCsm(validation::run.options.shadows=="csm");
+    if(!validation::run.options.post.empty())cfg.setPostProcessing(validation::run.options.post=="on");
     if(!validation::run.options.weather.empty())cfg.setWeatherPreset(validation::run.options.weather);
     if(!validation::run.options.vegetation.empty())cfg.setVegetationMeshes(validation::run.options.vegetation=="3d");
     setTextureAnisotropy(cfg.getAnisotropy());
@@ -1641,7 +1642,7 @@ int main(int argc, char *argv[])
                 << "  --dump-state <hash-file> --json <report.json> --screenshot <image.ppm>\n"
                 << "  --renderer legacy|pbr --quality low|medium|high|ultra --shadows blob|csm\n"
                 << "  --time-of-day dawn|noon|golden-hour|dusk|night|midnight --vegetation 3d|cards\n"
-                << "  --weather level|clear|rain|snow|fog\n"
+                << "  --weather level|clear|rain|snow|fog --post on|off\n"
                 << "Headless mode uses a real OpenGL context; run under Xvfb on headless Linux.\n";
             return 0;
         }
@@ -1653,7 +1654,7 @@ int main(int argc, char *argv[])
             validation::run.draws.reserve(validation::run.options.frames);
             validation::run.triangles.reserve(validation::run.options.frames);
             validation::run.queries.reserve(128);
-            for (const char* name : {"terrain", "terrain_probe", "sky", "water", "mesh_submit", "particles", "ui_text", "sky_ibl_bake", "shadow_terrain", "vegetation", "vegetation_probe", "shadow_vegetation", "shadow_cascade_0", "shadow_cascade_1", "shadow_cascade_2", "shadow_cascade_3"}) {
+            for (const char* name : {"terrain", "terrain_probe", "sky", "water", "mesh_submit", "particles", "ui_text", "sky_ibl_bake", "shadow_terrain", "post", "vegetation", "vegetation_probe", "shadow_vegetation", "shadow_cascade_0", "shadow_cascade_1", "shadow_cascade_2", "shadow_cascade_3"}) {
                 auto& pass = validation::run.passes[name];
                 pass.cpu.reserve(validation::run.options.frames * 32);
                 pass.gpu.reserve(validation::run.options.frames * 32);

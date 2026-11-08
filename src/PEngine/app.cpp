@@ -1,3 +1,4 @@
+#include "engine/post/post.h"
 #include "engine/vegetation/renderer.h"
 #include "engine/world/renderer.h"
 #include "../../engine/rhi/core_device.h"
@@ -737,7 +738,7 @@ int PApp::run(int argc, char *argv[])
           validation::run.draws.push_back(validation::run.frameDraws);
           validation::run.triangles.push_back(validation::run.frameTriangles);
           if (validation::run.complete) {
-            try { validation::writeResults(); trackrs::pbr::writeProfile(validation::run.options.json + ".pbr.json"); trackrs::terrain::writeReport(validation::run.options.json + ".terrain.json"); trackrs::world::writeReport(validation::run.options.json + ".world.json"); trackrs::vegetation::writeReport(validation::run.options.json + ".vegetation.json"); }
+            try { validation::writeResults(); trackrs::pbr::writeProfile(validation::run.options.json + ".pbr.json"); trackrs::terrain::writeReport(validation::run.options.json + ".terrain.json"); trackrs::world::writeReport(validation::run.options.json + ".world.json"); trackrs::vegetation::writeReport(validation::run.options.json + ".vegetation.json"); trackrs::post::writeReport(validation::run.options.json + ".post.json"); }
             catch (const std::exception& e) { PUtil::outLog() << e.what() << std::endl; validation::run.result = 1; }
             requestExit();
           }

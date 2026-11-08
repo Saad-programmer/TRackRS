@@ -243,3 +243,14 @@ absorption and shoreline foam. Planar reflection would re-render the scene per
 water plane (cost); SSR belongs with the Phase 3d depth/colour post stack, where
 it can be added to this shader as a reflection source. Terrain depth comes from
 the physics heightmap so water and physics agree.
+
+## Phase 3d (core): one HDR target, GPU-only auto-exposure
+
+Decision: render the PBR 3D scene into RGBA16F + a depth texture, reusing the
+existing linearCapture switch so every pass emits linear light, then resolve
+once (adapted exposure, dual-filter bloom, ACES, gamma, vignette) before the HUD.
+Exposure uses a log-luminance mip chain and a 1x1 ping-pong adaptation target, so
+there is no GPU->CPU read-back stall. Adaptation is driven by the deterministic
+animation clock, never wall time. The CPU reference functions are the tested
+specification of the shader math. Legacy stays the default renderer; switching
+the default waits for TAA/SSAO and real-GPU budget data.

@@ -451,7 +451,7 @@ Statistics Model::draw(const Frame &frame, const std::vector<glm::mat4> &models,
     vector(p, "uSunColor", frame.sunRadiance);
     vector(p, "uAmbientColor", frame.ambient);
     integer(p, "uDebugView", frame.debugView);
-    integer(p, "uToneMap", frame.toneMap);
+    integer(p, "uToneMap", frame.toneMap && !world::state().linearCapture);
     bool hasIbl = frame.environment && frame.environment->ready();
     integer(p, "uHasIBL", hasIbl);
     scalar(p, "uWetness", frame.wetness);
