@@ -40,6 +40,7 @@ Options parse(int argc, char** argv) {
         else if (key == "--vegetation") {o.vegetation=value();if(o.vegetation!="3d"&&o.vegetation!="cards")throw std::runtime_error("vegetation must be 3d or cards");}
         else if (key == "--weather") {o.weather=value();if(o.weather!="level"&&o.weather!="clear"&&o.weather!="rain"&&o.weather!="snow"&&o.weather!="fog")throw std::runtime_error("weather must be level, clear, rain, snow or fog");}
         else if (key == "--post") {o.post=value();if(o.post!="on"&&o.post!="off")throw std::runtime_error("post must be on or off");}
+        else if (key == "--crowd") {o.crowd=value();if(o.crowd!="on"&&o.crowd!="off")throw std::runtime_error("crowd must be on or off");}
         else if (key == "--vehicle") o.vehicle = value();
         else if (key == "--data-dir") o.data = value();
         else if (key == "--width") o.width=number(value());

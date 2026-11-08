@@ -113,6 +113,8 @@ public:
   void setWeatherPreset(const std::string &name);
   bool getPostProcessing() const { return cfg_post; }
   void setPostProcessing(bool enabled);
+  bool getCrowd() const { return cfg_crowd; }
+  void setCrowd(bool enabled);
   void setVegetationMeshes(bool enabled);
   void setCsm(bool enabled);
   bool getPbrTerrain() const { return cfg_pbr_terrain; }
@@ -192,7 +194,7 @@ private:
 
   bool cfg_pbr_terrain = false, cfg_csm = true, cfg_vegetation_meshes = true;
   std::string cfg_weather_preset = "level";
-  bool cfg_post = true;
+  bool cfg_post = true, cfg_crowd = true;
   std::string cfg_time_of_day = "noon";
   trackrs::RenderQuality cfg_render_quality = trackrs::RenderQuality::Medium;
   GLfloat cfg_anisotropy = 1.0f;    ///< Anisotropic filter quality.

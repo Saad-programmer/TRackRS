@@ -39,17 +39,17 @@ def main():
             if result.returncode:raise RuntimeError(f'{defines}: {result.stdout}\n{result.stderr}')
             terrain.append({'defines':defines,'compile_and_link':'pass'})
         vegetation=[]
-        for shadow,coverage in itertools.product((False,True),repeat=2):
+        for vertex_source,shadow,coverage in itertools.product(('vegetation','people'),(False,True),(False,True)):
             defines=['VEGETATION']+(['USE_CSM'] if shadow else [])+(['ALPHA_TO_COVERAGE'] if coverage else [])
             files=[]
-            for source,stage in (('vegetation','vert'),('pbr','frag')):
+            for source,stage in ((vertex_source,'vert'),('pbr','frag')):
                 path=pathlib.Path(temp)/f'vegetation.{stage}'
                 text=expand(ROOT/f'data/shaders/pbr/{source}.{stage}')
                 text=text.replace('#version 330 core','#version 330 core\n'+''.join(f'#define {d} 1\n' for d in defines),1)
                 path.write_text(text);files.append(str(path))
             result=subprocess.run([args.validator,'-l',*files],text=True,capture_output=True)
             if result.returncode:raise RuntimeError(f'{defines}: {result.stdout}\n{result.stderr}')
-            vegetation.append({'defines':defines,'compile_and_link':'pass'})
+            vegetation.append({'vertex':vertex_source,'defines':defines,'compile_and_link':'pass'})
         world=[]
         for vertex,fragment in [('basic/basic.vert','basic/basic.frag'),('basic/particle.vert','basic/basic.frag'),('world/sky.vert','world/sky.frag'),('pbr/cube.vert','world/irradiance.frag'),('pbr/terrain.vert','world/depth.frag'),('pbr/cube.vert','world/visibility_test.frag'),('world/water.vert','world/water.frag'),('post/fullscreen.vert','post/luminance.frag'),('post/fullscreen.vert','post/adapt.frag'),('post/fullscreen.vert','post/bloom_down.frag'),('post/fullscreen.vert','post/bloom_up.frag'),('post/fullscreen.vert','post/composite.frag'),('post/fullscreen.vert','post/ssao.frag'),('post/fullscreen.vert','post/ssao_blur.frag')]:
             files=[]

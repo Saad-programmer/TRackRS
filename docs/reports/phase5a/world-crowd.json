@@ -1,0 +1,1062 @@
+{
+  "passed": true,
+  "viewport": [
+    640,
+    480
+  ],
+  "frames": 32,
+  "quality": "medium",
+  "timing_scope": "software functional integration; concurrent load possible, not hardware performance",
+  "runs": [
+    {
+      "name": "legacy",
+      "state_hash": "72d1a3ffd170d57c",
+      "native_exit": 0,
+      "accepted_driver_allocations": [],
+      "draw_calls": 217.483871,
+      "triangles": 476952.9677,
+      "passes": {
+        "mesh_submit": {
+          "calls": 155,
+          "cpu_ms_per_frame": 0.3730999355,
+          "gpu_ms_per_frame": 0.04069132258
+        },
+        "particles": {
+          "calls": 31,
+          "cpu_ms_per_frame": 0.239549,
+          "gpu_ms_per_frame": 0.4484761613
+        },
+        "post": {
+          "calls": 0,
+          "cpu_ms_per_frame": 0,
+          "gpu_ms_per_frame": null
+        },
+        "shadow_cascade_0": {
+          "calls": 0,
+          "cpu_ms_per_frame": 0,
+          "gpu_ms_per_frame": null
+        },
+        "shadow_cascade_1": {
+          "calls": 0,
+          "cpu_ms_per_frame": 0,
+          "gpu_ms_per_frame": null
+        },
+        "shadow_cascade_2": {
+          "calls": 0,
+          "cpu_ms_per_frame": 0,
+          "gpu_ms_per_frame": null
+        },
+        "shadow_cascade_3": {
+          "calls": 0,
+          "cpu_ms_per_frame": 0,
+          "gpu_ms_per_frame": null
+        },
+        "shadow_spectators": {
+          "calls": 0,
+          "cpu_ms_per_frame": 0,
+          "gpu_ms_per_frame": null
+        },
+        "shadow_terrain": {
+          "calls": 0,
+          "cpu_ms_per_frame": 0,
+          "gpu_ms_per_frame": null
+        },
+        "shadow_vegetation": {
+          "calls": 0,
+          "cpu_ms_per_frame": 0,
+          "gpu_ms_per_frame": null
+        },
+        "sky": {
+          "calls": 31,
+          "cpu_ms_per_frame": 0.146050129,
+          "gpu_ms_per_frame": 0.000193516129
+        },
+        "sky_ibl_bake": {
+          "calls": 0,
+          "cpu_ms_per_frame": 0,
+          "gpu_ms_per_frame": null
+        },
+        "spectators": {
+          "calls": 0,
+          "cpu_ms_per_frame": 0,
+          "gpu_ms_per_frame": null
+        },
+        "terrain": {
+          "calls": 31,
+          "cpu_ms_per_frame": 10.25436526,
+          "gpu_ms_per_frame": 0.06733229032
+        },
+        "terrain_probe": {
+          "calls": 0,
+          "cpu_ms_per_frame": 0,
+          "gpu_ms_per_frame": null
+        },
+        "ui_text": {
+          "calls": 310,
+          "cpu_ms_per_frame": 0.1319452903,
+          "gpu_ms_per_frame": 0.01534703226
+        },
+        "vegetation": {
+          "calls": 0,
+          "cpu_ms_per_frame": 0,
+          "gpu_ms_per_frame": null
+        },
+        "vegetation_probe": {
+          "calls": 0,
+          "cpu_ms_per_frame": 0,
+          "gpu_ms_per_frame": null
+        },
+        "water": {
+          "calls": 0,
+          "cpu_ms_per_frame": 0,
+          "gpu_ms_per_frame": null
+        }
+      }
+    },
+    {
+      "name": "noon-csm",
+      "state_hash": "72d1a3ffd170d57c",
+      "native_exit": 0,
+      "accepted_driver_allocations": [],
+      "draw_calls": 213.5806452,
+      "triangles": 238641.0645,
+      "passes": {
+        "mesh_submit": {
+          "calls": 620,
+          "cpu_ms_per_frame": 1.557473645,
+          "gpu_ms_per_frame": 0.001614129032
+        },
+        "particles": {
+          "calls": 31,
+          "cpu_ms_per_frame": 0.2444301935,
+          "gpu_ms_per_frame": 0.06654590323
+        },
+        "post": {
+          "calls": 31,
+          "cpu_ms_per_frame": 96.5177649,
+          "gpu_ms_per_frame": 14.79734313
+        },
+        "shadow_cascade_0": {
+          "calls": 31,
+          "cpu_ms_per_frame": 4.837362387,
+          "gpu_ms_per_frame": 5.192702387
+        },
+        "shadow_cascade_1": {
+          "calls": 31,
+          "cpu_ms_per_frame": 3.466545903,
+          "gpu_ms_per_frame": 4.546654677
+        },
+        "shadow_cascade_2": {
+          "calls": 31,
+          "cpu_ms_per_frame": 19.35156055,
+          "gpu_ms_per_frame": 23.46443342
+        },
+        "shadow_cascade_3": {
+          "calls": 0,
+          "cpu_ms_per_frame": 0,
+          "gpu_ms_per_frame": null
+        },
+        "shadow_spectators": {
+          "calls": 93,
+          "cpu_ms_per_frame": 1.785199581,
+          "gpu_ms_per_frame": 0.001264903226
+        },
+        "shadow_terrain": {
+          "calls": 93,
+          "cpu_ms_per_frame": 26.20105426,
+          "gpu_ms_per_frame": 3.779471194
+        },
+        "shadow_vegetation": {
+          "calls": 93,
+          "cpu_ms_per_frame": 4.338523677,
+          "gpu_ms_per_frame": 3.104418516
+        },
+        "sky": {
+          "calls": 31,
+          "cpu_ms_per_frame": 0.04117274194,
+          "gpu_ms_per_frame": 0.007104483871
+        },
+        "sky_ibl_bake": {
+          "calls": 1,
+          "cpu_ms_per_frame": 0.6771577097,
+          "gpu_ms_per_frame": 1.534945194
+        },
+        "spectators": {
+          "calls": 31,
+          "cpu_ms_per_frame": 0.02595383871,
+          "gpu_ms_per_frame": 6.974193548e-05
+        },
+        "terrain": {
+          "calls": 31,
+          "cpu_ms_per_frame": 8.458452484,
+          "gpu_ms_per_frame": 87.39164468
+        },
+        "terrain_probe": {
+          "calls": 0,
+          "cpu_ms_per_frame": 0,
+          "gpu_ms_per_frame": null
+        },
+        "ui_text": {
+          "calls": 310,
+          "cpu_ms_per_frame": 0.1582767419,
+          "gpu_ms_per_frame": 0.0156413871
+        },
+        "vegetation": {
+          "calls": 31,
+          "cpu_ms_per_frame": 0.1905452258,
+          "gpu_ms_per_frame": 0.0001074516129
+        },
+        "vegetation_probe": {
+          "calls": 0,
+          "cpu_ms_per_frame": 0,
+          "gpu_ms_per_frame": null
+        },
+        "water": {
+          "calls": 0,
+          "cpu_ms_per_frame": 0,
+          "gpu_ms_per_frame": null
+        }
+      }
+    },
+    {
+      "name": "night-csm",
+      "state_hash": "72d1a3ffd170d57c",
+      "native_exit": 0,
+      "accepted_driver_allocations": [],
+      "draw_calls": 239.2258065,
+      "triangles": 291154.1613,
+      "passes": {
+        "mesh_submit": {
+          "calls": 620,
+          "cpu_ms_per_frame": 1.603475484,
+          "gpu_ms_per_frame": 0.001231290323
+        },
+        "particles": {
+          "calls": 31,
+          "cpu_ms_per_frame": 0.2455592258,
+          "gpu_ms_per_frame": 0.07383609677
+        },
+        "post": {
+          "calls": 31,
+          "cpu_ms_per_frame": 95.44822981,
+          "gpu_ms_per_frame": 14.05234052
+        },
+        "shadow_cascade_0": {
+          "calls": 31,
+          "cpu_ms_per_frame": 3.767949065,
+          "gpu_ms_per_frame": 3.758105677
+        },
+        "shadow_cascade_1": {
+          "calls": 31,
+          "cpu_ms_per_frame": 2.904104323,
+          "gpu_ms_per_frame": 3.280702548
+        },
+        "shadow_cascade_2": {
+          "calls": 31,
+          "cpu_ms_per_frame": 9.708151806,
+          "gpu_ms_per_frame": 8.65221971
+        },
+        "shadow_cascade_3": {
+          "calls": 0,
+          "cpu_ms_per_frame": 0,
+          "gpu_ms_per_frame": null
+        },
+        "shadow_spectators": {
+          "calls": 93,
+          "cpu_ms_per_frame": 2.305698742,
+          "gpu_ms_per_frame": 0.0002023548387
+        },
+        "shadow_terrain": {
+          "calls": 93,
+          "cpu_ms_per_frame": 14.8807889,
+          "gpu_ms_per_frame": 3.072338742
+        },
+        "shadow_vegetation": {
+          "calls": 93,
+          "cpu_ms_per_frame": 3.100307,
+          "gpu_ms_per_frame": 3.067669032
+        },
+        "sky": {
+          "calls": 31,
+          "cpu_ms_per_frame": 0.03194516129,
+          "gpu_ms_per_frame": 0.007249741935
+        },
+        "sky_ibl_bake": {
+          "calls": 1,
+          "cpu_ms_per_frame": 0.6271275806,
+          "gpu_ms_per_frame": 1.580890097
+        },
+        "spectators": {
+          "calls": 31,
+          "cpu_ms_per_frame": 0.02524729032,
+          "gpu_ms_per_frame": 7.619354839e-05
+        },
+        "terrain": {
+          "calls": 31,
+          "cpu_ms_per_frame": 1.984230129,
+          "gpu_ms_per_frame": 87.02055268
+        },
+        "terrain_probe": {
+          "calls": 0,
+          "cpu_ms_per_frame": 0,
+          "gpu_ms_per_frame": null
+        },
+        "ui_text": {
+          "calls": 310,
+          "cpu_ms_per_frame": 0.1640708387,
+          "gpu_ms_per_frame": 0.01923029032
+        },
+        "vegetation": {
+          "calls": 31,
+          "cpu_ms_per_frame": 0.1832726129,
+          "gpu_ms_per_frame": 0.0001107419355
+        },
+        "vegetation_probe": {
+          "calls": 0,
+          "cpu_ms_per_frame": 0,
+          "gpu_ms_per_frame": null
+        },
+        "water": {
+          "calls": 0,
+          "cpu_ms_per_frame": 0,
+          "gpu_ms_per_frame": null
+        }
+      }
+    },
+    {
+      "name": "noon-blob",
+      "state_hash": "72d1a3ffd170d57c",
+      "native_exit": 0,
+      "accepted_driver_allocations": [],
+      "draw_calls": 47.93548387,
+      "triangles": 12710.93548,
+      "passes": {
+        "mesh_submit": {
+          "calls": 155,
+          "cpu_ms_per_frame": 0.3966742258,
+          "gpu_ms_per_frame": 0.0003220322581
+        },
+        "particles": {
+          "calls": 31,
+          "cpu_ms_per_frame": 0.2571335484,
+          "gpu_ms_per_frame": 0.06699135484
+        },
+        "post": {
+          "calls": 31,
+          "cpu_ms_per_frame": 86.54627794,
+          "gpu_ms_per_frame": 14.0094021
+        },
+        "shadow_cascade_0": {
+          "calls": 0,
+          "cpu_ms_per_frame": 0,
+          "gpu_ms_per_frame": null
+        },
+        "shadow_cascade_1": {
+          "calls": 0,
+          "cpu_ms_per_frame": 0,
+          "gpu_ms_per_frame": null
+        },
+        "shadow_cascade_2": {
+          "calls": 0,
+          "cpu_ms_per_frame": 0,
+          "gpu_ms_per_frame": null
+        },
+        "shadow_cascade_3": {
+          "calls": 0,
+          "cpu_ms_per_frame": 0,
+          "gpu_ms_per_frame": null
+        },
+        "shadow_spectators": {
+          "calls": 0,
+          "cpu_ms_per_frame": 0,
+          "gpu_ms_per_frame": null
+        },
+        "shadow_terrain": {
+          "calls": 0,
+          "cpu_ms_per_frame": 0,
+          "gpu_ms_per_frame": null
+        },
+        "shadow_vegetation": {
+          "calls": 0,
+          "cpu_ms_per_frame": 0,
+          "gpu_ms_per_frame": null
+        },
+        "sky": {
+          "calls": 31,
+          "cpu_ms_per_frame": 0.03021751613,
+          "gpu_ms_per_frame": 0.006257129032
+        },
+        "sky_ibl_bake": {
+          "calls": 1,
+          "cpu_ms_per_frame": 0.5914472258,
+          "gpu_ms_per_frame": 1.424679452
+        },
+        "spectators": {
+          "calls": 31,
+          "cpu_ms_per_frame": 0.02768932258,
+          "gpu_ms_per_frame": 7.516129032e-05
+        },
+        "terrain": {
+          "calls": 31,
+          "cpu_ms_per_frame": 6.582963419,
+          "gpu_ms_per_frame": 82.71970206
+        },
+        "terrain_probe": {
+          "calls": 0,
+          "cpu_ms_per_frame": 0,
+          "gpu_ms_per_frame": null
+        },
+        "ui_text": {
+          "calls": 310,
+          "cpu_ms_per_frame": 0.1442994194,
+          "gpu_ms_per_frame": 0.009952677419
+        },
+        "vegetation": {
+          "calls": 31,
+          "cpu_ms_per_frame": 0.2215721935,
+          "gpu_ms_per_frame": 9.141935484e-05
+        },
+        "vegetation_probe": {
+          "calls": 0,
+          "cpu_ms_per_frame": 0,
+          "gpu_ms_per_frame": null
+        },
+        "water": {
+          "calls": 0,
+          "cpu_ms_per_frame": 0,
+          "gpu_ms_per_frame": null
+        }
+      }
+    },
+    {
+      "name": "noon-cards",
+      "state_hash": "72d1a3ffd170d57c",
+      "native_exit": 0,
+      "accepted_driver_allocations": [],
+      "draw_calls": 317.7419355,
+      "triangles": 289965.0645,
+      "passes": {
+        "mesh_submit": {
+          "calls": 620,
+          "cpu_ms_per_frame": 1.488688355,
+          "gpu_ms_per_frame": 0.00115916129
+        },
+        "particles": {
+          "calls": 31,
+          "cpu_ms_per_frame": 0.2556491935,
+          "gpu_ms_per_frame": 0.09454941935
+        },
+        "post": {
+          "calls": 31,
+          "cpu_ms_per_frame": 101.7533862,
+          "gpu_ms_per_frame": 14.92669648
+        },
+        "shadow_cascade_0": {
+          "calls": 31,
+          "cpu_ms_per_frame": 5.179678452,
+          "gpu_ms_per_frame": 4.050690903
+        },
+        "shadow_cascade_1": {
+          "calls": 31,
+          "cpu_ms_per_frame": 3.831462516,
+          "gpu_ms_per_frame": 5.734493419
+        },
+        "shadow_cascade_2": {
+          "calls": 31,
+          "cpu_ms_per_frame": 23.37835013,
+          "gpu_ms_per_frame": 28.36443677
+        },
+        "shadow_cascade_3": {
+          "calls": 0,
+          "cpu_ms_per_frame": 0,
+          "gpu_ms_per_frame": null
+        },
+        "shadow_spectators": {
+          "calls": 93,
+          "cpu_ms_per_frame": 4.921721774,
+          "gpu_ms_per_frame": 2.384273677
+        },
+        "shadow_terrain": {
+          "calls": 93,
+          "cpu_ms_per_frame": 31.02791277,
+          "gpu_ms_per_frame": 2.684546226
+        },
+        "shadow_vegetation": {
+          "calls": 0,
+          "cpu_ms_per_frame": 0,
+          "gpu_ms_per_frame": null
+        },
+        "sky": {
+          "calls": 31,
+          "cpu_ms_per_frame": 0.03822867742,
+          "gpu_ms_per_frame": 0.007725709677
+        },
+        "sky_ibl_bake": {
+          "calls": 1,
+          "cpu_ms_per_frame": 0.8231188387,
+          "gpu_ms_per_frame": 1.853119581
+        },
+        "spectators": {
+          "calls": 31,
+          "cpu_ms_per_frame": 0.03149129032,
+          "gpu_ms_per_frame": 0.0001252903226
+        },
+        "terrain": {
+          "calls": 31,
+          "cpu_ms_per_frame": 8.948284645,
+          "gpu_ms_per_frame": 92.85475203
+        },
+        "terrain_probe": {
+          "calls": 0,
+          "cpu_ms_per_frame": 0,
+          "gpu_ms_per_frame": null
+        },
+        "ui_text": {
+          "calls": 310,
+          "cpu_ms_per_frame": 0.16759,
+          "gpu_ms_per_frame": 0.01628667742
+        },
+        "vegetation": {
+          "calls": 0,
+          "cpu_ms_per_frame": 0,
+          "gpu_ms_per_frame": null
+        },
+        "vegetation_probe": {
+          "calls": 0,
+          "cpu_ms_per_frame": 0,
+          "gpu_ms_per_frame": null
+        },
+        "water": {
+          "calls": 0,
+          "cpu_ms_per_frame": 0,
+          "gpu_ms_per_frame": null
+        }
+      }
+    },
+    {
+      "name": "noon-nopost",
+      "state_hash": "72d1a3ffd170d57c",
+      "native_exit": 0,
+      "accepted_driver_allocations": [],
+      "draw_calls": 199.5806452,
+      "triangles": 238641.0645,
+      "passes": {
+        "mesh_submit": {
+          "calls": 620,
+          "cpu_ms_per_frame": 1.654173194,
+          "gpu_ms_per_frame": 0.001148677419
+        },
+        "particles": {
+          "calls": 31,
+          "cpu_ms_per_frame": 0.2629960645,
+          "gpu_ms_per_frame": 0.4511346774
+        },
+        "post": {
+          "calls": 0,
+          "cpu_ms_per_frame": 0,
+          "gpu_ms_per_frame": null
+        },
+        "shadow_cascade_0": {
+          "calls": 31,
+          "cpu_ms_per_frame": 3.386536968,
+          "gpu_ms_per_frame": 3.927113548
+        },
+        "shadow_cascade_1": {
+          "calls": 31,
+          "cpu_ms_per_frame": 3.596393645,
+          "gpu_ms_per_frame": 4.104699581
+        },
+        "shadow_cascade_2": {
+          "calls": 31,
+          "cpu_ms_per_frame": 19.07124981,
+          "gpu_ms_per_frame": 23.07571561
+        },
+        "shadow_cascade_3": {
+          "calls": 0,
+          "cpu_ms_per_frame": 0,
+          "gpu_ms_per_frame": null
+        },
+        "shadow_spectators": {
+          "calls": 93,
+          "cpu_ms_per_frame": 1.73568129,
+          "gpu_ms_per_frame": 0.0001760322581
+        },
+        "shadow_terrain": {
+          "calls": 93,
+          "cpu_ms_per_frame": 24.57439106,
+          "gpu_ms_per_frame": 1.095952452
+        },
+        "shadow_vegetation": {
+          "calls": 93,
+          "cpu_ms_per_frame": 2.924216323,
+          "gpu_ms_per_frame": 0.670900129
+        },
+        "sky": {
+          "calls": 31,
+          "cpu_ms_per_frame": 0.04007583871,
+          "gpu_ms_per_frame": 0.005998806452
+        },
+        "sky_ibl_bake": {
+          "calls": 1,
+          "cpu_ms_per_frame": 1.108223516,
+          "gpu_ms_per_frame": 2.028258968
+        },
+        "spectators": {
+          "calls": 31,
+          "cpu_ms_per_frame": 0.0273973871,
+          "gpu_ms_per_frame": 7.180645161e-05
+        },
+        "terrain": {
+          "calls": 31,
+          "cpu_ms_per_frame": 8.253304645,
+          "gpu_ms_per_frame": 87.70341061
+        },
+        "terrain_probe": {
+          "calls": 0,
+          "cpu_ms_per_frame": 0,
+          "gpu_ms_per_frame": null
+        },
+        "ui_text": {
+          "calls": 310,
+          "cpu_ms_per_frame": 0.1509835161,
+          "gpu_ms_per_frame": 0.01926222581
+        },
+        "vegetation": {
+          "calls": 31,
+          "cpu_ms_per_frame": 0.1944560968,
+          "gpu_ms_per_frame": 9.890322581e-05
+        },
+        "vegetation_probe": {
+          "calls": 0,
+          "cpu_ms_per_frame": 0,
+          "gpu_ms_per_frame": null
+        },
+        "water": {
+          "calls": 0,
+          "cpu_ms_per_frame": 0,
+          "gpu_ms_per_frame": null
+        }
+      }
+    },
+    {
+      "name": "noon-nocrowd",
+      "state_hash": "72d1a3ffd170d57c",
+      "native_exit": 0,
+      "accepted_driver_allocations": [],
+      "draw_calls": 204.5806452,
+      "triangles": 229145.1935,
+      "passes": {
+        "mesh_submit": {
+          "calls": 620,
+          "cpu_ms_per_frame": 1.549667548,
+          "gpu_ms_per_frame": 0.003222806452
+        },
+        "particles": {
+          "calls": 31,
+          "cpu_ms_per_frame": 0.2624733226,
+          "gpu_ms_per_frame": 0.06896193548
+        },
+        "post": {
+          "calls": 31,
+          "cpu_ms_per_frame": 92.04526503,
+          "gpu_ms_per_frame": 13.3341559
+        },
+        "shadow_cascade_0": {
+          "calls": 31,
+          "cpu_ms_per_frame": 2.65198,
+          "gpu_ms_per_frame": 2.681579194
+        },
+        "shadow_cascade_1": {
+          "calls": 31,
+          "cpu_ms_per_frame": 2.796269581,
+          "gpu_ms_per_frame": 3.210655161
+        },
+        "shadow_cascade_2": {
+          "calls": 31,
+          "cpu_ms_per_frame": 19.05312994,
+          "gpu_ms_per_frame": 22.81149316
+        },
+        "shadow_cascade_3": {
+          "calls": 0,
+          "cpu_ms_per_frame": 0,
+          "gpu_ms_per_frame": null
+        },
+        "shadow_spectators": {
+          "calls": 0,
+          "cpu_ms_per_frame": 0,
+          "gpu_ms_per_frame": null
+        },
+        "shadow_terrain": {
+          "calls": 93,
+          "cpu_ms_per_frame": 23.08259487,
+          "gpu_ms_per_frame": 0.5636997742
+        },
+        "shadow_vegetation": {
+          "calls": 93,
+          "cpu_ms_per_frame": 2.93265529,
+          "gpu_ms_per_frame": 0.3959
+        },
+        "sky": {
+          "calls": 31,
+          "cpu_ms_per_frame": 0.03883725806,
+          "gpu_ms_per_frame": 0.006490258065
+        },
+        "sky_ibl_bake": {
+          "calls": 1,
+          "cpu_ms_per_frame": 0.658183129,
+          "gpu_ms_per_frame": 1.486885065
+        },
+        "spectators": {
+          "calls": 0,
+          "cpu_ms_per_frame": 0,
+          "gpu_ms_per_frame": null
+        },
+        "terrain": {
+          "calls": 31,
+          "cpu_ms_per_frame": 7.712438871,
+          "gpu_ms_per_frame": 84.32846771
+        },
+        "terrain_probe": {
+          "calls": 0,
+          "cpu_ms_per_frame": 0,
+          "gpu_ms_per_frame": null
+        },
+        "ui_text": {
+          "calls": 310,
+          "cpu_ms_per_frame": 0.1512704839,
+          "gpu_ms_per_frame": 0.02081777419
+        },
+        "vegetation": {
+          "calls": 31,
+          "cpu_ms_per_frame": 0.1674972258,
+          "gpu_ms_per_frame": 8.751612903e-05
+        },
+        "vegetation_probe": {
+          "calls": 0,
+          "cpu_ms_per_frame": 0,
+          "gpu_ms_per_frame": null
+        },
+        "water": {
+          "calls": 0,
+          "cpu_ms_per_frame": 0,
+          "gpu_ms_per_frame": null
+        }
+      }
+    },
+    {
+      "name": "noon-rain",
+      "state_hash": "72d1a3ffd170d57c",
+      "native_exit": 0,
+      "accepted_driver_allocations": [],
+      "draw_calls": 214.0967742,
+      "triangles": 239048.0968,
+      "passes": {
+        "mesh_submit": {
+          "calls": 620,
+          "cpu_ms_per_frame": 1.528724774,
+          "gpu_ms_per_frame": 0.001021
+        },
+        "particles": {
+          "calls": 31,
+          "cpu_ms_per_frame": 0.02211970968,
+          "gpu_ms_per_frame": 5.561290323e-05
+        },
+        "post": {
+          "calls": 31,
+          "cpu_ms_per_frame": 90.78969277,
+          "gpu_ms_per_frame": 13.55840039
+        },
+        "shadow_cascade_0": {
+          "calls": 31,
+          "cpu_ms_per_frame": 4.281124194,
+          "gpu_ms_per_frame": 4.844681903
+        },
+        "shadow_cascade_1": {
+          "calls": 31,
+          "cpu_ms_per_frame": 3.121187871,
+          "gpu_ms_per_frame": 4.034862161
+        },
+        "shadow_cascade_2": {
+          "calls": 31,
+          "cpu_ms_per_frame": 18.71583065,
+          "gpu_ms_per_frame": 22.50018226
+        },
+        "shadow_cascade_3": {
+          "calls": 0,
+          "cpu_ms_per_frame": 0,
+          "gpu_ms_per_frame": null
+        },
+        "shadow_spectators": {
+          "calls": 93,
+          "cpu_ms_per_frame": 1.721307516,
+          "gpu_ms_per_frame": 0.0002290322581
+        },
+        "shadow_terrain": {
+          "calls": 93,
+          "cpu_ms_per_frame": 24.76664932,
+          "gpu_ms_per_frame": 2.504409613
+        },
+        "shadow_vegetation": {
+          "calls": 93,
+          "cpu_ms_per_frame": 3.793606,
+          "gpu_ms_per_frame": 2.360145581
+        },
+        "sky": {
+          "calls": 31,
+          "cpu_ms_per_frame": 0.03660403226,
+          "gpu_ms_per_frame": 0.007023354839
+        },
+        "sky_ibl_bake": {
+          "calls": 1,
+          "cpu_ms_per_frame": 0.5893369677,
+          "gpu_ms_per_frame": 1.474397258
+        },
+        "spectators": {
+          "calls": 31,
+          "cpu_ms_per_frame": 0.02433245161,
+          "gpu_ms_per_frame": 6.64516129e-05
+        },
+        "terrain": {
+          "calls": 31,
+          "cpu_ms_per_frame": 7.846191355,
+          "gpu_ms_per_frame": 83.61788455
+        },
+        "terrain_probe": {
+          "calls": 0,
+          "cpu_ms_per_frame": 0,
+          "gpu_ms_per_frame": null
+        },
+        "ui_text": {
+          "calls": 310,
+          "cpu_ms_per_frame": 0.1436428065,
+          "gpu_ms_per_frame": 0.01214164516
+        },
+        "vegetation": {
+          "calls": 31,
+          "cpu_ms_per_frame": 0.1745630968,
+          "gpu_ms_per_frame": 8.987096774e-05
+        },
+        "vegetation_probe": {
+          "calls": 0,
+          "cpu_ms_per_frame": 0,
+          "gpu_ms_per_frame": null
+        },
+        "water": {
+          "calls": 0,
+          "cpu_ms_per_frame": 0,
+          "gpu_ms_per_frame": null
+        }
+      }
+    },
+    {
+      "name": "noon-snow",
+      "state_hash": "72d1a3ffd170d57c",
+      "native_exit": 0,
+      "accepted_driver_allocations": [],
+      "draw_calls": 214.8387097,
+      "triangles": 238764.4194,
+      "passes": {
+        "mesh_submit": {
+          "calls": 620,
+          "cpu_ms_per_frame": 1.491083839,
+          "gpu_ms_per_frame": 0.001084870968
+        },
+        "particles": {
+          "calls": 31,
+          "cpu_ms_per_frame": 0.0841413871,
+          "gpu_ms_per_frame": 0.09081454839
+        },
+        "post": {
+          "calls": 31,
+          "cpu_ms_per_frame": 89.90229142,
+          "gpu_ms_per_frame": 13.53586406
+        },
+        "shadow_cascade_0": {
+          "calls": 31,
+          "cpu_ms_per_frame": 4.561544323,
+          "gpu_ms_per_frame": 4.581310516
+        },
+        "shadow_cascade_1": {
+          "calls": 31,
+          "cpu_ms_per_frame": 3.060093419,
+          "gpu_ms_per_frame": 4.489023
+        },
+        "shadow_cascade_2": {
+          "calls": 31,
+          "cpu_ms_per_frame": 17.83580339,
+          "gpu_ms_per_frame": 21.38074161
+        },
+        "shadow_cascade_3": {
+          "calls": 0,
+          "cpu_ms_per_frame": 0,
+          "gpu_ms_per_frame": null
+        },
+        "shadow_spectators": {
+          "calls": 93,
+          "cpu_ms_per_frame": 1.670526226,
+          "gpu_ms_per_frame": 0.0001458387097
+        },
+        "shadow_terrain": {
+          "calls": 93,
+          "cpu_ms_per_frame": 24.11978687,
+          "gpu_ms_per_frame": 3.278026226
+        },
+        "shadow_vegetation": {
+          "calls": 93,
+          "cpu_ms_per_frame": 4.096697258,
+          "gpu_ms_per_frame": 3.108732742
+        },
+        "sky": {
+          "calls": 31,
+          "cpu_ms_per_frame": 0.0366713871,
+          "gpu_ms_per_frame": 0.007399612903
+        },
+        "sky_ibl_bake": {
+          "calls": 1,
+          "cpu_ms_per_frame": 0.5776489355,
+          "gpu_ms_per_frame": 1.423721194
+        },
+        "spectators": {
+          "calls": 31,
+          "cpu_ms_per_frame": 0.02514825806,
+          "gpu_ms_per_frame": 6.093548387e-05
+        },
+        "terrain": {
+          "calls": 31,
+          "cpu_ms_per_frame": 7.560607258,
+          "gpu_ms_per_frame": 82.56113074
+        },
+        "terrain_probe": {
+          "calls": 0,
+          "cpu_ms_per_frame": 0,
+          "gpu_ms_per_frame": null
+        },
+        "ui_text": {
+          "calls": 310,
+          "cpu_ms_per_frame": 0.1420807742,
+          "gpu_ms_per_frame": 0.007997032258
+        },
+        "vegetation": {
+          "calls": 31,
+          "cpu_ms_per_frame": 0.1773711613,
+          "gpu_ms_per_frame": 9.861290323e-05
+        },
+        "vegetation_probe": {
+          "calls": 0,
+          "cpu_ms_per_frame": 0,
+          "gpu_ms_per_frame": null
+        },
+        "water": {
+          "calls": 0,
+          "cpu_ms_per_frame": 0,
+          "gpu_ms_per_frame": null
+        }
+      }
+    },
+    {
+      "name": "noon-clear",
+      "state_hash": "72d1a3ffd170d57c",
+      "native_exit": 0,
+      "accepted_driver_allocations": [],
+      "draw_calls": 213.5806452,
+      "triangles": 238641.0645,
+      "passes": {
+        "mesh_submit": {
+          "calls": 620,
+          "cpu_ms_per_frame": 1.579174355,
+          "gpu_ms_per_frame": 0.001159612903
+        },
+        "particles": {
+          "calls": 31,
+          "cpu_ms_per_frame": 0.2531668065,
+          "gpu_ms_per_frame": 0.07862232258
+        },
+        "post": {
+          "calls": 31,
+          "cpu_ms_per_frame": 100.200577,
+          "gpu_ms_per_frame": 14.21326458
+        },
+        "shadow_cascade_0": {
+          "calls": 31,
+          "cpu_ms_per_frame": 4.751805355,
+          "gpu_ms_per_frame": 4.668319323
+        },
+        "shadow_cascade_1": {
+          "calls": 31,
+          "cpu_ms_per_frame": 3.275332645,
+          "gpu_ms_per_frame": 4.901787677
+        },
+        "shadow_cascade_2": {
+          "calls": 31,
+          "cpu_ms_per_frame": 19.01464506,
+          "gpu_ms_per_frame": 23.18974423
+        },
+        "shadow_cascade_3": {
+          "calls": 0,
+          "cpu_ms_per_frame": 0,
+          "gpu_ms_per_frame": null
+        },
+        "shadow_spectators": {
+          "calls": 93,
+          "cpu_ms_per_frame": 1.771481968,
+          "gpu_ms_per_frame": 0.001683387097
+        },
+        "shadow_terrain": {
+          "calls": 93,
+          "cpu_ms_per_frame": 25.64930226,
+          "gpu_ms_per_frame": 2.929060419
+        },
+        "shadow_vegetation": {
+          "calls": 93,
+          "cpu_ms_per_frame": 4.243068129,
+          "gpu_ms_per_frame": 2.668218903
+        },
+        "sky": {
+          "calls": 31,
+          "cpu_ms_per_frame": 0.04171777419,
+          "gpu_ms_per_frame": 0.008039580645
+        },
+        "sky_ibl_bake": {
+          "calls": 1,
+          "cpu_ms_per_frame": 0.7854348387,
+          "gpu_ms_per_frame": 1.732800548
+        },
+        "spectators": {
+          "calls": 31,
+          "cpu_ms_per_frame": 0.02647029032,
+          "gpu_ms_per_frame": 5.406451613e-05
+        },
+        "terrain": {
+          "calls": 31,
+          "cpu_ms_per_frame": 8.568691065,
+          "gpu_ms_per_frame": 91.53818694
+        },
+        "terrain_probe": {
+          "calls": 0,
+          "cpu_ms_per_frame": 0,
+          "gpu_ms_per_frame": null
+        },
+        "ui_text": {
+          "calls": 310,
+          "cpu_ms_per_frame": 0.1477010323,
+          "gpu_ms_per_frame": 0.01807593548
+        },
+        "vegetation": {
+          "calls": 31,
+          "cpu_ms_per_frame": 0.1761217419,
+          "gpu_ms_per_frame": 9.709677419e-05
+        },
+        "vegetation_probe": {
+          "calls": 0,
+          "cpu_ms_per_frame": 0,
+          "gpu_ms_per_frame": null
+        },
+        "water": {
+          "calls": 0,
+          "cpu_ms_per_frame": 0,
+          "gpu_ms_per_frame": null
+        }
+      }
+    }
+  ]
+}

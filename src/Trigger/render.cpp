@@ -5,6 +5,7 @@
 #include "engine/world/renderer.h"
 #include "engine/vegetation/renderer.h"
 #include "engine/post/post.h"
+#include "engine/dressing/renderer.h"
 #include "engine/world/state.h"
 #include <glm/gtc/type_ptr.hpp>
 // Creator: Saad AIT YAHIA - @github: Saad-programmer
@@ -841,6 +842,11 @@ void MainApp::renderStateGame(float eyetranslation)
     glm::mat4 worldProjection;trackrs::draw::read(trackrs::draw::ProjectionMatrix,glm::value_ptr(worldProjection));
     trackrs::world::prepare(pbrView,worldProjection,cfg.getRenderQuality(),trackrs::pbr::shaderDirectory().parent_path().parent_path());
     trackrs::vegetation::setAnimationTime(game->animationtime); // deterministic under replays
+    {
+        std::vector<glm::vec3> cars;
+        for (auto *v : game->vehicle) { const vec3f c = v->body->getPosition(); cars.push_back({c.x, c.y, c.z}); }
+        trackrs::dressing::setFrame(game->animationtime, cars);
+    }
     {
         auto &world = trackrs::world::state();
         if (world.settings.enabled && trackrs::world::headlightsOn(world.sun, world.settings.weather.overcast))

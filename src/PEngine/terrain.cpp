@@ -7,6 +7,7 @@
 #include "../../engine/core/wrap.h"
 #include "engine/terrain/renderer.h"
 #include "engine/vegetation/renderer.h"
+#include "engine/dressing/renderer.h"
 #include "engine/world/state.h"
 #include "engine/pbr/renderer.h"
 #include <glm/gtc/type_ptr.hpp>
@@ -22,6 +23,7 @@ void PTerrain::unload()
   loaded = false;
 
   tile.clear();
+  dressingRenderer.reset();
   vegetationRenderer.reset();
   worldRenderer.reset();
 
@@ -777,6 +779,12 @@ void PTerrain::ensureWorldRenderer() {
     
 }
 
+void PTerrain::setPeople(std::vector<trackrs::dressing::Person> placed)
+{
+  people = std::move(placed);
+  if (dressingRenderer) dressingRenderer->setPeople(people);
+}
+
 void PTerrain::render(const vec3f &campos, const mat44f &camorim, bool reflectionCapture)
 {
   validation::PassScope timing(trackrs::world::state().depthPass ? "shadow_terrain" : reflectionCapture ? "terrain_probe" : "terrain");
@@ -857,6 +865,15 @@ void PTerrain::render(const vec3f &campos, const mat44f &camorim, bool reflectio
           if(!t->foliage[b].inst.empty())
             plants.add(b,vegetationRenderer->form(b),t->foliage[b].inst.data(),t->foliage[b].inst.size(),sizeof(PTerrainFoliage));
       vegetationRenderer->submit(projection*view,reflectionCapture||trackrs::world::state().linearCapture);
+    }
+    if(trackrs::dressing::settings().enabled&&!people.empty()&&!reflectionCapture) {
+      validation::PassScope dressingTiming(trackrs::world::state().depthPass ? "shadow_spectators" : "spectators");
+      if(!dressingRenderer) {
+        dressingRenderer=std::make_unique<trackrs::dressing::Renderer>(trackrs::pbr::shaderDirectory().parent_path().parent_path());
+        dressingRenderer->setPeople(people);
+      }
+      const auto pass=trackrs::world::state().depthPass?trackrs::vegetation::Pass::Shadow:trackrs::vegetation::Pass::Main;
+      dressingRenderer->draw({campos.x,campos.y,campos.z},projection*view,pass,trackrs::terrain::settings().quality,trackrs::world::state().linearCapture);
     }
   } else {
   // Draw terrain

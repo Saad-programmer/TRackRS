@@ -124,6 +124,9 @@ private:
 	std::vector<CheckPoint> checkpt;
 	// Codriver checkpoints
 	std::vector<CodriverCP> codrivercheckpt;
+	/// Mandatory and co-driver checkpoints in document (driving) order; only
+	/// used to guide stage dressing, never by the race rules or physics.
+	std::vector<vec3f> routepoints;
 
 	int number_of_laps = 1;
 

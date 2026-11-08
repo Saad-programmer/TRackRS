@@ -35,7 +35,7 @@ def check(path, chain=()):
                 raise RuntimeError(f"higher-layer include: {origin} -> {relative}")
             check(target, (*chain, path))
 
-for folder in ("src/PEngine", "src/PSim", "engine/core", "engine/renderer", "engine/rhi", "engine/render", "engine/media", "engine/mesh", "engine/pbr", "engine/assets", "engine/terrain", "engine/vegetation", "engine/world", "engine/post"):
+for folder in ("src/PEngine", "src/PSim", "engine/core", "engine/renderer", "engine/rhi", "engine/render", "engine/media", "engine/mesh", "engine/pbr", "engine/assets", "engine/terrain", "engine/vegetation", "engine/world", "engine/post", "engine/dressing"):
     for path in (ROOT / folder).rglob("*"):
         if path.suffix in (".cpp", ".h"):
             check(path)

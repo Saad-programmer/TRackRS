@@ -36,6 +36,7 @@ POption::POption(Gui &parent, PConfig &config) :
   options.push_back({ OptionTimeOfDay, "Time of day", { "Dawn", "Noon", "Golden hour", "Dusk", "Night", "Midnight" }, 1 });
   options.push_back({ OptionShadows, "Shadows (PBR)", { "Blob", "CSM" }, 1 });
   options.push_back({ OptionVegetation, "Vegetation (PBR)", { "Cards", "3D" }, 1 });
+  options.push_back({ OptionCrowd, "Spectators (PBR)", { "Off", "On" }, 1 });
   options.push_back({ OptionPostProcessing, "Post FX (PBR)", { "Off", "On" }, 1 });
   options.push_back({ OptionWeatherPreset, "Weather (PBR)", { "Stage", "Clear", "Rain", "Snow", "Fog" }, 0 });
   options.push_back({ OptionSnowflakes, "Snowflakes",
@@ -123,6 +124,7 @@ void POption::select(int index)
   case OptionShadows:cfg.setCsm(column!=0);break;
   case OptionVegetation:cfg.setVegetationMeshes(column!=0);break;
   case OptionPostProcessing:cfg.setPostProcessing(column!=0);break;
+  case OptionCrowd:cfg.setCrowd(column!=0);break;
   case OptionWeatherPreset:{const char* names[]={"level","clear","rain","snow","fog"};cfg.setWeatherPreset(names[column]);break;}
   case OptionSnowflakes:
     if (column) {
@@ -240,6 +242,7 @@ void POption::updateSelect(Option &option)
   case OptionShadows:option.select=cfg.getCsm()?1:0;break;
   case OptionVegetation:option.select=cfg.getVegetationMeshes()?1:0;break;
   case OptionPostProcessing:option.select=cfg.getPostProcessing()?1:0;break;
+  case OptionCrowd:option.select=cfg.getCrowd()?1:0;break;
   case OptionWeatherPreset:{const char* names[]={"level","clear","rain","snow","fog"};for(unsigned i=0;i<5;++i)if(cfg.getWeatherPreset()==names[i])option.select=i;break;}
   case OptionSnowflakes:
     if (cfg.getWeather())

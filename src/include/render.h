@@ -2,6 +2,7 @@
 #include "engine/core/lru_cache.h"
 namespace trackrs::terrain { class Renderer; }
 namespace trackrs::vegetation { class Renderer; }
+namespace trackrs::dressing { class Renderer; struct Person; }
 namespace trackrs::mesh { struct MeshData; }
 namespace trackrs::pbr { class Model; }
 #include "../../engine/core/pcg32.h"
@@ -487,6 +488,7 @@ public:
     /// @retval true        If no roadmap was loaded.
     ///
     bool isOnRoad(float px, float py, float ms) const;
+    bool loaded() const { return !bitmap.empty(); }
 
 private:
 
@@ -556,6 +558,8 @@ protected:
   trackrs::LruCache<trackrs::TileKey, std::unique_ptr<PTerrainTile>, trackrs::TileHash> tile{128};
   std::unique_ptr<trackrs::terrain::Renderer> worldRenderer;
   std::unique_ptr<trackrs::vegetation::Renderer> vegetationRenderer;
+  std::unique_ptr<trackrs::dressing::Renderer> dressingRenderer;
+  std::vector<trackrs::dressing::Person> people;
 
   // tiles share index buffers
   PVBuffer ind;
@@ -581,6 +585,8 @@ public:
   void drawSplat(float x, float y, float scale, float angle);
 
   const std::vector<PTerrainFoliage> *getFoliageAtPos(const vec3f &pos) const;
+  /// Visual-only stage dressing (spectators, crews). Never used by physics.
+  void setPeople(std::vector<trackrs::dressing::Person> people);
 
   struct ContactInfo {
     vec3f pos;
@@ -594,6 +600,7 @@ public:
     /// @retval true            If no roadmap was loaded.
     /// @see `RoadMap`.
     ///
+    bool hasRoadmap() const { return rmap.loaded(); }
     bool getRmapOnRoad(const vec3f &pos) const
     {
         return rmap.isOnRoad(pos.x, pos.y, getMapSize());

@@ -4,6 +4,8 @@
 #include "psim.h"
 #include "vehicle.h"
 #include "engine/world/state.h"
+#include "engine/dressing/renderer.h"
+#include "engine/core/pcg32.h"
 
 // size of the checkpoints
 #define CODRIVER_CHECKPOINT_RADIUS 20
@@ -279,11 +281,13 @@ bool TriggerGame::loadLevel(const std::string &filename)
 					if (val != nullptr)
 					{
 						codrivercheckpt.push_back({{coords.x, coords.y, terrain->getHeight(coords.x, coords.y)}, val});
+						routepoints.push_back(vec3f(coords.x, coords.y, terrain->getHeight(coords.x, coords.y)));
 					}
 					// if is a mandatory regular checkpoint
 					else
 					{
 						checkpt.push_back(vec3f(coords.x, coords.y, terrain->getHeight(coords.x, coords.y)));
+						routepoints.push_back(checkpt.back().pt);
 					}
 				}
 				// if is the start position 
@@ -459,6 +463,28 @@ bool TriggerGame::loadLevel(const std::string &filename)
 	othertime = 3.0f;
 	cptime = -4.0f;
 	gamestate = Gamestate::countdown;
+
+	// Spectators, TV camera operators and a news crew in safe, logical places
+	// (visual only: never part of collision or the simulation state).
+	{
+		std::vector<glm::vec3> route{{start_pos.x, start_pos.y, start_pos.z}}, checkpoints;
+		for (const auto &cp : routepoints) checkpoints.push_back({cp.x, cp.y, cp.z}); // all checkpoints, document order
+		route.insert(route.end(), checkpoints.begin(), checkpoints.end());
+		trackrs::dressing::StageQueries stage;
+		stage.height = [this](float x, float y) { return terrain->getHeight(x, y); };
+		stage.onRoad = [this](float x, float y) { return terrain->getRmapOnRoad(vec3f(x, y, 0)); };
+		stage.waterHeight = water.enabled ? water.height : -1e9f;
+		stage.hasRoadmap = terrain->hasRoadmap();
+		// Prefer the real road centreline traced on the roadmap; sparse
+		// checkpoints alone cut across corners.
+		auto traced = trackrs::dressing::traceRoad(route.front(), checkpoints, stage);
+		if (traced.size() > route.size()) route = std::move(traced);
+		trackrs::dressing::Rules rules;
+		rules.density = trackrs::dressing::settings().enabled ? 1.0f : 0.0f;
+		auto people = trackrs::dressing::dressStage(route, stage, rules, trackrs::stageSeed(filename));
+		PUtil::outLog() << "Stage dressing: " << people.size() << " people along " << route.size() << " route points\n";
+		terrain->setPeople(std::move(people));
+	}
 
 	// PBR surfaces/sky follow the stage weather unless the player chose a preset.
 	// Precipitation particles follow the preset too; both are presentation-only.

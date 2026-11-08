@@ -12,9 +12,9 @@ p.add_argument('--frames',type=int,default=32);p.add_argument('--quality',choice
 a=p.parse_args();a.output.mkdir(parents=True,exist_ok=True);(a.output/'result.json').unlink(missing_ok=True)
 env=dict(os.environ,LIBGL_ALWAYS_SOFTWARE='1',ALSOFT_DRIVERS='null',ASAN_OPTIONS='detect_leaks=1:fast_unwind_on_malloc=0:malloc_context_size=64:halt_on_error=1',LSAN_OPTIONS='exitcode=23:max_leaks=0',UBSAN_OPTIONS='halt_on_error=1:print_stacktrace=1')
 results=[]
-def run(name,renderer,time,shadows,vegetation='3d',weather='level',post='on'):
+def run(name,renderer,time,shadows,vegetation='3d',weather='level',post='on',crowd='on'):
  target=(a.output/(name+'.json')).resolve();image=target.with_suffix('.ppm');target.unlink(missing_ok=True)
- command=[str(a.binary.resolve()),'--headless','--data-dir',str(ROOT/'data'),'--renderer',renderer,'--quality',a.quality,'--width',str(a.width),'--height',str(a.height),'--time-of-day',time,'--shadows',shadows,'--vegetation',vegetation,'--weather',weather,'--post',post,'--stage','ahead','--vehicle','cordo_kitcar','--frames',str(a.frames),'--replay',str(ROOT/'tests/replays/baseline.csv'),'--json',str(target),'--screenshot',str(image)]
+ command=[str(a.binary.resolve()),'--headless','--data-dir',str(ROOT/'data'),'--renderer',renderer,'--quality',a.quality,'--width',str(a.width),'--height',str(a.height),'--time-of-day',time,'--shadows',shadows,'--vegetation',vegetation,'--weather',weather,'--post',post,'--crowd',crowd,'--stage','ahead','--vehicle','cordo_kitcar','--frames',str(a.frames),'--replay',str(ROOT/'tests/replays/baseline.csv'),'--json',str(target),'--screenshot',str(image)]
  log=a.output/(name+'.log')
  with tempfile.TemporaryDirectory(prefix='trackrs-world-') as profile:
   with log.open('w') as stream:r=subprocess.run(command,env=dict(env,XDG_DATA_HOME=profile),stdout=stream,stderr=subprocess.STDOUT,timeout=900)
@@ -33,6 +33,11 @@ def run(name,renderer,time,shadows,vegetation='3d',weather='level',post='on'):
   assert report['draw_calls']<=1500 and report['triangles']<=3000000, 'High submission budgets exceeded'
   for i in range(world['cascade_count']):assert report['passes'][f'shadow_cascade_{i}']['calls']==(a.frames-1 if shadows=='csm' else 0)
   w=world['weather'];assert w['selection']==weather
+  dj=Path(str(target)+'.dressing.json')
+  if crowd=='on':
+   d=json.loads(dj.read_text());assert d['spectators']>50 and d['reporters']==1 and d['camera_operators']>=2,'stage dressing missing people or crews'
+   assert report['passes']['spectators']['calls']==a.frames-1
+  else:assert not dj.exists() and report['passes']['spectators']['calls']==0,'crowd ran while disabled'
   pj=Path(str(target)+'.post.json')
   if post=='on':
    pr=json.loads(pj.read_text());assert pr['resolves']>=a.frames-1 and pr['bloom_levels']>0,'post did not resolve every frame'
@@ -59,5 +64,6 @@ for time in a.times:assert run(time+'-csm','pbr',time,'csm')==reference,'world l
 assert run('noon-blob','pbr','noon','blob')==reference,'blob selection changed physics'
 assert run('noon-cards','pbr','noon','csm','cards')==reference,'vegetation selection changed physics'
 assert run('noon-nopost','pbr','noon','csm','3d','level','off')==reference,'post selection changed physics'
+assert run('noon-nocrowd','pbr','noon','csm','3d','level','on','off')==reference,'crowd selection changed physics'
 for weather in ('rain','snow','clear'):assert run('noon-'+weather,'pbr','noon','csm','3d',weather)==reference,'weather changed physics'
 (a.output/'result.json').write_text(json.dumps({'passed':True,'viewport':[a.width,a.height],'frames':a.frames,'quality':a.quality,'timing_scope':'software functional integration; concurrent load possible, not hardware performance','runs':results},indent=2)+'\n')
