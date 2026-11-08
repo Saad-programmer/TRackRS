@@ -73,7 +73,7 @@ struct Renderer {
   std::unique_ptr<pbr::ReflectionProbe> environment;
   GLuint vao = 0, fbo = 0, diffuse = 0, shadow = 0;
   unsigned shadowSize = 0, shadowCount = 0;
-  float bakedHour = -1;
+  float bakedHour = -1, bakedOvercast = -1;
   std::filesystem::path shaders;
   explicit Renderer(const std::filesystem::path &data)
       : sky(data / "shaders/world/sky.vert", data / "shaders/world/sky.frag",
@@ -116,6 +116,7 @@ void solar(GLuint p) {
   glUniform1f(glGetUniformLocation(p, "uDaylight"), s.sun.daylight);
   glUniform3fv(glGetUniformLocation(p, "uSunSkyRadiance"), 1,
                glm::value_ptr(s.sun.skyRadiance));
+  glUniform1f(glGetUniformLocation(p, "uOvercast"), s.settings.weather.overcast);
 }
 } // namespace
 void drawSky(const glm::mat4 &projection, const glm::mat4 &view,
@@ -167,7 +168,8 @@ void prepare(const glm::mat4 &view, const glm::mat4 &projection,
   if (r.sky.poll() | r.irradiance.poll())
     r.bakedHour = -1;
   r.base.pump();
-  if (r.base.ready() && r.bakedHour != s.settings.hour) {
+  if (r.base.ready() && (r.bakedHour != s.settings.hour ||
+                         r.bakedOvercast != s.settings.weather.overcast)) {
     validation::PassScope timing("sky_ibl_bake");
     s.sky = 0;
     s.irradiance = 0;
@@ -204,6 +206,7 @@ void prepare(const glm::mat4 &view, const glm::mat4 &projection,
     s.irradiance = r.diffuse;
     s.environmentLod = r.environment->maxLod();
     r.bakedHour = s.settings.hour;
+    r.bakedOvercast = s.settings.weather.overcast;
   }
   const bool high =
       quality == RenderQuality::High || quality == RenderQuality::Ultra;
@@ -287,7 +290,11 @@ void renderShadows(const std::function<void(const glm::mat4 &)> &casters) {
 void shutdown() {
   renderer.reset();
   auto settings = state().settings;
+  auto name = state().weatherName;
+  auto level = state().levelWeather;
   state() = State{};
+  state().weatherName = name;
+  state().levelWeather = level;
   configure(settings);
 }
 void writeReport(const std::filesystem::path &path) {
@@ -298,6 +305,13 @@ nlohmann::json report() {
   auto &s = state();
   return {
       {"hour", s.settings.hour},
+      {"weather",
+       {{"selection", s.weatherName},
+        {"wetness", s.settings.weather.wetness},
+        {"puddles", s.settings.weather.puddles},
+        {"snow", s.settings.weather.snow},
+        {"overcast", s.settings.weather.overcast},
+        {"fog_density", s.settings.weather.fogDensity}}},
       {"sun_direction",
        {s.sun.direction.x, s.sun.direction.y, s.sun.direction.z}},
       {"sky_source_radiance",

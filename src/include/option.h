@@ -33,6 +33,7 @@ private:
     OptionTimeOfDay,
     OptionShadows,
     OptionVegetation,
+    OptionWeatherPreset,
     OptionSnowflakes,
     OptionSpeedUnits,
     OptionGhostCars,

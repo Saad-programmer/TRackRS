@@ -1,8 +1,8 @@
-# Phase 3c — item 1: native instanced 3D vegetation
+# Phase 3c — world dressing: vegetation and weather
 
-Status: **in progress.** This report covers the first Phase 3c item only. Weather
-(rain, snow, wet surfaces), water and puddles, the road ribbon, night headlights
-and the post-FX stack have not started. No `phase-3c-done` tag is warranted yet.
+Status: **in progress.** Item 1 (instanced 3D vegetation) and item 2 (weather
+surfaces, puddles, snow cover, overcast sky, stage fog) are done. Remaining:
+water reflections, road ribbon, night headlights; post-FX is Phase 3d. No `phase-3c-done` tag is warranted yet.
 Legacy remains the default renderer; nothing in the Legacy path changed.
 
 ## What shipped
@@ -140,3 +140,47 @@ hand-off command.
   (a Phase 3 post-FX item) will resolve it.
 * Probes use impostors only, and grass casts no shadows. Both are budget
   choices, not omissions.
+
+
+# Item 2: stage weather in the PBR world
+
+Before this item, the PBR path ignored each stage's `<weather>` (rain, snowfall,
+fog density) except for the legacy precipitation particles, and its height fog
+used a constant density. Now one CPU `Weather` state (`engine/world/atmosphere`)
+drives every PBR pass:
+
+* **Source.** `weatherFromLevel(rain, snowfall, fogdensity)` maps the stage's
+  legacy attributes to wetness, puddles, snow, overcast and fog density. The old
+  default fog density (.01) maps to the Phase 3b constant (.003 /m). Players can
+  override it with **Weather (PBR): Stage / Clear / Rain / Snow / Fog**
+  (`graphics.weatherpreset`, `--weather level|clear|rain|snow|fog`). A preset
+  also sets the precipitation particle rates; these are cosmetic and use their
+  own effects RNG.
+* **Surfaces** (`pbr.frag`, all permutations, in world space so cars, plants and
+  terrain agree):
+  * the water film darkens porous albedo and adds a moderate sheen;
+  * puddles form only on flat (n·z > .96) tarmac, gravel, dirt and mud texels,
+    from a two-octave world-space noise mask. They are mirror-smooth with flat
+    normals, so they reflect the sky IBL and the sun glint;
+  * snow whitens and roughens upward-facing surfaces, including tree crowns;
+  * leaves get only a light wet sheen, so wet forests don't turn silver.
+* **Sky and light.** Cloud cover attenuates the direct beam (by up to 85 %),
+  greys and brightens the sky dome, hides the sun disc, stars and moon, and
+  raises ambient light. The sky IBL rebakes when cloud cover changes. Fog density
+  comes from the weather state.
+* **Physics is untouched.** Grip on wet or snowy surfaces belongs to Phase 6's
+  surface μ table. The world runner proves the physics hash is identical for
+  Stage, Rain, Snow and Clear (`72d1a3ffd170d57c`,
+  [world-weather.json](phase3c/world-weather.json)).
+
+Tests: two new doctest cases (level mapping is bounded and monotonic,
+non-finite inputs are rejected, preset values, cloud-cover radiance), and new
+weather assertions in `run_world.py`. All shader permutations compile.
+
+![weather presets](phase3c/weather-presets.png)
+![stage-driven light rain](phase3c/weather-mud-level.png)
+
+Known gaps: rain streaks, windscreen droplets, splashes and lightning are not
+implemented (the legacy rain particles remain). Weather is static for a stage;
+dynamic transitions are backlog §8.1. The legacy cards/basic shader path (Legacy
+renderer, retained legacy car meshes) does not receive wetness or snow.

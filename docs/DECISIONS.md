@@ -215,3 +215,13 @@ is excluded from CSM casters and probes; probes use impostors only. Consequence:
 3D vegetation is the PBR default (`graphics.vegetation`, `--vegetation 3d|cards`);
 Legacy rendering, legacy goldens and physics hashes are untouched. Weather, water,
 road ribbon and post-FX remain later Phase 3 items.
+
+## Phase 3c (item 2): stage weather as presentation state
+
+Context: stages already carry rain/snowfall/fog, but the PBR world ignored them.
+Decision: derive one bounded `Weather` (wetness, puddles, snow, overcast, fog
+density) from the stage, overridable by a player preset; apply it in the shared
+shaders in world space; attenuate the solar beam with cloud cover and rebake sky
+IBL on change. Puddles are restricted to flat road-like terrain classes. Weather
+never feeds physics in this phase (grip is Phase 6). Consequence: wet/snowy/
+foggy stages finally look like their data; physics and legacy goldens unchanged.

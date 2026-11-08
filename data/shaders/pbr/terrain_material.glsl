@@ -4,7 +4,7 @@ uniform sampler2DArray uTerrainNormal;
 uniform sampler2DArray uTerrainOrm;
 uniform usampler2D uTerrainTypes;
 uniform float uWorldPeriod;
-struct TerrainSurface { vec3 albedo; vec3 normal; vec3 orm; };
+struct TerrainSurface { vec3 albedo; vec3 normal; vec3 orm; float puddleable; };
 vec3 terrainTri(sampler2DArray map, vec3 p, float layer, vec3 weights, vec3 dx, vec3 dy) {
     return textureGrad(map,vec3(p.yz,layer),dx.yz,dy.yz).rgb*weights.x
           +textureGrad(map,vec3(p.xz,layer),dx.xz,dy.xz).rgb*weights.y
@@ -40,6 +40,8 @@ TerrainSurface terrainMaterial(vec3 world, vec3 normal) {
         detail+=(vec3(0,nx)*tri.x+vec3(ny.x,0,ny.y)*tri.y+vec3(nz,0)*tri.z)*w;
     }
     result.albedo*=macro;
+    // Standing water collects on tarmac, gravel, dirt and mud, not grass/sand/snow/ice.
+    result.puddleable=surface[0]+surface[1]+surface[2]+surface[7];
     result.normal=normalize(normal+detail*0.55);
     return result;
 }

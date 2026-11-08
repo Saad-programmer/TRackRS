@@ -28,6 +28,56 @@ Sun sunlight(float hour) {
                             result.daylight);
   return result;
 }
+Sun overcastSun(Sun sun, float overcast) {
+  const float o = std::clamp(std::isfinite(overcast) ? overcast : 0.f, 0.f, 1.f);
+  const float beam = 1.f - .85f * o;
+  // Clouds scatter the beam into a whiter, dimmer sky dome.
+  const glm::vec3 grey(std::max({sun.skyRadiance.x, sun.skyRadiance.y, sun.skyRadiance.z}));
+  sun.radiance *= beam;
+  sun.skyRadiance = glm::mix(sun.skyRadiance, grey * .55f, o);
+  sun.ambient = glm::mix(sun.ambient, sun.ambient * 1.6f + glm::vec3(.02f) * sun.daylight, o);
+  return sun;
+}
+Weather weatherFromLevel(float rain, float snowfall, float fog) {
+  auto finite = [](float v) { return std::isfinite(v) ? std::max(v, 0.f) : 0.f; };
+  rain = finite(rain);
+  snowfall = finite(snowfall);
+  fog = finite(fog);
+  Weather w;
+  const float r = std::clamp(rain / 1500.f, 0.f, 1.f), s = std::clamp(snowfall / 1000.f, 0.f, 1.f);
+  if (rain > 0) {
+    w.wetness = .35f + .6f * r;
+    w.puddles = .2f + .6f * r;
+  }
+  if (snowfall > 0) {
+    w.snow = .45f + .45f * s;
+    w.wetness = std::max(w.wetness, .15f);
+  }
+  w.overcast = std::max(rain > 0 ? .45f + .45f * r : 0.f, snowfall > 0 ? .4f + .3f * s : 0.f);
+  // Legacy GL_EXP densities were tuned for a short far plane; .01 (the old
+  // default) maps to the Phase 3b constant .003 /m.
+  w.fogDensity = std::clamp(fog * .3f, .0005f, .012f);
+  return w;
+}
+bool validWeatherName(std::string_view name) {
+  return name == "level" || name == "clear" || name == "rain" || name == "snow" || name == "fog";
+}
+Weather weatherPreset(std::string_view name, const Weather &level) {
+  if (name == "level")
+    return level;
+  Weather w;
+  if (name == "clear")
+    w.fogDensity = .0015f;
+  else if (name == "rain")
+    w = {.9f, .7f, 0.f, .85f, .005f};
+  else if (name == "snow")
+    w = {.2f, 0.f, .85f, .65f, .005f};
+  else if (name == "fog")
+    w = {.3f, .1f, 0.f, .55f, .012f};
+  else
+    throw std::invalid_argument("weather must be level, clear, rain, snow or fog");
+  return w;
+}
 float presetHour(std::string_view name) {
   if (name == "dawn")
     return 6;

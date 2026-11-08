@@ -88,3 +88,41 @@ TEST_CASE("solar motion does not flip the stabilised shadow basis") {
     previous = axis;
   }
 }
+TEST_CASE("stage weather maps to bounded presentation state") {
+  auto dry = weatherFromLevel(0, 0, .01f);
+  CHECK(dry.wetness == 0);
+  CHECK(dry.snow == 0);
+  CHECK(dry.overcast == 0);
+  CHECK(dry.fogDensity == doctest::Approx(.003f)); // old default -> Phase 3b constant
+  auto light = weatherFromLevel(140, 0, .007f), heavy = weatherFromLevel(4000, 0, .007f);
+  CHECK(light.wetness > 0);
+  CHECK(heavy.wetness > light.wetness);
+  CHECK(heavy.puddles > light.puddles);
+  CHECK(heavy.overcast > light.overcast);
+  for (const auto &w : {light, heavy, weatherFromLevel(0, 800, .02f), weatherFromLevel(1e9f, 1e9f, 1e9f),
+                        weatherFromLevel(-5, std::nanf(""), -1)})
+    for (float v : {w.wetness, w.puddles, w.snow, w.overcast}) {
+      CHECK(v >= 0);
+      CHECK(v <= 1);
+    }
+  CHECK(weatherFromLevel(0, 800, .002f).snow > .5f);
+  CHECK(weatherFromLevel(0, 0, 1e9f).fogDensity <= .012f);
+  CHECK(weatherFromLevel(0, 0, 0).fogDensity >= .0005f);
+  CHECK(weatherPreset("level", heavy).puddles == heavy.puddles);
+  CHECK(weatherPreset("clear", heavy).wetness == 0);
+  CHECK(weatherPreset("rain", dry).puddles > 0);
+  CHECK(weatherPreset("snow", dry).snow > 0);
+  CHECK(weatherPreset("fog", dry).fogDensity > weatherPreset("clear", dry).fogDensity);
+  CHECK_THROWS(weatherPreset("hail", dry));
+  CHECK(validWeatherName("rain"));
+  CHECK_FALSE(validWeatherName("hail"));
+}
+TEST_CASE("cloud cover dims the beam but keeps a sky source") {
+  auto clear = sunlight(12), cloudy = overcastSun(clear, 1);
+  CHECK(cloudy.radiance.x < .2f * clear.radiance.x);
+  CHECK(cloudy.skyRadiance.x > 0);
+  CHECK(cloudy.ambient.x > clear.ambient.x);
+  CHECK(overcastSun(clear, 0).radiance == clear.radiance);
+  CHECK(overcastSun(clear, std::nanf("")).radiance == clear.radiance);
+  CHECK(glm::length(cloudy.direction - clear.direction) < 1e-6f);
+}

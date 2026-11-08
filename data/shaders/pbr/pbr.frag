@@ -167,6 +167,37 @@ void main()
     vec3 V   = normalize(uCamPos - fs.worldPos);
     float NdotV = max(dot(N, V), 1e-4);
 
+    // ---- scene weather: rain film, terrain puddles, snow cover -------------
+    // World-space so cars and plants agree with terrain. Presentation only.
+    if (uSceneEnabled) {
+        vec3 worldN = normalize(mat3(uSceneFromLocal) * N);
+        vec3 worldP = (uSceneFromLocal * vec4(fs.worldPos, 1.0)).xyz;
+        float wet = uSceneWeather.x * mix(0.4, 1.0, smoothstep(-0.2, 0.7, worldN.z));
+        float puddleWeight = 0.0;
+#ifdef TERRAIN
+        float field = 0.65 * sceneNoise(worldP.xy * 0.18) + 0.35 * sceneNoise(worldP.xy * 0.71);
+        float threshold = 1.0 - 0.75 * uSceneWeather.y;
+        float puddle = terrain.puddleable * smoothstep(0.96, 0.995, normalize(fs.N).z)
+                     * smoothstep(threshold, threshold + 0.08, field) * step(0.001, uSceneWeather.y);
+        puddleWeight = puddle;
+        albedo *= mix(1.0, 0.4, puddle);
+        roughness = mix(roughness, 0.02, puddle);   // mirror-like: sky IBL + sun glint
+        N = normalize(mix(N, vec3(0.0, 0.0, 1.0), puddle));
+#endif
+        // A water film darkens porous albedo and adds a moderate sheen; only
+        // standing water (puddles) becomes a mirror. Leaves stay fairly rough.
+#ifdef VEGETATION
+        albedo *= mix(1.0, 0.8, wet);
+        roughness = mix(roughness, max(roughness * 0.75, 0.45), wet);
+#else
+        albedo *= mix(1.0, 0.6, wet * (1.0 - metallic));
+        roughness = mix(roughness, max(roughness * 0.55, 0.28), wet * (1.0 - puddleWeight));
+#endif
+        float snow = uSceneWeather.z * smoothstep(0.3, 0.8, worldN.z);
+        albedo = mix(albedo, vec3(0.82, 0.85, 0.9), snow);
+        roughness = mix(roughness, 0.6, snow);
+        metallic *= 1.0 - snow;
+    }
     roughness = max(specularAA(N, roughness), 0.04);
 
     vec3 F0 = mix(vec3(0.04), albedo, metallic);            // dielectric 4% / metal = albedo

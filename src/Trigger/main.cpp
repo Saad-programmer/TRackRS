@@ -24,6 +24,7 @@ void MainApp::config()
     if(!validation::run.options.renderer.empty())cfg.setPbrTerrain(validation::run.options.renderer=="pbr");
     if(!validation::run.options.timeOfDay.empty())cfg.setTimeOfDay(validation::run.options.timeOfDay);
     if(!validation::run.options.shadows.empty())cfg.setCsm(validation::run.options.shadows=="csm");
+    if(!validation::run.options.weather.empty())cfg.setWeatherPreset(validation::run.options.weather);
     if(!validation::run.options.vegetation.empty())cfg.setVegetationMeshes(validation::run.options.vegetation=="3d");
     setTextureAnisotropy(cfg.getAnisotropy());
     setScreenMode(cfg.getVideoCx(), cfg.getVideoCy(), cfg.getVideoFullscreen());
@@ -1640,6 +1641,7 @@ int main(int argc, char *argv[])
                 << "  --dump-state <hash-file> --json <report.json> --screenshot <image.ppm>\n"
                 << "  --renderer legacy|pbr --quality low|medium|high|ultra --shadows blob|csm\n"
                 << "  --time-of-day dawn|noon|golden-hour|dusk|night|midnight --vegetation 3d|cards\n"
+                << "  --weather level|clear|rain|snow|fog\n"
                 << "Headless mode uses a real OpenGL context; run under Xvfb on headless Linux.\n";
             return 0;
         }

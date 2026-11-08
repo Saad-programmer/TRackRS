@@ -37,6 +37,12 @@ SHA-256 on all 13 stages. The committed manifest is not rewritten.
 - Species freshness CTest falls back to a coverage-only check when Pillow is
   not installed (CI images), so colours are re-measured only where possible.
 
-Next Phase 3c items (not started): weather (rain/snow particles, wet response,
-puddles), water reflections, road ribbon/decals, night lighting. Real-GPU timing
+## Item 2: weather
+
+- First rain render looked silvery: a smooth wet film everywhere mirrored the
+  bright overcast dome and plants turned snow-grey. Film now keeps roughness
+  >= .28 (plants .45); only puddles are mirrors. Physics hash identical for
+  every preset; legacy A/B re-run on ahead, glacier, mudbath.
+
+Next Phase 3c items (not started): water reflections, road ribbon/decals, night lighting. Real-GPU timing
 of `--vegetation 3d` vs `cards` is requested from the maintainer.

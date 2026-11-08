@@ -2,6 +2,7 @@
 #pragma once
 #include "atmosphere.h"
 #include <cstdint>
+#include <string>
 #include <glad/gl.h>
 namespace trackrs::world {
 struct State {
@@ -14,8 +15,14 @@ struct State {
   std::array<std::uint64_t, 4> shadowDraws{}, shadowTriangles{};
   std::uint64_t blobDraws = 0;
   bool scene = false, depthPass = false, linearCapture = false;
+  std::string weatherName = "level"; ///< user selection (config / --weather)
+  Weather levelWeather;              ///< parsed from the loaded stage
 };
 State &state();
+/// Stores `settings` and resolves settings.weather from the weather selection
+/// and the stage's level weather; the sun is attenuated by cloud cover.
 void configure(Settings settings);
+void selectWeather(const std::string &name);
+void setLevelWeather(const Weather &weather);
 void apply(GLuint program, const glm::mat4 &localToWorld, bool scene);
 } // namespace trackrs::world

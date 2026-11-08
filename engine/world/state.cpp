@@ -1,14 +1,27 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 #include "state.h"
 #include <glm/gtc/type_ptr.hpp>
+#include <stdexcept>
 namespace trackrs::world {
 State &state() {
   static State value;
   return value;
 }
 void configure(Settings settings) {
-  state().settings = settings;
-  state().sun = sunlight(settings.hour);
+  auto &s = state();
+  settings.weather = weatherPreset(s.weatherName, s.levelWeather);
+  s.settings = settings;
+  s.sun = overcastSun(sunlight(settings.hour), settings.weather.overcast);
+}
+void selectWeather(const std::string &name) {
+  if (!validWeatherName(name))
+    throw std::invalid_argument("weather must be level, clear, rain, snow or fog");
+  state().weatherName = name;
+  configure(state().settings);
+}
+void setLevelWeather(const Weather &weather) {
+  state().levelWeather = weather;
+  configure(state().settings);
 }
 void apply(GLuint p, const glm::mat4 &localToWorld, bool scene) {
   auto &s = state();
@@ -20,6 +33,9 @@ void apply(GLuint p, const glm::mat4 &localToWorld, bool scene) {
   glUniform1i(glGetUniformLocation(p, "uSceneShadowCount"), 0);
   if (!enabled)
     return;
+  const auto &w = s.settings.weather;
+  glUniform4f(glGetUniformLocation(p, "uSceneWeather"), w.wetness, w.puddles, w.snow, w.overcast);
+  glUniform1f(glGetUniformLocation(p, "uSceneFogDensity"), w.fogDensity);
   glUniformMatrix4fv(glGetUniformLocation(p, "uSceneFromLocal"), 1, GL_FALSE,
                      glm::value_ptr(localToWorld));
   glUniformMatrix4fv(glGetUniformLocation(p, "uSceneView"), 1, GL_FALSE,

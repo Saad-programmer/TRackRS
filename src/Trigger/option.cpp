@@ -36,6 +36,7 @@ POption::POption(Gui &parent, PConfig &config) :
   options.push_back({ OptionTimeOfDay, "Time of day", { "Dawn", "Noon", "Golden hour", "Dusk", "Night", "Midnight" }, 1 });
   options.push_back({ OptionShadows, "Shadows (PBR)", { "Blob", "CSM" }, 1 });
   options.push_back({ OptionVegetation, "Vegetation (PBR)", { "Cards", "3D" }, 1 });
+  options.push_back({ OptionWeatherPreset, "Weather (PBR)", { "Stage", "Clear", "Rain", "Snow", "Fog" }, 0 });
   options.push_back({ OptionSnowflakes, "Snowflakes",
     { "off", "point", "square", "textured" }, 0 });
   options.push_back({ OptionSpeedUnits, "Speed units",
@@ -120,6 +121,7 @@ void POption::select(int index)
   case OptionTimeOfDay: {const char* names[]={"dawn","noon","golden-hour","dusk","night","midnight"};cfg.setTimeOfDay(names[column]);break;}
   case OptionShadows:cfg.setCsm(column!=0);break;
   case OptionVegetation:cfg.setVegetationMeshes(column!=0);break;
+  case OptionWeatherPreset:{const char* names[]={"level","clear","rain","snow","fog"};cfg.setWeatherPreset(names[column]);break;}
   case OptionSnowflakes:
     if (column) {
       cfg.setWeather(true);
@@ -235,6 +237,7 @@ void POption::updateSelect(Option &option)
   case OptionTimeOfDay: {const char* names[]={"dawn","noon","golden-hour","dusk","night","midnight"};for(unsigned i=0;i<6;++i)if(cfg.getTimeOfDay()==names[i])option.select=i;break;}
   case OptionShadows:option.select=cfg.getCsm()?1:0;break;
   case OptionVegetation:option.select=cfg.getVegetationMeshes()?1:0;break;
+  case OptionWeatherPreset:{const char* names[]={"level","clear","rain","snow","fog"};for(unsigned i=0;i<5;++i)if(cfg.getWeatherPreset()==names[i])option.select=i;break;}
   case OptionSnowflakes:
     if (cfg.getWeather())
       option.select = cfg.getSnowflaketype() + 1;

@@ -3,6 +3,7 @@
 #include "main.h"
 #include "psim.h"
 #include "vehicle.h"
+#include "engine/world/state.h"
 
 // size of the checkpoints
 #define CODRIVER_CHECKPOINT_RADIUS 20
@@ -458,7 +459,16 @@ bool TriggerGame::loadLevel(const std::string &filename)
 	othertime = 3.0f;
 	cptime = -4.0f;
 	gamestate = Gamestate::countdown;
-  
+
+	// PBR surfaces/sky follow the stage weather unless the player chose a preset.
+	// Precipitation particles follow the preset too; both are presentation-only.
+	trackrs::world::setLevelWeather(trackrs::world::weatherFromLevel(
+		weather.precip.rain, weather.precip.snowfall, weather.fog.density));
+	const std::string &preset = trackrs::world::state().weatherName;
+	if (preset == "rain") { weather.precip.rain = 1500.0f; weather.precip.snowfall = 0.0f; }
+	else if (preset == "snow") { weather.precip.rain = 0.0f; weather.precip.snowfall = 900.0f; }
+	else if (preset == "clear" || preset == "fog") { weather.precip.rain = 0.0f; weather.precip.snowfall = 0.0f; }
+
 	return true;
 }
 
