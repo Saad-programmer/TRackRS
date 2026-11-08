@@ -377,6 +377,17 @@ Volumes range from `0` to `1`.
 | `weather` | `yes` | Rain and snow. |
 | `snowflaketype` | `textured` | `point` (fast), `square` (failsafe), `textured` (fancy). |
 | `dirteffect` | `yes` | Dirt thrown by the wheels. May reduce the frame rate. |
+| `renderer` | `legacy` | `pbr` selects the modern world renderer (CDLOD terrain, PBR, sky, CSM). |
+| `renderquality` | `medium` | `low`, `medium`, `high`, `ultra` (PBR LOD ranges, shadows, probes). |
+| `timeofday` | `noon` | `dawn`, `noon`, `golden-hour`, `dusk`, `night`, `midnight` (PBR). Night switches car headlights on. |
+| `shadows` | `csm` | `csm` (cascaded shadow maps) or `blob` (PBR). |
+| `vegetation` | `3d` | `3d` instanced procedural plants with LODs and wind, or `cards` (legacy sprites) (PBR). |
+| `weatherpreset` | `level` | `level` (the stage's own rain/snow/fog), `clear`, `rain`, `snow`, `fog` (PBR surfaces, sky and particles). |
+| `post` | `on` | HDR post-processing: auto-exposure, bloom, SSAO, ACES tone map (PBR). |
+
+Every PBR setting is also in **Options** and on the command line (`--renderer`,
+`--quality`, `--time-of-day`, `--shadows`, `--vegetation`, `--weather`, `--post`;
+see `trackrs --help`).
 
 ### `<datadirectory>`
 
