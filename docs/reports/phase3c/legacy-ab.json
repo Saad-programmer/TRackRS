@@ -1,0 +1,108 @@
+{
+  "schema": "trackrs.legacy-ab/1",
+  "base_commit": "ec087af",
+  "note": "Both binaries built in this container (GCC 13, Mesa llvmpipe). The committed linux-gcc manifest was produced by a different toolchain; the unmodified base reproduces these hashes here, not the committed ones.",
+  "ticks": 1500,
+  "scenarios": [
+    {
+      "stage": "ahead",
+      "vehicle": "cordo_kitcar",
+      "state_hash": "6c59e5730498f6bb",
+      "framebuffer_sha256": "e40f2c6a3e169070c9660cbd3c893b827e63439a83c6bf71dcb74917d895bd8a",
+      "identical": true
+    },
+    {
+      "stage": "aegyptian",
+      "vehicle": "evo_wrc",
+      "state_hash": "6ef69d2bfba26f27",
+      "framebuffer_sha256": "edceae2156b9c0b3030bf16f101b1a144e16092d5e4db4b2fd7e38dae193d192",
+      "identical": true
+    },
+    {
+      "stage": "greenland",
+      "vehicle": "fox_super500",
+      "state_hash": "804029ba668f1ffb",
+      "framebuffer_sha256": "972512e1dc19cd7a7573ee4e70a6803d5e9a10ea6aa11275aafa9f079022eca3",
+      "identical": true
+    },
+    {
+      "stage": "mudbath",
+      "vehicle": "cordo_kitcar",
+      "state_hash": "0aaa524773512bc5",
+      "framebuffer_sha256": "bf15d51425d1ef1fb28130f79b6919156ecb11f86106901e709a485e235de4b3",
+      "identical": true
+    },
+    {
+      "stage": "april",
+      "vehicle": "evo_wrc",
+      "state_hash": "c04e7703e85bb3b5",
+      "framebuffer_sha256": "c2787b0000ff15825491dc5765b154c8463787ff9a4198ef5216ebae596dfb42",
+      "identical": true
+    },
+    {
+      "stage": "ancient",
+      "vehicle": "fox_super500",
+      "state_hash": "e78aa8175f104310",
+      "framebuffer_sha256": "ac68b58f7ff682298de72b08dbf3c4bf6dfeb4bca27fcb7322247e121db6ff1d",
+      "identical": true
+    },
+    {
+      "stage": "coastline",
+      "vehicle": "cordo_kitcar",
+      "state_hash": "6c1fc7772b1256fa",
+      "framebuffer_sha256": "988284c11e662100fea197324d9498040197203de4cb42e3f98f59531fc88710",
+      "identical": true
+    },
+    {
+      "stage": "country",
+      "vehicle": "evo_wrc",
+      "state_hash": "826ac4b1dfbe92d6",
+      "framebuffer_sha256": "b9f92e54503710e90e9e736b9243e2e7a98d1046d57059ca5240c473151857e7",
+      "identical": true
+    },
+    {
+      "stage": "darkbushes",
+      "vehicle": "fox_super500",
+      "state_hash": "b6d2c008c0056040",
+      "framebuffer_sha256": null,
+      "identical": true
+    },
+    {
+      "stage": "barren",
+      "vehicle": "cordo_kitcar",
+      "state_hash": "08fa4a1ec9780ada",
+      "framebuffer_sha256": null,
+      "identical": true
+    },
+    {
+      "stage": "altitude",
+      "vehicle": "evo_wrc",
+      "state_hash": "12ad3892a6b31069",
+      "framebuffer_sha256": null,
+      "identical": true
+    },
+    {
+      "stage": "arizonachase",
+      "vehicle": "fox_super500",
+      "state_hash": "722602d179d1ee7d",
+      "framebuffer_sha256": null,
+      "identical": true
+    },
+    {
+      "stage": "glacier",
+      "vehicle": "cordo_kitcar",
+      "state_hash": "a348e60ebf050d09",
+      "framebuffer_sha256": null,
+      "identical": true
+    }
+  ],
+  "all_identical": true,
+  "final_binary_recheck": {
+    "stages": [
+      "ahead",
+      "glacier"
+    ],
+    "state_and_framebuffer_identical_to_base": true,
+    "note": "re-run after the animation-clock and conifer changes"
+  }
+}

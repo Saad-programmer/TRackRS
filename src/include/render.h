@@ -1,6 +1,7 @@
 #include "engine/render/basic.h"
 #include "engine/core/lru_cache.h"
 namespace trackrs::terrain { class Renderer; }
+namespace trackrs::vegetation { class Renderer; }
 namespace trackrs::mesh { struct MeshData; }
 namespace trackrs::pbr { class Model; }
 #include "../../engine/core/pcg32.h"
@@ -202,6 +203,7 @@ public:
   void unload();
 
   void bind() const;
+  GLuint id() const { return texid; } ///< borrowed GL name (instanced impostors)
 
   static void unbind();
 };
@@ -553,6 +555,7 @@ protected:
 
   trackrs::LruCache<trackrs::TileKey, std::unique_ptr<PTerrainTile>, trackrs::TileHash> tile{128};
   std::unique_ptr<trackrs::terrain::Renderer> worldRenderer;
+  std::unique_ptr<trackrs::vegetation::Renderer> vegetationRenderer;
 
   // tiles share index buffers
   PVBuffer ind;

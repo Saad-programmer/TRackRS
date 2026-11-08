@@ -3,6 +3,7 @@
 #include "validation.h"
 #include "engine/pbr/renderer.h"
 #include "engine/world/renderer.h"
+#include "engine/vegetation/renderer.h"
 #include <glm/gtc/type_ptr.hpp>
 // Creator: Saad AIT YAHIA - @github: Saad-programmer
 #include "damage.h"
@@ -819,6 +820,7 @@ void MainApp::renderStateGame(float eyetranslation)
     trackrs::pbr::setWorldView(pbrView);
     glm::mat4 worldProjection;trackrs::draw::read(trackrs::draw::ProjectionMatrix,glm::value_ptr(worldProjection));
     trackrs::world::prepare(pbrView,worldProjection,cfg.getRenderQuality(),trackrs::pbr::shaderDirectory().parent_path().parent_path());
+    trackrs::vegetation::setAnimationTime(game->animationtime); // deterministic under replays
     trackrs::pbr::setProbeScene([this](const glm::mat4& projection,const glm::mat4& view,const glm::vec3& center){
         if(!game||!game->terrain)return;
         trackrs::draw::SavedState saved;

@@ -3,6 +3,7 @@
 #include "engine/pbr/renderer.h"
 #include "engine/terrain/renderer.h"
 #include "engine/world/state.h"
+#include "engine/vegetation/renderer.h"
 #include "exception.h"
 #include "app.h"
 #include "pengine.h"
@@ -266,6 +267,7 @@ void PConfig::loadConfig()
         val = walk->Attribute("timeofday");
         if(val){try{setTimeOfDay(val);}catch(const std::invalid_argument&){setTimeOfDay("noon");}}
         val = walk->Attribute("shadows");setCsm(!val||std::string(val)!="blob");
+        val = walk->Attribute("vegetation");setVegetationMeshes(!val||std::string(val)!="cards");
         val = walk->Attribute("renderquality");
         if (val) {
           try { setRenderQuality(trackrs::parseQuality(val)); }
@@ -599,6 +601,7 @@ void PConfig::storeConfig()
       walk->SetAttribute("renderer",cfg_pbr_terrain ? "pbr" : "legacy");
       walk->SetAttribute("timeofday",cfg_time_of_day.c_str());
       walk->SetAttribute("shadows",cfg_csm?"csm":"blob");
+      walk->SetAttribute("vegetation",cfg_vegetation_meshes?"3d":"cards");
       walk->SetAttribute("renderquality", std::string(trackrs::qualityName(cfg_render_quality)).c_str());
       if (cfg_anisotropy == 0.0f)
         walk->SetAttribute("anisotropy", "off");
@@ -922,4 +925,5 @@ void PConfig::setTimeOfDay(const std::string &name){
   const float hour=trackrs::world::presetHour(name);cfg_time_of_day=name;
   trackrs::world::configure({cfg_pbr_terrain,cfg_csm,hour});
 }
+void PConfig::setVegetationMeshes(bool enabled){cfg_vegetation_meshes=enabled;trackrs::vegetation::configure({enabled});}
 void PConfig::setCsm(bool enabled){cfg_csm=enabled;trackrs::world::configure({cfg_pbr_terrain,cfg_csm,trackrs::world::presetHour(cfg_time_of_day)});}

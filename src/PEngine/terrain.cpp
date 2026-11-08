@@ -6,6 +6,7 @@
 #include "pengine.h"
 #include "../../engine/core/wrap.h"
 #include "engine/terrain/renderer.h"
+#include "engine/vegetation/renderer.h"
 #include "engine/world/state.h"
 #include "engine/pbr/renderer.h"
 #include <glm/gtc/type_ptr.hpp>
@@ -21,6 +22,7 @@ void PTerrain::unload()
   loaded = false;
 
   tile.clear();
+  vegetationRenderer.reset();
   worldRenderer.reset();
 
   hmap.clear();
@@ -827,7 +829,8 @@ void PTerrain::render(const vec3f &campos, const mat44f &camorim, bool reflectio
     trackrs::draw::disable(trackrs::draw::GenerateT);
     PVBuffer::unbind();
     // Keep every nearby tile resident for CPU foliage contacts, but submit only
-    // visible legacy cards. Native 3D vegetation is a separate Phase3c gate.
+    // visible ones. Foliage is either native instanced 3D vegetation or the
+    // retained legacy cards (graphics.vegetation).
     for(auto it=drawtile.begin();it!=drawtile.end();) {
       const auto &t=**it;
       const float dx=std::max({t.mins.x-campos.x,0.f,campos.x-t.maxs.x});
@@ -836,6 +839,24 @@ void PTerrain::render(const vec3f &campos, const mat44f &camorim, bool reflectio
       const bool outside=trackrs::terrain::outside(projection*view,{t.mins.x,t.mins.y,t.mins.z},{t.maxs.x,t.maxs.y,t.maxs.z});
       if(outside||(reflectionCapture&&dx*dx+dy*dy>range*range))it=drawtile.erase(it);
       else ++it;
+    }
+    if(trackrs::vegetation::settings().meshes&&!foliageband.empty()) {
+      validation::PassScope vegetationTiming(trackrs::world::state().depthPass ? "shadow_vegetation" : reflectionCapture ? "vegetation_probe" : "vegetation");
+      if(!vegetationRenderer) {
+        auto data=trackrs::pbr::shaderDirectory().parent_path().parent_path();
+        vegetationRenderer=std::make_unique<trackrs::vegetation::Renderer>(data);
+        for(const auto &band:foliageband)
+          vegetationRenderer->addBand(band.sprite_tex->getName(),band.sprite_tex->id(),static_cast<unsigned>(std::max(band.sprite_count,1)));
+      }
+      static_assert(sizeof(vec3f)==12&&offsetof(PTerrainFoliage,pos)==0&&offsetof(PTerrainFoliage,ang)==12&&offsetof(PTerrainFoliage,scale)==16,
+                    "vegetation reads PTerrainFoliage in place as {x,y,z,yaw,scale}");
+      const auto pass=trackrs::world::state().depthPass?trackrs::vegetation::Pass::Shadow:reflectionCapture?trackrs::vegetation::Pass::Probe:trackrs::vegetation::Pass::Main;
+      auto &plants=vegetationRenderer->begin({campos.x,campos.y,campos.z},projection*view,pass,trackrs::terrain::settings().quality);
+      for(unsigned b=0;b<foliageband.size();++b)
+        for(const auto *t:drawtile)
+          if(!t->foliage[b].inst.empty())
+            plants.add(b,vegetationRenderer->form(b),t->foliage[b].inst.data(),t->foliage[b].inst.size(),sizeof(PTerrainFoliage));
+      vegetationRenderer->submit(projection*view,reflectionCapture||trackrs::world::state().linearCapture);
     }
   } else {
   // Draw terrain
@@ -890,7 +911,8 @@ void PTerrain::render(const vec3f &campos, const mat44f &camorim, bool reflectio
   trackrs::draw::disable(GL_CULL_FACE);
   trackrs::draw::color(1.0f, 1.0f, 1.0f);
 
-  for (unsigned int b = 0; b < foliageband.size(); b++) {
+  const bool nativeVegetation = trackrs::terrain::settings().enabled && trackrs::vegetation::settings().meshes;
+  for (unsigned int b = 0; !nativeVegetation && b < foliageband.size(); b++) {
 
     foliageband[b].sprite_tex->bind();
 

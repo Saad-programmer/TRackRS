@@ -147,6 +147,8 @@ private:
 
 	// Time passed since the race started
 	float coursetime;
+	/// Monotonic presentation clock (seconds since stage load); drives wind/animation, never physics.
+	float animationtime = 0.0f;
 	// time variable used for pre and post race (i.e. Countdown)
 	float othertime;
 	// checkpoint time

@@ -37,6 +37,7 @@ Options parse(int argc, char** argv) {
         else if (key == "--quality") { o.quality=value(); if(o.quality!="low"&&o.quality!="medium"&&o.quality!="high"&&o.quality!="ultra")throw std::runtime_error("invalid render quality"); }
         else if (key == "--time-of-day") {o.timeOfDay=value();if(o.timeOfDay!="dawn"&&o.timeOfDay!="noon"&&o.timeOfDay!="golden-hour"&&o.timeOfDay!="dusk"&&o.timeOfDay!="night"&&o.timeOfDay!="midnight")throw std::runtime_error("invalid time of day");}
         else if (key == "--shadows") {o.shadows=value();if(o.shadows!="blob"&&o.shadows!="csm")throw std::runtime_error("shadows must be blob or csm");}
+        else if (key == "--vegetation") {o.vegetation=value();if(o.vegetation!="3d"&&o.vegetation!="cards")throw std::runtime_error("vegetation must be 3d or cards");}
         else if (key == "--vehicle") o.vehicle = value();
         else if (key == "--data-dir") o.data = value();
         else if (key == "--width") o.width=number(value());

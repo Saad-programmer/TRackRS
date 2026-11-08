@@ -1,0 +1,185 @@
+{
+  "scope": "Mesa llvmpipe software rendering, 960x540 High, noon, CSM, glacier/cordo_kitcar, 750 ticks, replay baseline.csv. Software timings are not hardware performance.",
+  "cards": {
+    "state_hash": "9b8c8175278e5a6f",
+    "draw_calls": 638.3337784,
+    "triangles": 774803.6542,
+    "frame_ms_avg": 516.2484332,
+    "frame_ms_p99": 673.361618,
+    "gpu_frame_ms_avg": 510.5811531,
+    "load_ms": 1173.462148,
+    "passes": {
+      "terrain": {
+        "calls": 749,
+        "cpu_ms_per_frame": 54.60606323,
+        "gpu_ms_per_frame": 386.8138814
+      },
+      "shadow_terrain": {
+        "calls": 2996,
+        "cpu_ms_per_frame": 95.74057592,
+        "gpu_ms_per_frame": 31.43082708
+      },
+      "vegetation": {
+        "calls": 0,
+        "cpu_ms_per_frame": 0,
+        "gpu_ms_per_frame": null
+      },
+      "shadow_vegetation": {
+        "calls": 0,
+        "cpu_ms_per_frame": 0,
+        "gpu_ms_per_frame": null
+      }
+    }
+  },
+  "vegetation_3d": {
+    "state_hash": "9b8c8175278e5a6f",
+    "draw_calls": 453.1361816,
+    "triangles": 781000.3084,
+    "frame_ms_avg": 541.0582594,
+    "frame_ms_p99": 748.353511,
+    "gpu_frame_ms_avg": 536.3408419,
+    "load_ms": 1206.934753,
+    "passes": {
+      "terrain": {
+        "calls": 749,
+        "cpu_ms_per_frame": 54.65084962,
+        "gpu_ms_per_frame": 393.2691985
+      },
+      "shadow_terrain": {
+        "calls": 2996,
+        "cpu_ms_per_frame": 107.8284779,
+        "gpu_ms_per_frame": 39.60594494
+      },
+      "vegetation": {
+        "calls": 749,
+        "cpu_ms_per_frame": 6.740302126,
+        "gpu_ms_per_frame": 0.0001344993324
+      },
+      "shadow_vegetation": {
+        "calls": 2996,
+        "cpu_ms_per_frame": 26.04499898,
+        "gpu_ms_per_frame": 9.483697774
+      }
+    }
+  },
+  "vegetation_report_last_frame": {
+    "animation_time": 0.0,
+    "bands": [
+      {
+        "form": "conifer",
+        "sprite": "textures/veg/spruce.png",
+        "triangles": [
+          166,
+          64,
+          10,
+          4
+        ]
+      },
+      {
+        "form": "conifer",
+        "sprite": "textures/veg/fir.png",
+        "triangles": [
+          166,
+          64,
+          10,
+          4
+        ]
+      },
+      {
+        "form": "grass",
+        "sprite": "textures/veg/grass.png",
+        "triangles": [
+          28,
+          14,
+          6,
+          2
+        ]
+      },
+      {
+        "form": "broadleaf",
+        "sprite": "textures/veg/color-tree7.png",
+        "triangles": [
+          420,
+          116,
+          26,
+          6
+        ]
+      },
+      {
+        "form": "broadleaf",
+        "sprite": "textures/veg/birch.png",
+        "triangles": [
+          420,
+          116,
+          26,
+          6
+        ]
+      },
+      {
+        "form": "broadleaf",
+        "sprite": "textures/veg/fine-tree.png",
+        "triangles": [
+          420,
+          116,
+          26,
+          4
+        ]
+      },
+      {
+        "form": "broadleaf",
+        "sprite": "textures/veg/wide-tree.png",
+        "triangles": [
+          420,
+          116,
+          26,
+          6
+        ]
+      },
+      {
+        "form": "grass",
+        "sprite": "textures/veg/herbs.png",
+        "triangles": [
+          28,
+          14,
+          6,
+          2
+        ]
+      },
+      {
+        "form": "bush",
+        "sprite": "textures/veg/thick-leafes.png",
+        "triangles": [
+          400,
+          108,
+          20,
+          4
+        ]
+      },
+      {
+        "form": "grass",
+        "sprite": "textures/veg/grain.png",
+        "triangles": [
+          28,
+          14,
+          6,
+          4
+        ]
+      }
+    ],
+    "draw_calls": 20,
+    "instance_stream_bytes": 101712,
+    "instances_crossfading": 367,
+    "instances_culled": 4022,
+    "instances_per_lod": [
+      92,
+      460,
+      759,
+      1400
+    ],
+    "mesh_bytes": 82812,
+    "probe_draw_calls_last": 0,
+    "renderer": "instanced-3d",
+    "shadow_draw_calls_last_cascade": 15,
+    "submitted_triangles": 19974
+  }
+}

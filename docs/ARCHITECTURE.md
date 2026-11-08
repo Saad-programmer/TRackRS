@@ -100,3 +100,15 @@ fatal KHR_debug checks remain active. Identity shaders used by RHI tests live un
 
 See [the 2b report](reports/PHASE_2B.md) for image tolerances, state hashes,
 submission counts and platform limits. Phase 2c is not part of this boundary.
+
+## Phase 3c vegetation boundary
+
+`engine/vegetation/vegetation.{h,cpp}` is GL-free: the species catalog, the
+procedural mesh generator (24 B vertices, 16-bit indices) and the per-pass
+`Classifier` that culls plants and buckets them by band and LOD. It reads the
+legacy `PTerrainFoliage` arrays in place through a byte stride; a static_assert
+in `PTerrain::render` pins that layout. `engine/vegetation/renderer.{h,cpp}`
+owns one VAO, one static mesh VBO/IBO, a 1x1 default texture set and an orphaned
+instance stream, and issues one `glDrawElementsInstancedBaseVertex` per non-empty
+(band, LOD) bucket through `pbr.frag` compiled with `VEGETATION`. PTerrain owns the
+renderer and the borrowed sprite textures. See [the 3c report](reports/PHASE_3C.md).

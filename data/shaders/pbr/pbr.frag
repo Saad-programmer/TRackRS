@@ -25,6 +25,9 @@ in VS_OUT {
     vec3 B;
     vec3 N;
     vec4 color;
+#ifdef VEGETATION
+    flat float fade;          // LOD dither code, see engine/vegetation/vegetation.h
+#endif
 } fs;
 
 out vec4 FragColor;
@@ -43,6 +46,10 @@ uniform float uAlphaCutoff     = 0.0;   // >0 => alpha test (foliage, signs, fen
 uniform float uClearcoat       = 0.0;   // 0..1  (car paint = 1.0)
 uniform float uClearcoatRough  = 0.03;
 uniform float uWetness         = 0.0;   // 0..1  (rain / wet tarmac)
+#ifdef VEGETATION
+uniform bool  uAlbedoGamma     = false; // legacy UNORM sprite cards: decode sRGB here
+uniform float uTranslucency    = 0.0;   // back-lit leaf transmission weight
+#endif
 
 // ---- lighting -------------------------------------------------------------
 uniform vec3  uCamPos;
@@ -107,12 +114,22 @@ const float PI    = 3.14159265359;
 #endif
 void main()
 {
+#ifdef VEGETATION
+    // Screen-door LOD cross-fade (interleaved gradient noise): the outgoing and
+    // incoming LOD of one plant keep complementary pixel sets, so nothing pops
+    // and nothing is blended (no sorting, early-Z stays valid).
+    float lodNoise = fract(52.9829189 * fract(dot(gl_FragCoord.xy, vec2(0.06711056, 0.00583715))));
+    if (fs.fade >= 2.0 ? lodNoise < fs.fade - 2.0 : lodNoise >= fs.fade) discard;
+#endif
     // ---- fetch material (3 texture reads for the whole surface) -----------
 #ifdef TERRAIN
     TerrainSurface terrain = terrainMaterial(fs.worldPos, normalize(fs.N));
     vec4 baseSample = vec4(terrain.albedo,1.0);
 #else
     vec4 baseSample = texture(uAlbedoMap, fs.uv) * uBaseColorFactor;
+#endif
+#ifdef VEGETATION
+    if (uAlbedoGamma) baseSample.rgb = pow(baseSample.rgb, vec3(2.2));
 #endif
     #ifdef ALPHA_TO_COVERAGE
     if (uAlphaCutoff > 0.0) baseSample.a = clamp((baseSample.a-uAlphaCutoff)/max(fwidth(baseSample.a),0.001)+0.5,0.0,1.0);
@@ -144,7 +161,9 @@ void main()
     mat3 TBN = mat3(normalize(fs.T), normalize(fs.B), normalize(fs.N));
     vec3 N   = normalize(TBN * nts);
 #endif
+#ifndef VEGETATION
     if (!gl_FrontFacing) N = -N;                            // two-sided foliage / panels
+#endif                                                      // (plants use bent, view-independent normals)
     vec3 V   = normalize(uCamPos - fs.worldPos);
     float NdotV = max(dot(N, V), 1e-4);
 
@@ -165,6 +184,13 @@ void main()
                         albedo, metallic, roughness, F0);
     }
 
+#ifdef VEGETATION
+    {   // thin-leaf transmission: wrapped back-face term + forward scatter toward the viewer
+        vec3 L = normalize(uSunDir);
+        float back = 0.6 * max(dot(-N, L), 0.0) + 0.4 * pow(max(dot(V, -L), 0.0), 4.0);
+        Lo += uTranslucency * albedo * uSunColor * sunVisibility() * back / PI;
+    }
+#endif
     // ---- clear-coat lobe (fixed F0 = 0.04) ------------------------------------
     float Fcc = 0.0;
     if (uClearcoat > 0.0) {

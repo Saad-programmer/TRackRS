@@ -489,6 +489,7 @@ void TriggerGame::chooseVehicle(PVehicleType *type)
 ///
 void TriggerGame::tick(float delta)
 {
+	animationtime += delta;
 	// Manage game states, and time counters accordingly
 	switch (gamestate) {
 		

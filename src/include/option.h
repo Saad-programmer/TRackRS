@@ -32,6 +32,7 @@ private:
     OptionTerrainRenderer,
     OptionTimeOfDay,
     OptionShadows,
+    OptionVegetation,
     OptionSnowflakes,
     OptionSpeedUnits,
     OptionGhostCars,

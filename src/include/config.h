@@ -108,6 +108,8 @@ public:
   const std::string &getTimeOfDay() const { return cfg_time_of_day; }
   void setTimeOfDay(const std::string &name);
   bool getCsm() const { return cfg_csm; }
+  bool getVegetationMeshes() const { return cfg_vegetation_meshes; }
+  void setVegetationMeshes(bool enabled);
   void setCsm(bool enabled);
   bool getPbrTerrain() const { return cfg_pbr_terrain; }
   void setPbrTerrain(bool enabled);
@@ -184,7 +186,7 @@ private:
 
   bool cfg_dirteffect = true;
 
-  bool cfg_pbr_terrain = false, cfg_csm = true;
+  bool cfg_pbr_terrain = false, cfg_csm = true, cfg_vegetation_meshes = true;
   std::string cfg_time_of_day = "noon";
   trackrs::RenderQuality cfg_render_quality = trackrs::RenderQuality::Medium;
   GLfloat cfg_anisotropy = 1.0f;    ///< Anisotropic filter quality.

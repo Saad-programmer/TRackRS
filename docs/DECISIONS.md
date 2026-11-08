@@ -197,3 +197,21 @@ caster pass, cross-fade overlapping cascades, and fade distant shadows. Keep the
 blob when CSM is not selected. Report nominal depth payload separately from
 unknown driver padding/physical allocation, and distinguish software pass times
 from reference-hardware compliance. No Phase 3c vegetation/weather work is implied.
+
+## Phase 3c (item 1): native instanced 3D vegetation
+
+Context: PBR foliage was still the legacy crossed sprite cards; the brief asks for
+instanced 3D plants with LODs, impostors, wind and alpha-to-coverage, without
+unlicensed art or changes to foliage collisions. Decision: generate original
+low-poly plants procedurally in code (conifer, broadleaf, bush, grass, palm,
+cactus; three mesh LODs each) and keep the band's own sprite as the instanced
+card impostor (LOD3). The existing deterministic per-tile PTerrainFoliage
+instances are read in place, so placement, rigidity and contacts are unchanged.
+`data/vegetation/species.json` maps every shipped sprite to a form, its measured
+bright-half colour and silhouette width; 23 bare/sparse/silhouette sprites stay
+cards at all distances rather than receiving an unfaithful form. LOD changes use
+complementary screen-door dithering (no blending, no sorting, no popping). Grass
+is excluded from CSM casters and probes; probes use impostors only. Consequence:
+3D vegetation is the PBR default (`graphics.vegetation`, `--vegetation 3d|cards`);
+Legacy rendering, legacy goldens and physics hashes are untouched. Weather, water,
+road ribbon and post-FX remain later Phase 3 items.
