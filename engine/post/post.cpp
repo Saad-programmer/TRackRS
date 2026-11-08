@@ -7,6 +7,7 @@
 #include "validation.h"
 #include <array>
 #include <cmath>
+#include <cstdlib>
 #include <fstream>
 #include <memory>
 #include <stdexcept>
@@ -48,7 +49,9 @@ void release(Target &t) {
   t = {};
 }
 struct Processor {
-  rhi::ShaderProgram luminance, adapt, down, up, composite;
+  rhi::ShaderProgram luminance, adapt, down, up, composite, ssao, ssaoBlur;
+  Target ao, aoBlurred;
+  std::vector<glm::vec3> kernel = ssaoKernel(12);
   GLuint vao = 0, hdrFbo = 0, hdrColor = 0, hdrDepth = 0;
   glm::ivec2 size{0};
   Target logLuminance;
@@ -64,7 +67,9 @@ struct Processor {
         adapt(d / "shaders/post/fullscreen.vert", d / "shaders/post/adapt.frag"),
         down(d / "shaders/post/fullscreen.vert", d / "shaders/post/bloom_down.frag"),
         up(d / "shaders/post/fullscreen.vert", d / "shaders/post/bloom_up.frag"),
-        composite(d / "shaders/post/fullscreen.vert", d / "shaders/post/composite.frag") {
+        composite(d / "shaders/post/fullscreen.vert", d / "shaders/post/composite.frag"),
+        ssao(d / "shaders/post/fullscreen.vert", d / "shaders/post/ssao.frag"),
+        ssaoBlur(d / "shaders/post/fullscreen.vert", d / "shaders/post/ssao_blur.frag") {
     glGenVertexArrays(1, &vao);
     logLuminance = target(GL_R16F, {64, 64}, GL_RED, GL_FLOAT, true);
     for (auto &a : adapted)
@@ -85,6 +90,8 @@ struct Processor {
     for (auto &b : bloom)
       release(b);
     bloom.clear();
+    release(ao);
+    release(aoBlurred);
   }
   void resize(glm::ivec2 s) {
     releaseFrame();
@@ -103,6 +110,9 @@ struct Processor {
       throw std::runtime_error("HDR scene target incomplete");
     for (auto level : bloomChain(s))
       bloom.push_back(target(GL_R11F_G11F_B10F, level, GL_RGB, GL_FLOAT));
+    const glm::ivec2 half = glm::max(s / 2, glm::ivec2(1));
+    ao = target(GL_R8, half, GL_RED, GL_UNSIGNED_BYTE);
+    aoBlurred = target(GL_R8, half, GL_RED, GL_UNSIGNED_BYTE);
     reset = true;
   }
   void fullscreen(GLuint fbo, glm::ivec2 viewport) {
@@ -149,7 +159,7 @@ void begin(int width, int height, const std::filesystem::path &data) {
   draw::invalidateGpuState();
 }
 
-void end(float time) {
+void end(float time, const glm::mat4 &projection) {
   if (!active())
     return;
   draw::flush();
@@ -229,26 +239,57 @@ void end(float time) {
     }
     glDisable(GL_BLEND);
   }
-  // 4. Composite to the frame's original framebuffer.
+  // 4. SSAO at half resolution, then a depth-aware blur.
+  const bool occlusion = current.ambientOcclusion && p.ao.fbo;
+  if (occlusion) {
+    const glm::mat4 inverse = glm::inverse(projection);
+    p.ssao.poll();
+    const auto o = p.ssao.id();
+    glUseProgram(o);
+    bindTexture(o, "uDepth", Unit{0}, p.hdrDepth);
+    glUniformMatrix4fv(glGetUniformLocation(o, "uProjection"), 1, GL_FALSE, &projection[0][0]);
+    glUniformMatrix4fv(glGetUniformLocation(o, "uInverseProjection"), 1, GL_FALSE, &inverse[0][0]);
+    glUniform3fv(glGetUniformLocation(o, "uKernel[0]"), static_cast<GLsizei>(p.kernel.size()), &p.kernel[0][0]);
+    glUniform1f(glGetUniformLocation(o, "uRadius"), current.aoRadius);
+    p.fullscreen(p.ao.fbo, p.ao.size);
+    p.ssaoBlur.poll();
+    const auto bl = p.ssaoBlur.id();
+    glUseProgram(bl);
+    bindTexture(bl, "uAo", Unit{0}, p.ao.texture);
+    bindTexture(bl, "uDepth", Unit{1}, p.hdrDepth);
+    glUniform2f(glGetUniformLocation(bl, "uTexel"), 1.f / static_cast<float>(p.ao.size.x),
+                1.f / static_cast<float>(p.ao.size.y));
+    glUniformMatrix4fv(glGetUniformLocation(bl, "uInverseProjection"), 1, GL_FALSE, &inverse[0][0]);
+    p.fullscreen(p.aoBlurred.fbo, p.aoBlurred.size);
+  }
+  // 5. Composite to the frame's original framebuffer.
   p.composite.poll();
   const auto c = p.composite.id();
   glUseProgram(c);
   bindTexture(c, "uHdr", Unit{0}, p.hdrColor);
   bindTexture(c, "uBloom", Unit{1}, bloom ? p.bloom[0].texture : p.adapted[p.current].texture);
   bindTexture(c, "uAdapted", Unit{2}, p.adapted[p.current].texture);
+  bindTexture(c, "uAo", Unit{3}, occlusion ? p.aoBlurred.texture : p.adapted[p.current].texture);
+  glUniform1f(glGetUniformLocation(c, "uAoStrength"), occlusion ? current.aoStrength : 0.f);
   glUniform1i(glGetUniformLocation(c, "uAutoExposure"), current.autoExposure);
   glUniform1f(glGetUniformLocation(c, "uKey"), exposure.key);
   glUniform1f(glGetUniformLocation(c, "uMinExposure"), exposure.minExposure);
   glUniform1f(glGetUniformLocation(c, "uMaxExposure"), exposure.maxExposure);
   glUniform1f(glGetUniformLocation(c, "uBloomIntensity"), bloom ? current.bloomIntensity : 0.f);
   glUniform1f(glGetUniformLocation(c, "uVignette"), current.vignette);
-  glUniform1i(glGetUniformLocation(c, "uDebugView"), 0);
+  // Developer views (documented in docs/reports/PHASE_3D.md): 1 no bloom,
+  // 2 bloom only, 3 ambient occlusion.
+  static const int debugView = [] {
+    const char *v = std::getenv("TRACKRS_POST_DEBUG");
+    return v ? std::atoi(v) : 0;
+  }();
+  glUniform1i(glGetUniformLocation(c, "uDebugView"), debugView);
   p.fullscreen(static_cast<GLuint>(p.previousFbo), p.size);
   ++p.resolves;
   if (validation::run.capture)
-    validation::run.frameDraws += 3 + (bloom ? 2 * p.bloom.size() - 1 : 0);
+    validation::run.frameDraws += 3 + (bloom ? 2 * p.bloom.size() - 1 : 0) + (occlusion ? 2 : 0);
   // Restore state for the HUD.
-  for (int unit = 2; unit >= 0; --unit) {
+  for (int unit = 3; unit >= 0; --unit) {
     glActiveTexture(GL_TEXTURE0 + static_cast<GLenum>(unit));
     glBindTexture(GL_TEXTURE_2D, unit == 0 ? static_cast<GLuint>(texture) : 0);
   }
@@ -275,6 +316,8 @@ nlohmann::json report() {
           {"auto_exposure", current.autoExposure},
           {"bloom", current.bloom},
           {"bloom_levels", p.bloom.size()},
+          {"ambient_occlusion", current.ambientOcclusion},
+          {"ao_bytes", static_cast<std::size_t>(p.ao.size.x) * static_cast<std::size_t>(p.ao.size.y) * 2},
           {"size", {p.size.x, p.size.y}},
           {"resolves", p.resolves},
           {"fullscreen_passes", p.passes},

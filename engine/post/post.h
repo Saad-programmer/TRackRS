@@ -14,6 +14,7 @@
  * (4 B/px); luminance is reduced at 64x64. ~2 + 2*levels fullscreen passes.
  */
 #include <filesystem>
+#include <glm/glm.hpp>
 #include <nlohmann/json.hpp>
 namespace trackrs::post {
 struct Settings {
@@ -22,14 +23,17 @@ struct Settings {
   bool bloom = true;
   float bloomIntensity = .06f;
   float vignette = .18f;
+  bool ambientOcclusion = true;
+  float aoStrength = .65f, aoRadius = .6f; ///< radius in metres at 25 m
 };
 void configure(Settings settings);
 Settings settings();
 /// Binds the HDR target for a width x height frame (resizes on change).
 void begin(int width, int height, const std::filesystem::path &data);
 /// Resolves to the default framebuffer. `time` is the deterministic animation
-/// clock; adaptation uses its delta since the previous resolve.
-void end(float time);
+/// clock; adaptation uses its delta since the previous resolve. `projection`
+/// is the scene projection (SSAO reconstructs view space from depth).
+void end(float time, const glm::mat4 &projection);
 bool active();
 void shutdown();
 nlohmann::json report();

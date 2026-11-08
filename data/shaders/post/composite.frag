@@ -3,12 +3,14 @@
 // light vignette. Output goes to the default framebuffer before the HUD.
 in vec2 vUv;
 out vec4 outColor;
-uniform sampler2D uHdr, uBloom, uAdapted;
+uniform sampler2D uHdr, uBloom, uAdapted, uAo;
+uniform float uAoStrength;        // 0 disables ambient occlusion
 uniform bool uAutoExposure;
 uniform float uKey, uMinExposure, uMaxExposure, uBloomIntensity, uVignette;
-uniform int uDebugView;            // 1 = exposure-only (no bloom), 2 = bloom only
+uniform int uDebugView;            // 1 = exposure-only (no bloom), 2 = bloom only, 3 = AO
 void main() {
     vec3 hdr = textureLod(uHdr, vUv, 0.0).rgb;
+    hdr *= mix(1.0, textureLod(uAo, vUv, 0.0).r, uAoStrength);
     vec3 bloom = textureLod(uBloom, vUv, 0.0).rgb;
     float exposure = 1.0;
     if (uAutoExposure) {
@@ -21,5 +23,6 @@ void main() {
     c = pow(c, vec3(1.0 / 2.2));
     vec2 d = vUv - 0.5;
     c *= 1.0 - uVignette * smoothstep(0.35, 0.85, length(d * vec2(1.0, 0.8)) * 1.4142);
+    if (uDebugView == 3) c = vec3(textureLod(uAo, vUv, 0.0).r);   // raw AO, not tone-mapped
     outColor = vec4(c, 1.0);
 }

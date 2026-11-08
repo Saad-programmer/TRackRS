@@ -1,8 +1,8 @@
 # Phase 3d — HDR post-processing (core)
 
-Status: **in progress.** The HDR target and the first post chain (auto-exposure,
-bloom, ACES tone map, vignette) are done. SSAO/GTAO, TAA/SMAA, motion blur,
-depth of field, colour-grading LUTs and screen-space reflections are not started.
+Status: **in progress.** The HDR target, the post chain (auto-exposure, bloom,
+ACES tone map, vignette) and SSAO are done. TAA/SMAA, motion blur, depth of
+field, colour-grading LUTs and screen-space reflections are not started.
 The Legacy renderer is still the default; PBR is selected in Options.
 
 ## What shipped
@@ -65,8 +65,31 @@ Memory at 960×540: HDR colour + depth 6.2 MB, bloom chain 0.7 MB, luminance and
 adaptation targets < 10 KB. That is about 2 + 2×6 fullscreen passes per frame,
 mostly at quarter resolution or smaller. Software timings are not hardware data.
 
+## SSAO
+
+Half-resolution, depth-only ambient occlusion (`post/ssao.frag`):
+* view-space position comes from the HDR depth texture and the scene
+  projection;
+* normals come from position derivatives;
+* a 12-sample hemisphere kernel is generated on the CPU by `ssaoKernel()`:
+  golden-angle spiral, cosine-weighted, quadratically denser near the pixel,
+  and unit-tested to stay inside the hemisphere and be deterministic;
+* a per-pixel rotation plus a range check stop distant geometry from darkening;
+* a 4×4 depth-aware blur follows.
+
+Composite multiplies the HDR colour by `mix(1, ao, 0.65)`, the common cheap form
+(it also attenuates direct light); a split ambient-only buffer would need the
+material passes to output ambient separately. The radius is 0.6 m, growing
+slowly with distance. Mean darkening on the glacier capture is about 9 %: tier
+creases, grass roots, car edges and contacts, while flat ground stays white.
+Cost: two half-resolution passes (13 depth fetches per pixel, then 16 + 16), plus
+two R8 targets (0.26 MB at 960×540). The developer view
+`TRACKRS_POST_DEBUG=3` shows raw AO; `1` disables bloom; `2` shows bloom only.
+
+![SSAO](phase3d/ssao.png)
+
 ## Known gaps
 
-SSAO, TAA (which will also resolve the vegetation LOD dither), motion blur, DoF,
+TAA (which will also resolve the vegetation LOD dither), motion blur, DoF,
 colour LUTs and SSR. The Legacy renderer stays the default until those land and
 real-GPU measurements confirm the §7 budgets.

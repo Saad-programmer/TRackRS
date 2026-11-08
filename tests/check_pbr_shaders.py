@@ -51,7 +51,7 @@ def main():
             if result.returncode:raise RuntimeError(f'{defines}: {result.stdout}\n{result.stderr}')
             vegetation.append({'defines':defines,'compile_and_link':'pass'})
         world=[]
-        for vertex,fragment in [('basic/basic.vert','basic/basic.frag'),('basic/particle.vert','basic/basic.frag'),('world/sky.vert','world/sky.frag'),('pbr/cube.vert','world/irradiance.frag'),('pbr/terrain.vert','world/depth.frag'),('pbr/cube.vert','world/visibility_test.frag'),('world/water.vert','world/water.frag'),('post/fullscreen.vert','post/luminance.frag'),('post/fullscreen.vert','post/adapt.frag'),('post/fullscreen.vert','post/bloom_down.frag'),('post/fullscreen.vert','post/bloom_up.frag'),('post/fullscreen.vert','post/composite.frag')]:
+        for vertex,fragment in [('basic/basic.vert','basic/basic.frag'),('basic/particle.vert','basic/basic.frag'),('world/sky.vert','world/sky.frag'),('pbr/cube.vert','world/irradiance.frag'),('pbr/terrain.vert','world/depth.frag'),('pbr/cube.vert','world/visibility_test.frag'),('world/water.vert','world/water.frag'),('post/fullscreen.vert','post/luminance.frag'),('post/fullscreen.vert','post/adapt.frag'),('post/fullscreen.vert','post/bloom_down.frag'),('post/fullscreen.vert','post/bloom_up.frag'),('post/fullscreen.vert','post/composite.frag'),('post/fullscreen.vert','post/ssao.frag'),('post/fullscreen.vert','post/ssao_blur.frag')]:
             files=[]
             for source,stage in [(vertex,'vert'),(fragment,'frag')]:
                 path=pathlib.Path(temp)/('world.'+stage);path.write_text(expand(ROOT/'data/shaders'/source));files.append(str(path))

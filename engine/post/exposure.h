@@ -22,6 +22,10 @@ float adaptLuminance(float previous, float target, float dt, const ExposureSetti
 /// Dual-filter bloom pyramid: successive half resolutions starting at half
 /// the frame, stopping at `levels` or when a side would drop below 8 px.
 std::vector<glm::ivec2> bloomChain(glm::ivec2 frame, int levels = 6);
+/// SSAO hemisphere kernel in tangent space (+z = surface normal): `count`
+/// directions on a golden-angle spiral, lengths growing quadratically so most
+/// samples stay near the pixel. Deterministic; all within the unit hemisphere.
+std::vector<glm::vec3> ssaoKernel(int count);
 /// Soft-knee bright-pass weight used by the first bloom downsample.
 float bloomPrefilter(float brightness, float threshold = 1.f, float knee = .5f);
 } // namespace trackrs::post

@@ -42,3 +42,17 @@ TEST_CASE("soft-knee prefilter passes highlights and rejects midtones") {
   CHECK(bloomPrefilter(.75f) < bloomPrefilter(1.2f));
   CHECK(bloomPrefilter(10.f) == doctest::Approx(.9f));
 }
+TEST_CASE("SSAO kernel stays in the unit hemisphere and favours short samples") {
+  auto k = ssaoKernel(12);
+  REQUIRE(k.size() == 12);
+  float previous = 0;
+  for (const auto &s : k) {
+    CHECK(s.z > 0);
+    CHECK(glm::length(s) <= 1.0001f);
+    CHECK(glm::length(s) >= previous - 1e-5f);
+    previous = glm::length(s);
+  }
+  CHECK(glm::length(k.front()) < .3f);
+  CHECK(ssaoKernel(12) == k); // deterministic
+  CHECK(ssaoKernel(0).empty());
+}

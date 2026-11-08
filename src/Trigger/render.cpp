@@ -1252,7 +1252,9 @@ void MainApp::renderStateGame(float eyetranslation)
     trackrs::draw::pop(); // 0
     if (postProcess) {
         trackrs::world::state().linearCapture = false;
-        trackrs::post::end(game->animationtime);
+        glm::mat4 sceneProjection;
+        trackrs::draw::read(trackrs::draw::ProjectionMatrix, glm::value_ptr(sceneProjection));
+        trackrs::post::end(game->animationtime, sceneProjection);
     }
 
     trackrs::draw::disable(GL_DEPTH_TEST);
