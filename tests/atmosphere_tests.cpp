@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 #define DOCTEST_CONFIG_IMPLEMENT_WITH_MAIN
 #include "engine/world/atmosphere.h"
+#include "engine/world/water.h"
+#include <functional>
 #include "vendor/doctest/doctest.h"
 #include <cmath>
 #include <glm/gtc/matrix_transform.hpp>
@@ -148,4 +150,31 @@ TEST_CASE("headlights sit at the car nose, aim forward and slightly down") {
 }
 TEST_CASE("headlights stay off on a bright overcast noon") {
   CHECK_FALSE(headlightsOn(overcastSun(sunlight(12), .85f), .85f));
+}
+TEST_CASE("water grid is camera-snapped, depth-sampled and wound counter-clockwise") {
+  std::vector<WaterVertex> grid;
+  auto terrain = [](float x, float y) { return .01f * x - .02f * y; };
+  buildWaterGrid({123.4f, -60.5f}, 5, terrain, grid);
+  constexpr std::size_t side = 2 * WaterGridHalf + 1;
+  REQUIRE(grid.size() == side * side);
+  for (const auto &v : grid) {
+    CHECK(std::fmod(std::abs(v.x), WaterGridSpacing) == doctest::Approx(0).epsilon(1e-4));
+    CHECK(v.depth == doctest::Approx(5 - terrain(v.x, v.y)));
+  }
+  // Sub-cell camera motion must not move vertices (no swimming depth).
+  std::vector<WaterVertex> moved;
+  buildWaterGrid({123.4f + 1.f, -60.5f + 1.f}, 5, terrain, moved);
+  CHECK(moved.front().x == grid.front().x);
+  CHECK(moved.front().y == grid.front().y);
+  const auto capacity = grid.capacity();
+  buildWaterGrid({0, 0}, 5, terrain, grid);
+  CHECK(grid.capacity() == capacity);
+  const auto indices = waterGridIndices();
+  REQUIRE(indices.size() == (side - 1) * (side - 1) * 6);
+  for (std::size_t t = 0; t < indices.size(); t += 3) {
+    const auto &a = grid[indices[t]], &b = grid[indices[t + 1]], &c = grid[indices[t + 2]];
+    CHECK((b.x - a.x) * (c.y - a.y) - (b.y - a.y) * (c.x - a.x) > 0);
+  }
+  CHECK_THROWS(buildWaterGrid({std::nanf(""), 0}, 5, terrain, grid));
+  CHECK_THROWS(buildWaterGrid({0, 0}, 5, std::function<float(float, float)>{}, grid));
 }

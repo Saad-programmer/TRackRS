@@ -234,3 +234,12 @@ count is tiny and bounded). Lamp placement/aim is a pure function of the body
 axes; on/off depends on daylight and the cloud-attenuated beam. Depth passes skip
 them. A clustered/tiled list is deferred until trackside floodlights or many cars
 need more than eight lights.
+
+## Phase 3c (item 4): analytic PBR water, sky-only reflection
+
+Decision: a camera-snapped CPU-depth grid and an analytic-wave shader reflecting
+the shared world sky IBL with Fresnel, plus sun/headlight glints, Beer-Lambert
+absorption and shoreline foam. Planar reflection would re-render the scene per
+water plane (cost); SSR belongs with the Phase 3d depth/colour post stack, where
+it can be added to this shader as a reflection source. Terrain depth comes from
+the physics heightmap so water and physics agree.

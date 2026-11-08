@@ -77,6 +77,16 @@ void drawBlades(float radius, float ang, float trace)
 void MainApp::renderWater()
 {
     validation::PassScope timing("water");
+    if (cfg.getPbrTerrain()) {
+        glm::mat4 view, projection;
+        trackrs::draw::read(trackrs::draw::ViewMatrix, glm::value_ptr(view));
+        trackrs::draw::read(trackrs::draw::ProjectionMatrix, glm::value_ptr(projection));
+        const glm::vec3 eye(glm::inverse(view)[3]);
+        trackrs::world::drawWater(projection * view, eye, game->water.height,
+                                  [this](float x, float y) { return game->terrain->getHeight(x, y); },
+                                  game->animationtime);
+        return;
+    }
     tex_water->bind();
     {
         float tgens[] = { 0.5,0,0,0 };

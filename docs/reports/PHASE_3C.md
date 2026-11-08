@@ -1,8 +1,8 @@
 # Phase 3c — world dressing: vegetation and weather
 
 Status: **in progress.** Item 1 (instanced 3D vegetation), item 2 (weather
-surfaces, puddles, snow cover, overcast sky, stage fog) and item 3 (headlights)
-are done. Remaining: water reflections and the road ribbon; post-FX is Phase 3d. No `phase-3c-done` tag is warranted yet.
+surfaces, puddles, snow cover, overcast sky, stage fog), item 3 (headlights)
+and item 4 (PBR water) are done. Remaining: the road ribbon; post-FX is Phase 3d. No `phase-3c-done` tag is warranted yet.
 Legacy remains the default renderer; nothing in the Legacy path changed.
 
 ## What shipped
@@ -206,3 +206,41 @@ and the on/off rule.
 Known gaps: no headlight shadows, no volumetric beams in fog, and no emissive
 lamp lenses, tail lights or brake lights on the legacy car meshes (Phase 4 car
 renderer). Bloom/glare comes with Phase 3d post-FX.
+
+
+# Item 4: PBR stage water
+
+In the PBR world, the 49 stages with a `<water>` plane now get a physically
+based surface instead of the legacy translucent textured sheet
+(`engine/world/water.{h,cpp}`, `data/shaders/world/water.*`); Legacy is unchanged.
+
+* **Geometry.** A camera-snapped 121×121 grid (8 m cells, 960 m square). Each
+  vertex carries the water depth, sampled on the CPU from the physics heightmap
+  (the same source the legacy alpha used). Snapping keeps vertices fixed in
+  world space, so depth never swims. It is one indexed draw with static indices
+  and an orphaned 170 KB vertex stream per frame.
+* **Shading:**
+  * Schlick Fresnel (F0 = 0.02) reflection of the shared prefiltered world sky,
+    never sampled below the horizon;
+  * a GGX sun glint with CSM visibility, plus headlight glints from the world
+    spot lights;
+  * four analytic deep-water wave octaves with physical dispersion speeds,
+    faded with distance to avoid aliasing, plus noise ripples while it rains;
+  * Beer–Lambert absorption by depth, so shallow water shows the bed and deep
+    water is opaque;
+  * noisy shoreline foam and a soft alpha edge at the shore;
+  * height fog and the shared tone map.
+
+  The output is premultiplied alpha, so the transmitted bed is the framebuffer
+  behind.
+* **Tests.** A grid unit test covers vertex count, snapping (sub-cell camera
+  motion does not move vertices), sampled depth, capacity reuse,
+  counter-clockwise winding and invalid input. The water pair compiles and
+  links with glslang. The world runner and a legacy A/B on coastline (a water
+  stage) and ahead are unchanged.
+
+![swamp lake](phase3c/water-swamp.png)
+
+Known gaps: the reflection is the sky only, with no planar or screen-space
+reflection of terrain and trees (SSR arrives with the Phase 3d post stack).
+There are no car splashes or spray particles yet.

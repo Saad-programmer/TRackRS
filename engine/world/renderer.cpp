@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 #include "renderer.h"
+#include "water.h"
 #include "engine/pbr/ibl.h"
 #include "engine/render/basic.h"
 #include "engine/rhi/rhi.h"
@@ -68,7 +69,10 @@ struct Guard {
   }
 };
 struct Renderer {
-  rhi::ShaderProgram sky, irradiance;
+  rhi::ShaderProgram sky, irradiance, water;
+  GLuint waterVao = 0, waterVbo = 0, waterIbo = 0;
+  GLsizei waterIndices = 0;
+  std::vector<WaterVertex> waterGrid;
   pbr::Ibl base;
   std::unique_ptr<pbr::ReflectionProbe> environment;
   GLuint vao = 0, fbo = 0, diffuse = 0, shadow = 0;
@@ -84,6 +88,8 @@ struct Renderer {
             data / "shaders/pbr/cube.vert",
             data / "shaders/world/irradiance.frag",
             [](GLuint p) { return glGetUniformLocation(p, "uFace") >= 0; }),
+        water(data / "shaders/world/water.vert", data / "shaders/world/water.frag",
+              [](GLuint p) { return glGetUniformLocation(p, "uWaterHeight") >= 0; }),
         base(data / "scenes/material_preview/ibl"),
         shaders(data / "shaders/pbr") {
     glGenVertexArrays(1, &vao);
@@ -100,6 +106,9 @@ struct Renderer {
                       GL_CLAMP_TO_EDGE);
   }
   ~Renderer() {
+    glDeleteVertexArrays(1, &waterVao);
+    glDeleteBuffers(1, &waterVbo);
+    glDeleteBuffers(1, &waterIbo);
     glDeleteTextures(1, &diffuse);
     glDeleteTextures(1, &shadow);
     glDeleteFramebuffers(1, &fbo);
@@ -235,6 +244,64 @@ void prepare(const glm::mat4 &view, const glm::mat4 &projection,
     r.shadowCount = count;
   }
   s.shadow = s.settings.csm ? r.shadow : 0;
+}
+void drawWater(const glm::mat4 &vp, glm::vec3 camera, float height,
+               const std::function<float(float, float)> &terrainHeight, float time) {
+  auto &s = state();
+  if (!s.settings.enabled || !renderer)
+    return;
+  draw::flush();
+  Guard guard;
+  auto &r = *renderer;
+  r.water.poll();
+  if (!r.waterVao) {
+    const auto indices = waterGridIndices();
+    r.waterIndices = static_cast<GLsizei>(indices.size());
+    glGenVertexArrays(1, &r.waterVao);
+    glGenBuffers(1, &r.waterVbo);
+    glGenBuffers(1, &r.waterIbo);
+    glBindVertexArray(r.waterVao);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, r.waterIbo);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, static_cast<GLsizeiptr>(indices.size() * sizeof(std::uint32_t)),
+                 indices.data(), GL_STATIC_DRAW);
+    glBindBuffer(GL_ARRAY_BUFFER, r.waterVbo);
+    glEnableVertexAttribArray(0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(WaterVertex), nullptr);
+  }
+  buildWaterGrid({camera.x, camera.y}, height, terrainHeight, r.waterGrid);
+  glBindVertexArray(r.waterVao);
+  glBindBuffer(GL_ARRAY_BUFFER, r.waterVbo);
+  const auto bytes = static_cast<GLsizeiptr>(r.waterGrid.size() * sizeof(WaterVertex));
+  glBufferData(GL_ARRAY_BUFFER, bytes, nullptr, GL_STREAM_DRAW); // orphan
+  glBufferSubData(GL_ARRAY_BUFFER, 0, bytes, r.waterGrid.data());
+  const auto p = r.water.id();
+  glUseProgram(p);
+  apply(p, glm::mat4(1), true);
+  glUniformMatrix4fv(glGetUniformLocation(p, "uViewProjection"), 1, GL_FALSE, glm::value_ptr(vp));
+  glUniform1f(glGetUniformLocation(p, "uWaterHeight"), height);
+  glUniform3fv(glGetUniformLocation(p, "uCamPos"), 1, glm::value_ptr(camera));
+  glUniform1f(glGetUniformLocation(p, "uTime"), time);
+  glUniform1i(glGetUniformLocation(p, "uHasSky"), s.prefilter != 0);
+  glUniform1f(glGetUniformLocation(p, "uSkyMaxLod"), s.environmentLod);
+  glUniform1i(glGetUniformLocation(p, "uSkyPrefilter"), 4);
+  glActiveTexture(GL_TEXTURE4);
+  glBindTexture(GL_TEXTURE_CUBE_MAP, s.prefilter);
+  glEnable(GL_DEPTH_TEST);
+  glDepthFunc(GL_LEQUAL);
+  glDepthMask(GL_FALSE);
+  glDisable(GL_CULL_FACE);
+  glEnable(GL_BLEND);
+  glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA); // premultiplied
+  glDisable(GL_SCISSOR_TEST);
+  glDisable(GL_FRAMEBUFFER_SRGB);
+  glDrawElements(GL_TRIANGLES, r.waterIndices, GL_UNSIGNED_INT, nullptr);
+  glActiveTexture(GL_TEXTURE4);
+  glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
+  glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+  if (validation::run.capture) {
+    ++validation::run.frameDraws;
+    validation::run.frameTriangles += static_cast<std::uint64_t>(r.waterIndices / 3);
+  }
 }
 void renderShadows(const std::function<void(const glm::mat4 &)> &casters) {
   auto &s = state();

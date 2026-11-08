@@ -50,5 +50,11 @@ SHA-256 on all 13 stages. The committed manifest is not rewritten.
   longer range. Golden-hour storm test exposed that daylight alone is a poor
   switch; rule now also uses the cloud-attenuated beam.
 
-Next Phase 3c items (not started): water reflections, road ribbon/decals. Real-GPU timing
+## Item 4: water
+
+- First grid test failed because the test camera nudge crossed a cell boundary
+  (test bug, not snapping). Start cameras on most water stages do not face the
+  water; swamp and mud do and were used for review.
+
+Next Phase 3c item (not started): road ribbon/decals. Real-GPU timing
 of `--vegetation 3d` vs `cards` is requested from the maintainer.

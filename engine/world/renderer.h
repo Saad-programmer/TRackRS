@@ -10,6 +10,8 @@ void prepare(const glm::mat4 &view, const glm::mat4 &projection,
              RenderQuality quality, const std::filesystem::path &data);
 void drawSky(const glm::mat4 &projection, const glm::mat4 &view,
              glm::vec3 camera, bool linear = false);
+void drawWater(const glm::mat4 &viewProjection, glm::vec3 camera, float waterHeight,
+               const std::function<float(float, float)> &terrainHeight, float time);
 void renderShadows(const std::function<void(const glm::mat4 &)> &casters);
 void shutdown();
 nlohmann::json report();
