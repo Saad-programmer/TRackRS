@@ -187,8 +187,8 @@ TEST_CASE("the road tracer follows the roadmap between sparse checkpoints") {
   const auto hybrid = traceRoad({0, 0, 0}, {{200, 0, 0}, {200, 500, 0}}, q);
   REQUIRE(!hybrid.empty());
   CHECK(glm::length(glm::vec2(hybrid.back()) - glm::vec2(200, 500)) < 1e-3f);
-  float far = 0;
+  float farthest = 0;
   for (const auto &p : hybrid)
-    far = std::max(far, glm::length(glm::vec2(p)));
-  CHECK(far < 560.f);
+    farthest = std::max(farthest, glm::length(glm::vec2(p)));
+  CHECK(farthest < 560.f);
 }
