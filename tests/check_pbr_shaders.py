@@ -39,8 +39,8 @@ def main():
             if result.returncode:raise RuntimeError(f'{defines}: {result.stdout}\n{result.stderr}')
             terrain.append({'defines':defines,'compile_and_link':'pass'})
         vegetation=[]
-        for vertex_source,shadow,coverage in itertools.product(('vegetation','people'),(False,True),(False,True)):
-            defines=['VEGETATION']+(['USE_CSM'] if shadow else [])+(['ALPHA_TO_COVERAGE'] if coverage else [])
+        for vertex_source,shadow,coverage in itertools.product(('vegetation','people','car'),(False,True),(False,True)):
+            defines=['CAR' if vertex_source=='car' else 'VEGETATION']+(['USE_CSM'] if shadow else [])+(['ALPHA_TO_COVERAGE'] if coverage else [])
             files=[]
             for source,stage in ((vertex_source,'vert'),('pbr','frag')):
                 path=pathlib.Path(temp)/f'vegetation.{stage}'

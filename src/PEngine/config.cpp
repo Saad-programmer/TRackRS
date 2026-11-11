@@ -6,6 +6,7 @@
 #include "engine/vegetation/renderer.h"
 #include "engine/post/post.h"
 #include "engine/dressing/renderer.h"
+#include "engine/car/car_renderer.h"
 #include "exception.h"
 #include "app.h"
 #include "pengine.h"
@@ -270,6 +271,7 @@ void PConfig::loadConfig()
         if(val){try{setTimeOfDay(val);}catch(const std::invalid_argument&){setTimeOfDay("noon");}}
         val = walk->Attribute("shadows");setCsm(!val||std::string(val)!="blob");
         val = walk->Attribute("crowd");setCrowd(!val||std::string(val)!="off");
+        val = walk->Attribute("cars");setCarRenderer(!val||std::string(val)!="off");
         val = walk->Attribute("post");setPostProcessing(!val||std::string(val)!="off");
         val = walk->Attribute("weatherpreset");
         if(val){try{setWeatherPreset(val);}catch(const std::invalid_argument&){setWeatherPreset("level");}}
@@ -608,6 +610,7 @@ void PConfig::storeConfig()
       walk->SetAttribute("timeofday",cfg_time_of_day.c_str());
       walk->SetAttribute("shadows",cfg_csm?"csm":"blob");
       walk->SetAttribute("crowd",cfg_crowd?"on":"off");
+      walk->SetAttribute("cars",cfg_cars?"on":"off");
       walk->SetAttribute("post",cfg_post?"on":"off");
       walk->SetAttribute("weatherpreset",cfg_weather_preset.c_str());
       walk->SetAttribute("vegetation",cfg_vegetation_meshes?"3d":"cards");
@@ -935,6 +938,7 @@ void PConfig::setTimeOfDay(const std::string &name){
   trackrs::world::configure({cfg_pbr_terrain,cfg_csm,hour});
 }
 void PConfig::setCrowd(bool enabled){cfg_crowd=enabled;trackrs::dressing::configure({enabled});}
+void PConfig::setCarRenderer(bool enabled){cfg_cars=enabled;trackrs::car::configure({enabled});}
 void PConfig::setPostProcessing(bool enabled){cfg_post=enabled;auto s=trackrs::post::settings();s.enabled=enabled;trackrs::post::configure(s);}
 void PConfig::setWeatherPreset(const std::string &name){trackrs::world::selectWeather(name);cfg_weather_preset=name;}
 void PConfig::setVegetationMeshes(bool enabled){cfg_vegetation_meshes=enabled;trackrs::vegetation::configure({enabled});}

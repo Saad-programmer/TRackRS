@@ -14,7 +14,7 @@ command = [args.compiler, 'engine/rhi/rhi.cpp', 'engine/rhi/core_device.cpp',
            'engine/pbr/texture_stream.cpp', 'engine/pbr/ibl.cpp',
            'engine/assets/ktx2.cpp', 'engine/assets/ibl_bake.cpp',
            'engine/assets/material_manifest.cpp',
-           'engine/world/atmosphere.cpp', 'engine/world/state.cpp', 'engine/world/renderer.cpp', 'engine/world/water.cpp', 'engine/post/exposure.cpp', 'engine/post/post.cpp', 'engine/dressing/people.cpp', 'engine/dressing/renderer.cpp', 'engine/content/car_definition.cpp',
+           'engine/world/atmosphere.cpp', 'engine/world/state.cpp', 'engine/world/renderer.cpp', 'engine/world/water.cpp', 'engine/post/exposure.cpp', 'engine/post/post.cpp', 'engine/dressing/people.cpp', 'engine/dressing/renderer.cpp', 'engine/content/car_definition.cpp', 'engine/car/car_assets.cpp', 'engine/car/car_renderer.cpp',
            'engine/terrain/cdlod.cpp', 'engine/terrain/renderer.cpp',
            'engine/vegetation/vegetation.cpp', 'engine/vegetation/renderer.cpp', '-p', str(args.database)]
 result = subprocess.run(command, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True)

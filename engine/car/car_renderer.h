@@ -1,0 +1,53 @@
+// SPDX-License-Identifier: GPL-2.0-or-later
+#pragma once
+/**
+ * Phase 4b CarRenderer (GL 3.3 core) for the PBR world.
+ *
+ * Purpose: draws a car as nodes — body (3 LODs), four wheels from the physics
+ * wheel transforms (spin, steer and suspension travel already composed by
+ * PSim), a procedural interior with live gauges, and a blended glass pass —
+ * through pbr.frag compiled with CAR: role-based PBR (clear-coat paint, glass,
+ * rubber, metal), livery-composited atlas, dirt/mud accumulation, emissive
+ * head/tail/brake lights and brake-disc glow.
+ * Ownership: one process-wide cache owns per-car-type GPU assets (keyed by
+ * the caller's type key) and per-vehicle wear state (keyed by vehicle key);
+ * released by shutdown(). Main (GL) thread only.
+ * Performance: per car per pass at most 1 body + 4 wheel + 1 interior + 1 glass
+ * draw; LODs by projected size; the shadow pass uses LOD >= 1 and no glass or
+ * interior. Textures are built once per type (livery composited on the CPU).
+ */
+#include "car_assets.h"
+#include "engine/mesh/mesh_importer.h"
+#include <filesystem>
+#include <nlohmann/json.hpp>
+#include <string>
+#include <vector>
+namespace trackrs::car {
+struct Settings {
+  bool enabled = true; ///< PBR world only; Legacy keeps the original path
+};
+void configure(Settings settings);
+Settings settings();
+
+struct Instance {
+  const void *vehicle = nullptr;  ///< identity for wear state
+  const void *type = nullptr;     ///< identity for GPU assets
+  std::string name;               ///< for reports
+  std::string bodyFile, wheelFile; ///< virtual (PhysFS) OBJ paths
+  std::string livery;             ///< livery JSON text ("" = atlas as authored)
+  glm::mat4 body{1};              ///< body model -> world (part scale included)
+  std::vector<glm::mat4> wheels;  ///< wheel model -> world (scale included)
+  float rpm = 0, redlineRpm = 8000, speed = 0; ///< speed m/s
+  int gear = 0;
+  float brake = 0;
+  bool reverse = false;
+  Surface surface = Surface::Tarmac;
+  bool interior = true;           ///< draw the cockpit
+};
+/// `read` loads virtual files (OBJ, MTL, PNG). Returns submitted draws.
+std::size_t draw(const Instance &car, const mesh::ReadFile &read, const glm::mat4 &viewProjection,
+                 glm::vec3 camera, float fovY, float time, bool linearCapture);
+void shutdown();
+nlohmann::json report();
+void writeReport(const std::filesystem::path &path);
+} // namespace trackrs::car

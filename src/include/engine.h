@@ -59,6 +59,7 @@ public:
   
 	bool hasGears() { return !gear.empty(); }
 	float getLastGearRatio() { return gear.back(); }
+	float getMaxRPM() const { return maxRPS * 30.0f / 3.14159265f; }
   
 	// get engine horse power
 	float getHorsePower();

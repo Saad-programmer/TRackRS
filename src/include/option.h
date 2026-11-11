@@ -36,6 +36,7 @@ private:
     OptionWeatherPreset,
     OptionPostProcessing,
     OptionCrowd,
+    OptionCars,
     OptionSnowflakes,
     OptionSpeedUnits,
     OptionGhostCars,

@@ -898,6 +898,7 @@ void MainApp::renderStateGame(float eyetranslation)
             trackrs::draw::multiply(vehic->body->getOrientationMatrix());
             trackrs::draw::translate(-currentPosition.x, -currentPosition.y, -currentPosition.z);
         }
+        if (!trackrs::Renderer::car(*vehic, game->terrain->getRoadSurface(vehic->body->getPosition()), game->animationtime))
         for (unsigned int i=0; i<vehic->part.size(); ++i)
         {
             trackrs::Renderer::vehiclePart(*this, *vehic->type, vehic->part[i], vehic->type->part[i], 1.0f);

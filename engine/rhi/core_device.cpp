@@ -1,4 +1,5 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
+#include "engine/car/car_renderer.h"
 #include "engine/post/post.h"
 #include "core_device.h"
 #include "engine/world/renderer.h"
@@ -13,6 +14,7 @@ struct CoreDevice::Impl {
   DebugMessages debug;
   Impl(SDL_Window *w, SDL_GLContext c) : window(w), context(c) {}
   ~Impl() {
+    car::shutdown();
     post::shutdown();
     world::shutdown();
     pbr::shutdown();

@@ -12,9 +12,9 @@ p.add_argument('--frames',type=int,default=32);p.add_argument('--quality',choice
 a=p.parse_args();a.output.mkdir(parents=True,exist_ok=True);(a.output/'result.json').unlink(missing_ok=True)
 env=dict(os.environ,LIBGL_ALWAYS_SOFTWARE='1',ALSOFT_DRIVERS='null',ASAN_OPTIONS='detect_leaks=1:fast_unwind_on_malloc=0:malloc_context_size=64:halt_on_error=1',LSAN_OPTIONS='exitcode=23:max_leaks=0',UBSAN_OPTIONS='halt_on_error=1:print_stacktrace=1')
 results=[]
-def run(name,renderer,time,shadows,vegetation='3d',weather='level',post='on',crowd='on'):
+def run(name,renderer,time,shadows,vegetation='3d',weather='level',post='on',crowd='on',cars='on'):
  target=(a.output/(name+'.json')).resolve();image=target.with_suffix('.ppm');target.unlink(missing_ok=True)
- command=[str(a.binary.resolve()),'--headless','--data-dir',str(ROOT/'data'),'--renderer',renderer,'--quality',a.quality,'--width',str(a.width),'--height',str(a.height),'--time-of-day',time,'--shadows',shadows,'--vegetation',vegetation,'--weather',weather,'--post',post,'--crowd',crowd,'--stage','ahead','--vehicle','cordo_kitcar','--frames',str(a.frames),'--replay',str(ROOT/'tests/replays/baseline.csv'),'--json',str(target),'--screenshot',str(image)]
+ command=[str(a.binary.resolve()),'--headless','--data-dir',str(ROOT/'data'),'--renderer',renderer,'--quality',a.quality,'--width',str(a.width),'--height',str(a.height),'--time-of-day',time,'--shadows',shadows,'--vegetation',vegetation,'--weather',weather,'--post',post,'--crowd',crowd,'--cars',cars,'--stage','ahead','--vehicle','cordo_kitcar','--frames',str(a.frames),'--replay',str(ROOT/'tests/replays/baseline.csv'),'--json',str(target),'--screenshot',str(image)]
  log=a.output/(name+'.log')
  with tempfile.TemporaryDirectory(prefix='trackrs-world-') as profile:
   with log.open('w') as stream:r=subprocess.run(command,env=dict(env,XDG_DATA_HOME=profile),stdout=stream,stderr=subprocess.STDOUT,timeout=900)
@@ -56,6 +56,15 @@ def run(name,renderer,time,shadows,vegetation='3d',weather='level',post='on',cro
    assert report['passes']['shadow_vegetation']['calls']==((a.frames-1)*world['cascade_count'] if shadows=='csm' else 0)
    assert v['mesh_bytes']<4*1024*1024 and v['instance_stream_bytes']<8*1024*1024,'vegetation memory budget'
   else:assert not veg.exists() and report['passes']['vegetation']['calls']==0,'cards selection still ran 3D vegetation'
+  cj=Path(str(target)+'.cars.json')
+  if cars=='on':
+   c=json.loads(cj.read_text());assert c['renderer']=='car-v2' and len(c['types'])==1 and len(c['vehicles'])==1,'car renderer did not draw the player car'
+   t=c['types'][0];assert t['body_triangles_per_lod'][0]>=t['body_triangles_per_lod'][1]>=t['body_triangles_per_lod'][2]>0,'car LODs not monotonic'
+   assert t['cabin']['measured'] and t['gpu_bytes']<32*1024*1024,'car cabin/VRAM budget'
+   assert report['passes']['cars']['calls']==a.frames-1,'car pass not run once per frame'
+   assert report['passes']['shadow_cars']['calls']==((a.frames-1)*world['cascade_count'] if shadows=='csm' else 0)
+   assert world['blob_draw_calls']==(0 if shadows=='csm' else 1)
+  else:assert not cj.exists() and report['passes']['cars']['calls']==0,'car renderer ran while disabled'
  results.append({'name':name,'state_hash':report['state_hash'],'native_exit':r.returncode,'accepted_driver_allocations':accepted,'draw_calls':report['draw_calls'],'triangles':report['triangles'],'passes':report['passes']})
  print('PASS:',name,report['state_hash'],flush=True)
  return report['state_hash']
@@ -65,5 +74,6 @@ assert run('noon-blob','pbr','noon','blob')==reference,'blob selection changed p
 assert run('noon-cards','pbr','noon','csm','cards')==reference,'vegetation selection changed physics'
 assert run('noon-nopost','pbr','noon','csm','3d','level','off')==reference,'post selection changed physics'
 assert run('noon-nocrowd','pbr','noon','csm','3d','level','on','off')==reference,'crowd selection changed physics'
+assert run('noon-nocars','pbr','noon','csm','3d','level','on','on','off')==reference,'car renderer selection changed physics'
 for weather in ('rain','snow','clear'):assert run('noon-'+weather,'pbr','noon','csm','3d',weather)==reference,'weather changed physics'
 (a.output/'result.json').write_text(json.dumps({'passed':True,'viewport':[a.width,a.height],'frames':a.frames,'quality':a.quality,'timing_scope':'software functional integration; concurrent load possible, not hardware performance','runs':results},indent=2)+'\n')

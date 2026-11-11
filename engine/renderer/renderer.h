@@ -3,11 +3,17 @@
 /** Renderer consumes borrowed immutable vehicle snapshots. No world ownership.
  * Main GL thread only; all resources must outlive each call. No frame allocations.
  */
-class PApp; class PVehicleType; struct PVehiclePart; struct PVehicleTypePart;
+class PApp; class PVehicle; class PVehicleType; struct PVehiclePart; struct PVehicleTypePart;
+enum class TerrainType;
 namespace trackrs {
 class Renderer {
 public:
     static void vehiclePart(PApp& context, const PVehicleType& type,
         const PVehiclePart& part, const PVehicleTypePart& typepart, float alpha);
+    /// Phase 4b: draws the vehicle with the PBR CarRenderer when the PBR world
+    /// scene is active and the car renderer is enabled. Returns false (nothing
+    /// drawn) otherwise, so the caller keeps the legacy path. `surface` is the
+    /// road surface under the car (dirt accumulation).
+    static bool car(const PVehicle& vehicle, TerrainType surface, float time);
 };
 }

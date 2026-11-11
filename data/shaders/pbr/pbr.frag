@@ -28,6 +28,10 @@ in VS_OUT {
 #ifdef VEGETATION
     flat float fade;          // LOD dither code, see engine/vegetation/vegetation.h
 #endif
+#ifdef CAR
+    vec3 modelPos;            // body/wheel model space (lights, dirt masks)
+    vec3 modelNormal;
+#endif
 } fs;
 
 out vec4 FragColor;
@@ -46,6 +50,17 @@ uniform float uAlphaCutoff     = 0.0;   // >0 => alpha test (foliage, signs, fen
 uniform float uClearcoat       = 0.0;   // 0..1  (car paint = 1.0)
 uniform float uClearcoatRough  = 0.03;
 uniform float uWetness         = 0.0;   // 0..1  (rain / wet tarmac)
+#ifdef CAR
+// Phase 4b car material (see engine/car/car_renderer.cpp).
+uniform sampler2D uRoleMap;     // R paint (clear-coat), G glass, B rubber, A metal
+uniform sampler2D uLightMap;    // R tail/brake light texels, G headlight texels
+uniform int   uCarPart;         // 0 body, 1 wheel, 2 interior
+uniform bool  uGlassPass;       // second pass: glass only, blended
+uniform vec4  uCarLights;       // head on, tail on, brake 0..1, reverse
+uniform vec4  uDirt;            // dust, mud, scene wetness, unused
+uniform vec4  uBodyBounds;      // model-space minZ, maxZ, frontY, wheel radius
+uniform float uBrakeGlow;       // 0..1 for this wheel
+#endif
 #ifdef VEGETATION
 uniform bool  uAlbedoGamma     = false; // legacy UNORM sprite cards: decode sRGB here
 uniform float uTranslucency    = 0.0;   // back-lit leaf transmission weight
@@ -148,6 +163,47 @@ void main()
     float roughness = clamp(mr.g * uRoughnessFactor, 0.04, 1.0);
     float metallic  = clamp(mr.b * uMetallicFactor, 0.0, 1.0);
 
+#ifdef CAR
+    float carGlass = 0.0, carDirt = 0.0;
+    vec3 carEmissive = vec3(0.0);
+    if (uCarPart != 2) {
+        vec4 role = texture(uRoleMap, fs.uv);
+        vec4 lamp = texture(uLightMap, fs.uv);
+        carGlass = role.g;
+        if (uGlassPass ? carGlass < 0.5 : carGlass > 0.5) discard;
+        if (carGlass > 0.5) {           // tinted rally glass: dark, mirror-smooth
+            albedo = vec3(0.02, 0.025, 0.03); roughness = 0.05; metallic = 0.0;
+        } else if (role.b > 0.5) {      // tyres, rubber trim, grilles
+            roughness = max(roughness, 0.88); metallic = 0.0;
+        } else if (role.a > 0.5) {      // rims, chrome, bolts
+            metallic = 0.9; roughness = 0.28;
+        } else {                        // clear-coated paint base
+            roughness = 0.42; metallic = 0.0;
+        }
+        // Lamps: tail/brake from the emission atlas, head from bright front texels.
+        vec3 mp = fs.modelPos, mn = normalize(fs.modelNormal);
+        float tail = lamp.r * (uCarLights.y * 1.2 + uCarLights.z * 6.0);
+        float front = smoothstep(uBodyBounds.z - 25.0, uBodyBounds.z, mp.y) * step(0.3, mn.y);
+        float head = lamp.g * front * uCarLights.x * 9.0;
+        carEmissive = vec3(1.0, 0.06, 0.03) * tail + vec3(1.0, 0.93, 0.8) * head;
+        // Brake disc glow behind the spokes: inner radius band of the wheel.
+        if (uCarPart == 1) {
+            float r = length(mp.yz) / max(uBodyBounds.w, 1e-4);
+            float disc = smoothstep(0.30, 0.38, r) * (1.0 - smoothstep(0.58, 0.66, r)) * (1.0 - role.b);
+            carEmissive += vec3(1.0, 0.28, 0.05) * disc * uBrakeGlow * uBrakeGlow * 4.0;
+        }
+        // Dust/mud: low on the body, sprayed behind the wheels, broken up by noise.
+        float height = clamp((mp.z - uBodyBounds.x) / max(uBodyBounds.y - uBodyBounds.x, 1e-3), 0.0, 1.0);
+        float splash = 0.55 * sceneNoise(fs.worldPos.xy * 2.3) + 0.45 * sceneNoise(fs.worldPos.yz * 7.1 + fs.worldPos.x);
+        float coverage = max(uDirt.x, uDirt.y);
+        carDirt = clamp(coverage * 1.6 - height * 1.3 + (splash - 0.5) * 0.9, 0.0, 1.0) * (uCarPart == 1 ? 1.3 : 1.0);
+        carDirt = clamp(carDirt, 0.0, 1.0);
+        vec3 dirtColour = mix(vec3(0.46, 0.39, 0.29), vec3(0.17, 0.12, 0.08), uDirt.y / max(coverage, 1e-3));
+        albedo = mix(albedo, dirtColour, carDirt * (carGlass > 0.5 ? 0.6 : 0.9));
+        roughness = mix(roughness, mix(0.92, 0.55, uDirt.z), carDirt);
+        metallic *= 1.0 - carDirt;
+    } else if (uGlassPass) discard;
+#endif
     // ---- wetness: darker diffuse, smoother surface -------------------------
     albedo    *= mix(1.0, 0.55, uWetness * (1.0 - metallic));
     roughness  = mix(roughness, min(roughness, 0.12), uWetness);
@@ -236,12 +292,17 @@ void main()
     }
     // ---- clear-coat lobe (fixed F0 = 0.04) ------------------------------------
     float Fcc = 0.0;
-    if (uClearcoat > 0.0) {
+    float clearcoat = uClearcoat;
+#ifdef CAR
+    if (uCarPart == 0 && carGlass < 0.5) clearcoat = texture(uRoleMap, fs.uv).r * (1.0 - carDirt);
+    else clearcoat = 0.0;
+#endif
+    if (clearcoat > 0.0) {
         vec3  L  = normalize(uSunDir);
         vec3  H  = normalize(V + L);
         float NdotL = max(dot(N, L), 0.0), NdotH = max(dot(N, H), 0.0), VdotH = max(dot(V, H), 0.0);
         float a  = uClearcoatRough * uClearcoatRough;
-        Fcc      = uClearcoat * F_Schlick(VdotH, vec3(0.04)).x;
+        Fcc      = clearcoat * F_Schlick(VdotH, vec3(0.04)).x;
         float sc = D_GGX(NdotH, a) * G_Smith(NdotV, NdotL, uClearcoatRough) * Fcc
                    / (4.0 * NdotV * NdotL + 1e-4);
         Lo = Lo * (1.0 - Fcc) + sc * uSunColor * sunVisibility() * NdotL;     // base layer attenuated by coat
@@ -263,7 +324,7 @@ void main()
         vec3 multiple=Fms*Ems;
         vec3 kD=max(vec3(0),1.0-FssEss-multiple)*(1.0-metallic);
         ambient=prefiltered*FssEss+irradiance*(multiple+kD*albedo);
-        if(uClearcoat>0.0){vec3 coatN=normalize(fs.N);float coatNv=max(dot(coatN,V),0.0001);vec2 coatBrdf=texture(uBrdfLUT,vec2(coatNv,uClearcoatRough)).rg;float coatWeight=clamp(uClearcoat*(0.04*coatBrdf.x+coatBrdf.y),0.0,1.0);ambient=ambient*(1.0-coatWeight)+environmentSpecular(reflect(-V,coatN),uClearcoatRough)*coatWeight;}
+        if(clearcoat>0.0){vec3 coatN=normalize(fs.N);float coatNv=max(dot(coatN,V),0.0001);vec2 coatBrdf=texture(uBrdfLUT,vec2(coatNv,uClearcoatRough)).rg;float coatWeight=clamp(clearcoat*(0.04*coatBrdf.x+coatBrdf.y),0.0,1.0);ambient=ambient*(1.0-coatWeight)+environmentSpecular(reflect(-V,coatN),uClearcoatRough)*coatWeight;}
         ambient*=ao*uEnvIntensity;
 
     } else {
@@ -271,6 +332,9 @@ void main()
     }
 
     vec3 color = (Lo + ambient) * uExposure;
+#ifdef CAR
+    color += carEmissive;   // lamps and hot discs are light sources: not shadowed or AO'd
+#endif
     if(!uDepthOnly)color=sceneFog(color,(uSceneFromLocal*vec4(fs.worldPos,1)).xyz);
 
     // ---- tone-map + gamma 2.2 ---------------------------------------------------
@@ -286,6 +350,9 @@ void main()
     if (uDebugView == 6) {int axis=int(mod(floor(fs.uv.x*12.0),3.0));color=(axis==0?normalize(fs.T):axis==1?normalize(fs.B):normalize(fs.N))*0.5+0.5;}
 #ifdef TERRAIN
     if(uDebugView==7)color=normalize(fs.N)*0.5+0.5;
+#endif
+#ifdef CAR
+    if (uGlassPass) { FragColor = vec4(color, 0.86); return; }   // tinted glass over the cabin
 #endif
     FragColor = vec4(color, baseSample.a);
 }
