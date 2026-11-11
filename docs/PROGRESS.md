@@ -15,7 +15,7 @@ rendering (Mesa llvmpipe). Real-GPU numbers come from the maintainer.
 | 3c World: 3D vegetation, weather surfaces, headlights, water | Done | [PHASE_3C](reports/PHASE_3C.md) |
 | 3d Post-FX: HDR target, auto-exposure, bloom, ACES, SSAO | Done (core) | [PHASE_3D](reports/PHASE_3D.md) |
 | **3e** TAA + golden manifest regeneration | Planned (below) | — |
-| 4 Real rally cars, gated 4a–4d | 4a done (gate) | [PHASE_4A](reports/PHASE_4A.md) |
+| 4 Real rally cars, gated 4a–4d | 4a, 4b done (gate after 4b) | [PHASE_4A](reports/PHASE_4A.md), [PHASE_4B](reports/PHASE_4B.md) |
 | 5 Stage dressing | 5a people done; rest planned | [PHASE_5A](reports/PHASE_5A.md) |
 | 6 Physics realism | Not started | — |
 | 7 Audio, cameras, HUD, replay, photo mode, co-driver | Not started | — |
@@ -45,7 +45,7 @@ rendering (Mesa llvmpipe). Real-GPU numbers come from the maintainer.
 Each sub-step ends with a report, a tag (`phase-4a-done` …) and a stop for
 maintainer review.
 
-* **4a Car Definition v2:**
+* **4a Car Definition v2** (done):
   * `car.json` schema (§4.3), loader, validator, and a legacy adapter so the 9
     fictional cars keep working unchanged;
   * the 11 stub vehicles migrated to `car.json`, each with its own torque
@@ -53,7 +53,7 @@ maintainer review.
     `verified:false` where unsourced;
   * the data feeds the existing physics through the adapter;
   * report-only calibration tests (blocking in Phase 6).
-* **4b Car rendering:**
+* **4b Car rendering** (done; PBR world only, Legacy unchanged):
   * `CarRenderer`: LODs, rotating wheel nodes, emissive lights, brake glow,
     suspension-linked wheels;
   * liveries (paint mask, numbers, decals, sponsor atlas);

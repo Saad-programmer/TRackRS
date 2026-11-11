@@ -274,3 +274,36 @@ Decision:
 * The fictional cars keep driving from their XML, so legacy hashes do not
   change, and are converted only for reports.
 * Calibration is report-only until Phase 6 replaces the drivetrain.
+
+## Phase 4b: CarRenderer derives materials from the shipped single-atlas bodies
+
+Context: every shipped car body is one OBJ with one material and one atlas.
+There are no part names, no paint mask, no glass or light materials, and the
+tail lamps are only an alpha-masked emission map (some shared between sibling
+car directories via `../`). Phase 4b asks for a paint mask, glass, lights,
+liveries and an interior without new or ripped assets (§2.4).
+Decision:
+* The renderer derives a per-texel **role map** (paint, glass, rubber, metal)
+  and a **light map** (tail from emission alpha, head from bright detailed
+  whites) on the CPU when the car type first loads. Thresholds live in
+  `engine/car/car_assets.cpp` and are unit-tested. The heuristic is
+  approximate: it can misclassify, and a misclassified texel only gets another
+  material response, never missing geometry.
+* **Liveries** are optional `livery.json` files (`trackrs.livery/1`). They
+  recolour paint near measured source colours (keeping shading), redraw race
+  numbers with an original stroke font, and fill sponsor slots with
+  procedurally generated fictional logos. No real team or sponsor scheme
+  appears. The 11 placeholder real cars get plain fictional schemes from
+  `tools/seed_liveries.py`.
+* **Geometry:**
+  * 3 LODs from the meshoptimizer simplifier, chosen by projected size; the
+    shadow pass draws LOD ≥ 1;
+  * wheels are drawn from the physics wheel frames, which already compose
+    spin, steer and suspension travel;
+  * the interior is procedural, kept under a roof height measured from the
+    mesh, with gauge needles rotated in the vertex shader;
+  * glass is a second, blended pass.
+* **Scope:** PBR world only, behind `cars` (config), `--cars on|off` and an
+  options entry. The Legacy renderer path is untouched and stays the default.
+  Mesh imports may reach the `/vehicles` tree (`ImportOptions::assetRoot`)
+  because shipped MTLs share emission maps across sibling directories.
