@@ -18,7 +18,7 @@ enum class AlphaMode : std::uint8_t { Opaque, Mask, Blend };
 struct Material {
   std::string name;
   MaterialPath path = MaterialPath::Legacy;
-  Texture albedo, normal, metalRough;
+  Texture albedo, normal, metalRough, emissive; ///< emissive: OBJ map_Ke only
   std::array<float, 4> baseColor{{1, 1, 1, 1}};
   float metallic = 1, roughness = 1, normalScale = 1, aoStrength = 0,
         clearcoat = 0, clearcoatRoughness = .03f, alphaCutoff = .5f;
@@ -43,6 +43,10 @@ struct ImportOptions {
   bool gltfYUpToZUp = false;
   std::size_t maxBytes = std::size_t{128} * 1024 * 1024;
   std::size_t maxCorners = 6000000;
+  /// Tree that external URIs may reach (default: the model's own directory).
+  /// Vehicles set "/vehicles" because shipped MTLs share emission maps
+  /// between sibling car directories (../fox_kitcar/...).
+  std::string assetRoot;
 };
 class MeshImporter {
 public:

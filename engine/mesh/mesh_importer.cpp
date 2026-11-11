@@ -17,8 +17,9 @@ namespace trackrs::mesh {
 namespace {
 struct Input {
   ReadFile reader;
-  std::filesystem::path root;
+  std::filesystem::path root; ///< reads must stay inside this tree
   std::size_t remaining;
+  std::filesystem::path base; ///< relative URIs resolve against the model's directory
   Bytes read(const std::string &filename) {
     auto path = std::filesystem::path(filename).lexically_normal();
     auto rel = path.lexically_relative(root);
@@ -82,7 +83,7 @@ struct Input {
         uri.find('\\') != std::string::npos ||
         std::filesystem::path(uri).is_absolute())
       throw std::runtime_error("unsupported mesh URI");
-    return read((root / uri).generic_string());
+    return read((base / uri).generic_string());
   }
 };
 cgltf_result readBuffer(const cgltf_memory_options *,
@@ -434,6 +435,10 @@ MeshData obj(const std::string &filename, Input &input,
           mf >> file;
           const auto image = (materialDirectory / file).generic_string();
           current->albedo = {image, input.uri(image.c_str())};
+        } else if (current && key == "map_Ke") {
+          mf >> file;
+          const auto image = (materialDirectory / file).generic_string();
+          current->emissive = {image, input.uri(image.c_str())};
         }
       }
     } else if (key == "f") {
@@ -509,7 +514,14 @@ MeshData MeshImporter::load(const std::string &filename, const ReadFile &reader,
   auto root = path.parent_path();
   if (root.empty())
     root = ".";
-  Input input{reader, root, options.maxBytes};
+  auto allowed = root;
+  if (!options.assetRoot.empty()) {
+    allowed = std::filesystem::path(options.assetRoot).lexically_normal();
+    const auto rel = root.lexically_relative(allowed);
+    if (rel.empty() || *rel.begin() == "..")
+      throw std::runtime_error("mesh outside its asset root: " + filename);
+  }
+  Input input{reader, allowed, options.maxBytes, root};
   auto ext = path.extension().string();
   if (ext == ".gltf" || ext == ".glb")
     return gltf(path.generic_string(), input, options);
