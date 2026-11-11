@@ -1,0 +1,15 @@
+{
+  "schema": "trackrs.livery/1",
+  "id": "peugeot_206_wrc_fictional",
+  "note": "Fictional livery (placeholder model); not a real team or sponsor scheme.",
+  "primary": "#5a9bd9",
+  "primary_source": "#bf121f",
+  "secondary": null,
+  "secondary_source": "#e3e3e3",
+  "number": -1,
+  "number_colour": "#111111",
+  "panel_colour": "#f2f2f2",
+  "number_panels": [],
+  "sponsor_slots": [],
+  "sponsor_seed": 109
+}

@@ -1,0 +1,53 @@
+{
+  "schema": "trackrs.livery/1",
+  "id": "lancia_stratos_hf_fictional",
+  "note": "Fictional livery (placeholder model); not a real team or sponsor scheme.",
+  "primary": "#8cbf26",
+  "primary_source": "#a18a2b",
+  "secondary": "#1d1f22",
+  "secondary_source": "#d6d1b5",
+  "number": 5,
+  "number_colour": "#111111",
+  "panel_colour": "#f2f2f2",
+  "number_panels": [
+    {
+      "rect": [
+        0.18652,
+        0.68652,
+        0.09766,
+        0.06348
+      ],
+      "rotation": 0
+    },
+    {
+      "rect": [
+        0.25684,
+        0.87793,
+        0.09766,
+        0.06348
+      ],
+      "rotation": 0
+    }
+  ],
+  "sponsor_slots": [
+    {
+      "rect": [
+        0.32227,
+        0.69531,
+        0.11719,
+        0.0293
+      ],
+      "rotation": 0
+    },
+    {
+      "rect": [
+        0.39062,
+        0.88672,
+        0.11719,
+        0.0293
+      ],
+      "rotation": 0
+    }
+  ],
+  "sponsor_seed": 103
+}

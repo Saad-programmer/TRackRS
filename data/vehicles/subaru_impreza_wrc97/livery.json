@@ -1,0 +1,15 @@
+{
+  "schema": "trackrs.livery/1",
+  "id": "subaru_impreza_wrc97_fictional",
+  "note": "Fictional livery (placeholder model); not a real team or sponsor scheme.",
+  "primary": "#9a6633",
+  "primary_source": "#bf121f",
+  "secondary": "#2a2a2a",
+  "secondary_source": "#e3e3e3",
+  "number": -1,
+  "number_colour": "#111111",
+  "panel_colour": "#f2f2f2",
+  "number_panels": [],
+  "sponsor_slots": [],
+  "sponsor_seed": 110
+}

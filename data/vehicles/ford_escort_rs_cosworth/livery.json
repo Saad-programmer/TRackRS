@@ -1,0 +1,15 @@
+{
+  "schema": "trackrs.livery/1",
+  "id": "ford_escort_rs_cosworth_fictional",
+  "note": "Fictional livery (placeholder model); not a real team or sponsor scheme.",
+  "primary": "#7f1420",
+  "primary_source": "#bf121f",
+  "secondary": "#a7abb0",
+  "secondary_source": "#e3e3e3",
+  "number": -1,
+  "number_colour": "#111111",
+  "panel_colour": "#f2f2f2",
+  "number_panels": [],
+  "sponsor_slots": [],
+  "sponsor_seed": 106
+}

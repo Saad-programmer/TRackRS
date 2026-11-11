@@ -76,3 +76,22 @@ CLI accepts `--vehicle <id>` for either.
 
 Regenerate the eleven real-car files with `tools/seed_real_cars.py`. A CTest
 check (`car-seed-fresh`) fails if they drift from the table.
+
+## Liveries (`livery.json`, Phase 4b)
+
+Optional, next to the car's `.vehicle` or `car.json`. They apply only in the
+PBR world's CarRenderer; Legacy draws the atlas as authored. Schema
+`trackrs.livery/1`, parsed by `engine/car/car_assets.cpp`:
+
+| key | meaning |
+|---|---|
+| `primary`, `secondary` | target paint colours `#rrggbb`; `null` keeps that colour |
+| `primary_source`, `secondary_source` | atlas colours to replace. Omit them to use a 2-means estimate. Only paint-role texels within ~0.26 (sRGB distance) of a source change, and their shading is kept. |
+| `number`, `number_colour`, `panel_colour`, `number_panels` | race number (0–999, `-1` keeps the atlas). It is redrawn in each panel with an original stroke font. |
+| `number_panels[].rect` | `[u, v, w, h]`, normalised atlas coordinates with v measured from the top of the image; `rotation` is 0/90/180/270 |
+| `sponsor_slots`, `sponsor_seed` | rects filled with procedurally generated **fictional** logos (seeded emblem + stroke-font name) |
+
+Real team, sponsor or livery designs must not be used (§2.4). The 11
+placeholder real cars carry plain fictional schemes, written by
+`tools/seed_liveries.py`; the `car-liveries-fresh` test checks those files
+are up to date.
