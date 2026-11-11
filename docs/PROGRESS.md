@@ -1,5 +1,10 @@
 # TrackRS 0.7 "Reality" — progress against the master prompt
 
+The binding [Moroccan Sahara amendment](MOROCCO_AMENDMENT.md) sets the order of the
+remaining work (§A9): 3e, M0 pack-lite, M1 Saharan world tech, M2 Zagora
+Prologue, then 4c–4d with the A5 car priorities. Gate commits and CI runs are
+recorded in [GATES.md](GATES.md); tags are created by the maintainer.
+
 Each line links to the report that holds its evidence. "Done" means
 implemented, tested and on `main` with green CI. It does not mean certified
 against the §7 hardware budgets: every timing so far comes from software
