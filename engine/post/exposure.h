@@ -28,4 +28,16 @@ std::vector<glm::ivec2> bloomChain(glm::ivec2 frame, int levels = 6);
 std::vector<glm::vec3> ssaoKernel(int count);
 /// Soft-knee bright-pass weight used by the first bloom downsample.
 float bloomPrefilter(float brightness, float threshold = 1.f, float knee = .5f);
+
+// ---- Phase 3e temporal anti-aliasing ------------------------------------------
+/// Radical inverse in `base` of `index` (Halton sequence), in [0, 1).
+float halton(unsigned index, unsigned base);
+/// Sub-pixel jitter for frame `frame`, in pixels, in [-0.5, 0.5)^2: Halton(2,3)
+/// over an 8-frame cycle starting at index 1 (index 0 would be the origin).
+glm::vec2 taaJitter(unsigned frame);
+/// Clip-space translation that shifts a projection by `pixels` on a viewport of
+/// `size`: jittered = taaJitterMatrix(...) * projection.
+glm::mat4 taaJitterMatrix(glm::vec2 pixels, glm::ivec2 size);
+/// History weight of the resolve (the current frame gets 1 - this).
+constexpr float TaaFeedback = .9f;
 } // namespace trackrs::post

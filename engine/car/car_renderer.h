@@ -47,6 +47,15 @@ struct Instance {
 /// `read` loads virtual files (OBJ, MTL, PNG). Returns submitted draws.
 std::size_t draw(const Instance &car, const mesh::ReadFile &read, const glm::mat4 &viewProjection,
                  glm::vec3 camera, float fovY, float time, bool linearCapture);
+/// Advances one vehicle's wear (dust, mud, brake temperature) by one
+/// simulation step. Called every tick by the game, so wear is independent of
+/// how often (or whether) the car is drawn; draw() then only reads it.
+void observe(const void *vehicle, const WearInput &input);
+/// Phase 3e: motion vectors (into the bound velocity target) for every car
+/// drawn in this frame's main view, then rolls current -> previous transforms.
+/// Matrices: jittered current view-projection (rasterisation), unjittered
+/// current and previous view-projections. Returns submitted draws.
+std::size_t drawVelocity(const glm::mat4 &jittered, const glm::mat4 &current, const glm::mat4 &previous);
 void shutdown();
 nlohmann::json report();
 void writeReport(const std::filesystem::path &path);

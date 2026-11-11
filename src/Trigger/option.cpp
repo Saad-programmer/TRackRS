@@ -39,6 +39,7 @@ POption::POption(Gui &parent, PConfig &config) :
   options.push_back({ OptionCrowd, "Spectators (PBR)", { "Off", "On" }, 1 });
   options.push_back({ OptionCars, "Car renderer (PBR)", { "Off", "On" }, 1 });
   options.push_back({ OptionPostProcessing, "Post FX (PBR)", { "Off", "On" }, 1 });
+  options.push_back({ OptionTemporalAA, "Anti-aliasing (PBR)", { "Off", "TAA" }, 1 });
   options.push_back({ OptionWeatherPreset, "Weather (PBR)", { "Stage", "Clear", "Rain", "Snow", "Fog" }, 0 });
   options.push_back({ OptionSnowflakes, "Snowflakes",
     { "off", "point", "square", "textured" }, 0 });
@@ -125,6 +126,7 @@ void POption::select(int index)
   case OptionShadows:cfg.setCsm(column!=0);break;
   case OptionVegetation:cfg.setVegetationMeshes(column!=0);break;
   case OptionPostProcessing:cfg.setPostProcessing(column!=0);break;
+  case OptionTemporalAA:cfg.setTemporalAA(column!=0);break;
   case OptionCrowd:cfg.setCrowd(column!=0);break;
   case OptionCars:cfg.setCarRenderer(column!=0);break;
   case OptionWeatherPreset:{const char* names[]={"level","clear","rain","snow","fog"};cfg.setWeatherPreset(names[column]);break;}
@@ -244,6 +246,7 @@ void POption::updateSelect(Option &option)
   case OptionShadows:option.select=cfg.getCsm()?1:0;break;
   case OptionVegetation:option.select=cfg.getVegetationMeshes()?1:0;break;
   case OptionPostProcessing:option.select=cfg.getPostProcessing()?1:0;break;
+  case OptionTemporalAA:option.select=cfg.getTemporalAA()?1:0;break;
   case OptionCrowd:option.select=cfg.getCrowd()?1:0;break;
   case OptionCars:option.select=cfg.getCarRenderer()?1:0;break;
   case OptionWeatherPreset:{const char* names[]={"level","clear","rain","snow","fog"};for(unsigned i=0;i<5;++i)if(cfg.getWeatherPreset()==names[i])option.select=i;break;}

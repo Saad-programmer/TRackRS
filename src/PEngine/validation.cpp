@@ -39,6 +39,7 @@ Options parse(int argc, char** argv) {
         else if (key == "--shadows") {o.shadows=value();if(o.shadows!="blob"&&o.shadows!="csm")throw std::runtime_error("shadows must be blob or csm");}
         else if (key == "--vegetation") {o.vegetation=value();if(o.vegetation!="3d"&&o.vegetation!="cards")throw std::runtime_error("vegetation must be 3d or cards");}
         else if (key == "--weather") {o.weather=value();if(o.weather!="level"&&o.weather!="clear"&&o.weather!="rain"&&o.weather!="snow"&&o.weather!="fog")throw std::runtime_error("weather must be level, clear, rain, snow or fog");}
+        else if (key == "--aa") {o.aa=value();if(o.aa!="taa"&&o.aa!="off")throw std::runtime_error("aa must be taa or off");}
         else if (key == "--post") {o.post=value();if(o.post!="on"&&o.post!="off")throw std::runtime_error("post must be on or off");}
         else if (key == "--cars") {o.cars=value();if(o.cars!="on"&&o.cars!="off")throw std::runtime_error("cars must be on or off");}
         else if (key == "--crowd") {o.crowd=value();if(o.crowd!="on"&&o.crowd!="off")throw std::runtime_error("crowd must be on or off");}
@@ -48,6 +49,7 @@ Options parse(int argc, char** argv) {
         else if (key == "--width") o.width=number(value());
         else if (key == "--height") o.height=number(value());
         else if (key == "--frames") o.frames = number(value());
+        else if (key == "--render-from") o.renderFrom = number(value());
         else if (key == "--seed") o.seed = number(value());
         else if (key == "--replay") o.replay = value();
         else if (key == "--dump-state") o.dump = value();
@@ -57,6 +59,7 @@ Options parse(int argc, char** argv) {
     }
     if(o.width<320||o.width>3840||o.height<200||o.height>2160)throw std::runtime_error("viewport outside320..3840 by200..2160");
     if (!o.frames) throw std::runtime_error("--frames must be positive");
+    if (o.renderFrom >= o.frames) throw std::runtime_error("--render-from must be below --frames");
     if (!o.enabled && (!o.replay.empty() || !o.dump.empty() || !o.json.empty() || !o.screenshot.empty()))
         throw std::runtime_error("validation output/replay needs --headless, --stage or --benchmark");
     if (o.stage.find("..") != std::string::npos || o.stage.find('\\') != std::string::npos)

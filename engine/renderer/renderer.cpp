@@ -122,6 +122,18 @@ glm::mat4 frame(const PReferenceFrame& ref, float scale) {
 }
 } // namespace
 
+void trackrs::Renderer::observeCar(const PVehicle& vehicle, TerrainType surface, float dt)
+{
+    if (!trackrs::car::settings().enabled) return;
+    trackrs::car::WearInput in;
+    in.speed = std::abs(vehicle.forwardspeed);
+    in.brake = vehicle.ctrl.brake1;
+    in.wetness = trackrs::world::state().settings.weather.wetness;
+    in.dt = dt;
+    in.surface = surfaceOf(surface);
+    trackrs::car::observe(&vehicle, in);
+}
+
 bool trackrs::Renderer::car(const PVehicle& vehicle, TerrainType surface, float time)
 {
     const auto& ws = trackrs::world::state();

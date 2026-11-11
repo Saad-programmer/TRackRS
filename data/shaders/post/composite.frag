@@ -8,8 +8,15 @@ uniform float uAoStrength;        // 0 disables ambient occlusion
 uniform bool uAutoExposure;
 uniform float uKey, uMinExposure, uMaxExposure, uBloomIntensity, uVignette;
 uniform int uDebugView;            // 1 = exposure-only (no bloom), 2 = bloom only, 3 = AO
+uniform vec2 uTexel;
+uniform float uSharpen;            // > 0 while TAA runs: restores resolve softness
 void main() {
     vec3 hdr = textureLod(uHdr, vUv, 0.0).rgb;
+    if (uSharpen > 0.0) {   // 4-tap unsharp mask, clamped so it cannot ring negative
+        vec3 n = textureLod(uHdr, vUv + vec2(0.0, uTexel.y), 0.0).rgb + textureLod(uHdr, vUv - vec2(0.0, uTexel.y), 0.0).rgb
+               + textureLod(uHdr, vUv + vec2(uTexel.x, 0.0), 0.0).rgb + textureLod(uHdr, vUv - vec2(uTexel.x, 0.0), 0.0).rgb;
+        hdr = max(hdr + uSharpen * (hdr - 0.25 * n), vec3(0.0));
+    }
     hdr *= mix(1.0, textureLod(uAo, vUv, 0.0).r, uAoStrength);
     vec3 bloom = textureLod(uBloom, vUv, 0.0).rgb;
     float exposure = 1.0;

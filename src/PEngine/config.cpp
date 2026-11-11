@@ -273,6 +273,7 @@ void PConfig::loadConfig()
         val = walk->Attribute("crowd");setCrowd(!val||std::string(val)!="off");
         val = walk->Attribute("cars");setCarRenderer(!val||std::string(val)!="off");
         val = walk->Attribute("post");setPostProcessing(!val||std::string(val)!="off");
+        val = walk->Attribute("aa");setTemporalAA(!val||std::string(val)!="off");
         val = walk->Attribute("weatherpreset");
         if(val){try{setWeatherPreset(val);}catch(const std::invalid_argument&){setWeatherPreset("level");}}
         val = walk->Attribute("vegetation");setVegetationMeshes(!val||std::string(val)!="cards");
@@ -612,6 +613,7 @@ void PConfig::storeConfig()
       walk->SetAttribute("crowd",cfg_crowd?"on":"off");
       walk->SetAttribute("cars",cfg_cars?"on":"off");
       walk->SetAttribute("post",cfg_post?"on":"off");
+      walk->SetAttribute("aa",cfg_taa?"taa":"off");
       walk->SetAttribute("weatherpreset",cfg_weather_preset.c_str());
       walk->SetAttribute("vegetation",cfg_vegetation_meshes?"3d":"cards");
       walk->SetAttribute("renderquality", std::string(trackrs::qualityName(cfg_render_quality)).c_str());
@@ -940,6 +942,7 @@ void PConfig::setTimeOfDay(const std::string &name){
 void PConfig::setCrowd(bool enabled){cfg_crowd=enabled;trackrs::dressing::configure({enabled});}
 void PConfig::setCarRenderer(bool enabled){cfg_cars=enabled;trackrs::car::configure({enabled});}
 void PConfig::setPostProcessing(bool enabled){cfg_post=enabled;auto s=trackrs::post::settings();s.enabled=enabled;trackrs::post::configure(s);}
+void PConfig::setTemporalAA(bool enabled){cfg_taa=enabled;auto s=trackrs::post::settings();s.taa=enabled;trackrs::post::configure(s);}
 void PConfig::setWeatherPreset(const std::string &name){trackrs::world::selectWeather(name);cfg_weather_preset=name;}
 void PConfig::setVegetationMeshes(bool enabled){cfg_vegetation_meshes=enabled;trackrs::vegetation::configure({enabled});}
 void PConfig::setCsm(bool enabled){cfg_csm=enabled;trackrs::world::configure({cfg_pbr_terrain,cfg_csm,trackrs::world::presetHour(cfg_time_of_day)});}

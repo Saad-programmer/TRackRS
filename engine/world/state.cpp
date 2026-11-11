@@ -36,6 +36,7 @@ void apply(GLuint p, const glm::mat4 &localToWorld, bool scene) {
   glUniform1i(glGetUniformLocation(p, "uSceneToneMap"), !s.linearCapture);
   glUniform1i(glGetUniformLocation(p, "uSceneShadow"), 10);
   glUniform1i(glGetUniformLocation(p, "uSceneShadowCount"), 0);
+  glUniform1i(glGetUniformLocation(p, "uTemporalFrame"), static_cast<GLint>(s.temporalFrame % 64u));
   if (!enabled)
     return;
   const auto &w = s.settings.weather;

@@ -49,8 +49,15 @@ void release(Target &t) {
   t = {};
 }
 struct Processor {
-  rhi::ShaderProgram luminance, adapt, down, up, composite, ssao, ssaoBlur;
+  rhi::ShaderProgram luminance, adapt, down, up, composite, ssao, ssaoBlur, taa;
   Target ao, aoBlurred;
+  // Phase 3e TAA: history ping-pong, velocity target sharing the scene depth.
+  std::array<Target, 2> history;
+  GLuint velocityFbo = 0, velocityTexture = 0;
+  unsigned historyCurrent = 0, frame = 0;
+  bool historyValid = false, temporalThisFrame = false;
+  glm::mat4 jitter{1}, previousViewProjection{1};
+  std::uint64_t taaResolves = 0, taaResets = 0, velocityPasses = 0;
   std::vector<glm::vec3> kernel = ssaoKernel(12);
   GLuint vao = 0, hdrFbo = 0, hdrColor = 0, hdrDepth = 0;
   glm::ivec2 size{0};
@@ -69,7 +76,8 @@ struct Processor {
         up(d / "shaders/post/fullscreen.vert", d / "shaders/post/bloom_up.frag"),
         composite(d / "shaders/post/fullscreen.vert", d / "shaders/post/composite.frag"),
         ssao(d / "shaders/post/fullscreen.vert", d / "shaders/post/ssao.frag"),
-        ssaoBlur(d / "shaders/post/fullscreen.vert", d / "shaders/post/ssao_blur.frag") {
+        ssaoBlur(d / "shaders/post/fullscreen.vert", d / "shaders/post/ssao_blur.frag"),
+        taa(d / "shaders/post/fullscreen.vert", d / "shaders/post/taa.frag") {
     glGenVertexArrays(1, &vao);
     logLuminance = target(GL_R16F, {64, 64}, GL_RED, GL_FLOAT, true);
     for (auto &a : adapted)
@@ -92,6 +100,12 @@ struct Processor {
     bloom.clear();
     release(ao);
     release(aoBlurred);
+    for (auto &h : history)
+      release(h);
+    glDeleteFramebuffers(1, &velocityFbo);
+    glDeleteTextures(1, &velocityTexture);
+    velocityFbo = velocityTexture = 0;
+    historyValid = false;
   }
   void resize(glm::ivec2 s) {
     releaseFrame();
@@ -113,6 +127,17 @@ struct Processor {
     const glm::ivec2 half = glm::max(s / 2, glm::ivec2(1));
     ao = target(GL_R8, half, GL_RED, GL_UNSIGNED_BYTE);
     aoBlurred = target(GL_R8, half, GL_RED, GL_UNSIGNED_BYTE);
+    for (auto &h : history)
+      h = target(GL_RGBA16F, s, GL_RGBA, GL_FLOAT);
+    velocityTexture = texture2d(GL_RGBA16F, s, GL_RGBA, GL_FLOAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glGenFramebuffers(1, &velocityFbo);
+    glBindFramebuffer(GL_FRAMEBUFFER, velocityFbo);
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, velocityTexture, 0);
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, hdrDepth, 0);
+    if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+      throw std::runtime_error("velocity target incomplete");
     reset = true;
   }
   void fullscreen(GLuint fbo, glm::ivec2 viewport) {
@@ -134,6 +159,34 @@ void bindTexture(GLuint program, const char *name, Unit unit, GLuint texture) {
 void configure(Settings settings) { current = settings; }
 Settings settings() { return current; }
 bool active() { return processor && processor->bound; }
+bool temporal() { return active() && processor->temporalThisFrame; }
+unsigned temporalFrame() { return temporal() ? processor->frame : 0u; }
+glm::mat4 jitterMatrix() { return temporal() ? processor->jitter : glm::mat4(1); }
+
+VelocityPass beginVelocity(const glm::mat4 &view, const glm::mat4 &jitteredProjection) {
+  VelocityPass pass;
+  if (!temporal())
+    return pass;
+  draw::flush();
+  auto &p = *processor;
+  pass.active = true;
+  pass.jittered = jitteredProjection * view;
+  pass.current = glm::inverse(p.jitter) * pass.jittered;
+  pass.previous = p.historyValid ? p.previousViewProjection : pass.current;
+  glBindFramebuffer(GL_FRAMEBUFFER, p.velocityFbo);
+  glViewport(0, 0, p.size.x, p.size.y);
+  glClearColor(0, 0, 0, 0);
+  glClear(GL_COLOR_BUFFER_BIT);
+  ++p.velocityPasses;
+  return pass;
+}
+void endVelocity() {
+  if (!processor)
+    return;
+  glBindFramebuffer(GL_FRAMEBUFFER, processor->hdrFbo);
+  glViewport(0, 0, processor->size.x, processor->size.y);
+  draw::invalidateGpuState();
+}
 
 void begin(int width, int height, const std::filesystem::path &data) {
   if (width <= 0 || height <= 0)
@@ -156,10 +209,24 @@ void begin(int width, int height, const std::filesystem::path &data) {
   glClearColor(0, 0, 0, 1);
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
   p.bound = true;
+  // TAA: a new jitter per frame (frame counter advances only while it runs).
+  p.temporalThisFrame = current.taa;
+  if (p.temporalThisFrame) {
+    ++p.frame;
+    p.jitter = taaJitterMatrix(taaJitter(p.frame), p.size);
+    // The velocity target starts each frame as "no explicit motion".
+    glBindFramebuffer(GL_FRAMEBUFFER, p.velocityFbo);
+    glClearColor(0, 0, 0, 0);
+    glClear(GL_COLOR_BUFFER_BIT);
+    glBindFramebuffer(GL_FRAMEBUFFER, p.hdrFbo);
+  } else {
+    p.jitter = glm::mat4(1);
+    p.historyValid = false;
+  }
   draw::invalidateGpuState();
 }
 
-void end(float time, const glm::mat4 &projection) {
+void end(float time, const glm::mat4 &projection, const glm::mat4 &view) {
   if (!active())
     return;
   draw::flush();
@@ -184,10 +251,44 @@ void end(float time, const glm::mat4 &projection) {
   const float dt = p.reset ? 0.f : std::max(time - p.lastTime, 0.f);
   p.lastTime = time;
 
+  // 0. TAA resolve: scene colour + reprojected history -> history[next].
+  GLuint sceneColor = p.hdrColor;
+  if (p.temporalThisFrame && p.history[0].fbo) {
+    GLdouble range[2] = {0, 1};
+    glGetDoublev(GL_DEPTH_RANGE, range);
+    const glm::mat4 jittered = projection * view;
+    const glm::mat4 unjittered = glm::inverse(p.jitter) * jittered;
+    const glm::mat4 inverse = glm::inverse(jittered);
+    const unsigned out = p.historyCurrent ^ 1u;
+    p.taa.poll();
+    const auto t = p.taa.id();
+    glUseProgram(t);
+    bindTexture(t, "uCurrent", Unit{0}, p.hdrColor);
+    bindTexture(t, "uHistory", Unit{1}, p.history[p.historyCurrent].texture);
+    bindTexture(t, "uDepth", Unit{2}, p.hdrDepth);
+    bindTexture(t, "uVelocity", Unit{3}, p.velocityTexture);
+    glUniformMatrix4fv(glGetUniformLocation(t, "uInverseViewProjection"), 1, GL_FALSE, &inverse[0][0]);
+    glUniformMatrix4fv(glGetUniformLocation(t, "uPreviousViewProjection"), 1, GL_FALSE,
+                       &p.previousViewProjection[0][0]);
+    glUniform2f(glGetUniformLocation(t, "uTexel"), 1.f / static_cast<float>(p.size.x),
+                1.f / static_cast<float>(p.size.y));
+    glUniform1f(glGetUniformLocation(t, "uDepthScale"), static_cast<float>(std::max(range[1], 1e-3)));
+    glUniform1f(glGetUniformLocation(t, "uFeedback"), TaaFeedback);
+    const bool resetHistory = !p.historyValid;
+    glUniform1i(glGetUniformLocation(t, "uReset"), resetHistory);
+    p.fullscreen(p.history[out].fbo, p.size);
+    p.historyCurrent = out;
+    p.historyValid = true;
+    p.previousViewProjection = unjittered;
+    sceneColor = p.history[out].texture;
+    ++p.taaResolves;
+    p.taaResets += resetHistory ? 1 : 0;
+  }
+
   // 1. Log luminance (64x64) and its mip chain -> geometric mean.
   p.luminance.poll();
   glUseProgram(p.luminance.id());
-  bindTexture(p.luminance.id(), "uHdr", Unit{0}, p.hdrColor);
+  bindTexture(p.luminance.id(), "uHdr", Unit{0}, sceneColor);
   p.fullscreen(p.logLuminance.fbo, p.logLuminance.size);
   glBindTexture(GL_TEXTURE_2D, p.logLuminance.texture);
   glGenerateMipmap(GL_TEXTURE_2D);
@@ -214,7 +315,7 @@ void end(float time, const glm::mat4 &projection) {
     glUseProgram(d);
     glUniform1f(glGetUniformLocation(d, "uThreshold"), 1.f);
     glUniform1f(glGetUniformLocation(d, "uKnee"), .5f);
-    GLuint source = p.hdrColor;
+    GLuint source = sceneColor;
     glm::ivec2 sourceSize = p.size;
     for (std::size_t i = 0; i < p.bloom.size(); ++i) {
       bindTexture(d, "uSource", Unit{0}, source);
@@ -266,7 +367,10 @@ void end(float time, const glm::mat4 &projection) {
   p.composite.poll();
   const auto c = p.composite.id();
   glUseProgram(c);
-  bindTexture(c, "uHdr", Unit{0}, p.hdrColor);
+  bindTexture(c, "uHdr", Unit{0}, sceneColor);
+  glUniform2f(glGetUniformLocation(c, "uTexel"), 1.f / static_cast<float>(p.size.x),
+              1.f / static_cast<float>(p.size.y));
+  glUniform1f(glGetUniformLocation(c, "uSharpen"), p.temporalThisFrame ? current.sharpen : 0.f);
   bindTexture(c, "uBloom", Unit{1}, bloom ? p.bloom[0].texture : p.adapted[p.current].texture);
   bindTexture(c, "uAdapted", Unit{2}, p.adapted[p.current].texture);
   bindTexture(c, "uAo", Unit{3}, occlusion ? p.aoBlurred.texture : p.adapted[p.current].texture);
@@ -287,7 +391,8 @@ void end(float time, const glm::mat4 &projection) {
   p.fullscreen(static_cast<GLuint>(p.previousFbo), p.size);
   ++p.resolves;
   if (validation::run.capture)
-    validation::run.frameDraws += 3 + (bloom ? 2 * p.bloom.size() - 1 : 0) + (occlusion ? 2 : 0);
+    validation::run.frameDraws += 3 + (bloom ? 2 * p.bloom.size() - 1 : 0) + (occlusion ? 2 : 0) +
+                                  (p.temporalThisFrame ? 1 : 0);
   // Restore state for the HUD.
   for (int unit = 3; unit >= 0; --unit) {
     glActiveTexture(GL_TEXTURE0 + static_cast<GLenum>(unit));
@@ -322,7 +427,13 @@ nlohmann::json report() {
           {"resolves", p.resolves},
           {"fullscreen_passes", p.passes},
           {"hdr_bytes", static_cast<std::size_t>(p.size.x) * static_cast<std::size_t>(p.size.y) * (8 + 4)},
-          {"bloom_bytes", bloomBytes}};
+          {"bloom_bytes", bloomBytes},
+          {"taa", current.taa},
+          {"taa_frame", p.frame},
+          {"taa_resolves", p.taaResolves},
+          {"taa_history_resets", p.taaResets},
+          {"velocity_passes", p.velocityPasses},
+          {"taa_bytes", static_cast<std::size_t>(p.size.x) * static_cast<std::size_t>(p.size.y) * (8 * 2 + 8)}};
 }
 void writeReport(const std::filesystem::path &path) {
   if (processor)

@@ -16,8 +16,9 @@ struct Input { unsigned tick; float throttle, steering, brake, handbrake; };
 struct Options {
     bool enabled = false, headless = false, benchmark = false, help = false;
     unsigned frames = 1500, seed = 1000, width = 640, height = 480;
+    unsigned renderFrom = 0; ///< simulate ticks [0, renderFrom) without rendering (long runs)
     std::string stage = "/maps/ahead/ahead.level", vehicle = "cordo_kitcar";
-    std::string replay, dump, json, screenshot, data, renderer, quality, timeOfDay, shadows, vegetation, weather, post, crowd, cars, telemetry;
+    std::string replay, dump, json, screenshot, data, renderer, quality, timeOfDay, shadows, vegetation, weather, post, crowd, cars, aa, telemetry;
 };
 struct Run {
     Options options;

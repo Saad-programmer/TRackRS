@@ -1,0 +1,6 @@
+# tick (250 Hz), throttle, steering, foot brake, handbrake
+# Phase 3e TAA evidence: launch after the countdown and drive the opening
+# straight of "ahead" past roadside plants; rendering starts with --render-from.
+0,0,0,0,0
+1000,1,0,0,0
+2300,0.6,0,0,0

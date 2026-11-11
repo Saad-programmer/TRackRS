@@ -3,6 +3,7 @@
 #include "engine/post/exposure.h"
 #include "vendor/doctest/doctest.h"
 #include <cmath>
+#include <glm/gtc/matrix_transform.hpp>
 using namespace trackrs::post;
 TEST_CASE("exposure maps mean luminance to the key and stays bounded") {
   const ExposureSettings s;
@@ -55,4 +56,37 @@ TEST_CASE("SSAO kernel stays in the unit hemisphere and favours short samples") 
   CHECK(glm::length(k.front()) < .3f);
   CHECK(ssaoKernel(12) == k); // deterministic
   CHECK(ssaoKernel(0).empty());
+}
+
+TEST_CASE("TAA jitter: Halton(2,3), 8-frame cycle, sub-pixel, zero mean") {
+  using namespace trackrs::post;
+  CHECK(halton(1, 2) == doctest::Approx(.5f));
+  CHECK(halton(2, 2) == doctest::Approx(.25f));
+  CHECK(halton(3, 2) == doctest::Approx(.75f));
+  CHECK(halton(1, 3) == doctest::Approx(1.f / 3.f));
+  CHECK(halton(5, 3) == doctest::Approx(7.f / 9.f));
+  glm::vec2 sum(0.f);
+  for (unsigned f = 0; f < 8; ++f) {
+    const auto j = taaJitter(f);
+    CHECK(j.x >= -.5f);
+    CHECK(j.x < .5f);
+    CHECK(j.y >= -.5f);
+    CHECK(j.y < .5f);
+    CHECK(taaJitter(f + 8) == j); // cycle
+    for (unsigned g = 0; g < f; ++g)
+      CHECK(taaJitter(g) != j);   // distinct samples
+    sum += j;
+  }
+  CHECK(std::abs(sum.x / 8.f) < .07f);
+  CHECK(std::abs(sum.y / 8.f) < .07f);
+  // The matrix shifts a projected point by exactly the jitter in pixels.
+  const glm::ivec2 size(640, 480);
+  const glm::mat4 projection = glm::perspective(.8f, 640.f / 480.f, .1f, 1000.f);
+  const glm::vec4 p = projection * glm::vec4(1.f, 2.f, -20.f, 1.f);
+  const glm::vec4 q = taaJitterMatrix({.25f, -.5f}, size) * p;
+  const glm::vec2 shift = (glm::vec2(q) / q.w - glm::vec2(p) / p.w) * .5f * glm::vec2(size);
+  CHECK(shift.x == doctest::Approx(.25f));
+  CHECK(shift.y == doctest::Approx(-.5f));
+  CHECK(q.z == doctest::Approx(p.z)); // depth untouched
+  CHECK(taaJitterMatrix({.3f, .3f}, {0, 0}) == glm::mat4(1.f));
 }

@@ -15,5 +15,8 @@ public:
     /// drawn) otherwise, so the caller keeps the legacy path. `surface` is the
     /// road surface under the car (dirt accumulation).
     static bool car(const PVehicle& vehicle, TerrainType surface, float time);
+    /// Feeds one simulation step of the vehicle's state (speed, brake,
+    /// surface) to the car renderer's wear model (dust, mud, brake heat).
+    static void observeCar(const PVehicle& vehicle, TerrainType surface, float dt);
 };
 }

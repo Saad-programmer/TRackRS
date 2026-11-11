@@ -49,4 +49,28 @@ float bloomPrefilter(float brightness, float threshold, float knee) {
   soft = soft * soft / (4.f * knee + 1e-5f);
   return std::max(soft, brightness - threshold) / std::max(brightness, 1e-5f);
 }
+float halton(unsigned index, unsigned base) {
+  if (base < 2)
+    return 0.f;
+  float result = 0.f, fraction = 1.f;
+  while (index > 0) {
+    fraction /= static_cast<float>(base);
+    result += fraction * static_cast<float>(index % base);
+    index /= base;
+  }
+  return result;
+}
+glm::vec2 taaJitter(unsigned frame) {
+  const unsigned i = frame % 8u + 1u;
+  return {halton(i, 2) - .5f, halton(i, 3) - .5f};
+}
+glm::mat4 taaJitterMatrix(glm::vec2 pixels, glm::ivec2 size) {
+  glm::mat4 m(1.f);
+  if (size.x > 0 && size.y > 0) {
+    // Applied after projection: x_clip += 2 * j / size * w_clip.
+    m[3][0] = 2.f * pixels.x / static_cast<float>(size.x);
+    m[3][1] = 2.f * pixels.y / static_cast<float>(size.y);
+  }
+  return m;
+}
 } // namespace trackrs::post

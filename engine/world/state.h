@@ -17,6 +17,7 @@ struct State {
   bool scene = false, depthPass = false, linearCapture = false;
   std::array<SpotLight, MaxSceneLights> lights{};
   unsigned lightCount = 0;          ///< reset by prepare(); filled per frame
+  unsigned temporalFrame = 0;       ///< TAA frame index (0 = static dither patterns)
   std::string weatherName = "level"; ///< user selection (config / --weather)
   Weather levelWeather;              ///< parsed from the loaded stage
 };

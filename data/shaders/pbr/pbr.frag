@@ -64,6 +64,7 @@ uniform float uBrakeGlow;       // 0..1 for this wheel
 #ifdef VEGETATION
 uniform bool  uAlbedoGamma     = false; // legacy UNORM sprite cards: decode sRGB here
 uniform float uTranslucency    = 0.0;   // back-lit leaf transmission weight
+uniform int   uTemporalFrame   = 0;     // TAA frame (0..63) rotating the LOD dither
 #endif
 
 // ---- lighting -------------------------------------------------------------
@@ -133,7 +134,11 @@ void main()
     // Screen-door LOD cross-fade (interleaved gradient noise): the outgoing and
     // incoming LOD of one plant keep complementary pixel sets, so nothing pops
     // and nothing is blended (no sorting, early-Z stays valid).
-    float lodNoise = fract(52.9829189 * fract(dot(gl_FragCoord.xy, vec2(0.06711056, 0.00583715))));
+    // With TAA the pattern rotates by the golden ratio every frame (both LODs
+    // share it, so they stay complementary) and the resolve averages it into
+    // a smooth cross-fade; without TAA uTemporalFrame is 0 (static pattern).
+    float lodNoise = fract(52.9829189 * fract(dot(gl_FragCoord.xy, vec2(0.06711056, 0.00583715)))
+                           + 0.61803399 * float(uTemporalFrame));
     if (fs.fade >= 2.0 ? lodNoise < fs.fade - 2.0 : lodNoise >= fs.fade) discard;
 #endif
     // ---- fetch material (3 texture reads for the whole surface) -----------

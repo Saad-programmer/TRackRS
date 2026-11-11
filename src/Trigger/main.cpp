@@ -1,3 +1,4 @@
+#include "engine/renderer/renderer.h"
 #include "../../engine/application/edition_loader.h"
 // Creator: Saad AIT YAHIA - @github: Saad-programmer
 #include "exception.h"
@@ -27,6 +28,7 @@ void MainApp::config()
     if(!validation::run.options.crowd.empty())cfg.setCrowd(validation::run.options.crowd=="on");
     if(!validation::run.options.cars.empty())cfg.setCarRenderer(validation::run.options.cars=="on");
     if(!validation::run.options.post.empty())cfg.setPostProcessing(validation::run.options.post=="on");
+    if(!validation::run.options.aa.empty())cfg.setTemporalAA(validation::run.options.aa=="taa");
     if(!validation::run.options.weather.empty())cfg.setWeatherPreset(validation::run.options.weather);
     if(!validation::run.options.vegetation.empty())cfg.setVegetationMeshes(validation::run.options.vegetation=="3d");
     setTextureAnisotropy(cfg.getAnisotropy());
@@ -910,6 +912,10 @@ void MainApp::tickStateGame(float delta)
       vehic->ctrl.brake2 = input.handbrake;
   }
   game->tick(delta);
+  // Car wear (dust, mud, brake heat) follows the simulation, not the frame rate.
+  if (game->terrain)
+      for (auto *car : game->vehicle)
+          trackrs::Renderer::observeCar(*car, game->terrain->getRoadSurface(car->body->getPosition()), delta);
   if (validation::run.options.enabled) {
       try {
           auto& hash = validation::run.hash;
@@ -1647,11 +1653,11 @@ int main(int argc, char *argv[])
         if (validation::run.options.help) {
             std::cout << "TrackRS --headless|--benchmark --stage <id|virtual.level> --vehicle <id>\n"
                 << "  --data-dir <data directory>\n"
-                << "  --frames <250-Hz ticks> --seed <integer> --replay <csv>\n"
+                << "  --frames <250-Hz ticks> --render-from <tick> --seed <integer> --replay <csv>\n"
                 << "  --dump-state <hash-file> --json <report.json> --screenshot <image.ppm>\n"
                 << "  --renderer legacy|pbr --quality low|medium|high|ultra --shadows blob|csm\n"
                 << "  --time-of-day dawn|noon|golden-hour|dusk|night|midnight --vegetation 3d|cards\n"
-                << "  --weather level|clear|rain|snow|fog --post on|off --crowd on|off --cars on|off\n"
+                << "  --weather level|clear|rain|snow|fog --post on|off --aa taa|off --crowd on|off --cars on|off\n"
                 << "  --telemetry <csv> (per-tick position, speed, rpm, gear)\n"
                 << "Headless mode uses a real OpenGL context; run under Xvfb on headless Linux.\n";
             return 0;

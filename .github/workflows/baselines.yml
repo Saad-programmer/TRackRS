@@ -1,0 +1,44 @@
+name: Legacy baselines (full run)
+# Phase 3e: produces the complete legacy golden record (every stage, 1500
+# ticks, two repeats, framebuffers for the first eight stages) with the CI
+# toolchain: Ubuntu 24.04, GCC, Mesa llvmpipe. The regular "Engine safety net"
+# replay step only runs a quick subset. Run on demand. The uploaded
+# `legacy-baselines-linux-gcc` artifact is the only accepted source for
+# tests/baselines/linux-gcc (see tests/baselines/linux-gcc/REGENERATED.md).
+on: [workflow_dispatch]
+permissions:
+  contents: read
+jobs:
+  baselines:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 180
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - name: Dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ninja-build libsdl2-dev libsdl2-image-dev libopenal-dev libalut-dev libtinyxml2-dev libphysfs-dev libgl1-mesa-dev libglu1-mesa-dev xvfb xauth libglm-dev nlohmann-json3-dev glslang-tools
+      - run: cmake --preset linux-release -DCMAKE_CXX_COMPILER=g++
+      - run: cmake --build --preset linux-release -j2
+      - name: Toolchain record
+        run: |
+          mkdir -p build/baselines
+          { echo "commit: $GITHUB_SHA"; echo "run: $GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID";
+            lsb_release -ds; g++ --version | head -1; (dpkg-query -W -f='mesa ${Version}\n' libgl1-mesa-dri || echo 'mesa: unknown'); } > build/baselines/toolchain.txt
+          cat build/baselines/toolchain.txt
+      - name: Full legacy baseline
+        env:
+          LIBGL_ALWAYS_SOFTWARE: "1"
+          ALSOFT_DRIVERS: "null"
+        run: |
+          xvfb-run -a -s '-screen 0 640x480x24' python3 tests/run_baselines.py --binary build/linux-release/bin/trackrs --output build/baselines
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        if: always()
+        with:
+          name: legacy-baselines-linux-gcc
+          path: |
+            build/baselines/manifest.json
+            build/baselines/toolchain.txt
+            build/baselines/*.hash
+            build/baselines/*.png
+            build/baselines/*.json

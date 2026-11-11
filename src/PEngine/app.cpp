@@ -709,6 +709,11 @@ int PApp::run(int argc, char *argv[])
       switch (stereo) {
         
       case StereoNone: // Normal, non-stereo rendering
+        // --render-from N: long validation runs simulate the first N ticks
+        // without drawing (physics and wear are tick-driven, so results match).
+        if (validationWasStarted && validation::run.ticks < validation::run.options.renderFrom &&
+            !validation::run.complete)
+          break;
         if (validationWasStarted && (GLAD_GL_VERSION_3_3 || GLAD_GL_ARB_timer_query)) {
           glGenQueries(1, &validationQuery);
           glBeginQuery(GL_TIME_ELAPSED, validationQuery);

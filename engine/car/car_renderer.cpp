@@ -188,15 +188,21 @@ struct VehicleState {
   float lastTime = -1;
   unsigned lod = 0;
   std::size_t draws = 0, triangles = 0;
+  // Phase 3e motion vectors: this frame's main-view transforms and last frame's.
+  const void *type = nullptr;
+  bool drawn = false, hasPrevious = false;
+  bool observed = false; ///< wear driven per simulation tick by observe()
+  glm::mat4 body{1}, previousBody{1};
+  std::vector<glm::mat4> wheels, previousWheels;
 };
 struct Cache {
-  std::unique_ptr<rhi::ShaderProgram> shader;
+  std::unique_ptr<rhi::ShaderProgram> shader, velocity;
   std::unique_ptr<pbr::Ibl> environment;
   std::map<const void *, Assets> types;
   std::map<const void *, VehicleState> vehicles;
   std::map<const void *, std::string> vehicleTypes;
   GLuint flat = 0, white = 0;
-  std::size_t frameDraws = 0;
+  std::size_t frameDraws = 0, velocityDraws = 0;
 };
 std::unique_ptr<Cache> cache;
 
@@ -322,8 +328,9 @@ std::size_t draw(const Instance &car, const mesh::ReadFile &read, const glm::mat
     throw std::invalid_argument("too many wheels");
   draw::flush();
   Guard guard;
-  if (!cache) {
+  if (!cache)
     cache = std::make_unique<Cache>();
+  if (!cache->shader) {
     const auto data = pbr::shaderDirectory().parent_path().parent_path();
     cache->shader = std::make_unique<rhi::ShaderProgram>(
         data / "shaders/pbr/car.vert", data / "shaders/pbr/pbr.frag",
@@ -341,7 +348,7 @@ std::size_t draw(const Instance &car, const mesh::ReadFile &read, const glm::mat
   c.vehicleTypes[car.vehicle] = car.name;
   const auto &ws = world::state();
   const bool shadow = ws.depthPass;
-  if (!shadow) { // wear advances once per main-view frame
+  if (!shadow && !state.observed) { // fallback: wear advances once per main-view frame
     const float dt = state.lastTime < 0 ? 0.f : std::clamp(time - state.lastTime, 0.f, .25f);
     state.lastTime = time;
     WearInput in;
@@ -481,7 +488,86 @@ std::size_t draw(const Instance &car, const mesh::ReadFile &read, const glm::mat
     state.lod = lod;
     state.draws = draws;
     state.triangles = triangles;
+    state.type = car.type;
+    state.drawn = true;
+    state.body = car.body;
+    state.wheels = car.wheels;
   }
+  return draws;
+}
+
+void observe(const void *vehicle, const WearInput &input) {
+  if (!cache)
+    cache = std::make_unique<Cache>(); // GL objects are created lazily by draw()
+  auto &s = cache->vehicles[vehicle];
+  s.observed = true;
+  updateWear(s.wear, input);
+}
+
+std::size_t drawVelocity(const glm::mat4 &jittered, const glm::mat4 &current, const glm::mat4 &previous) {
+  if (!cache)
+    return 0;
+  auto &c = *cache;
+  std::size_t draws = 0;
+  bool any = false;
+  for (auto &[key, s] : c.vehicles)
+    any = any || s.drawn;
+  if (any) {
+    draw::flush();
+    Guard guard;
+    if (!c.velocity) {
+      const auto data = pbr::shaderDirectory().parent_path().parent_path();
+      c.velocity = std::make_unique<rhi::ShaderProgram>(data / "shaders/pbr/car_velocity.vert",
+                                                        data / "shaders/pbr/car_velocity.frag");
+    }
+    c.velocity->poll();
+    const GLuint p = c.velocity->id();
+    glUseProgram(p);
+    auto u = [&](const char *name) { return glGetUniformLocation(p, name); };
+    glUniformMatrix4fv(u("uViewProjection"), 1, GL_FALSE, glm::value_ptr(jittered));
+    glUniformMatrix4fv(u("uCurrentViewProjection"), 1, GL_FALSE, glm::value_ptr(current));
+    glUniformMatrix4fv(u("uPreviousViewProjection"), 1, GL_FALSE, glm::value_ptr(previous));
+    glEnable(GL_DEPTH_TEST);
+    glDepthFunc(GL_LEQUAL); // same geometry and matrices as the colour pass
+    glDepthMask(GL_FALSE);
+    glDisable(GL_BLEND);
+    glEnable(GL_CULL_FACE);
+    glCullFace(GL_BACK);
+    for (auto &[key, s] : c.vehicles) {
+      if (!s.drawn)
+        continue;
+      const auto found = c.types.find(s.type);
+      if (found == c.types.end())
+        continue;
+      const Assets &a = found->second;
+      auto part = [&](const Part &mesh, const glm::mat4 &model, const glm::mat4 &before) {
+        glUniformMatrix4fv(u("uModel"), 1, GL_FALSE, glm::value_ptr(model));
+        glUniformMatrix4fv(u("uPreviousModel"), 1, GL_FALSE, glm::value_ptr(before));
+        glFrontFace(mesh.clockwise ? GL_CW : GL_CCW);
+        glBindVertexArray(mesh.vao);
+        glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(mesh.count[s.lod]), GL_UNSIGNED_INT,
+                       bufferOffset(mesh.first[s.lod] * 4));
+        ++draws;
+      };
+      part(a.body, s.body, s.hasPrevious ? s.previousBody : s.body);
+      for (std::size_t i = 0; i < s.wheels.size(); ++i)
+        part(a.wheel, s.wheels[i],
+             s.hasPrevious && i < s.previousWheels.size() ? s.previousWheels[i] : s.wheels[i]);
+    }
+    glDepthMask(GL_TRUE);
+  }
+  // Roll the frame: cars not drawn this frame lose their history.
+  for (auto &[key, s] : c.vehicles) {
+    s.hasPrevious = s.drawn;
+    if (s.drawn) {
+      s.previousBody = s.body;
+      s.previousWheels = s.wheels;
+    }
+    s.drawn = false;
+  }
+  if (validation::run.capture)
+    validation::run.frameDraws += draws;
+  c.velocityDraws += draws;
   return draws;
 }
 
@@ -523,7 +609,11 @@ nlohmann::json report() {
                           {"mud", s.wear.mud},
                           {"brake_c", s.wear.brakeC}});
   }
-  return {{"renderer", "car-v2"}, {"enabled", current.enabled}, {"types", types}, {"vehicles", vehicles}};
+  return {{"renderer", "car-v2"},
+          {"enabled", current.enabled},
+          {"types", types},
+          {"vehicles", vehicles},
+          {"velocity_draws", cache ? cache->velocityDraws : std::size_t{0}}};
 }
 void writeReport(const std::filesystem::path &path) {
   if (cache)

@@ -35,6 +35,7 @@ private:
     OptionVegetation,
     OptionWeatherPreset,
     OptionPostProcessing,
+    OptionTemporalAA,
     OptionCrowd,
     OptionCars,
     OptionSnowflakes,

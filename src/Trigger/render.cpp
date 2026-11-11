@@ -5,6 +5,7 @@
 #include "engine/world/renderer.h"
 #include "engine/vegetation/renderer.h"
 #include "engine/post/post.h"
+#include "engine/car/car_renderer.h"
 #include "engine/dressing/renderer.h"
 #include "engine/world/state.h"
 #include <glm/gtc/type_ptr.hpp>
@@ -817,6 +818,16 @@ void MainApp::renderStateGame(float eyetranslation)
     float aspect = (float)getWidth() / (float)getHeight();
     stereoFrustum(-fnear*aspect*fov,fnear*aspect*fov,-fnear*fov,fnear*fov,fnear,100000.0f,
                   0.8f, eyetranslation);
+    if (postProcess && trackrs::post::temporal()) {
+        // Phase 3e TAA: sub-pixel jitter on the scene projection only (HUD,
+        // shadow cascades and probes use their own projections).
+        glm::mat4 projection;
+        trackrs::draw::read(trackrs::draw::ProjectionMatrix, glm::value_ptr(projection));
+        const glm::mat4 jittered = trackrs::post::jitterMatrix() * projection;
+        trackrs::draw::identity();
+        trackrs::draw::multiply(glm::value_ptr(jittered));
+    }
+    trackrs::world::state().temporalFrame = postProcess ? trackrs::post::temporalFrame() : 0u;
     trackrs::draw::matrix(trackrs::draw::View);
 
     trackrs::draw::color(1.0,1.0,1.0);
@@ -1261,7 +1272,13 @@ void MainApp::renderStateGame(float eyetranslation)
         trackrs::world::state().linearCapture = false;
         glm::mat4 sceneProjection;
         trackrs::draw::read(trackrs::draw::ProjectionMatrix, glm::value_ptr(sceneProjection));
-        trackrs::post::end(game->animationtime, sceneProjection);
+        // Phase 3e: motion vectors for the cars drawn this frame, then resolve.
+        const auto velocity = trackrs::post::beginVelocity(pbrView, sceneProjection);
+        if (velocity.active) {
+            trackrs::car::drawVelocity(velocity.jittered, velocity.current, velocity.previous);
+            trackrs::post::endVelocity();
+        }
+        trackrs::post::end(game->animationtime, sceneProjection, pbrView);
     }
 
     trackrs::draw::disable(GL_DEPTH_TEST);
