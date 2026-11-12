@@ -86,6 +86,21 @@ hashes and screenshots unchanged; GPU time and VRAM reported per car.
 * Signage and safety furniture (§5.1), marshals and event vehicles (§5.4),
   flags, tents and night torches, crowd audio, and VAT-animated people.
 
+## M5 — remaining Moroccan stages (backlog)
+
+The amendment's §A9.8 order: stages 1–8, one per gate, then the Draâ Sahara Cup.
+Items already requested for M5:
+
+* **Lake Iriki Flats (stage 4): high-speed braking zone.** Design the dry-lake
+  run so normal racing reaches brake-glow temperatures without the
+  `--brake-heat` override: a long flat-out section ending in a hard stop into
+  a slow waypoint or a gravel corner. The 4b model glows from 350 °C. M2
+  measured only ~164 °C after 8 stops from 70 km/h on the Zagora hamada,
+  because the T1 tops out near 80 km/h there. The maintainer accepted the
+  forced M2 capture as proof of the rendering only. Gate check: a measured
+  (unforced) night capture with glowing discs, with its `brake_c` in the
+  report.
+
 ## Defaults
 
 Legacy stays the default world renderer. **Do not flip the default until the

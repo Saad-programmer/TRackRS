@@ -4,8 +4,19 @@ The session proxy refuses tag pushes (HTTP 403), so tags are no longer pushed
 from build sessions (amendment A0). Every gate is recorded here instead. The
 maintainer creates the tags by hand from this table:
 
+`tools/make_tags.sh` prints the exact commands for every gate below that
+is not yet on the remote, using full SHAs. It only prints; it never creates
+or pushes anything:
+
 ```bash
-git tag -a <gate> <commit> -m "<gate>: see docs/GATES.md" && git push origin <gate>
+tools/make_tags.sh
+```
+
+Each printed pair has the form:
+
+```bash
+git tag -a <gate> <full-sha> -m "<gate>: see docs/GATES.md"
+git push origin <gate>
 ```
 
 "Commit" is the commit the gate covers. "CI run" is the green *Engine safety
