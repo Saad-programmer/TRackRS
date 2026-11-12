@@ -1,13 +1,66 @@
 {
   "schema": "trackrs.livery/1",
   "id": "draa_raid_t1_sahara",
-  "note": "Fictional rally-raid livery of the fictional Rallye Sahara Draa; no real team or sponsor scheme (verified:false).",
+  "note": "Fictional rally-raid livery of the fictional Rallye Sahara Draa: plain colours, a race number and procedurally generated fictional sponsor marks over the borrowed body's legacy lettering; no real team or sponsor scheme (verified:false).",
   "primary": "#d8cbb0",
+  "primary_source": "#0044aa",
   "secondary": "#b5462a",
-  "number": -1,
+  "secondary_source": "#ffff00",
+  "number": 214,
   "number_colour": "#111111",
   "panel_colour": "#f2f2f2",
-  "number_panels": [],
-  "sponsor_slots": [],
+  "number_panels": [
+    {
+      "rect": [
+        0.398,
+        0.52,
+        0.14,
+        0.117
+      ]
+    },
+    {
+      "rect": [
+        0.461,
+        0.828,
+        0.133,
+        0.125
+      ]
+    }
+  ],
+  "sponsor_slots": [
+    {
+      "rect": [
+        0.547,
+        0.516,
+        0.305,
+        0.117
+      ]
+    },
+    {
+      "rect": [
+        0.219,
+        0.824,
+        0.281,
+        0.133
+      ]
+    },
+    {
+      "rect": [
+        0.117,
+        0.117,
+        0.102,
+        0.254
+      ],
+      "rotation": 90
+    },
+    {
+      "rect": [
+        0.762,
+        0.229,
+        0.098,
+        0.049
+      ]
+    }
+  ],
   "sponsor_seed": 201
 }
