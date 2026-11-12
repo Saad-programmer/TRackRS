@@ -128,19 +128,25 @@ bool comparator(std::string_view term, const SemVer &v, bool &ok) {
 }
 void error(LoadedPack &p, const std::string &message) { p.issues.push_back({Issue::Severity::Error, message}); }
 void warning(LoadedPack &p, const std::string &message) { p.issues.push_back({Issue::Severity::Warning, message}); }
+std::string join(const std::string &a, const std::string &b) {
+  if (a.empty())
+    return b;
+  std::string out;
+  out.reserve(a.size() + 1 + b.size());
+  out.append(a).append(1, '/').append(b);
+  return out;
+}
 void listRecursive(const Source &source, const std::string &root, const std::string &relative,
                    std::vector<std::string> &out, int depth) {
   if (depth > 8)
     return;
-  for (const auto &entry : source.list(root + (relative.empty() ? "" : "/" + relative))) {
+  for (const auto &entry : source.list(relative.empty() ? root : join(root, relative))) {
     if (entry.empty())
       continue;
-    if (entry.back() == '/') {
-      const auto dir = entry.substr(0, entry.size() - 1);
-      listRecursive(source, root, relative.empty() ? dir : relative + "/" + dir, out, depth + 1);
-    } else {
-      out.push_back(relative.empty() ? entry : relative + "/" + entry);
-    }
+    if (entry.back() == '/')
+      listRecursive(source, root, join(relative, entry.substr(0, entry.size() - 1)), out, depth + 1);
+    else
+      out.push_back(join(relative, entry));
   }
 }
 std::string globalId(const std::string &pack, const std::string &stage) {

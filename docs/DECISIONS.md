@@ -307,3 +307,42 @@ Decision:
   options entry. The Legacy renderer path is untouched and stays the default.
   Mesh imports may reach the `/vehicles` tree (`ImportOptions::assetRoot`)
   because shipped MTLs share emission maps across sibling directories.
+
+## M0: pack-lite reuses the legacy level format
+
+Context: amendment §A9.2 pulls content packs forward from Phase 9, while
+§4.5 requires every legacy map to keep loading.
+Decision:
+* A pack stage is a legacy `.level` plus images inside the pack, described by
+  `stage.json`. It loads through the existing level loader, so pack stages and
+  `/maps` stages behave identically. The spline-road `stage.json` of §4.4
+  extends this format later without breaking it.
+* `engine/content/pack` is pure C++ behind a two-function file source, so the
+  game (PhysFS), the CLI (std::filesystem) and the unit tests (in-memory)
+  share one validator.
+* The licence audit is strict: any pack file not covered by a licensed,
+  attributed asset entry disables the pack.
+* Discovery never throws. Broken packs are disabled with a reason shown in
+  the log, the main menu and the validation JSON.
+* The legacy content is a virtual pack, `classic-legacy-stages`. Its files are
+  not moved.
+
+## M1/M2: real elevation from SRTM via Tilezen, not Copernicus GLO-30
+
+Context: amendment A2 asks for public elevation (SRTM or Copernicus GLO-30)
+with the licence recorded. From the build session:
+* The Copernicus GLO-30 bucket is reachable, but its licence page is not. The
+  bucket readme and the AWS registry entry only point to it, so its terms
+  cannot be quoted or verified.
+* Tilezen's terrarium tiles (AWS Open Data) are reachable. Over Morocco they
+  are built from SRTM, and each tile names its source raster in a header.
+  Tilezen's attribution document, fetched and hashed, quotes the SRTM terms:
+  a U.S. Government work, no copyright claimed under Title 17, with the USGS
+  requesting the credit "SRTM data courtesy of the U.S. Geological Survey".
+
+Decision:
+* Use SRTM through Tilezen, with per-tile provenance written by
+  `tools/fetch_dem.py`. Stages built on it are `derived`: real elevation, but
+  the route and all details on top are invented.
+* `verified` stays false until the maintainer confirms the source terms.
+* Copernicus stays an option once its licence can be read.
