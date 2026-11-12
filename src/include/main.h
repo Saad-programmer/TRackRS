@@ -84,7 +84,7 @@ enum class CameraMode{
 	hood,
 	periscope,
 	cockpit,   // driver's eye inside the cabin, with the dashboard gauges
-	trackside, // fixed roadside TV camera that follows the car, re-placed ahead when it leaves
+	trackside, // fixed roadside TV camera that follows the car, re-placed ahead when the car is 14 m away
 	// disabled
 	//piggyback,
 	count

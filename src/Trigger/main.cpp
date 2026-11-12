@@ -1348,14 +1348,14 @@ void MainApp::tickStateGame(float delta)
       makevec3f(rfmat.row[2]) * 0.62f;
     } break;
 
-    // Trackside: a camera on a tripod at the roadside, 9 m ahead of the car
-    // and 6 m to its right, turning to follow it; re-placed ahead once the
-    // car is more than 60 m away.
+    // Trackside: a camera on a tripod at the roadside, 7 m ahead of the car
+    // and 4 m to its right, turning to follow it; re-placed ahead once the
+    // car is more than 14 m away.
 	case CameraMode::trackside: {
     const mat44f &rfmat = rf->getInverseOrientationMatrix();
     const vec3f carpos = rf->getPosition();
-    if (!tracksideSet || (carpos - tracksideAnchor).length() > 60.0f) {
-      tracksideAnchor = carpos + makevec3f(rfmat.row[1]) * 9.0f + makevec3f(rfmat.row[0]) * 6.0f;
+    if (!tracksideSet || (carpos - tracksideAnchor).length() > 14.0f) {
+      tracksideAnchor = carpos + makevec3f(rfmat.row[1]) * 7.0f + makevec3f(rfmat.row[0]) * 4.0f;
       tracksideAnchor.z = game->terrain->getHeight(tracksideAnchor.x, tracksideAnchor.y) + 1.1f;
       tracksideSet = true;
     }
