@@ -328,7 +328,8 @@ vegetation::Mesh buildSignFace(unsigned face) {
     throw std::invalid_argument("sign face out of range");
   // The sign_board panel: x = +-0.045 (faces), y in [-0.92, 0.92], z in [1.73, 2.67].
   const float u0 = static_cast<float>(face % SignColumns) / SignColumns, u1 = u0 + 1.f / SignColumns;
-  const float v0 = static_cast<float>(face / SignColumns) / SignRows, v1 = v0 + 1.f / SignRows; // v0 = top row
+  const unsigned row = face / SignColumns; // integer row of the cell
+  const float v0 = static_cast<float>(row) / static_cast<float>(SignRows), v1 = v0 + 1.f / SignRows; // v0 = top row
   Builder g;
   for (float side : {1.f, -1.f}) {
     // Seen from +x the reader's right is +y; from -x it is -y.
