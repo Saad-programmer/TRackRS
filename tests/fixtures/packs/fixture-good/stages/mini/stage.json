@@ -1,0 +1,24 @@
+{
+  "schema": "trackrs.stage/1",
+  "id": "mini",
+  "name": "Fixture Mini",
+  "region": "test",
+  "description": "tiny generated test stage",
+  "level": "mini.level",
+  "stage_seed": 7,
+  "geographic_fidelity": "procedural",
+  "length_km": 1.123,
+  "surfaces": [
+    "FineGravel",
+    "LooseSand",
+    "PressedEarth"
+  ],
+  "times_of_day": [
+    "dawn",
+    "noon",
+    "golden-hour",
+    "night"
+  ],
+  "terrain_source": "procedural (fixture)",
+  "test_only": true
+}

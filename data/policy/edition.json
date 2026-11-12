@@ -3,5 +3,8 @@
   "mode": "demo",
   "demo_stages": [
     "/maps/ahead/ahead.level"
+  ],
+  "demo_packs": [
+    "morocco-sahara"
   ]
 }

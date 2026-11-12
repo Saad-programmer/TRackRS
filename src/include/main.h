@@ -1,4 +1,5 @@
 #include "../../engine/core/edition_policy.h"
+#include "../../engine/content/pack.h"
 #include "../../engine/core/pcg32.h"
 // Creator: Saad AIT YAHIA - @github: Saad-programmer
 #pragma once
@@ -299,6 +300,9 @@ struct SnowFlake
 ///
 class MainApp : public PApp {
     trackrs::EditionPolicy editionPolicy;
+    trackrs::content::Catalog packCatalog;       ///< M0 content packs (validated at startup)
+    std::vector<std::string> packNotices;        ///< "pack X disabled: reason" for the menu
+    void loadPacks();
     trackrs::Pcg32 effectsRng;
 private:
 	trackrs::GameStateMachine appstate;

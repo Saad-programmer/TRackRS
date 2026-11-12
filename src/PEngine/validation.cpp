@@ -50,6 +50,7 @@ Options parse(int argc, char** argv) {
         else if (key == "--height") o.height=number(value());
         else if (key == "--frames") o.frames = number(value());
         else if (key == "--render-from") o.renderFrom = number(value());
+        else if (key == "--pack-root") o.packRoot = value();
         else if (key == "--seed") o.seed = number(value());
         else if (key == "--replay") o.replay = value();
         else if (key == "--dump-state") o.dump = value();
@@ -64,7 +65,9 @@ Options parse(int argc, char** argv) {
         throw std::runtime_error("validation output/replay needs --headless, --stage or --benchmark");
     if (o.stage.find("..") != std::string::npos || o.stage.find('\\') != std::string::npos)
         throw std::runtime_error("stage must be a virtual content path");
-    if (o.stage.find(".level") == std::string::npos) o.stage = "/maps/" + o.stage + "/" + o.stage + ".level";
+    // "pack-id:stage-id" names a content-pack stage (resolved after pack discovery).
+    if (o.stage.find(".level") == std::string::npos && o.stage.find(':') == std::string::npos)
+        o.stage = "/maps/" + o.stage + "/" + o.stage + ".level";
     return o;
 }
 std::vector<Input> readReplay(const std::string& path) {

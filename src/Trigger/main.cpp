@@ -78,6 +78,7 @@ void MainApp::config()
     if (PHYSFS_readBytes(policyFile.get(), policyText.data(), policyLength) != policyLength)
         throw MakePException("Cannot read edition policy");
     editionPolicy = trackrs::loadEditionPolicy(policyText);
+    loadPacks();
 
     if (cfg.getCopydefplayers())
         copyDefaultPlayers();
@@ -277,6 +278,71 @@ bool MainApp::loadLevel(TriggerLevel &tl)
   return true;
 }
 
+// M0 pack-lite: mount and validate content packs. Never throws for bad
+// content: a broken pack is disabled and reported (log, menu, validation JSON).
+void MainApp::loadPacks()
+{
+    if (!validation::run.options.packRoot.empty() &&
+        !PHYSFS_mount(validation::run.options.packRoot.c_str(), "/packs", 0))
+        PUtil::outLog() << "Cannot mount --pack-root " << validation::run.options.packRoot << std::endl;
+    // Zipped packs: /packs/<id>.trpack is mounted as /packs/<id>/.
+    for (const auto &file : PUtil::findFiles("/packs", ".trpack")) {
+        const auto name = std::filesystem::path(file).filename().string();
+        const char *real = PHYSFS_getRealDir(file.c_str());
+        if (!real) continue;
+        const auto archive = (std::filesystem::path(real) / file.substr(1)).string();
+        const auto mountPoint = "/packs/" + name.substr(0, name.size() - 7);
+        if (!PHYSFS_mount(archive.c_str(), mountPoint.c_str(), 1))
+            packNotices.push_back("pack archive " + name + " cannot be opened: " + physfs_getErrorString());
+    }
+    trackrs::content::Source source;
+    source.list = [](const std::string &dir) {
+        std::vector<std::string> out;
+        char **entries = PHYSFS_enumerateFiles(dir.c_str());
+        if (!entries) return out;
+        for (char **e = entries; *e; ++e) {
+            const std::string name = *e;
+            if (name.size() > 7 && name.compare(name.size() - 7, 7, ".trpack") == 0) continue;
+            const auto path = dir + "/" + name;
+            PHYSFS_Stat stat{};
+            const bool directory = PHYSFS_stat(path.c_str(), &stat) && stat.filetype == PHYSFS_FILETYPE_DIRECTORY;
+            out.push_back(name + (directory ? "/" : ""));
+        }
+        PHYSFS_freeList(entries);
+        return out;
+    };
+    source.read = [](const std::string &path) -> std::optional<std::string> {
+        std::unique_ptr<PHYSFS_File, decltype(&PHYSFS_close)> f(PHYSFS_openRead(path.c_str()), &PHYSFS_close);
+        if (!f) return std::nullopt;
+        const auto length = PHYSFS_fileLength(f.get());
+        if (length < 0 || length > 16 * 1024 * 1024) return std::nullopt;
+        std::string text(static_cast<std::size_t>(length), '\0');
+        if (PHYSFS_readBytes(f.get(), text.data(), length) != length) return std::nullopt;
+        return text;
+    };
+    trackrs::content::DiscoverOptions options;
+    options.edition = editionPolicy.edition == trackrs::EditionPolicy::Edition::Demo ? trackrs::content::Edition::Demo
+                    : editionPolicy.edition == trackrs::EditionPolicy::Edition::Dev ? trackrs::content::Edition::Dev
+                    : trackrs::content::Edition::Full;
+    options.demoPacks.assign(editionPolicy.demoPacks.begin(), editionPolicy.demoPacks.end());
+    options.demoPacks.push_back("classic-legacy-stages");
+    if (validation::run.options.enabled) options.edition = trackrs::content::Edition::Dev; // harness sees test stages
+    packCatalog = trackrs::content::discover(source, options);
+    for (const auto &pack : packCatalog.packs) {
+        if (pack.id == "classic-legacy-stages") continue;
+        if (pack.enabled) {
+            PUtil::outLog() << "Content pack " << pack.id << " " << pack.manifest.version.str() << ": "
+                            << pack.stages.size() << " stage(s), " << pack.championships.size() << " championship(s)" << std::endl;
+        } else if (pack.disabledReason != "not part of the demo edition") {
+            packNotices.push_back("pack " + pack.id + " disabled: " + pack.disabledReason);
+            PUtil::outLog() << "Content pack " << pack.id << " DISABLED: " << pack.disabledReason << std::endl;
+            for (const auto &issue : pack.issues) PUtil::outLog() << "  " << issue.message << std::endl;
+        }
+    }
+    if (validation::run.options.enabled && !validation::run.options.json.empty())
+        std::ofstream(validation::run.options.json + ".packs.json") << trackrs::content::summaryJson(packCatalog) << '\n';
+}
+
 bool MainApp::loadLevelsAndEvents()
 {
   PUtil::outLog() << "Loading levels and events" << std::endl;
@@ -297,6 +363,33 @@ bool MainApp::loadLevelsAndEvents()
     std::vector<TriggerLevel>::iterator j = levels.begin();
     while (j != levels.end() && j->name < tl.name) ++j;
     levels.insert(j, tl);
+  }
+
+  // Content-pack stages (M0): loaded by the same legacy level loader, so a
+  // pack stage behaves exactly like a /maps stage once listed.
+  for (const auto &pack : packCatalog.packs) {
+    if (!pack.enabled || pack.id == "classic-legacy-stages") continue;
+    for (const auto &stage : pack.stages) {
+      TriggerLevel tl;
+      tl.filename = pack.root + "/stages/" + stage.id + "/" + stage.level;
+      if (!loadLevel(tl)) {
+        packNotices.push_back("stage " + pack.id + ":" + stage.id + " failed to load");
+        continue;
+      }
+      tl.name = stage.name;
+      if (editionPolicy.edition == trackrs::EditionPolicy::Edition::Demo) editionPolicy.demoStages.insert(tl.filename);
+      std::vector<TriggerLevel>::iterator j = levels.begin();
+      while (j != levels.end() && j->name < tl.name) ++j;
+      levels.insert(j, tl);
+    }
+  }
+  if (validation::run.options.enabled && validation::run.options.stage.find(':') != std::string::npos) {
+    const auto path = packCatalog.levelPath(validation::run.options.stage);
+    if (!path) {
+      PUtil::outLog() << "Unknown or disabled pack stage " << validation::run.options.stage << std::endl;
+      return false;
+    }
+    validation::run.options.stage = *path;
   }
 
   // Find events

@@ -1,0 +1,3 @@
+{"schema": "trackrs.championship/1", "id": "fixture-cup", "name": "Fixture Cup",
+ "rounds": [{"stage": "mini", "day": 1, "kind": "special", "time_of_day": "noon", "service_after": true}],
+ "points": [25, 18, 15], "penalties": {"missed_waypoint": 120}}

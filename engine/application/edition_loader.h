@@ -20,6 +20,11 @@ inline EditionPolicy loadEditionPolicy(std::string_view text) {
             throw std::invalid_argument("invalid edition stage path");
         result.demoStages.insert(path);
     }
+    if (document.contains("demo_packs")) {   // optional (M0 pack-lite)
+        const auto& packs = document.at("demo_packs");
+        if (!packs.is_array()) throw std::invalid_argument("edition packs must be an array");
+        for (const auto& entry : packs) result.demoPacks.insert(entry.get<std::string>());
+    }
     return result;
 }
 }

@@ -223,6 +223,10 @@ void MainApp::levelScreenAction(int action, int index)
 
     gui.addLabel(790.0f, 570.0f, "version " PACKAGE_VERSION, PTEXT_HZA_RIGHT | PTEXT_VTA_CENTER, 30.0f, LabelStyle::Weak);
     gui.addLabel(790.0f, 30.0f, "Build: " __DATE__ " at " __TIME__, PTEXT_HZA_RIGHT | PTEXT_VTA_CENTER, 20.0f, LabelStyle::Weak);
+    // M0: broken content packs are reported here, never fatal (first four shown).
+    for (std::size_t i = 0; i < packNotices.size() && i < 4; ++i)
+      gui.addLabel(400.0f, 140.0f - static_cast<float>(i) * 18.0f, packNotices[i].substr(0, 90),
+                   PTEXT_HZA_CENTER | PTEXT_VTA_CENTER, 16.0f, LabelStyle::Weak);
     break;
   case AM_TOP_EVT:
   {

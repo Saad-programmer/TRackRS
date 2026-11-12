@@ -81,6 +81,12 @@ jobs:
           ALSOFT_DRIVERS: "null"
         run: |
           xvfb-run -a -s '-screen 0 640x480x24' python3 tests/run_baselines.py --binary build/${{ matrix.preset }}/bin/trackrs --output build/results --quick
+      - name: Content packs (pack-lite)
+        env:
+          LIBGL_ALWAYS_SOFTWARE: "1"
+          ALSOFT_DRIVERS: "null"
+        run: |
+          xvfb-run -a -s '-screen 0 640x480x24' python3 tests/run_packs.py --binary build/${{ matrix.preset }}/bin/trackrs --content-tool build/${{ matrix.preset }}/bin/trackrs-content --output build/results/packs
       - name: Audited ASan integration
         if: matrix.preset == 'linux-debug-asan'
         run: |

@@ -1,0 +1,3 @@
+{"schema": "trackrs.pack/1", "id": "fixture-unlicensed", "name": "Unlicensed asset fixture", "version": "1.0.0",
+ "requires_engine": "*", "authors": ["TrackRS contributors"],
+ "license": {"spdx": "GPL-2.0-or-later", "attribution": "TrackRS contributors"}, "assets": []}

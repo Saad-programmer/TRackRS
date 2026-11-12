@@ -1,0 +1,19 @@
+{
+  "schema": "trackrs.pack/1",
+  "id": "morocco-sahara",
+  "name": "Rallye Sahara Draâ",
+  "description": "Moroccan Sahara edition content (amendment A): fictional rally-raid event over real terrain character around Zagora and the Draâ valley. Event, teams, drivers, sponsors and routes are invented.",
+  "version": "0.1.0",
+  "requires_engine": ">=0.6.7 <1.0",
+  "content_api": 1,
+  "authors": ["TrackRS contributors"],
+  "license": {"spdx": "GPL-2.0-or-later", "attribution": "TrackRS contributors"},
+  "notices": [
+    "Fictional event: no real rally-raid event, organiser, team, sponsor or person is depicted or endorsed.",
+    "Real place names are used for geography only."
+  ],
+  "assets": [
+    {"path": "pack.json", "kind": "data", "license": {"spdx": "GPL-2.0-or-later", "attribution": "TrackRS contributors", "verified": true}},
+    {"path": "README.md", "kind": "data", "license": {"spdx": "GPL-2.0-or-later", "attribution": "TrackRS contributors", "verified": true}}
+  ]
+}

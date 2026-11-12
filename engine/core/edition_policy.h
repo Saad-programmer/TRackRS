@@ -14,6 +14,7 @@ public:
     enum class Edition : std::uint8_t { Demo, Full, Dev };
     Edition edition = Edition::Demo;
     std::set<std::string, std::less<>> demoStages;
+    std::set<std::string, std::less<>> demoPacks; ///< content packs allowed in the demo (M0)
     static Edition parse(std::string_view mode) {
         if (mode == "demo") return Edition::Demo;
         if (mode == "full") return Edition::Full;
