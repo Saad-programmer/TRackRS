@@ -6,3 +6,8 @@ third_party/meshoptimizer/* -whitespace
 # Provenance stores exact source/manifest bytes; keep their hashes portable.
 tools/bake_terrain_materials.py text eol=lf
 data/terrain/pbr/*.json text eol=lf
+tools/bake_desert_materials.py text eol=lf
+data/terrain/desert/*.json text eol=lf
+# Generated pack data compared byte-for-byte by the bake --check tools.
+data/packs/morocco-sahara/vegetation/species.json text eol=lf
+data/packs/morocco-sahara/textures/signs/signs.json text eol=lf
