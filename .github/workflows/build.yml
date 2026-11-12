@@ -81,6 +81,16 @@ jobs:
           ALSOFT_DRIVERS: "null"
         run: |
           xvfb-run -a -s '-screen 0 640x480x24' python3 tests/run_baselines.py --binary build/${{ matrix.preset }}/bin/trackrs --output build/results --quick
+      - name: Golden manifest (exact)
+        # Phase 3e: tests/baselines/linux-gcc/manifest.json comes from this CI
+        # toolchain (see its REGENERATED.md), so state hashes and framebuffers
+        # are compared exactly on three stages with screenshots.
+        if: matrix.compiler == 'g++' && matrix.preset == 'linux-release'
+        env:
+          LIBGL_ALWAYS_SOFTWARE: "1"
+          ALSOFT_DRIVERS: "null"
+        run: |
+          xvfb-run -a -s '-screen 0 640x480x24' python3 tests/run_baselines.py --binary build/${{ matrix.preset }}/bin/trackrs --output build/results/golden --stages ahead aegyptian greenland --repeats 1 --compare tests/baselines/linux-gcc/manifest.json
       - name: Content packs (pack-lite)
         env:
           LIBGL_ALWAYS_SOFTWARE: "1"

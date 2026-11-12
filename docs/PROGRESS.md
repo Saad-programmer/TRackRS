@@ -19,7 +19,7 @@ rendering (Mesa llvmpipe). Real-GPU numbers come from the maintainer.
 | 3b Sky, time of day, height fog, CSM | Done | [PHASE_3B](reports/PHASE_3B.md) |
 | 3c World: 3D vegetation, weather surfaces, headlights, water | Done | [PHASE_3C](reports/PHASE_3C.md) |
 | 3d Post-FX: HDR target, auto-exposure, bloom, ACES, SSAO | Done (core) | [PHASE_3D](reports/PHASE_3D.md) |
-| 3e TAA + golden manifest regeneration | TAA done; manifest regeneration pending its CI run | [PHASE_3E](reports/PHASE_3E.md) |
+| 3e TAA + golden manifest regeneration | Done (gate) | [PHASE_3E](reports/PHASE_3E.md) |
 | M0 Pack-lite (amendment §A9.2) | Done (gate) | [PHASE_M0](reports/PHASE_M0.md), [CONTENT_PACKS](CONTENT_PACKS.md) |
 | 4 Real rally cars, gated 4a–4d | 4a, 4b done (gate after 4b) | [PHASE_4A](reports/PHASE_4A.md), [PHASE_4B](reports/PHASE_4B.md) |
 | 5 Stage dressing | 5a people done; rest planned | [PHASE_5A](reports/PHASE_5A.md) |

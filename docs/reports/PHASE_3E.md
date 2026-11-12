@@ -58,14 +58,24 @@ of "ahead". The car is at 59 mph; rendering runs from tick 2340 to 2400.
 ## 2. Golden manifest regeneration (separate commit)
 
 * **The problem:** the committed `tests/baselines/linux-gcc/manifest.json`
-  came from an older toolchain. The CI toolchain reproduces different legacy
-  hashes for the unchanged base commit.
-* **Why existing runs cannot supply it:** the regular CI replay step runs
-  only `--quick` (one stage, 1250 ticks). No existing CI artifact contains a
-  full manifest.
-* **The fix:** a dispatch-only workflow, `.github/workflows/baselines.yml`.
-  It builds with the CI toolchain (Ubuntu 24.04, GCC, Mesa llvmpipe), runs the
-  complete legacy baseline (13 stages, 1500 ticks, two repeats), and uploads
-  `legacy-baselines-linux-gcc`, including a `toolchain.txt` record. The
-  manifest commit copies that artifact verbatim. It touches no game code; the
-  note names the run, toolchain and base commit.
+  came from the older Phase 0 toolchain. The CI toolchain reproduces
+  different legacy hashes for the unchanged game code.
+* **Why existing runs could not supply it:** the regular CI replay step runs
+  only `--quick` (one stage, 1250 ticks), so no CI artifact held a full
+  manifest.
+* **New workflow:** `.github/workflows/baselines.yml` is dispatch-only. It
+  builds with the CI toolchain, runs the complete legacy baseline (13 stages,
+  1500 ticks, two repeats), records the toolchain, and prints the manifest
+  into its job log. Build sessions cannot download artifacts (blob storage is
+  outside their network policy), but they can read job logs.
+* **The regeneration commit:** it contains only the new `manifest.json` and
+  [`REGENERATED.md`](../../tests/baselines/linux-gcc/REGENERATED.md), which
+  names the run (43184978914), base commit (`f1b4015`) and toolchain (Ubuntu
+  24.04.5, GCC 13.3.0, Mesa 25.2.8 llvmpipe). No game code changed.
+* **Cross-check:** the CI manifest is identical, state and framebuffer
+  hashes, to a local build of the pre-3e base `ec087af` made in this
+  container.
+* **Exact comparison:** from the next commit on, the g++ release CI job
+  compares three stages with framebuffers (`ahead`, `aegyptian`, `greenland`)
+  **exactly** against the manifest: the "Golden manifest (exact)" step. The
+  same comparison passes locally on the M0 build.
