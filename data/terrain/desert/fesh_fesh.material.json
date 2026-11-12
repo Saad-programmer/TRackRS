@@ -1,0 +1,7 @@
+{
+  "name": "fesh_fesh",
+  "albedo": "fesh_fesh-albedo.ktx2",
+  "normal": "fesh_fesh-normal.ktx2",
+  "orm": "fesh_fesh-orm.ktx2",
+  "atlas": false
+}

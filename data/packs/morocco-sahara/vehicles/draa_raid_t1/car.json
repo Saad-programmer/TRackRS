@@ -1,0 +1,97 @@
+{
+  "schema": "trackrs.car/2",
+  "id": "draa_raid_t1",
+  "display_name": "Draa Raid T1",
+  "marque": "Rallye Sahara Draa (fictional)",
+  "year": 2026,
+  "class": "Rally-raid prototype T1 (fictional)",
+  "era": "fictional",
+  "license": {
+    "data": "GPL-2.0-or-later",
+    "model": "",
+    "author": "TrackRS contributors",
+    "source_url": "",
+    "trademark_notice": ""
+  },
+  "verified": {
+    "mass": false,
+    "engine": false,
+    "gearbox": false,
+    "tyres": false,
+    "aero": false,
+    "brakes": false
+  },
+  "sources": [],
+  "provenance": "Fictional car for the M2 vertical slice: every figure is an invented, plausible value for its class, not data of any real vehicle. Placeholder model (borrowed fictional legacy body).",
+  "body": {
+    "mesh": "",
+    "fallback": "cordo_super500",
+    "import_scale": 1.0,
+    "unit": "m"
+  },
+  "mass": {
+    "kerb_kg": 1950,
+    "front_weight_dist": 0.52
+  },
+  "engine": {
+    "layout": "3.5 V6 twin-turbo front-mid (restricted)",
+    "idle_rpm": 900,
+    "redline_rpm": 6500,
+    "torque_curve_nm": [
+      [
+        1000,
+        300.0
+      ],
+      [
+        2500,
+        560.0
+      ],
+      [
+        4000,
+        600.0
+      ],
+      [
+        5500,
+        520.0
+      ],
+      [
+        6500,
+        430.0
+      ]
+    ]
+  },
+  "drivetrain": {
+    "layout": "AWD",
+    "front_torque_share": 0.5,
+    "gearbox": {
+      "ratios": [
+        3.2,
+        2.2,
+        1.6,
+        1.2,
+        0.95
+      ],
+      "final_drive": 4.0,
+      "reverse": 3.0,
+      "shift_time_s": 0.15,
+      "derivation": "synthetic: spaced for a restricted rally-raid top speed with long gearing for open desert"
+    }
+  },
+  "tyres": {
+    "radius_m": 0.41,
+    "width_m": 0.245
+  },
+  "aero": {
+    "cd": 0.45,
+    "frontal_area_m2": 2.8,
+    "cl_front": 0.0,
+    "cl_rear": 0.0
+  },
+  "brakes": {
+    "bias_front": 0.58
+  },
+  "claims": {
+    "top_speed_kmh": 170,
+    "zero_to_100_s": 0
+  }
+}

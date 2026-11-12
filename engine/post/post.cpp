@@ -3,6 +3,7 @@
 #include "exposure.h"
 #include "engine/render/basic.h"
 #include "engine/rhi/rhi.h"
+#include "engine/world/state.h"
 #include "legacy_metrics.h"
 #include "validation.h"
 #include <array>
@@ -371,6 +372,21 @@ void end(float time, const glm::mat4 &projection, const glm::mat4 &view) {
   glUniform2f(glGetUniformLocation(c, "uTexel"), 1.f / static_cast<float>(p.size.x),
               1.f / static_cast<float>(p.size.y));
   glUniform1f(glGetUniformLocation(c, "uSharpen"), p.temporalThisFrame ? current.sharpen : 0.f);
+  {
+    // Desert atmosphere (amendment A3.4): heat haze, mirage, chergui grade.
+    const auto &w = world::state().settings.weather;
+    const glm::mat4 rotation = projection * glm::mat4(glm::mat3(view));
+    const glm::mat4 inverseRotation = glm::inverse(rotation);
+    const float a = glm::radians(w.windDegrees);
+    const glm::vec4 windClip = rotation * glm::vec4(std::cos(a), std::sin(a), 0.f, 0.f);
+    const float zNear = projection[3][2] / (projection[2][2] - 1.f), zFar = projection[3][2] / (projection[2][2] + 1.f);
+    glUniform4f(glGetUniformLocation(c, "uDesert"), w.heat, w.dust, time, 0.f);
+    glUniformMatrix4fv(glGetUniformLocation(c, "uInverseViewProjection"), 1, GL_FALSE, &inverseRotation[0][0]);
+    glUniformMatrix4fv(glGetUniformLocation(c, "uViewProjectionRotation"), 1, GL_FALSE, &rotation[0][0]);
+    glUniform2f(glGetUniformLocation(c, "uDepthRange"), std::abs(zNear), std::abs(zFar));
+    glUniform2f(glGetUniformLocation(c, "uWindScreen"), windClip.x, windClip.y);
+    bindTexture(c, "uDepth", Unit{4}, p.hdrDepth);
+  }
   bindTexture(c, "uBloom", Unit{1}, bloom ? p.bloom[0].texture : p.adapted[p.current].texture);
   bindTexture(c, "uAdapted", Unit{2}, p.adapted[p.current].texture);
   bindTexture(c, "uAo", Unit{3}, occlusion ? p.aoBlurred.texture : p.adapted[p.current].texture);
@@ -394,7 +410,7 @@ void end(float time, const glm::mat4 &projection, const glm::mat4 &view) {
     validation::run.frameDraws += 3 + (bloom ? 2 * p.bloom.size() - 1 : 0) + (occlusion ? 2 : 0) +
                                   (p.temporalThisFrame ? 1 : 0);
   // Restore state for the HUD.
-  for (int unit = 3; unit >= 0; --unit) {
+  for (int unit = 4; unit >= 0; --unit) {
     glActiveTexture(GL_TEXTURE0 + static_cast<GLenum>(unit));
     glBindTexture(GL_TEXTURE_2D, unit == 0 ? static_cast<GLuint>(texture) : 0);
   }

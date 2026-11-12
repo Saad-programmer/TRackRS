@@ -1,0 +1,51 @@
+{
+ "license": "GPL-2.0-or-later",
+ "provenance": "Desert species and card sprites authored for TrackRS by tools/bake_sahara_sprites.py; no artwork is copied.",
+ "schema": "trackrs.vegetation/1",
+ "sprites": {
+  "sahara-acacia.png": {
+   "bark": "#4a3a2a",
+   "foliage": "#56632f",
+   "form": "acacia",
+   "width": 0.98
+  },
+  "sahara-alfa-grass.png": {
+   "foliage": "#b3a774",
+   "form": "grass",
+   "width": 0.9
+  },
+  "sahara-date-palm-mid.png": {
+   "bark": "#6e5a40",
+   "dead_fronds": 0.4,
+   "foliage": "#5b7232",
+   "form": "palm",
+   "width": 0.8
+  },
+  "sahara-date-palm-tall.png": {
+   "bark": "#6e5a40",
+   "dead_fronds": 0.6,
+   "foliage": "#566b2e",
+   "form": "palm",
+   "width": 0.72
+  },
+  "sahara-date-palm-young.png": {
+   "bark": "#76624a",
+   "dead_fronds": 0.1,
+   "foliage": "#62793a",
+   "form": "palm",
+   "width": 0.9
+  },
+  "sahara-dead-brush.png": {
+   "bark": "#5a4636",
+   "foliage": "#6e5844",
+   "form": "bush",
+   "width": 0.85
+  },
+  "sahara-tamarisk.png": {
+   "bark": "#5a4a3a",
+   "foliage": "#7d8a6a",
+   "form": "bush",
+   "width": 0.95
+  }
+ }
+}

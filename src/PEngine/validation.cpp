@@ -38,7 +38,7 @@ Options parse(int argc, char** argv) {
         else if (key == "--time-of-day") {o.timeOfDay=value();if(o.timeOfDay!="dawn"&&o.timeOfDay!="noon"&&o.timeOfDay!="golden-hour"&&o.timeOfDay!="dusk"&&o.timeOfDay!="night"&&o.timeOfDay!="midnight")throw std::runtime_error("invalid time of day");}
         else if (key == "--shadows") {o.shadows=value();if(o.shadows!="blob"&&o.shadows!="csm")throw std::runtime_error("shadows must be blob or csm");}
         else if (key == "--vegetation") {o.vegetation=value();if(o.vegetation!="3d"&&o.vegetation!="cards")throw std::runtime_error("vegetation must be 3d or cards");}
-        else if (key == "--weather") {o.weather=value();if(o.weather!="level"&&o.weather!="clear"&&o.weather!="rain"&&o.weather!="snow"&&o.weather!="fog")throw std::runtime_error("weather must be level, clear, rain, snow or fog");}
+        else if (key == "--weather") {o.weather=value();if(o.weather!="level"&&o.weather!="clear"&&o.weather!="rain"&&o.weather!="snow"&&o.weather!="fog"&&o.weather!="chergui")throw std::runtime_error("weather must be level, clear, rain, snow, fog or chergui");}
         else if (key == "--aa") {o.aa=value();if(o.aa!="taa"&&o.aa!="off")throw std::runtime_error("aa must be taa or off");}
         else if (key == "--post") {o.post=value();if(o.post!="on"&&o.post!="off")throw std::runtime_error("post must be on or off");}
         else if (key == "--cars") {o.cars=value();if(o.cars!="on"&&o.cars!="off")throw std::runtime_error("cars must be on or off");}
@@ -50,7 +50,10 @@ Options parse(int argc, char** argv) {
         else if (key == "--height") o.height=number(value());
         else if (key == "--frames") o.frames = number(value());
         else if (key == "--render-from") o.renderFrom = number(value());
+        else if (key == "--autopilot") { o.autopilotKmh = static_cast<float>(number(value())); if (o.autopilotKmh > 250) throw std::runtime_error("--autopilot must be 1..250 km/h"); }
+        else if (key == "--brake-from") o.brakeFrom = number(value());
         else if (key == "--pack-root") o.packRoot = value();
+        else if (key == "--camera") {o.camera=value();static const char*modes[]={"chase","bumper","side","hood","periscope","cockpit"};if(std::find(std::begin(modes),std::end(modes),o.camera)==std::end(modes))throw std::runtime_error("camera must be chase, bumper, side, hood, periscope or cockpit");}
         else if (key == "--seed") o.seed = number(value());
         else if (key == "--replay") o.replay = value();
         else if (key == "--dump-state") o.dump = value();

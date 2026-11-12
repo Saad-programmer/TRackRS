@@ -1,4 +1,5 @@
 #include "engine/renderer/renderer.h"
+#include "engine/world/state.h"
 #include "../../engine/application/edition_loader.h"
 // Creator: Saad AIT YAHIA - @github: Saad-programmer
 #include "exception.h"
@@ -568,6 +569,13 @@ bool MainApp::loadAll()
   cprotate = 0.0f;
 
   cameraview = CameraMode::chase;
+  tripMetres = 0;
+  {
+    static const std::pair<const char*, CameraMode> modes[] = {{"chase", CameraMode::chase}, {"bumper", CameraMode::bumper},
+        {"side", CameraMode::side}, {"hood", CameraMode::hood}, {"periscope", CameraMode::periscope}, {"cockpit", CameraMode::cockpit}};
+    for (const auto& m : modes)
+      if (validation::run.options.camera == m.first) cameraview = m.second;
+  }
   camera_user_angle = 0.0f;
 
   showmap = true;
@@ -731,6 +739,18 @@ bool MainApp::startGame(const std::string &filename)
   if (!game->loadLevel(filename)) {
     PUtil::outLog() << "Error: failed to load level" << std::endl;
     return false;
+  }
+  // Desert stages (level <weather wind/heat>): long-lived drifting dust plumes.
+  if (psys_dirt) {
+    const auto &climate = trackrs::world::state().settings.weather;
+    const bool desert = climate.wind > 0.f || climate.heat > 0.f || climate.dust > 0.f;
+    const float a = glm::radians(climate.windDegrees), speed = 1.5f + 7.0f * climate.wind;
+    psys_dirt->wind = desert ? vec3f(std::cos(a) * speed, std::sin(a) * speed, 0.35f) : vec3f::zero();
+    psys_dirt->settle = desert ? 2.5f : 25.0f;
+    psys_dirt->setDecay(desert ? 1.8f : 6.0f);
+    psys_dirt->setSize(desert ? 0.25f : 0.1f, desert ? 2.0f : 0.5f);
+    psys_dirt->setColorStart(desert ? 0.62f : 0.5f, desert ? 0.5f : 0.4f, desert ? 0.36f : 0.2f, desert ? 0.18f : 1.0f);
+    psys_dirt->setColorEnd(desert ? 0.62f : 0.5f, desert ? 0.5f : 0.4f, desert ? 0.36f : 0.2f, 0.0f);
   }
 
   // useful datas
@@ -896,7 +916,9 @@ void MainApp::tickStateGame(float delta)
 {
   PVehicle *vehic = game->vehicle[0];
 
-  if (game->isFinished())
+  // Validation runs own their length (--frames): past the finish line the
+  // game keeps simulating instead of tearing itself down mid-run.
+  if (game->isFinished() && !validation::run.options.enabled)
   {
     endGame(game->getFinishState());
     return;
@@ -1003,12 +1025,59 @@ void MainApp::tickStateGame(float delta)
       vehic->ctrl.turn.z = input.steering;
       vehic->ctrl.brake1 = input.brake;
       vehic->ctrl.brake2 = input.handbrake;
+      // Deterministic autopilot (validation only): pure pursuit along the road
+      // centreline traced on the roadmap, a curvature-limited target speed and
+      // an optional hard stop. Inputs depend only on the simulated state.
+      const auto &opts = validation::run.options;
+      if (opts.autopilotKmh > 0.f && game->drivingLine.size() > 1 && game->gamestate != Gamestate::countdown) {
+          static std::size_t cursor = 0;
+          const auto &line = game->drivingLine;
+          const vec3f pos = vehic->body->getPosition();
+          const glm::vec2 p(pos.x, pos.y);
+          // World direction of the body's local +y (forward) = column 1 of the rotation.
+          const auto &orientation = vehic->body->getOrientationMatrix();
+          const glm::vec2 forward = glm::normalize(glm::vec2(orientation.row[0].y, orientation.row[1].y) + glm::vec2(1e-6f, 0.f));
+          // Nearest centreline point, searched forwards from the last one.
+          float best = 1e30f;
+          for (std::size_t i = cursor; i < std::min(line.size(), cursor + 60); ++i) {
+              const float d = glm::length(glm::vec2(line[i]) - p);
+              if (d < best) { best = d; cursor = i; }
+          }
+          const float speed = std::abs(vehic->forwardspeed);
+          const float lookahead = 7.f + 0.75f * speed;
+          std::size_t target = cursor;
+          for (float run = 0.f; target + 1 < line.size() && run < lookahead; ++target)
+              run += glm::length(glm::vec2(line[target + 1]) - glm::vec2(line[target]));
+          const glm::vec2 to = glm::vec2(line[target]) - p;
+          const float angle = std::atan2(forward.x * to.y - forward.y * to.x, glm::dot(forward, to));
+          // Slow down for the sharpest heading change within ~45 m ahead.
+          float bend = 0.f, run = 0.f;
+          // Heading change between consecutive ~12 m chords (the traced line has
+          // small 4 m steps that zig-zag; single segments overstate the bend).
+          for (std::size_t i = cursor; i + 6 < line.size() && run < 60.f; ++i) {
+              const glm::vec2 a = glm::vec2(line[i + 3]) - glm::vec2(line[i]), b = glm::vec2(line[i + 6]) - glm::vec2(line[i + 3]);
+              run += glm::length(glm::vec2(line[i + 1]) - glm::vec2(line[i]));
+              bend = std::max(bend, std::abs(std::atan2(a.x * b.y - a.y * b.x, glm::dot(a, b))));
+          }
+          const float target_ms = std::min(opts.autopilotKmh / 3.6f, 8.f + 4.5f / std::max(bend, 0.05f));
+          vehic->ctrl.turn.z = std::clamp(-angle * 2.4f, -1.f, 1.f); // +turn.z steers right
+          vehic->ctrl.throttle = std::clamp((target_ms - speed) * 0.6f, 0.f, 1.f);
+          vehic->ctrl.brake1 = speed > target_ms + 2.f ? std::clamp((speed - target_ms) * 0.25f, 0.f, 1.f) : 0.f;
+      }
+      if (opts.brakeFrom > 0 && validation::run.ticks >= opts.brakeFrom) {
+          vehic->ctrl.throttle = 0.f;
+          vehic->ctrl.brake1 = 1.f;
+      }
   }
   game->tick(delta);
+  if (game->gamestate == Gamestate::racing) tripMetres += std::fabs(vehic->forwardspeed) * delta;
   // Car wear (dust, mud, brake heat) follows the simulation, not the frame rate.
   if (game->terrain)
       for (auto *car : game->vehicle)
           trackrs::Renderer::observeCar(*car, game->terrain->getRoadSurface(car->body->getPosition()), delta);
+  if (game->terrain)
+      for (unsigned i = 0; i < game->vehicle.size(); ++i)
+          trackrs::Renderer::observeTracks(*game->vehicle[i], i, *game->terrain);
   if (validation::run.options.enabled) {
       try {
           auto& hash = validation::run.hash;
@@ -1020,10 +1089,10 @@ void MainApp::tickStateGame(float delta)
               validation::hashFloat(hash, value);
           if (!validation::run.options.telemetry.empty()) { // calibration: observation only
               static std::ofstream telemetry(validation::run.options.telemetry);
-              if (validation::run.ticks == 0) telemetry << "tick,x,y,z,speed_ms,rpm,gear\n";
+              if (validation::run.ticks == 0) telemetry << "tick,x,y,z,speed_ms,rpm,gear,surface\n";
               telemetry << validation::run.ticks << ',' << p.x << ',' << p.y << ',' << p.z << ','
                         << std::sqrt(v.x * v.x + v.y * v.y + v.z * v.z) << ',' << vehic->getEngineRPM() << ','
-                        << vehic->getCurrentGear() << '\n';
+                        << vehic->getCurrentGear() << ',' << PUtil::getTerrainInfo(game->terrain->getRoadSurface(p)) << '\n';
           }
           if (++validation::run.ticks >= validation::run.options.frames)
               validation::run.complete = true;
@@ -1123,7 +1192,7 @@ void MainApp::tickStateGame(float delta)
     tempo.fromThreeAxisAngle(vec3f(-PI*0.5f,0.0f,0.0f));
   }
 
-  renderowncar = (cameraview_mod != CameraMode::hood && cameraview_mod != CameraMode::bumper);
+  renderowncar = (cameraview_mod != CameraMode::hood && cameraview_mod != CameraMode::bumper && cameraview_mod != CameraMode::cockpit);
 
   campos_prev = campos;
 
@@ -1245,6 +1314,21 @@ void MainApp::tickStateGame(float delta)
     campos = rf->getPosition() +
       makevec3f(rfmat.row[1]) * 1.7f +
       makevec3f(rfmat.row[2]) * 5.0f;
+    } break;
+
+    // Cockpit: the driver's eye, left-hand seat, rigidly attached to the body.
+	case CameraMode::cockpit: {
+    quatf temp2;
+    temp2.fromZAngle(camera_user_angle);
+    camori = tempo * temp2 * rf->getOrientation();
+    camori.normalize();
+    cammat = camori.getMatrix();
+    cammat = cammat.transpose();
+    const mat44f &rfmat = rf->getInverseOrientationMatrix();
+    campos = rf->getPosition() +
+      makevec3f(rfmat.row[0]) * -0.36f +
+      makevec3f(rfmat.row[1]) * -0.15f +
+      makevec3f(rfmat.row[2]) * 0.62f;
     } break;
 
     // Piggyback (fixed chase)
@@ -1747,6 +1831,8 @@ int main(int argc, char *argv[])
             std::cout << "TrackRS --headless|--benchmark --stage <id|virtual.level> --vehicle <id>\n"
                 << "  --data-dir <data directory>\n"
                 << "  --frames <250-Hz ticks> --render-from <tick> --seed <integer> --replay <csv>\n"
+                << "  --autopilot <km/h> (follow the traced road) --brake-from <tick> (hard braking)\n"
+                << "  --camera chase|bumper|side|hood|periscope|cockpit\n"
                 << "  --dump-state <hash-file> --json <report.json> --screenshot <image.ppm>\n"
                 << "  --renderer legacy|pbr --quality low|medium|high|ultra --shadows blob|csm\n"
                 << "  --time-of-day dawn|noon|golden-hour|dusk|night|midnight --vegetation 3d|cards\n"
@@ -1763,7 +1849,7 @@ int main(int argc, char *argv[])
             validation::run.draws.reserve(validation::run.options.frames);
             validation::run.triangles.reserve(validation::run.options.frames);
             validation::run.queries.reserve(128);
-            for (const char* name : {"terrain", "terrain_probe", "sky", "water", "mesh_submit", "particles", "ui_text", "sky_ibl_bake", "shadow_terrain", "post", "spectators", "shadow_spectators", "cars", "shadow_cars", "vegetation", "vegetation_probe", "shadow_vegetation", "shadow_cascade_0", "shadow_cascade_1", "shadow_cascade_2", "shadow_cascade_3"}) {
+            for (const char* name : {"terrain", "terrain_probe", "sky", "water", "mesh_submit", "particles", "ui_text", "sky_ibl_bake", "shadow_terrain", "post", "spectators", "shadow_spectators", "props", "shadow_props", "tracks", "cars", "shadow_cars", "vegetation", "vegetation_probe", "shadow_vegetation", "shadow_cascade_0", "shadow_cascade_1", "shadow_cascade_2", "shadow_cascade_3"}) {
                 auto& pass = validation::run.passes[name];
                 pass.cpu.reserve(validation::run.options.frames * 32);
                 pass.gpu.reserve(validation::run.options.frames * 32);

@@ -1,0 +1,520 @@
+{
+  "id": "zagora-prologue",
+  "name": "Zagora Prologue",
+  "region": "near Zagora, Draa valley, Morocco: SRTM-derived terrain; route, surfaces and dressing invented",
+  "seed": 20262,
+  "size": 1024,
+  "metres_per_px": 4,
+  "height": {
+    "kind": "terrarium",
+    "tiles": "tools/stage_specs/dem/zagora",
+    "zoom": 13,
+    "centre": [
+      30.316,
+      -5.832
+    ],
+    "compress_above_m": 740,
+    "compress_ratio": 0.15
+  },
+  "detail": {
+    "hummocks_m": 0.35,
+    "dune_fields": [
+      {
+        "kind": "barchan",
+        "zones": [
+          [
+            640,
+            720,
+            990,
+            990
+          ]
+        ],
+        "wind_deg": 45,
+        "wavelength_m": 120,
+        "height_m": 7
+      }
+    ]
+  },
+  "route": {
+    "points": [
+      [
+        140,
+        905
+      ],
+      [
+        215,
+        830
+      ],
+      [
+        300,
+        775
+      ],
+      [
+        385,
+        705
+      ],
+      [
+        450,
+        615
+      ],
+      [
+        530,
+        565
+      ],
+      [
+        610,
+        600
+      ],
+      [
+        700,
+        640
+      ],
+      [
+        790,
+        655
+      ],
+      [
+        860,
+        705
+      ],
+      [
+        900,
+        790
+      ],
+      [
+        880,
+        880
+      ]
+    ],
+    "width_m": 9,
+    "type": "HardSand",
+    "colour": [
+      200,
+      160,
+      110
+    ],
+    "checkpoint_every_m": 300,
+    "profile_smooth_m": 60,
+    "shoulder_m": 7,
+    "spans": [
+      {
+        "from_m": 0,
+        "to_m": 650,
+        "type": "PalmeraieDirt",
+        "colour": [
+          140,
+          100,
+          68
+        ]
+      },
+      {
+        "from_m": 650,
+        "to_m": 1000,
+        "type": "OuedGravel",
+        "colour": [
+          176,
+          160,
+          138
+        ]
+      },
+      {
+        "from_m": 1000,
+        "to_m": 3300,
+        "type": "HamadaStone",
+        "colour": [
+          128,
+          104,
+          86
+        ]
+      }
+    ]
+  },
+  "surfaces": [
+    {
+      "type": "Rock",
+      "colour": [
+        140,
+        116,
+        96
+      ],
+      "min_slope": 0.35
+    },
+    {
+      "type": "SandDune",
+      "colour": [
+        222,
+        172,
+        112
+      ],
+      "zones": [
+        [
+          640,
+          720,
+          990,
+          990
+        ]
+      ],
+      "foliage": 0.3,
+      "cover": 0.06
+    },
+    {
+      "type": "PalmeraieDirt",
+      "colour": [
+        128,
+        92,
+        62
+      ],
+      "zones": [
+        [
+          20,
+          760,
+          200,
+          1010
+        ],
+        [
+          110,
+          700,
+          300,
+          960
+        ],
+        [
+          50,
+          640,
+          190,
+          800
+        ]
+      ],
+      "foliage": 0.95,
+      "cover": 0.55
+    },
+    {
+      "type": "OuedGravel",
+      "colour": [
+        172,
+        156,
+        134
+      ],
+      "zones": [
+        [
+          260,
+          540,
+          360,
+          660
+        ],
+        [
+          300,
+          600,
+          410,
+          720
+        ],
+        [
+          340,
+          660,
+          450,
+          790
+        ],
+        [
+          380,
+          720,
+          480,
+          840
+        ]
+      ],
+      "foliage": 0.7,
+      "cover": 0.2
+    },
+    {
+      "type": "HardSand",
+      "colour": [
+        206,
+        170,
+        120
+      ],
+      "zones": [
+        [
+          600,
+          660,
+          1010,
+          1010
+        ],
+        [
+          700,
+          600,
+          1010,
+          700
+        ]
+      ],
+      "foliage": 0.3,
+      "cover": 0.05
+    },
+    {
+      "type": "HamadaStone",
+      "colour": [
+        132,
+        106,
+        88
+      ],
+      "foliage": 0.3,
+      "cover": 0.02
+    }
+  ],
+  "foliage_bands": [
+    {
+      "middle": 0.95,
+      "range": 0.04,
+      "density": 0.0008,
+      "sprite": "/packs/morocco-sahara/textures/veg/sahara-date-palm-tall.png",
+      "count": 1,
+      "scale": 11
+    },
+    {
+      "middle": 0.95,
+      "range": 0.04,
+      "density": 0.0006,
+      "sprite": "/packs/morocco-sahara/textures/veg/sahara-date-palm-mid.png",
+      "count": 1,
+      "scale": 7
+    },
+    {
+      "middle": 0.95,
+      "range": 0.04,
+      "density": 0.0004,
+      "sprite": "/packs/morocco-sahara/textures/veg/sahara-date-palm-young.png",
+      "count": 1,
+      "scale": 3.5
+    },
+    {
+      "middle": 0.7,
+      "range": 0.04,
+      "density": 0.00025,
+      "sprite": "/packs/morocco-sahara/textures/veg/sahara-acacia.png",
+      "count": 1,
+      "scale": 6
+    },
+    {
+      "middle": 0.7,
+      "range": 0.04,
+      "density": 0.0003,
+      "sprite": "/packs/morocco-sahara/textures/veg/sahara-tamarisk.png",
+      "count": 1,
+      "scale": 3
+    },
+    {
+      "middle": 0.3,
+      "range": 0.04,
+      "density": 0.0016,
+      "sprite": "/packs/morocco-sahara/textures/veg/sahara-alfa-grass.png",
+      "count": 1,
+      "scale": 0.9
+    },
+    {
+      "middle": 0.3,
+      "range": 0.04,
+      "density": 0.0003,
+      "sprite": "/packs/morocco-sahara/textures/veg/sahara-dead-brush.png",
+      "count": 1,
+      "scale": 1.4
+    }
+  ],
+  "level": {
+    "comment": "Zagora Prologue (M2 vertical slice)",
+    "author": "TrackRS contributors",
+    "description": "Fictional prologue near Zagora: palmeraie start, oued crossing, hamada run under the hill, dune finish",
+    "fogcolor": "0.86, 0.78, 0.66",
+    "fogdensity": 0.0003,
+    "wind": 0.4,
+    "winddegrees": 45,
+    "heat": 0.7,
+    "dust": 0.0
+  },
+  "props": {
+    "ksar": [
+      {
+        "x": 215,
+        "y": 745,
+        "width": 16,
+        "depth": 12,
+        "yaw_deg": -12,
+        "gate_side": 1
+      }
+    ],
+    "scatter": [
+      {
+        "kind": "mud_house",
+        "x": 175,
+        "y": 720,
+        "radius": 22,
+        "count": 10,
+        "yaw_deg": -12
+      },
+      {
+        "kind": "concrete_house",
+        "x": 250,
+        "y": 690,
+        "radius": 10,
+        "count": 4,
+        "yaw_deg": -12
+      },
+      {
+        "kind": "khaima",
+        "x": 760,
+        "y": 760,
+        "radius": 14,
+        "count": 3
+      },
+      {
+        "kind": "well",
+        "x": 740,
+        "y": 780,
+        "radius": 4,
+        "count": 1
+      },
+      {
+        "kind": "cairn",
+        "x": 600,
+        "y": 560,
+        "radius": 60,
+        "count": 12
+      }
+    ],
+    "herds": [
+      {
+        "kind": "camel",
+        "x": 790,
+        "y": 800,
+        "radius": 14,
+        "count": 6
+      },
+      {
+        "kind": "goat",
+        "x": 260,
+        "y": 880,
+        "radius": 9,
+        "count": 10
+      }
+    ],
+    "line": [
+      {
+        "kind": "power_pole",
+        "from": [
+          60,
+          640
+        ],
+        "to": [
+          560,
+          500
+        ],
+        "spacing": 12
+      }
+    ],
+    "props": [
+      {
+        "kind": "start_arch",
+        "x": 146,
+        "y": 899,
+        "yaw_deg": -45
+      },
+      {
+        "kind": "water_tower",
+        "x": 250,
+        "y": 660
+      },
+      {
+        "kind": "sign_board",
+        "x": 148.5,
+        "y": 902.1,
+        "yaw_deg": -45,
+        "face": 0
+      },
+      {
+        "kind": "sign_board",
+        "x": 148.5,
+        "y": 890.9,
+        "yaw_deg": -45,
+        "face": 1
+      },
+      {
+        "kind": "sign_board",
+        "x": 382,
+        "y": 716,
+        "yaw_deg": -50,
+        "face": 2
+      },
+      {
+        "kind": "sign_board",
+        "x": 538,
+        "y": 552,
+        "yaw_deg": -90,
+        "face": 5
+      },
+      {
+        "kind": "sign_board",
+        "x": 905,
+        "y": 860,
+        "yaw_deg": -100,
+        "face": 4
+      }
+    ],
+    "tracks": [
+      {
+        "kind": "camel",
+        "points": [
+          [
+            700,
+            820
+          ],
+          [
+            730,
+            800
+          ],
+          [
+            760,
+            790
+          ],
+          [
+            800,
+            785
+          ],
+          [
+            840,
+            770
+          ],
+          [
+            880,
+            760
+          ]
+        ]
+      },
+      {
+        "kind": "foot",
+        "points": [
+          [
+            200,
+            770
+          ],
+          [
+            205,
+            790
+          ],
+          [
+            215,
+            815
+          ],
+          [
+            230,
+            835
+          ]
+        ]
+      }
+    ],
+    "sign_atlas": "/packs/morocco-sahara/textures/signs/signs.png"
+  },
+  "times_of_day": [
+    "dawn",
+    "noon",
+    "golden-hour",
+    "night"
+  ],
+  "terrain_source": "SRTM via Tilezen terrarium tiles (zoom 13), see tools/stage_specs/dem/zagora/provenance.json; elevation above 740 m compressed x0.15 for the 8-bit heightmap",
+  "zone_warp_px": 70
+}

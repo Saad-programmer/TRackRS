@@ -1,10 +1,18 @@
 // Creator: Saad AIT YAHIA - @github: Saad-programmer
+#include <algorithm>
 #include "exception.h"
 #include "main.h"
 #include "psim.h"
 #include "vehicle.h"
 #include "engine/world/state.h"
 #include "engine/dressing/renderer.h"
+#include "engine/dressing/props.h"
+#include "engine/terrain/tracks.h"
+#include <SDL2/SDL_image.h>
+#include <cstring>
+#include "engine/vegetation/vegetation.h"
+#include <physfs.h>
+#include <memory>
 #include "engine/core/pcg32.h"
 
 // size of the checkpoints
@@ -76,6 +84,14 @@ bool TriggerGame::loadVehicles()
         if (file.size() >= 9 && file.compare(file.size() - 9, 9, "/car.json") == 0)
             vehiclefiles.push_back(file);
 
+    // Content-pack cars (M2): <pack>/vehicles/<id>/car.json of enabled packs.
+    for (const auto &pack : app->getPackCatalog().packs) {
+        if (!pack.enabled || pack.id == "classic-legacy-stages") continue;
+        for (const auto &file : PUtil::findFiles(pack.root + "/vehicles", ".json"))
+            if (file.size() >= 9 && file.compare(file.size() - 9, 9, "/car.json") == 0)
+                vehiclefiles.push_back(file);
+    }
+
     // if there is any vehicle
     if (!vehiclefiles.empty())
     {
@@ -130,6 +146,25 @@ bool TriggerGame::loadLevel(const std::string &filename)
 	if (PUtil::isDebugLevel(DEBUGLEVEL_TEST))
 		PUtil::outLog() << "Loading level \"" << filename << "\"\n";
 
+	// Content-pack vegetation species (e.g. desert palms) for pack stages only.
+	trackrs::vegetation::clearPackSpecies();
+	if (filename.rfind("/packs/", 0) == 0) {
+		const auto end = filename.find('/', 7);
+		const std::string species = filename.substr(0, end) + "/vegetation/species.json";
+		if (end != std::string::npos && PHYSFS_exists(species.c_str())) {
+			std::unique_ptr<PHYSFS_File, decltype(&PHYSFS_close)> f(PHYSFS_openRead(species.c_str()), &PHYSFS_close);
+			const auto length = f ? PHYSFS_fileLength(f.get()) : -1;
+			std::string text(length > 0 ? static_cast<std::size_t>(length) : 0, '\0');
+			try {
+				if (length <= 0 || PHYSFS_readBytes(f.get(), text.data(), length) != length)
+					throw std::runtime_error("cannot read " + species);
+				trackrs::vegetation::addPackSpecies(text);
+			} catch (const std::exception &e) {
+				PUtil::outLog() << "Pack vegetation species ignored: " << e.what() << '\n';
+			}
+		}
+	}
+
 	// create a new PSim if there is no one
 	if (sim == nullptr)
 		sim = std::make_unique<PSim>();
@@ -147,6 +182,7 @@ bool TriggerGame::loadLevel(const std::string &filename)
 	weather.fog.color = DEF_FOG_COLOR;
 	weather.fog.density = DEF_FOG_DENSITY;
 	weather.fog.density_sky = DEF_FOG_DENSITY_SKY;
+	glm::vec4 desertClimate(0.f, 60.f, 0.f, 0.f); // wind, wind degrees, heat, dust (level <weather>)
 	weather.precip.rain = DEF_RAIN;
 	weather.precip.snowfall = DEF_SNOWFALL;
   
@@ -371,6 +407,11 @@ bool TriggerGame::loadLevel(const std::string &filename)
       
 			val = walk->Attribute("fogdensitysky");
 			if (val) weather.fog.density_sky = atof(val);
+			// Desert climate (amendment A3.4), presentation only.
+			if ((val = walk->Attribute("wind"))) desertClimate.x = std::clamp(static_cast<float>(atof(val)), 0.f, 1.f);
+			if ((val = walk->Attribute("winddegrees"))) desertClimate.y = static_cast<float>(atof(val));
+			if ((val = walk->Attribute("heat"))) desertClimate.z = std::clamp(static_cast<float>(atof(val)), 0.f, 1.f);
+			if ((val = walk->Attribute("dust"))) desertClimate.w = std::clamp(static_cast<float>(atof(val)), 0.f, 1.f);
       
 			val = walk->Attribute("rain");
 			if (val && app->cfg.getWeather()) weather.precip.rain = atof(val);
@@ -483,6 +524,7 @@ bool TriggerGame::loadLevel(const std::string &filename)
 		// checkpoints alone cut across corners.
 		auto traced = trackrs::dressing::traceRoad(route.front(), checkpoints, stage);
 		if (traced.size() > route.size()) route = std::move(traced);
+		drivingLine = route;
 		trackrs::dressing::Rules rules;
 		rules.density = trackrs::dressing::settings().enabled ? 1.0f : 0.0f;
 		auto people = trackrs::dressing::dressStage(route, stage, rules, trackrs::stageSeed(filename));
@@ -490,10 +532,69 @@ bool TriggerGame::loadLevel(const std::string &filename)
 		terrain->setPeople(std::move(people));
 	}
 
+	// Stage props and animals (amendment A3.5): <stage dir>/props.json, placed
+	// deterministically with the safety rules (never on or near the road).
+	// Its optional "tracks" array holds static camel/foot print trails (A3.3).
+	trackrs::terrain::tracks().beginStage();
+	{
+		const auto slash = filename.find_last_of('/');
+		const std::string propsFile = filename.substr(0, slash == std::string::npos ? 0 : slash) + "/props.json";
+		if (PHYSFS_exists(propsFile.c_str())) {
+			std::unique_ptr<PHYSFS_File, decltype(&PHYSFS_close)> f(PHYSFS_openRead(propsFile.c_str()), &PHYSFS_close);
+			const auto length = f ? PHYSFS_fileLength(f.get()) : -1;
+			std::string text(length > 0 ? static_cast<std::size_t>(length) : 0, '\0');
+			try {
+				if (length <= 0 || PHYSFS_readBytes(f.get(), text.data(), length) != length)
+					throw std::runtime_error("cannot read " + propsFile);
+				trackrs::dressing::PropQueries queries;
+				queries.height = [this](float x, float y) { return terrain->getHeight(x, y); };
+				queries.onRoad = [this](float x, float y) { return terrain->getRmapOnRoad(vec3f(x, y, 0)); };
+				trackrs::dressing::PropRules propRules;
+				trackrs::dressing::PlacementReport placement;
+				auto placed = trackrs::dressing::placeProps(text, queries, propRules, trackrs::stageSeed(filename) ^ 0x5052ULL, &placement);
+				PUtil::outLog() << "Stage props: " << placement.placed << " of " << placement.requested << " placed ("
+				                << placement.rejectedRoad << " too near the road, " << placement.rejectedSlope << " too steep)\n";
+				terrain->setProps(std::move(placed), placement);
+				const auto doc = nlohmann::json::parse(text);
+				const auto trails = trackrs::terrain::tracks().addStatic(doc, queries.height);
+				if (trails) PUtil::outLog() << "Stage print trails: " << trails << '\n';
+				// Optional sign atlas (M2): bilingual sign faces for sign_board props.
+				if (doc.contains("sign_atlas")) {
+					const auto atlasPath = doc.at("sign_atlas").get<std::string>();
+					std::unique_ptr<PHYSFS_File, decltype(&PHYSFS_close)> af(PHYSFS_openRead(atlasPath.c_str()), &PHYSFS_close);
+					const auto alen = af ? PHYSFS_fileLength(af.get()) : -1;
+					std::vector<unsigned char> bytes(alen > 0 ? static_cast<std::size_t>(alen) : 0);
+					if (alen <= 0 || PHYSFS_readBytes(af.get(), bytes.data(), alen) != alen)
+						throw std::runtime_error("cannot read sign atlas " + atlasPath);
+					std::unique_ptr<SDL_Surface, decltype(&SDL_FreeSurface)> raw(
+						IMG_Load_RW(SDL_RWFromConstMem(bytes.data(), static_cast<int>(bytes.size())), 1), &SDL_FreeSurface);
+					std::unique_ptr<SDL_Surface, decltype(&SDL_FreeSurface)> rgba(
+						raw ? SDL_ConvertSurfaceFormat(raw.get(), SDL_PIXELFORMAT_ABGR8888, 0) : nullptr, &SDL_FreeSurface);
+					if (!rgba) throw std::runtime_error("cannot decode sign atlas " + atlasPath);
+					std::vector<std::uint8_t> pixels(static_cast<std::size_t>(rgba->w) * static_cast<std::size_t>(rgba->h) * 4);
+					for (int row = 0; row < rgba->h; ++row)
+						std::memcpy(pixels.data() + static_cast<std::size_t>(row) * static_cast<std::size_t>(rgba->w) * 4,
+						            static_cast<const std::uint8_t*>(rgba->pixels) + static_cast<std::ptrdiff_t>(row) * rgba->pitch,
+						            static_cast<std::size_t>(rgba->w) * 4);
+					terrain->setSignAtlas(std::move(pixels), rgba->w, rgba->h);
+					PUtil::outLog() << "Stage sign atlas: " << atlasPath << '\n';
+				}
+			} catch (const std::exception &e) {
+				PUtil::outLog() << "Stage props ignored: " << e.what() << '\n';
+			}
+		}
+	}
+
 	// PBR surfaces/sky follow the stage weather unless the player chose a preset.
 	// Precipitation particles follow the preset too; both are presentation-only.
-	trackrs::world::setLevelWeather(trackrs::world::weatherFromLevel(
-		weather.precip.rain, weather.precip.snowfall, weather.fog.density));
+	{
+		auto levelWeather = trackrs::world::weatherFromLevel(weather.precip.rain, weather.precip.snowfall, weather.fog.density);
+		levelWeather.wind = desertClimate.x;
+		levelWeather.windDegrees = desertClimate.y;
+		levelWeather.heat = desertClimate.z;
+		levelWeather.dust = desertClimate.w;
+		trackrs::world::setLevelWeather(levelWeather);
+	}
 	const std::string &preset = trackrs::world::state().weatherName;
 	if (preset == "rain") { weather.precip.rain = 1500.0f; weather.precip.snowfall = 0.0f; }
 	else if (preset == "snow") { weather.precip.rain = 0.0f; weather.precip.snowfall = 900.0f; }

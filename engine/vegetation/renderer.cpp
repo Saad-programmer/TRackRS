@@ -137,6 +137,7 @@ struct Renderer::Impl {
 Renderer::Renderer(const std::filesystem::path &data) : impl_(std::make_unique<Impl>()) {
   auto &p = *impl_;
   p.catalog = Catalog::load(data / "vegetation/species.json");
+  p.catalog.merge(packSpecies()); // content-pack species for this stage
   auto valid = [](GLuint program) { return glGetUniformLocation(program, "uVegetationWind") >= 0; };
   p.shader = std::make_unique<rhi::ShaderProgram>(data / "shaders/pbr/vegetation.vert",
                                                   data / "shaders/pbr/pbr.frag", valid,

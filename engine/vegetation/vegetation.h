@@ -29,7 +29,7 @@
 #include <vector>
 namespace trackrs::vegetation {
 
-enum class Form : std::uint8_t { Card, Conifer, Broadleaf, Bush, Grass, Palm, Cactus };
+enum class Form : std::uint8_t { Card, Conifer, Broadleaf, Bush, Grass, Palm, Cactus, Acacia };
 constexpr unsigned MeshLods = 3; // LOD0..2 are meshes; LOD3 is the card impostor
 constexpr unsigned ImpostorLod = MeshLods;
 Form parseForm(std::string_view name);
@@ -43,6 +43,7 @@ struct Species {
   float translucency = 0.2f;  // back-lit transmission weight
   float roughness = 0.8f;
   float width = 0.8f;         // sprite content width / card width (silhouette match)
+  float deadFronds = 0.0f;    // palms: 0..1 skirt of hanging dead fronds (date palms)
 };
 
 /// Sprite basename -> species. Loaded from data/vegetation/species.json.
@@ -55,7 +56,14 @@ public:
   /// Unknown sprites map to Form::Card (legacy look preserved).
   Species lookup(std::string_view spritePath) const;
   const std::map<std::string, Species, std::less<>> &entries() const { return sprites_; }
+  /// Adds `other`'s sprites; existing (legacy) entries are never replaced.
+  void merge(const Catalog &other);
 };
+/// Content-pack species (e.g. data/packs/<id>/vegetation/species.json), merged
+/// into every Renderer created afterwards. Main thread; cleared per level.
+void addPackSpecies(std::string_view json);
+void clearPackSpecies();
+const Catalog &packSpecies();
 
 /// 24-byte interleaved vertex. normal = GL_INT_2_10_10_10_REV, colour = RGBA8
 /// (rgb linear albedo, a = ambient occlusion), uv = 2 x unorm16.

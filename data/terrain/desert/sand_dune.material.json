@@ -1,0 +1,7 @@
+{
+  "name": "sand_dune",
+  "albedo": "sand_dune-albedo.ktx2",
+  "normal": "sand_dune-normal.ktx2",
+  "orm": "sand_dune-orm.ktx2",
+  "atlas": false
+}

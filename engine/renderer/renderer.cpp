@@ -8,6 +8,7 @@
 #include "engine/car/car_renderer.h"
 #include "engine/render/basic.h"
 #include "engine/world/state.h"
+#include "engine/terrain/tracks.h"
 #include "terrainmap.h"
 #include "validation.h"
 #include <physfs.h>
@@ -93,7 +94,28 @@ trackrs::car::Surface surfaceOf(TerrainType t) {
     case TerrainType::MoistEarth: case TerrainType::Mud: return S::Mud;
     case TerrainType::FineGravel: case TerrainType::RoughGravel: return S::Gravel;
     case TerrainType::Grass: case TerrainType::Shrubbery: return S::Grass;
+    case TerrainType::SandDune: case TerrainType::FeshFesh: case TerrainType::HardSand: return S::Sand;
+    case TerrainType::HamadaStone: case TerrainType::OuedGravel: case TerrainType::Rock: return S::Gravel;
+    case TerrainType::DryLakeClay: case TerrainType::PalmeraieDirt: return S::Dirt;
+    case TerrainType::TarmacN9: return S::Tarmac;
     default: return S::Other;
+    }
+}
+/// How deep each surface takes a tyre (metres) and how much sand it pushes
+/// aside. Hard ground (rock, hamada stone, tarmac, ice) keeps no rut.
+trackrs::terrain::RutProfile rutOf(TerrainType t) {
+    switch (t) {
+    // Churned sand is darker than the wind-crusted surface (shade between
+    // grains, cooler damp sand underneath), hence darken < 1.
+    case TerrainType::FeshFesh: return {.10f, .04f, .72f};
+    case TerrainType::SandDune: case TerrainType::LooseSand: return {.08f, .035f, .76f};
+    case TerrainType::DeepSnow: return {.09f, .025f, .88f};
+    case TerrainType::HardSand: case TerrainType::FirmSand: return {.03f, .012f, .82f};
+    case TerrainType::Mud: return {.06f, .02f, .65f};
+    case TerrainType::MoistEarth: case TerrainType::PalmeraieDirt: case TerrainType::LooseEarth: return {.035f, .012f, .8f};
+    case TerrainType::DryLakeClay: case TerrainType::PressedEarth: return {.008f, .002f, .88f};
+    case TerrainType::OuedGravel: case TerrainType::FineGravel: return {.015f, .005f, .88f};
+    default: return {};
     }
 }
 trackrs::mesh::Bytes readVirtual(const std::string& path) {
@@ -132,6 +154,23 @@ void trackrs::Renderer::observeCar(const PVehicle& vehicle, TerrainType surface,
     in.dt = dt;
     in.surface = surfaceOf(surface);
     trackrs::car::observe(&vehicle, in);
+}
+
+void trackrs::Renderer::observeTracks(const PVehicle& vehicle, unsigned car, PTerrain& terrain)
+{
+    const auto& o = vehicle.body->getOrientationMatrix();
+    const glm::vec2 forward(o.row[0].y, o.row[1].y); // body +y in world
+    unsigned index = 0;
+    for (std::size_t j = 0; j < vehicle.part.size(); ++j)
+        for (std::size_t k = 0; k < vehicle.part[j].wheel.size(); ++k, ++index) {
+            const auto& wheel = vehicle.part[j].wheel[k];
+            const auto& type = vehicle.type->part[j].wheel[k];
+            const vec3f p = wheel.ref_world_lowest_point.getPosition();
+            const float ground = terrain.getHeight(p.x, p.y);
+            const bool contact = p.z - ground < .06f;
+            trackrs::terrain::tracks().observe(car * 64u + index, {p.x, p.y, ground}, forward,
+                std::max(.13f, type.radius * .5f), rutOf(terrain.getRoadSurface(p)), contact);
+        }
 }
 
 bool trackrs::Renderer::car(const PVehicle& vehicle, TerrainType surface, float time)

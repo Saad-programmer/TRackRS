@@ -1,0 +1,50 @@
+{
+ "schema": "trackrs.signs/1",
+ "cell": [
+  256,
+  128
+ ],
+ "grid": [
+  4,
+  2
+ ],
+ "faces": [
+  {
+   "face": 0,
+   "fr": "RALLYE SAHARA DRAÂ",
+   "ar": "رالي صحراء درعة",
+   "verified": false
+  },
+  {
+   "face": 1,
+   "fr": "DÉPART",
+   "ar": "الانطلاق",
+   "verified": false
+  },
+  {
+   "face": 2,
+   "fr": "ATTENTION COURSE",
+   "ar": "انتباه سباق",
+   "verified": false
+  },
+  {
+   "face": 3,
+   "fr": "ZAGORA 4 km",
+   "ar": "زاكورة 4 كلم",
+   "verified": false
+  },
+  {
+   "face": 4,
+   "fr": "ARRIVÉE",
+   "ar": "الوصول",
+   "verified": false
+  },
+  {
+   "face": 5,
+   "fr": "ZONE SPECTATEURS",
+   "ar": "منطقة المتفرجين",
+   "verified": false
+  }
+ ],
+ "note": "Fictional event signage. The Arabic text awaits human review (verified:false)."
+}

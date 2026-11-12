@@ -346,3 +346,76 @@ Decision:
   the route and all details on top are invented.
 * `verified` stays false until the maintainer confirms the source terms.
 * Copernicus stays an option once its licence can be read.
+
+## M1: the shadow pass owns its depth range
+
+Context: while tuning A3.6, cascade-0 visibility read 0 on every terrain
+fragment, on legacy stages as well as desert ones. The scene pass leaves
+`glDepthRange(0, .999)` set (the sky is drawn at the back), so the CSM pass
+stored every depth 0.1% closer to the light than its receivers. That is
+several bias widths in every cascade. Bright scenes made it obvious: the
+noon dry lake rendered blue-grey.
+Decision: `world::renderShadows` sets `glDepthRange(0, 1)` for the cascades
+and restores the caller's range on exit. Legacy-renderer pixels and hashes
+are untouched, because the pass only runs with PBR terrain and CSM on. In
+the PBR path, terrain under the sun is lit again, and shadows fall only
+behind real casters.
+
+## M1: persistent tracks are a visual-only overlay
+
+Context: amendment A3.3 says to "reuse the tyre-mark/rut system", but TrackRS
+has none. The legacy game only throws dirt particles.
+Decision:
+* `engine/terrain/tracks` is a pure-C++ ring of ground segments (32768,
+  about 2.3 MB) fed once per simulation tick from each wheel's contact. Rock,
+  hamada stone, tarmac and ice take no mark. Static camel and foot trails
+  come from the stage's `props.json` `"tracks"` array and are never
+  overwritten.
+* `tracks_renderer` draws the segments as ground ribbons. Their fragment
+  shader rebuilds the rut, lip and print relief and multiplies the already
+  lit terrain by the relief's shading ratio. Albedo is shared, so no material
+  lookup is needed, and the ribbons cost two draws. Only new ring slots are
+  uploaded.
+* Ruts are visual only. Neither physics nor the state hash reads them, so
+  legacy determinism is unaffected. Wheels following earlier ruts (rut
+  steering) are left for a later physics phase and recorded as not done.
+
+## M1: desert cascades reach further
+
+Context: A3.6 asks for CSM tuned for long views. Desert stages are seen to
+the horizon, with dunes and ksar walls kilometres away.
+Decision: when the level climate has heat haze (`heat > 0`), the cascade
+reach is ×1.6 (819 m medium, 1229 m high). The logarithmic split keeps the
+near cascade tight. Other stages keep 512 and 768 m.
+
+## M2: bilingual signs are baked text in an atlas
+
+Context: M2 needs bilingual (French/Arabic) signage, but the engine has no
+runtime text shaping for Arabic.
+Decision: `tools/bake_sahara_signs.py` shapes the text offline (PIL with
+raqm) from the OFL Noto fonts in `tools/fonts/`, and bakes a 4×2 atlas plus
+`signs.json` listing every text with `verified:false`. A `sign_board` prop in
+`props.json` picks a cell with `"face"`. The props renderer draws the face
+through the same lit PBR path, using the atlas as albedo. Runtime Arabic UI
+text is still M4 (A6, string tables and RTL).
+
+## M2: rally-raid cars are Car v2 placeholders in the pack
+
+Context: M2 needs two rally-raid cars, but there are no rally-raid models yet.
+Decision: `draa_raid_t1` and `erg_lite_t3` are `trackrs.car/2` definitions in
+`morocco-sahara/vehicles/`. Every figure is invented, `verified` is all
+false, and the provenance says so. They borrow the fictional legacy bodies
+`cordo_super500` and `fox_kitcar` as placeholder models, with fictional
+colour liveries. The game lists `car.json` files of enabled packs, and the
+harness accepts `--vehicle <pack>:<car>`. Long-travel suspension is not
+modelled, because the borrowed body keeps its legacy suspension (Phase 6).
+
+## M2: the cockpit camera draws a placeholder dashboard
+
+Context: the M2 gate asks for a cockpit capture showing the gauges, but no
+car has an interior model.
+Decision: `CameraMode::cockpit` places the eye at the left seat, rigid to the
+body. In that mode the HUD draws a screen-space dashboard: dash and
+binnacle, tachometer, speedometer, a steering-wheel rim that turns with the
+input, and a rally-raid tripmaster (distance and CAP heading). It is labelled
+a placeholder until car interiors exist.

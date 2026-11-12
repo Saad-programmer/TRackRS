@@ -1,8 +1,8 @@
 #include "engine/render/basic.h"
 #include "engine/core/lru_cache.h"
-namespace trackrs::terrain { class Renderer; }
+namespace trackrs::terrain { class Renderer; class TracksRenderer; }
 namespace trackrs::vegetation { class Renderer; }
-namespace trackrs::dressing { class Renderer; struct Person; }
+namespace trackrs::dressing { class Renderer; struct Person; class PropsRenderer; struct Prop; struct PlacementReport; }
 namespace trackrs::mesh { struct MeshData; }
 namespace trackrs::pbr { class Model; }
 #include "../../engine/core/pcg32.h"
@@ -560,6 +560,12 @@ protected:
   std::unique_ptr<trackrs::vegetation::Renderer> vegetationRenderer;
   std::unique_ptr<trackrs::dressing::Renderer> dressingRenderer;
   std::vector<trackrs::dressing::Person> people;
+  std::unique_ptr<trackrs::dressing::PropsRenderer> propsRenderer;
+  std::unique_ptr<trackrs::terrain::TracksRenderer> tracksRenderer;
+  std::vector<trackrs::dressing::Prop> props;
+  std::unique_ptr<trackrs::dressing::PlacementReport> propsPlacement;
+  std::vector<std::uint8_t> signAtlas;
+  int signAtlasWidth = 0, signAtlasHeight = 0;
 
   // tiles share index buffers
   PVBuffer ind;
@@ -587,6 +593,10 @@ public:
   const std::vector<PTerrainFoliage> *getFoliageAtPos(const vec3f &pos) const;
   /// Visual-only stage dressing (spectators, crews). Never used by physics.
   void setPeople(std::vector<trackrs::dressing::Person> people);
+  /// Visual-only stage props and animals (amendment A3.5). Never used by physics.
+  void setProps(std::vector<trackrs::dressing::Prop> placed, const trackrs::dressing::PlacementReport &report);
+  /// RGBA8 sign atlas for sign_board faces (M2); applied to the props renderer.
+  void setSignAtlas(std::vector<std::uint8_t> rgba, int width, int height);
 
   struct ContactInfo {
     vec3f pos;

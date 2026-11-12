@@ -1,0 +1,97 @@
+{
+  "schema": "trackrs.car/2",
+  "id": "erg_lite_t3",
+  "display_name": "Erg Lite T3",
+  "marque": "Rallye Sahara Draa (fictional)",
+  "year": 2026,
+  "class": "Lightweight rally-raid prototype T3 (fictional)",
+  "era": "fictional",
+  "license": {
+    "data": "GPL-2.0-or-later",
+    "model": "",
+    "author": "TrackRS contributors",
+    "source_url": "",
+    "trademark_notice": ""
+  },
+  "verified": {
+    "mass": false,
+    "engine": false,
+    "gearbox": false,
+    "tyres": false,
+    "aero": false,
+    "brakes": false
+  },
+  "sources": [],
+  "provenance": "Fictional car for the M2 vertical slice: every figure is an invented, plausible value for its class, not data of any real vehicle. Placeholder model (borrowed fictional legacy body).",
+  "body": {
+    "mesh": "",
+    "fallback": "fox_kitcar",
+    "import_scale": 1.0,
+    "unit": "m"
+  },
+  "mass": {
+    "kerb_kg": 950,
+    "front_weight_dist": 0.4
+  },
+  "engine": {
+    "layout": "1.0 three-cylinder turbo mid-mounted",
+    "idle_rpm": 1100,
+    "redline_rpm": 8000,
+    "torque_curve_nm": [
+      [
+        1000,
+        90.0
+      ],
+      [
+        3000,
+        160.0
+      ],
+      [
+        5000,
+        190.0
+      ],
+      [
+        7000,
+        170.0
+      ],
+      [
+        8000,
+        150.0
+      ]
+    ]
+  },
+  "drivetrain": {
+    "layout": "AWD",
+    "front_torque_share": 0.35,
+    "gearbox": {
+      "ratios": [
+        3.0,
+        2.1,
+        1.55,
+        1.2,
+        0.98
+      ],
+      "final_drive": 4.6,
+      "reverse": 3.0,
+      "shift_time_s": 0.15,
+      "derivation": "synthetic: spaced for a restricted rally-raid top speed with long gearing for open desert"
+    }
+  },
+  "tyres": {
+    "radius_m": 0.38,
+    "width_m": 0.23
+  },
+  "aero": {
+    "cd": 0.5,
+    "frontal_area_m2": 1.9,
+    "cl_front": 0.0,
+    "cl_rear": 0.0
+  },
+  "brakes": {
+    "bias_front": 0.55
+  },
+  "claims": {
+    "top_speed_kmh": 150,
+    "zero_to_100_s": 0
+  }
+}

@@ -11,8 +11,8 @@
 namespace trackrs::vegetation {
 namespace {
 constexpr float Pi = 3.14159265358979f;
-constexpr std::array<std::string_view, 7> FormNames = {
-    "card", "conifer", "broadleaf", "bush", "grass", "palm", "cactus"};
+constexpr std::array<std::string_view, 8> FormNames = {
+    "card", "conifer", "broadleaf", "bush", "grass", "palm", "cactus", "acacia"};
 
 float srgbToLinear(float c) {
   return c <= 0.04045f ? c / 12.92f : std::pow((c + 0.055f) / 1.055f, 2.4f);
@@ -157,13 +157,14 @@ struct Builder {
     tri(a, b, c);
   }
   // Arching palm frond as a two-sided quad strip.
-  void frond(glm::vec3 crown, float yaw, float length, unsigned segments, glm::vec3 colour) {
+  void frond(glm::vec3 crown, float yaw, float length, unsigned segments, glm::vec3 colour, float droop = 0.3f,
+             float width = 1.0f) {
     const glm::vec3 out(std::cos(yaw), std::sin(yaw), 0), side(-out.y, out.x, 0);
     std::uint16_t previous[2] = {0, 0};
     for (unsigned i = 0; i <= segments; ++i) {
       const float s = static_cast<float>(i) / static_cast<float>(segments);
-      const glm::vec3 p = crown + out * (s * length) + glm::vec3(0, 0, 0.08f * std::sin(Pi * s * 0.8f) - 0.3f * s * s);
-      const float halfWidth = 0.11f * std::sin(Pi * std::min(0.1f + 0.9f * s, 1.0f)) + 0.012f;
+      const glm::vec3 p = crown + out * (s * length) + glm::vec3(0, 0, 0.08f * std::sin(Pi * s * 0.8f) - droop * s * s);
+      const float halfWidth = width * (0.11f * std::sin(Pi * std::min(0.1f + 0.9f * s, 1.0f)) + 0.012f);
       const glm::vec3 n = glm::normalize(glm::vec3(0, 0, 1) + out * (0.4f * s));
       const auto l = vertex(p - side * halfWidth, n, colour * (0.85f + 0.2f * s), 0.75f + 0.25f * s);
       const auto r = vertex(p + side * halfWidth, n, colour * (0.85f + 0.2f * s), 0.75f + 0.25f * s);
@@ -244,6 +245,26 @@ void palm(Builder &g, const Species &s, unsigned lod) {
   for (unsigned k = 0; k < Fronds[lod]; ++k)
     g.frond(crown, phase + 2 * Pi * static_cast<float>(k) / static_cast<float>(Fronds[lod]),
             0.44f + 0.08f * g.rng.unit(), Steps[lod], s.foliage * (0.85f + 0.25f * g.rng.unit()));
+  // Date palms keep a skirt of dead fronds hanging against the trunk.
+  if (s.deadFronds > 0.0f && lod < 2) {
+    const auto dead = static_cast<unsigned>(std::round(s.deadFronds * static_cast<float>(Fronds[lod])));
+    // Narrow, dark, hanging close to the trunk (a skirt, not a curtain).
+    const glm::vec3 straw(0.13f, 0.08f, 0.04f);
+    for (unsigned k = 0; k < dead; ++k)
+      g.frond(crown - glm::vec3(0, 0, 0.02f), phase + 2 * Pi * (static_cast<float>(k) + 0.5f) / static_cast<float>(dead),
+              0.15f + 0.03f * g.rng.unit(), Steps[lod], straw * (0.8f + 0.3f * g.rng.unit()), 1.6f, 0.3f);
+  }
+}
+// Umbrella thorn tree: forked thin trunk, wide flat crown (Saharan acacia).
+void acacia(Builder &g, const Species &s, unsigned lod) {
+  constexpr std::array<unsigned, MeshLods> Slices = {10, 7, 5}, Stacks = {4, 3, 3}, Trunk = {5, 4, 3};
+  g.tube({0, 0, 0}, {0.01f, 0, 0.34f}, 0.035f, 0.026f, Trunk[lod], s.bark, 0.5f, 0.7f);
+  if (lod < 2)
+    for (float side : {-1.f, 1.f})
+      g.tube({0.01f, 0, 0.32f}, {0.2f * side, 0.06f * side, 0.62f}, 0.02f, 0.012f, Trunk[lod] - 1, s.bark, 0.6f, 0.8f);
+  g.blob({0, 0, 0.68f}, glm::vec3(0.56f, 0.5f, 0.1f), Slices[lod], Stacks[lod], s.foliage);
+  if (lod == 0)
+    g.blob({0.22f, 0.08f, 0.64f}, glm::vec3(0.3f, 0.26f, 0.07f), 7, 3, s.foliage * 0.92f);
 }
 void cactus(Builder &g, const Species &s, unsigned lod) {
   constexpr std::array<unsigned, MeshLods> Segments = {8, 6, 5};
@@ -298,10 +319,27 @@ Catalog Catalog::parse(std::string_view text) {
                                                                  : 0.55f;
     s.translucency = s.form == Form::Cactus ? 0.0f : s.form == Form::Grass ? 0.35f : 0.22f;
     s.roughness = s.form == Form::Cactus ? 0.6f : 0.82f;
+    s.deadFronds = std::clamp(entry.value("dead_fronds", 0.0f), 0.0f, 1.0f);
+    if (s.form == Form::Acacia)
+      s.flex = 0.35f;
     catalog.sprites_.emplace(name, s);
   }
   return catalog;
 }
+void Catalog::merge(const Catalog &other) {
+  for (const auto &[name, s] : other.sprites_)
+    sprites_.emplace(name, s); // emplace never replaces an existing entry
+}
+namespace {
+Catalog &packCatalog() {
+  static Catalog value;
+  return value;
+}
+} // namespace
+void addPackSpecies(std::string_view json) { packCatalog().merge(Catalog::parse(json)); }
+void clearPackSpecies() { packCatalog() = Catalog{}; }
+const Catalog &packSpecies() { return packCatalog(); }
+
 Species Catalog::lookup(std::string_view path) const {
   const auto slash = path.find_last_of("/\\");
   const auto name = slash == std::string_view::npos ? path : path.substr(slash + 1);
@@ -334,10 +372,13 @@ Mesh buildMesh(const Species &species, unsigned lod, std::uint64_t seed) {
   case Form::Cactus:
     cactus(g, species, lod);
     break;
+  case Form::Acacia:
+    acacia(g, species, lod);
+    break;
   }
   // Match the sprite silhouette width (bounded so forms keep their character).
   // Normals of an xy-scaled surface scale by the inverse factor.
-  constexpr std::array<float, 7> Nominal = {0.5f, 0.42f, 0.45f, 0.5f, 0.4f, 0.48f, 0.3f};
+  constexpr std::array<float, 8> Nominal = {0.5f, 0.42f, 0.45f, 0.5f, 0.4f, 0.48f, 0.3f, 0.56f};
   const float scale = std::clamp(0.5f * species.width / Nominal[static_cast<std::size_t>(species.form)], 0.6f, 1.4f);
   for (auto &v : g.mesh.vertices) {
     v.position[0] *= scale;

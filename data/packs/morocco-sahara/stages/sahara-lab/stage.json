@@ -1,0 +1,29 @@
+{
+  "schema": "trackrs.stage/1",
+  "id": "sahara-lab",
+  "name": "Sahara Lab (test)",
+  "region": "procedural test terrain (not a real place)",
+  "description": "procedural test terrain: every desert surface, dunes, props and animals",
+  "level": "sahara-lab.level",
+  "stage_seed": 20261,
+  "geographic_fidelity": "procedural",
+  "length_km": 6.429,
+  "surfaces": [
+    "DryLakeClay",
+    "FeshFesh",
+    "HamadaStone",
+    "HardSand",
+    "OuedGravel",
+    "PalmeraieDirt",
+    "Rock",
+    "SandDune"
+  ],
+  "times_of_day": [
+    "dawn",
+    "noon",
+    "golden-hour",
+    "night"
+  ],
+  "terrain_source": "procedural: ridged noise, barchan/star/linear dune fields, eroded wadis",
+  "test_only": true
+}

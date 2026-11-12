@@ -1,0 +1,7 @@
+{
+  "name": "palmeraie_dirt",
+  "albedo": "palmeraie_dirt-albedo.ktx2",
+  "normal": "palmeraie_dirt-normal.ktx2",
+  "orm": "palmeraie_dirt-orm.ktx2",
+  "atlas": false
+}

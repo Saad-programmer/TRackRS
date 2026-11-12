@@ -18,6 +18,9 @@ struct Options {
     unsigned frames = 1500, seed = 1000, width = 640, height = 480;
     std::string packRoot;    ///< extra directory mounted at /packs (tests)
     unsigned renderFrom = 0; ///< simulate ticks [0, renderFrom) without rendering (long runs)
+    float autopilotKmh = 0;  ///< > 0: follow the traced road at this speed (deterministic)
+    unsigned brakeFrom = 0;  ///< > 0: full foot brake, no throttle, from this tick
+    std::string camera;      ///< chase (default), bumper, side, hood, periscope or cockpit
     std::string stage = "/maps/ahead/ahead.level", vehicle = "cordo_kitcar";
     std::string replay, dump, json, screenshot, data, renderer, quality, timeOfDay, shadows, vegetation, weather, post, crowd, cars, aa, telemetry;
 };

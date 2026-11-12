@@ -16,7 +16,7 @@
 		terrainmap="t.png"
 		tilesize="64"
 		horizontalscale="4"
-		verticalscale="0.058835"
+		verticalscale="0.059027"
 		>
 		<blurfilter>
 			<row data="0.0625 0.0625 0.0625 0.0625" />
@@ -27,7 +27,7 @@
 		<foliageband middle="0.5" range="0.5" density="2e-05" sprite="/textures/veg/dry-slim-bush1.png" spritecount="2" scale="2" />
 	</terrain>
 	<weather
-		cloudtexture="/textures/sky/light-coluds.jpg"
+		cloudtexture="/textures/sky/light-clouds.jpg"
 		cloudscrollrate="0"
 		fogcolor="0.86, 0.8, 0.7"
 		fogdensity="0.0006"

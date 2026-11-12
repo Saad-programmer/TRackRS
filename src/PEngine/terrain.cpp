@@ -6,8 +6,10 @@
 #include "pengine.h"
 #include "../../engine/core/wrap.h"
 #include "engine/terrain/renderer.h"
+#include "engine/terrain/tracks_renderer.h"
 #include "engine/vegetation/renderer.h"
 #include "engine/dressing/renderer.h"
+#include "engine/dressing/props_renderer.h"
 #include "engine/world/state.h"
 #include "engine/pbr/renderer.h"
 #include <glm/gtc/type_ptr.hpp>
@@ -764,6 +766,16 @@ void PTerrain::ensureWorldRenderer() {
         case TerrainType::Ice: layer=6;break;
         case TerrainType::Mud: layer=7;break;
         case TerrainType::DeepWater: layer=8;break;
+        // Desert set (amendment A3.1): array layers 9..17, data/terrain/desert.
+        case TerrainType::SandDune: layer=9;break;
+        case TerrainType::FeshFesh: layer=10;break;
+        case TerrainType::HardSand: layer=11;break;
+        case TerrainType::HamadaStone: layer=12;break;
+        case TerrainType::OuedGravel: layer=13;break;
+        case TerrainType::DryLakeClay: layer=14;break;
+        case TerrainType::PalmeraieDirt: layer=15;break;
+        case TerrainType::Rock: layer=16;break;
+        case TerrainType::TarmacN9: layer=17;break;
         default: {
           auto colour=getCmapColor(vec3f(static_cast<float>(x)*getMapSize()/dimension,static_cast<float>(y)*getMapSize()/dimension,0));
           if(colour.x>.7f&&colour.y>.7f&&colour.z>.7f)layer=5;
@@ -777,6 +789,21 @@ void PTerrain::ensureWorldRenderer() {
       auto data=trackrs::pbr::shaderDirectory().parent_path().parent_path();
       worldRenderer=std::make_unique<trackrs::terrain::Renderer>(hmap,static_cast<unsigned>(totsize),scale_hz,types,dimension,data);
     
+}
+
+void PTerrain::setProps(std::vector<trackrs::dressing::Prop> placed, const trackrs::dressing::PlacementReport &report)
+{
+  props = std::move(placed);
+  propsPlacement = std::make_unique<trackrs::dressing::PlacementReport>(report);
+  propsRenderer.reset(); // rebuilt lazily on the GL thread with the new set
+}
+
+void PTerrain::setSignAtlas(std::vector<std::uint8_t> rgba, int width, int height)
+{
+  signAtlas = std::move(rgba);
+  signAtlasWidth = width;
+  signAtlasHeight = height;
+  propsRenderer.reset();
 }
 
 void PTerrain::setPeople(std::vector<trackrs::dressing::Person> placed)
@@ -836,6 +863,14 @@ void PTerrain::render(const vec3f &campos, const mat44f &camorim, bool reflectio
     trackrs::draw::disable(trackrs::draw::GenerateS);
     trackrs::draw::disable(trackrs::draw::GenerateT);
     PVBuffer::unbind();
+    // Persistent ruts and print trails (amendment A3.3), multiplied over the
+    // lit ground before vegetation and props cover it.
+    if(!trackrs::world::state().depthPass&&!reflectionCapture) {
+      validation::PassScope tracksTiming("tracks");
+      if(!tracksRenderer)
+        tracksRenderer=std::make_unique<trackrs::terrain::TracksRenderer>(trackrs::pbr::shaderDirectory().parent_path().parent_path(),[this](float x,float y){return getHeight(x,y);});
+      tracksRenderer->draw(trackrs::terrain::tracks(),{campos.x,campos.y,campos.z},projection*view); // counts its draws
+    }
     // Keep every nearby tile resident for CPU foliage contacts, but submit only
     // visible ones. Foliage is either native instanced 3D vegetation or the
     // retained legacy cards (graphics.vegetation).
@@ -874,6 +909,16 @@ void PTerrain::render(const vec3f &campos, const mat44f &camorim, bool reflectio
       }
       const auto pass=trackrs::world::state().depthPass?trackrs::vegetation::Pass::Shadow:trackrs::vegetation::Pass::Main;
       dressingRenderer->draw({campos.x,campos.y,campos.z},projection*view,pass,trackrs::terrain::settings().quality,trackrs::world::state().linearCapture);
+    }
+    if(!props.empty()&&!reflectionCapture) {
+      validation::PassScope propsTiming(trackrs::world::state().depthPass ? "shadow_props" : "props");
+      if(!propsRenderer) {
+        propsRenderer=std::make_unique<trackrs::dressing::PropsRenderer>(trackrs::pbr::shaderDirectory().parent_path().parent_path());
+        propsRenderer->setProps(props,[this](float x,float y){return getHeight(x,y);},propsPlacement?*propsPlacement:trackrs::dressing::PlacementReport{});
+        if(!signAtlas.empty()) propsRenderer->setSignAtlas(signAtlas,signAtlasWidth,signAtlasHeight);
+      }
+      const auto pass=trackrs::world::state().depthPass?trackrs::vegetation::Pass::Shadow:trackrs::vegetation::Pass::Main;
+      propsRenderer->draw({campos.x,campos.y,campos.z},projection*view,pass,trackrs::terrain::settings().quality,trackrs::world::state().linearCapture,trackrs::dressing::frameTime());
     }
   } else {
   // Draw terrain

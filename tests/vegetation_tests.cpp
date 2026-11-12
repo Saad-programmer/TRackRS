@@ -19,8 +19,8 @@ Species species(Form form) {
   s.form = form;
   return s;
 }
-constexpr std::array<Form, 6> MeshForms = {Form::Conifer, Form::Broadleaf, Form::Bush,
-                                           Form::Grass,   Form::Palm,      Form::Cactus};
+constexpr std::array<Form, 7> MeshForms = {Form::Conifer, Form::Broadleaf, Form::Bush,
+                                           Form::Grass,   Form::Palm,      Form::Cactus, Form::Acacia};
 } // namespace
 
 TEST_CASE("every shipped vegetation sprite has a licensed catalog entry") {
@@ -201,4 +201,30 @@ TEST_CASE("classifier culls, buckets and fades without changing plant data") {
     CHECK(c.bucket(0, lod).empty());
   CHECK(!c.bucket(0, ImpostorLod).empty());
   CHECK_THROWS(c.add(3, Form::Bush, plants.data(), 1, sizeof(Legacy)));
+}
+
+TEST_CASE("desert species: date-palm dead fronds, acacia, pack species merge") {
+  Species palm;
+  palm.form = Form::Palm;
+  const auto bare = buildMesh(palm, 0, 7);
+  palm.deadFronds = 0.5f;
+  const auto skirted = buildMesh(palm, 0, 7);
+  CHECK(skirted.indices.size() > bare.indices.size());
+  CHECK(buildMesh(palm, 2, 7).indices.size() == [&] { Species p = palm; p.deadFronds = 0; return buildMesh(p, 2, 7).indices.size(); }());
+  Species acacia;
+  acacia.form = Form::Acacia;
+  for (unsigned lod = 0; lod < MeshLods; ++lod)
+    CHECK_FALSE(buildMesh(acacia, lod, 3).indices.empty());
+  CHECK(parseForm("acacia") == Form::Acacia);
+  clearPackSpecies();
+  addPackSpecies(R"({"schema":"trackrs.vegetation/1","license":"GPL-2.0-or-later","sprites":{
+      "sahara-date-palm.png":{"form":"palm","foliage":"#4f6a2a","bark":"#6b5a44","width":0.7,"dead_fronds":0.6},
+      "grass.png":{"form":"cactus","foliage":"#000000"}}})");
+  CHECK(packSpecies().lookup("/packs/x/sahara-date-palm.png").deadFronds == doctest::Approx(0.6f));
+  auto base = Catalog::parse(R"({"schema":"trackrs.vegetation/1","license":"x","sprites":{"grass.png":{"form":"grass","foliage":"#00ff00"}}})");
+  base.merge(packSpecies());
+  CHECK(base.lookup("grass.png").form == Form::Grass);       // a pack never overrides a legacy sprite
+  CHECK(base.lookup("sahara-date-palm.png").form == Form::Palm);
+  clearPackSpecies();
+  CHECK(packSpecies().entries().empty());
 }

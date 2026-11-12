@@ -1,0 +1,27 @@
+{
+  "schema": "trackrs.stage/1",
+  "id": "zagora-prologue",
+  "name": "Zagora Prologue",
+  "region": "near Zagora, Draa valley, Morocco: SRTM-derived terrain; route, surfaces and dressing invented",
+  "description": "Fictional prologue near Zagora: palmeraie start, oued crossing, hamada run under the hill, dune finish",
+  "level": "zagora-prologue.level",
+  "stage_seed": 20262,
+  "geographic_fidelity": "derived",
+  "length_km": 4.314,
+  "surfaces": [
+    "HamadaStone",
+    "HardSand",
+    "OuedGravel",
+    "PalmeraieDirt",
+    "Rock",
+    "SandDune"
+  ],
+  "times_of_day": [
+    "dawn",
+    "noon",
+    "golden-hour",
+    "night"
+  ],
+  "terrain_source": "SRTM via Tilezen terrarium tiles (zoom 13), see tools/stage_specs/dem/zagora/provenance.json; elevation above 740 m compressed x0.15 for the 8-bit heightmap",
+  "test_only": false
+}

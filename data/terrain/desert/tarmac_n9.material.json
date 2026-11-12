@@ -1,0 +1,7 @@
+{
+  "name": "tarmac_n9",
+  "albedo": "tarmac_n9-albedo.ktx2",
+  "normal": "tarmac_n9-normal.ktx2",
+  "orm": "tarmac_n9-orm.ktx2",
+  "atlas": false
+}

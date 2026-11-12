@@ -1,0 +1,7 @@
+{
+  "name": "dry_lake_clay",
+  "albedo": "dry_lake_clay-albedo.ktx2",
+  "normal": "dry_lake_clay-normal.ktx2",
+  "orm": "dry_lake_clay-orm.ktx2",
+  "atlas": false
+}

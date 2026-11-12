@@ -1,9 +1,11 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 #define DOCTEST_CONFIG_IMPLEMENT_WITH_MAIN
 #include "engine/dressing/people.h"
+#include "engine/dressing/props.h"
 #include "engine/mesh/vertex_layout.h"
 #include "vendor/doctest/doctest.h"
 #include <cmath>
+#include <set>
 using namespace trackrs::dressing;
 namespace {
 // Straight start, a 180-degree hairpin, a return leg 30 m away, then an S bend.
@@ -191,4 +193,93 @@ TEST_CASE("the road tracer follows the roadmap between sparse checkpoints") {
   for (const auto &p : hybrid)
     farthest = std::max(farthest, glm::length(glm::vec2(p)));
   CHECK(farthest < 560.f);
+}
+
+// ---- Saharan props and animals (amendment A3.5) ----------------------------
+TEST_CASE("every prop kind builds three non-empty, finite LODs") {
+  using namespace trackrs::dressing;
+  for (unsigned k = 0; k < PropKindCount; ++k) {
+    const auto kind = static_cast<PropKind>(k);
+    CAPTURE(propName(kind));
+    CHECK(parsePropKind(propName(kind)) == kind);
+    std::size_t previous = ~std::size_t{0};
+    for (unsigned lod = 0; lod < PropLods; ++lod) {
+      const auto mesh = buildProp(kind, lod);
+      REQUIRE_FALSE(mesh.indices.empty());
+      CHECK(mesh.indices.size() <= previous); // coarser LODs never grow
+      previous = mesh.indices.size();
+      for (const auto &v : mesh.vertices)
+        for (float c : v.position)
+          CHECK(std::isfinite(c));
+    }
+  }
+  // Animals tag their four legs for the walk cycle.
+  std::set<std::uint16_t> legs;
+  for (const auto &v : buildProp(PropKind::Camel, 0).vertices)
+    if (v.uv[0])
+      legs.insert(v.uv[0]);
+  CHECK(legs.size() == 4);
+  CHECK_THROWS(parsePropKind("pyramid"));
+}
+
+TEST_CASE("prop placement is deterministic and never on or near the road") {
+  using namespace trackrs::dressing;
+  // A straight east-west road along y = 0 (|y| < 4 m), gentle terrain.
+  PropQueries q;
+  q.height = [](float x, float y) { return 0.01f * x + 0.02f * std::sin(y * 0.1f); };
+  q.onRoad = [](float, float y) { return std::abs(y) < 4.f; };
+  const char *json = R"({"schema":"trackrs.props/1",
+    "props":[{"kind":"mud_house","x":0,"y":3},{"kind":"well","x":20,"y":40},{"kind":"start_arch","x":0,"y":0}],
+    "herds":[{"kind":"camel","x":50,"y":30,"radius":20,"count":8},{"kind":"goat","x":-40,"y":-25,"radius":10,"count":10}],
+    "ksar":[{"x":0,"y":80,"width":40,"depth":30,"gate_side":0}],
+    "line":[{"kind":"power_pole","from":[-100,20],"to":[100,20],"spacing":40}],
+    "scatter":[{"kind":"khaima","x":-60,"y":60,"radius":30,"count":4}]})";
+  PlacementReport a, b;
+  const auto first = placeProps(json, q, PropRules{}, 42, &a);
+  const auto second = placeProps(json, q, PropRules{}, 42, &b);
+  CHECK(a.hash == b.hash);
+  CHECK(first.size() == second.size());
+  PlacementReport c;
+  placeProps(json, q, PropRules{}, 43, &c);
+  CHECK(c.hash != a.hash);                       // the seed matters
+  CHECK(a.requested == a.placed + a.rejectedRoad + a.rejectedSlope);
+  CHECK(a.rejectedRoad >= 1);                    // the house at y = 3 is refused
+  bool arch = false;
+  for (const auto &p : first) {
+    if (spansRoad(p.kind)) {
+      arch = true;
+      continue;
+    }
+    const float reach = propRadius(p.kind) * p.scale + PropRules{}.roadMargin;
+    CHECK(std::abs(p.position.y) - reach >= 4.f - 1e-3f); // clearance from the road edge
+  }
+  CHECK(arch);                                   // the start arch may span the road
+  std::size_t towers = 0, gates = 0, camels = 0;
+  for (const auto &p : first) {
+    towers += p.kind == PropKind::KsarTower;
+    gates += p.kind == PropKind::KsarGate;
+    camels += p.kind == PropKind::Camel;
+  }
+  CHECK(towers == 4);
+  CHECK(gates == 1);
+  CHECK(camels == 8);
+  CHECK_THROWS(placeProps(R"({"schema":"other"})", q, PropRules{}, 1));
+}
+
+TEST_CASE("animals graze back and forth deterministically; buildings stay put") {
+  using namespace trackrs::dressing;
+  Prop camel;
+  camel.kind = PropKind::Camel;
+  camel.position = {10, 10, 0};
+  camel.wander = {1, 0};
+  auto flat = [](float, float) { return 2.f; };
+  const auto p0 = animateProp(camel, 0.f, flat), p1 = animateProp(camel, 30.f, flat);
+  CHECK(glm::length(glm::vec2(p0.position - p1.position)) > 0.5f);
+  CHECK(glm::length(glm::vec2(p1.position) - glm::vec2(10, 10)) <= 6.01f);
+  CHECK(p1.position.z == doctest::Approx(2.f));
+  CHECK(animateProp(camel, 30.f, flat).yaw == p1.yaw);
+  Prop house;
+  house.kind = PropKind::MudHouse;
+  house.position = {5, 5, 1};
+  CHECK(animateProp(house, 99.f, flat).position == house.position);
 }

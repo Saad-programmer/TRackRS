@@ -3,7 +3,7 @@
 /** Renderer consumes borrowed immutable vehicle snapshots. No world ownership.
  * Main GL thread only; all resources must outlive each call. No frame allocations.
  */
-class PApp; class PVehicle; class PVehicleType; struct PVehiclePart; struct PVehicleTypePart;
+class PApp; class PTerrain; class PVehicle; class PVehicleType; struct PVehiclePart; struct PVehicleTypePart;
 enum class TerrainType;
 namespace trackrs {
 class Renderer {
@@ -18,5 +18,8 @@ public:
     /// Feeds one simulation step of the vehicle's state (speed, brake,
     /// surface) to the car renderer's wear model (dust, mud, brake heat).
     static void observeCar(const PVehicle& vehicle, TerrainType surface, float dt);
+    /// Feeds one simulation step of every wheel contact to the persistent
+    /// ground tracks (amendment A3.3). Visual only; `car` numbers the trails.
+    static void observeTracks(const PVehicle& vehicle, unsigned car, PTerrain& terrain);
 };
 }

@@ -13,10 +13,16 @@ struct Weather {
   float snow = 0;       // accumulation on upward-facing surfaces
   float overcast = 0;   // cloud cover: dims the direct beam, greys the sky
   float fogDensity = .003f;
+  // Desert climate (amendment A3.4; level <weather wind winddegrees heat dust>).
+  float wind = 0;       // 0..1 strength (ripples, dust drift, blowing sand)
+  float windDegrees = 60; // direction the wind blows towards, degrees from +x
+  float heat = 0;       // 0..1 heat haze and mirage strength
+  float dust = 0;       // 0..1 airborne sand (chergui): orange grade, visibility
 };
 /// Level <weather> attributes (legacy units: drops/s, flakes/s, GL_EXP density).
 Weather weatherFromLevel(float rain, float snowfall, float legacyFogDensity);
-/// "level" returns `level`; otherwise clear, rain, snow or fog.
+/// "level" returns `level`; otherwise clear, rain, snow, fog or chergui (a
+/// sandstorm). Presets keep the level's wind direction and heat climate.
 Weather weatherPreset(std::string_view name, const Weather &level);
 bool validWeatherName(std::string_view name);
 struct Settings {

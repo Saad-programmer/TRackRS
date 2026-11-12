@@ -83,6 +83,7 @@ enum class CameraMode{
 	side,
 	hood,
 	periscope,
+	cockpit,   // driver's eye inside the cabin, with the dashboard gauges
 	// disabled
 	//piggyback,
 	count
@@ -128,6 +129,7 @@ private:
 	/// Mandatory and co-driver checkpoints in document (driving) order; only
 	/// used to guide stage dressing, never by the race rules or physics.
 	std::vector<vec3f> routepoints;
+	std::vector<glm::vec3> drivingLine; ///< road centreline traced on the roadmap (validation autopilot, dressing)
 
 	int number_of_laps = 1;
 
@@ -268,6 +270,10 @@ struct TriggerEvent {
 
 class DirtParticleSystem : public PParticleSystem {
 public:
+	/// Desert climate (amendment A3.4): plumes hang and drift downwind with
+	/// `wind` (m/s, world xy) instead of settling; legacy stages keep zero.
+	vec3f wind = vec3f::zero();
+	float settle = 25.0f;
 
 	void tick(float delta)
 	{
@@ -275,7 +281,7 @@ public:
 
 		for (unsigned int i=0; i<part.size(); i++)
 		{
-			PULLTOWARD(part[i].linvel, vec3f::zero(), delta * 25.0f);
+			PULLTOWARD(part[i].linvel, wind, delta * settle);
 		}
 	}
 };
@@ -543,6 +549,8 @@ public:
 	void renderDamageIndicator(
 	    const PTexture *texture, float posx, float posy, float scalex, float scaley, float damage);
 	void renderDamageIndicatorGroup();
+	void renderCockpitDash();   ///< M2: placeholder dashboard for CameraMode::cockpit
+	float tripMetres = 0;       ///< rally-raid tripmaster (simulation ticks)
 
 	void keyEvent(const SDL_KeyboardEvent &ke);
 	void mouseMoveEvent(int dx, int dy);
@@ -553,6 +561,9 @@ public:
 
 	float getCtrlActionBackValue();
 	int getVehicleCurrentGear();
+
+    /// M0/M2: validated content packs (enabled packs contribute stages and cars).
+    const trackrs::content::Catalog &getPackCatalog() const { return packCatalog; }
 
     std::unordered_map<std::string, PAudioSample *> getCodriverWords() const
     {

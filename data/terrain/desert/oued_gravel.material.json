@@ -1,0 +1,7 @@
+{
+  "name": "oued_gravel",
+  "albedo": "oued_gravel-albedo.ktx2",
+  "normal": "oued_gravel-normal.ktx2",
+  "orm": "oued_gravel-orm.ktx2",
+  "atlas": false
+}

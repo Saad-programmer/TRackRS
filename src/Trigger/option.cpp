@@ -40,7 +40,7 @@ POption::POption(Gui &parent, PConfig &config) :
   options.push_back({ OptionCars, "Car renderer (PBR)", { "Off", "On" }, 1 });
   options.push_back({ OptionPostProcessing, "Post FX (PBR)", { "Off", "On" }, 1 });
   options.push_back({ OptionTemporalAA, "Anti-aliasing (PBR)", { "Off", "TAA" }, 1 });
-  options.push_back({ OptionWeatherPreset, "Weather (PBR)", { "Stage", "Clear", "Rain", "Snow", "Fog" }, 0 });
+  options.push_back({ OptionWeatherPreset, "Weather (PBR)", { "Stage", "Clear", "Rain", "Snow", "Fog", "Chergui" }, 0 });
   options.push_back({ OptionSnowflakes, "Snowflakes",
     { "off", "point", "square", "textured" }, 0 });
   options.push_back({ OptionSpeedUnits, "Speed units",
@@ -129,7 +129,7 @@ void POption::select(int index)
   case OptionTemporalAA:cfg.setTemporalAA(column!=0);break;
   case OptionCrowd:cfg.setCrowd(column!=0);break;
   case OptionCars:cfg.setCarRenderer(column!=0);break;
-  case OptionWeatherPreset:{const char* names[]={"level","clear","rain","snow","fog"};cfg.setWeatherPreset(names[column]);break;}
+  case OptionWeatherPreset:{const char* names[]={"level","clear","rain","snow","fog","chergui"};cfg.setWeatherPreset(names[column]);break;}
   case OptionSnowflakes:
     if (column) {
       cfg.setWeather(true);
@@ -249,7 +249,7 @@ void POption::updateSelect(Option &option)
   case OptionTemporalAA:option.select=cfg.getTemporalAA()?1:0;break;
   case OptionCrowd:option.select=cfg.getCrowd()?1:0;break;
   case OptionCars:option.select=cfg.getCarRenderer()?1:0;break;
-  case OptionWeatherPreset:{const char* names[]={"level","clear","rain","snow","fog"};for(unsigned i=0;i<5;++i)if(cfg.getWeatherPreset()==names[i])option.select=i;break;}
+  case OptionWeatherPreset:{const char* names[]={"level","clear","rain","snow","fog","chergui"};for(unsigned i=0;i<6;++i)if(cfg.getWeatherPreset()==names[i])option.select=i;break;}
   case OptionSnowflakes:
     if (cfg.getWeather())
       option.select = cfg.getSnowflaketype() + 1;

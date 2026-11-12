@@ -1,0 +1,7 @@
+{
+  "name": "rock",
+  "albedo": "rock-albedo.ktx2",
+  "normal": "rock-normal.ktx2",
+  "orm": "rock-orm.ktx2",
+  "atlas": false
+}

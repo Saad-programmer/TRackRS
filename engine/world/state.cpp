@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 #include "state.h"
+#include <cmath>
 #include <glm/gtc/type_ptr.hpp>
 #include <stdexcept>
 namespace trackrs::world {
@@ -15,7 +16,7 @@ void configure(Settings settings) {
 }
 void selectWeather(const std::string &name) {
   if (!validWeatherName(name))
-    throw std::invalid_argument("weather must be level, clear, rain, snow or fog");
+    throw std::invalid_argument("weather must be level, clear, rain, snow, fog or chergui");
   state().weatherName = name;
   configure(state().settings);
 }
@@ -41,6 +42,9 @@ void apply(GLuint p, const glm::mat4 &localToWorld, bool scene) {
     return;
   const auto &w = s.settings.weather;
   glUniform4f(glGetUniformLocation(p, "uSceneWeather"), w.wetness, w.puddles, w.snow, w.overcast);
+  const float windRadians = glm::radians(w.windDegrees);
+  glUniform4f(glGetUniformLocation(p, "uDesertWind"), std::cos(windRadians), std::sin(windRadians), w.wind, 0.f);
+  glUniform4f(glGetUniformLocation(p, "uSceneDesert"), w.heat, w.dust, 0.f, 0.f);
   glUniform1f(glGetUniformLocation(p, "uSceneFogDensity"), w.fogDensity);
   const auto lights = static_cast<GLsizei>(s.depthPass ? 0 : s.lightCount);
   glUniform1i(glGetUniformLocation(p, "uSceneLightCount"), lights);

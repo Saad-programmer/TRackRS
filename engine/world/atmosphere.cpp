@@ -60,7 +60,7 @@ Weather weatherFromLevel(float rain, float snowfall, float fog) {
   return w;
 }
 bool validWeatherName(std::string_view name) {
-  return name == "level" || name == "clear" || name == "rain" || name == "snow" || name == "fog";
+  return name == "level" || name == "clear" || name == "rain" || name == "snow" || name == "fog" || name == "chergui";
 }
 Weather weatherPreset(std::string_view name, const Weather &level) {
   if (name == "level")
@@ -74,8 +74,15 @@ Weather weatherPreset(std::string_view name, const Weather &level) {
     w = {.2f, 0.f, .85f, .65f, .005f};
   else if (name == "fog")
     w = {.3f, .1f, 0.f, .55f, .012f};
+  else if (name == "chergui") // hot, dust-laden desert wind: orange haze, low visibility
+    w = {0.f, 0.f, 0.f, .35f, .018f, .9f, level.windDegrees, .25f, .85f};
   else
-    throw std::invalid_argument("weather must be level, clear, rain, snow or fog");
+    throw std::invalid_argument("weather must be level, clear, rain, snow, fog or chergui");
+  if (name != "chergui") { // the stage's climate survives precipitation presets
+    w.wind = level.wind;
+    w.windDegrees = level.windDegrees;
+    w.heat = name == "clear" ? level.heat : 0.f;
+  }
   return w;
 }
 std::array<SpotLight, 2> headlights(const BodyFrame &body) {

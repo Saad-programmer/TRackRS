@@ -110,6 +110,7 @@ def dunes(rng, size, metres_per_px, wind_deg, wavelength, height, kind):
     """Wind-aligned dune field. Crests run across the wind; profile is
     asymmetric (gentle stoss slope upwind, steep slip face downwind)."""
     yy, xx = np.mgrid[0:size, 0:size] * metres_per_px
+    yy = -yy   # rows run south; wind_deg is measured from +x towards world +y (north)
     w = math.radians(wind_deg)
     along = xx * math.cos(w) + yy * math.sin(w)           # distance downwind
     across = -xx * math.sin(w) + yy * math.cos(w)
@@ -150,20 +151,28 @@ def add_detail(h, rng, metres_per_px, detail):
     size = h.shape[0]
     if detail.get("hummocks_m"):
         h = h + (fbm(rng, size, max(4, int(size * metres_per_px / 120)), 4) - 0.5) * detail["hummocks_m"]
-    if detail.get("dunes"):
-        d = detail["dunes"]
-        mask = np.zeros_like(h)
-        for zone in d.get("zones", []):  # [x0, y0, x1, y1] in stage pixels, soft edges
-            x0, y0, x1, y1 = zone
-            yy, xx = np.mgrid[0:size, 0:size]
-            inside = np.minimum.reduce([xx - x0, x1 - xx, yy - y0, y1 - yy]) / max(1, d.get("feather_px", 40))
-            mask = np.maximum(mask, np.clip(inside, 0, 1))
+    fields = detail.get("dune_fields", [detail["dunes"]] if detail.get("dunes") else [])
+    warp = (fbm(rng, size, 6, 3) - 0.5) * 2 * detail.get("zone_warp_px", 0)
+    for d in fields:   # each field: its own preset (barchan / linear / star) and zones
+        mask = zone_mask(size, d.get("zones", []), warp, d.get("feather_px", 40))
         h = h + mask * dunes(rng, size, metres_per_px, d.get("wind_deg", 60), d.get("wavelength_m", 160),
                              d.get("height_m", 12), d.get("kind", "barchan"))
     return h
 
 
 # ---- route ------------------------------------------------------------------------------
+def zone_mask(size, zones, warp, feather=1.0):
+    """Soft 0..1 mask of rectangles [x0, y0, x1, y1] (stage pixels, north up)
+    whose edges are pushed in and out by `warp` (px of noise displacement), so
+    surface and dune zones meet along natural, irregular boundaries."""
+    yy, xx = np.mgrid[0:size, 0:size].astype(np.float32)
+    mask = np.zeros((size, size), np.float32)
+    for x0, y0, x1, y1 in zones:
+        inside = np.minimum.reduce([xx - x0, x1 - xx, yy - y0, y1 - yy]) + warp
+        mask = np.maximum(mask, np.clip(inside / max(feather, 1e-3), 0, 1))
+    return mask
+
+
 def catmull_rom(points, step_px):
     p = [np.array(points[0], float)] + [np.array(q, float) for q in points] + [np.array(points[-1], float)]
     out = []
@@ -225,16 +234,24 @@ def build(spec, out):
     if src["kind"] == "terrarium":
         h = terrarium(src, size, mpp)
         fidelity = "derived"
+        # The legacy heightmap is 8-bit: a tall hill in the window would make
+        # every step on the plain a metre high. "compress_above_m" squeezes
+        # real elevation above a knee by "compress_ratio" (recorded in
+        # stage.json, so the stage never claims the hill's true height).
+        if "compress_above_m" in src:
+            knee, ratio = src["compress_above_m"], src.get("compress_ratio", 0.2)
+            h = np.where(h > knee, knee + (h - knee) * ratio, h)
     elif src["kind"] == "procedural":
         h = procedural(src, size, mpp, rng)
         fidelity = "procedural"
     else:
         raise ValueError("unknown height source")
     h = add_detail(h, rng, mpp, spec.get("detail", {}))
-    # The game's heightmap rows run with +y; image row 0 is world y = 0.
-    # Our arrays use row 0 = north, so flip to make north = +y in the game.
-    h = h[::-1].copy()
-    route = catmull_rom([(x, size - 1 - y) for x, y in spec["route"]["points"]], 1.0)
+    # Legacy maps are stored north-up: PNG row 0 is the largest world y
+    # (checked against the shipped "ahead" checkpoints, which lie on its road
+    # only under this convention). Arrays stay north-up; only race and prop
+    # coordinates are converted to world space (y_world = (size - 1 - row)).
+    route = catmull_rom([(x, y) for x, y in spec["route"]["points"]], 1.0)
     width_px = spec["route"]["width_m"] / mpp
     dist, nearest = distance_to_polyline(size, route)
     # Road bed: flatten across the road by blending to a smoothed along-route
@@ -262,6 +279,10 @@ def build(spec, out):
     cmap = np.zeros((size, size, 3), np.float32)
     rules = spec["surfaces"]
     assigned = np.zeros((size, size), bool)
+    # Same warp field for every surface rule.
+    zone_warp = (fbm(rng, size, 6, 3) - 0.5) * 2 * spec.get("zone_warp_px", 0)
+    def rule_zones(rule):
+        return zone_mask(size, rule["zones"], zone_warp) > 0.5
     for rule in rules:
         m = ~assigned
         if "max_slope" in rule:
@@ -273,10 +294,7 @@ def build(spec, out):
         if "noise_above" in rule:
             m &= noise >= rule["noise_above"]
         if "zones" in rule:
-            z = np.zeros_like(m)
-            for x0, y0, x1, y1 in rule["zones"]:
-                z[size - 1 - y1:size - y0, x0:x1] = True
-            m &= z
+            m &= rule_zones(rule)
         tmap[m] = colours[rule["type"]]
         base = np.array(rule["colour"], np.float32) / 255
         var = (noise[m] - 0.5)[:, None] * rule.get("variation", 0.15)
@@ -285,12 +303,24 @@ def build(spec, out):
     if not assigned.all():
         raise ValueError("surface rules must cover every pixel (end with a catch-all rule)")
     rs = spec["route"]
-    tmap[road] = colours[rs["type"]]
+    seglen0 = np.hypot(*np.diff(route, axis=0).T) * mpp
+    arc0 = np.concatenate([[0], np.cumsum(seglen0)])
+    along_m = arc0[nearest]
+    road_type = np.zeros((size, size, 3), np.uint8)
+    road_colour = np.zeros((size, size, 3), np.float32)
+    road_type[:] = colours[rs["type"]]
+    road_colour[:] = np.array(rs["colour"], np.float32) / 255
+    for stretch in rs.get("spans", []):   # e.g. N9 tarmac for the first kilometre
+        m = (along_m >= stretch["from_m"]) & (along_m < stretch["to_m"])
+        road_type[m] = colours[stretch["type"]]
+        road_colour[m] = np.array(stretch["colour"], np.float32) / 255
+    tmap[road] = road_type[road]
     edge = np.clip((dist - width_px * 0.5 + 2) / 4, 0, 1)[..., None]
-    cmap = cmap * edge + (np.array(rs["colour"], np.float32) / 255) * (1 - edge)
+    cmap = cmap * edge + road_colour * (1 - edge)
     # Shade the colour map with the terrain (helps the legacy renderer and minimap).
     gy, gx = np.gradient(h, mpp)
-    light = np.clip(0.75 + 0.35 * (-gx * 0.6 + gy * 0.8) / np.sqrt(1 + gx * gx + gy * gy), 0.45, 1.15)
+    # Rows run southwards: light from the north-west (gy is d/d(south)).
+    light = np.clip(0.75 + 0.35 * (-gx * 0.6 - gy * 0.8) / np.sqrt(1 + gx * gx + gy * gy), 0.45, 1.15)
     shaded = np.clip(cmap * light[..., None], 0, 1)
     Image.fromarray((tmap).astype(np.uint8), "RGB").save(out / "t.png", optimize=True)
     Image.fromarray((shaded * 255).astype(np.uint8), "RGB").save(out / "c.png", optimize=True)
@@ -298,16 +328,21 @@ def build(spec, out):
     r[road] = 255
     Image.fromarray(r, "RGB").save(out / "r.png", optimize=True)
     # Foliage density: per-rule weight, none on or near the road.
+    # f.png value selects the legacy foliage band (keep it exact per surface);
+    # noise only decides coverage (rule "cover", fraction 0..1, default 0.6).
     fol = np.zeros((size, size), np.float32)
+    presence = fbm(rng, size, 16, 3)
     for rule in rules:
         if "foliage" in rule:
             m = np.all(tmap == np.array(colours[rule["type"]], np.uint8), axis=-1)
+            if "zones" in rule:   # rules sharing a type: only this rule's zones
+                m &= rule_zones(rule)
+            m &= presence >= np.quantile(presence, 1 - rule.get("cover", 0.6))
             fol[m] = rule["foliage"]
     clear = spec["route"].get("foliage_clear_m", 8) / mpp + width_px * 0.5
-    fol *= np.clip((dist - clear) / 6, 0, 1)
-    fol = np.clip(fol * (0.6 + 0.8 * noise), 0, 1)
+    fol[dist < clear] = 0
     Image.fromarray((fol * 255).astype(np.uint8), "L").save(out / "f.png", optimize=True)
-    mm = Image.fromarray((shaded[::-1] * 255).astype(np.uint8), "RGB").resize((256, 256), Image.LANCZOS)
+    mm = Image.fromarray((shaded * 255).astype(np.uint8), "RGB").resize((256, 256), Image.LANCZOS)
     mm.save(out / "mm.png", optimize=True)
     mm.save(out / "ss.png", optimize=True)
     # Race: start on the route, checkpoints every N metres, last at the end.
@@ -316,11 +351,13 @@ def build(spec, out):
     length = float(arc[-1])
     every = spec["route"].get("checkpoint_every_m", 250)
     marks = list(np.arange(every, length - every * 0.4, every)) + [length]
+    def world_px(q):   # north-up stage pixel -> race coordinates (x scale mpp)
+        return np.array([q[0], size - 1 - q[1]])
     def at(s):
         i = int(np.clip(np.searchsorted(arc, s), 1, len(route) - 1))
-        return route[i]
-    start = route[min(3, len(route) - 1)]
-    ahead = route[min(10, len(route) - 1)] - start
+        return world_px(route[i])
+    start = world_px(route[min(3, len(route) - 1)])
+    ahead = world_px(route[min(10, len(route) - 1)]) - start
     heading = math.degrees(math.atan2(ahead[1], ahead[0]))
     cps = "\n".join(f'\t\t<checkpoint coords="{at(s)[0]:.1f}, {at(s)[1]:.1f}" />' for s in marks)
     bands = "\n".join(
@@ -328,6 +365,8 @@ def build(spec, out):
         f'sprite="{b["sprite"]}" spritecount="{b.get("count", 1)}" scale="{b.get("scale", 1)}" />'
         for b in spec.get("foliage_bands", []))
     lvl = spec["level"]
+    # Desert climate (amendment A3.4): wind, wind direction, heat haze, dust.
+    climate = "".join(f'\n\t\t{k}="{lvl[k]}"' for k in ("wind", "winddegrees", "heat", "dust") if k in lvl)
     xml = f'''<?xml version="1.0" ?>
 <!-- Generated by tools/stage_from_heightmap.py from {spec["spec_name"]}; do not edit by hand. -->
 <level
@@ -357,11 +396,11 @@ def build(spec, out):
 {bands}
 \t</terrain>
 \t<weather
-\t\tcloudtexture="{lvl.get("clouds", "/textures/sky/light-coluds.jpg")}"
+\t\tcloudtexture="{lvl.get("clouds", "/textures/sky/light-clouds.jpg")}"
 \t\tcloudscrollrate="0"
 \t\tfogcolor="{lvl.get("fogcolor", "0.86, 0.8, 0.7")}"
 \t\tfogdensity="{lvl.get("fogdensity", 0.0006)}"
-\t\tfogdensitysky="1"
+\t\tfogdensitysky="1"{climate}
 \t\t/>
 \t<race coordscale="{mpp}, {mpp}" targettime="{lvl.get("targettime", int(length / 18))}">
 \t\t<startposition pos="{start[0]:.1f}, {start[1]:.1f}" oridegrees="{(heading - 90) % 360:.1f}" />
@@ -370,6 +409,32 @@ def build(spec, out):
 </level>
 '''
     (out / f"{spec['id']}.level").write_text(xml)
+    if "props" in spec:   # stage pixels (north up) -> world metres (game +y = north)
+        def world(x, y):
+            return round(x * mpp, 2), round((size - 1 - y) * mpp, 2)
+        props = {"schema": "trackrs.props/1"}
+        for key, items in spec["props"].items():
+            if isinstance(items, str):   # e.g. "sign_atlas": a pack path, copied as is
+                props[key] = items
+                continue
+            converted = []
+            for item in items:
+                item = dict(item)
+                if "x" in item:
+                    item["x"], item["y"] = world(item["x"], item["y"])
+                if "points" in item:   # print trails (tracks): [[x, y], ...]
+                    item["points"] = [list(world(*q)) for q in item["points"]]
+                for end in ("from", "to"):
+                    if end in item:
+                        item[end] = list(world(*item[end]))
+                for k in ("radius", "width", "depth", "spacing"):
+                    if k in item:
+                        item[k] = round(item[k] * mpp, 2)
+                if "yaw_deg" in item:
+                    item["yaw_deg"] = -item["yaw_deg"]
+                converted.append(item)
+            props[key] = converted
+        (out / "props.json").write_text(json.dumps(props, indent=1) + "\n")
     stage = {"schema": "trackrs.stage/1", "id": spec["id"], "name": spec["name"], "region": spec.get("region", ""),
              "description": lvl.get("description", ""), "level": f"{spec['id']}.level", "stage_seed": seed,
              "geographic_fidelity": fidelity, "length_km": round(length / 1000, 3),

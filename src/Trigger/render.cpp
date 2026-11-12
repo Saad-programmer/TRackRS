@@ -1294,10 +1294,14 @@ void MainApp::renderStateGame(float eyetranslation)
 
     trackrs::draw::blend(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
+    if (cameraview == CameraMode::cockpit && game->gamestate != Gamestate::finished)
+        renderCockpitDash();
+
     if (showui)
     {
         game->renderCodriverSigns();
 
+        if (cameraview != CameraMode::cockpit) {
         trackrs::draw::push(); // 2
         // position of rpm dial and needle
         //trackrs::draw::translate( hratio * (1.f - (5.75f/50.f)) - 0.3f, -vratio * (40.f/50.f) + 0.22f, 0.0f);
@@ -1337,6 +1341,7 @@ void MainApp::renderStateGame(float eyetranslation)
         trackrs::draw::pop(); // 3
         trackrs::draw::disable(GL_TEXTURE_2D);
         trackrs::draw::pop(); // 2
+        }
     }
 
     // checkpoint pointing arrow thing
@@ -1956,6 +1961,124 @@ void MainApp::renderDamageIndicator(
     trackrs::draw::end();
 
     trackrs::draw::pop(); // 2
+}
+
+// Placeholder rally-raid cockpit (M2): a screen-space dashboard drawn in the
+// cockpit camera. Dash, binnacle, steering-wheel rim, tachometer,
+// speedometer and a tripmaster (distance and compass heading). There is no
+// 3D cabin model yet; this only shows the instruments a crew reads.
+void MainApp::renderCockpitDash()
+{
+    PVehicle *vehic = game->vehicle[0];
+    const float h = static_cast<float>(hratio), v = static_cast<float>(vratio);
+    constexpr float Pi = 3.14159265f;
+    auto quad = [](glm::vec2 a, glm::vec2 b, glm::vec2 c, glm::vec2 d) {
+        trackrs::draw::begin(trackrs::draw::Quads);
+        trackrs::draw::vertex(a.x, a.y); trackrs::draw::vertex(b.x, b.y);
+        trackrs::draw::vertex(c.x, c.y); trackrs::draw::vertex(d.x, d.y);
+        trackrs::draw::end();
+    };
+    auto bar = [&](glm::vec2 from, glm::vec2 to, float width) { // thick line
+        glm::vec2 n = glm::vec2(-(to - from).y, (to - from).x);
+        n = glm::length(n) > 0 ? glm::normalize(n) * (width * .5f) : glm::vec2(0);
+        quad(from - n, to - n, to + n, from + n);
+    };
+    auto disc = [](glm::vec2 c, float r) {
+        trackrs::draw::begin(trackrs::draw::Polygon);
+        for (int i = 0; i < 40; ++i) {
+            const float a = 2 * 3.14159265f * static_cast<float>(i) / 40.f;
+            trackrs::draw::vertex(c.x + r * std::cos(a), c.y + r * std::sin(a));
+        }
+        trackrs::draw::end();
+    };
+    auto ring = [&](glm::vec2 c, float r, float width, float a0, float a1, int steps) {
+        for (int i = 0; i < steps; ++i) {
+            const float t0 = a0 + (a1 - a0) * static_cast<float>(i) / static_cast<float>(steps);
+            const float t1 = a0 + (a1 - a0) * static_cast<float>(i + 1) / static_cast<float>(steps);
+            quad(c + (r - width) * glm::vec2(std::cos(t0), std::sin(t0)), c + r * glm::vec2(std::cos(t0), std::sin(t0)),
+                 c + r * glm::vec2(std::cos(t1), std::sin(t1)), c + (r - width) * glm::vec2(std::cos(t1), std::sin(t1)));
+        }
+    };
+    auto text = [&](const std::string &s, glm::vec2 at, float size, unsigned align) {
+        trackrs::draw::push();
+        trackrs::draw::translate(at.x, at.y, 0);
+        trackrs::draw::scale(size, size, 1);
+        trackrs::draw::enable(GL_TEXTURE_2D);
+        tex_fontSourceCodeBold->bind();
+        getSSRender().drawText(s, align);
+        trackrs::draw::disable(GL_TEXTURE_2D);
+        trackrs::draw::pop();
+    };
+    trackrs::draw::disable(GL_TEXTURE_2D);
+    trackrs::draw::blend(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    // Dash top (matt grained plastic) and the binnacle hood over the gauges.
+    trackrs::draw::color(.075f, .07f, .065f, 1);
+    quad({-h, -v}, {h, -v}, {h, -.42f * v}, {-h, -.5f * v});
+    trackrs::draw::color(.05f, .047f, .044f, 1);
+    quad({-.95f, -.42f * v}, {.25f, -.42f * v}, {.2f, -.36f * v}, {-.9f, -.36f * v});
+    // Gauges: tacho (0-8000 rpm) and speedo (0-200 km/h); 240 degree sweeps.
+    const float rpm = vehic->getEngineRPM();
+    const float kmh = std::fabs(vehic->getWheelSpeed()) * 3.6f;
+    struct Gauge { glm::vec2 c; float value, max; int majors; const char *label; float redFrom; };
+    for (const Gauge &g : {Gauge{{-.62f, -.66f}, rpm, 8000.f, 8, "x1000 rpm", 6500.f},
+                           Gauge{{-.18f, -.66f}, kmh, 200.f, 10, "km/h", 1e9f}}) {
+        const float r = .2f, start = 210.f * Pi / 180.f, sweep = -240.f * Pi / 180.f;
+        trackrs::draw::color(.02f, .02f, .02f, 1);
+        disc(g.c, r);
+        trackrs::draw::color(.55f, .55f, .52f, 1);
+        ring(g.c, r, .012f, 0, 2 * Pi, 40);
+        if (g.redFrom < g.max) {
+            trackrs::draw::color(.75f, .1f, .08f, 1);
+            ring(g.c, r - .014f, .022f, start + sweep * g.redFrom / g.max, start + sweep, 8);
+        }
+        trackrs::draw::color(.92f, .92f, .88f, 1);
+        for (int i = 0; i <= g.majors * 2; ++i) {
+            const float a = start + sweep * static_cast<float>(i) / static_cast<float>(g.majors * 2);
+            const glm::vec2 dir(std::cos(a), std::sin(a));
+            const float inner = i % 2 ? .86f : .78f;
+            bar(g.c + dir * (r * inner), g.c + dir * (r * .95f), i % 2 ? .004f : .008f);
+            if (i % 2 == 0) {
+                const int label = static_cast<int>(std::lround(g.max / static_cast<float>(g.majors) * static_cast<float>(i / 2)));
+                text(std::to_string(g.max > 1000 ? label / 1000 : label), g.c + dir * (r * .62f), .028f,
+                     PTEXT_HZA_CENTER | PTEXT_VTA_CENTER);
+            }
+        }
+        text(g.label, g.c + glm::vec2(0, -.1f), .022f, PTEXT_HZA_CENTER | PTEXT_VTA_CENTER);
+        const float a = start + sweep * std::clamp(g.value / g.max, 0.f, 1.03f);
+        trackrs::draw::color(.95f, .22f, .1f, 1);
+        bar(g.c - glm::vec2(std::cos(a), std::sin(a)) * .03f, g.c + glm::vec2(std::cos(a), std::sin(a)) * (r * .88f), .009f);
+        trackrs::draw::color(.15f, .15f, .15f, 1);
+        disc(g.c, .022f);
+    }
+    // Tripmaster: distance since the start and compass heading (CAP).
+    {
+        const glm::vec2 c(.42f, -.6f);
+        trackrs::draw::color(.03f, .03f, .03f, 1);
+        quad(c + glm::vec2(-.2f, -.11f), c + glm::vec2(.2f, -.11f), c + glm::vec2(.2f, .11f), c + glm::vec2(-.2f, .11f));
+        trackrs::draw::color(.08f, .16f, .1f, 1);
+        quad(c + glm::vec2(-.185f, -.095f), c + glm::vec2(.185f, -.095f), c + glm::vec2(.185f, .095f), c + glm::vec2(-.185f, .095f));
+        const auto &o = vehic->body->getOrientationMatrix();
+        float heading = std::atan2(o.row[0].y, o.row[1].y) * 180.f / Pi; // 0 = north (+y), clockwise
+        if (heading < 0) heading += 360.f;
+        char buf[32];
+        std::snprintf(buf, sizeof buf, "%06.2f", static_cast<double>(tripMetres / 1000.f));
+        trackrs::draw::color(.55f, 1.f, .6f, 1);
+        text(buf, c + glm::vec2(.17f, .04f), .05f, PTEXT_HZA_RIGHT | PTEXT_VTA_CENTER);
+        std::snprintf(buf, sizeof buf, "CAP %03d", static_cast<int>(std::lround(heading)) % 360);
+        text(buf, c + glm::vec2(.17f, -.05f), .035f, PTEXT_HZA_RIGHT | PTEXT_VTA_CENTER);
+        text("km", c + glm::vec2(-.17f, .04f), .022f, PTEXT_HZA_LEFT | PTEXT_VTA_CENTER);
+    }
+    // Steering-wheel rim (lower part in view), turned by the steering input.
+    {
+        const glm::vec2 c(-.4f, -1.18f * v);
+        const float turn = -vehic->ctrl.turn.z * 1.6f;
+        trackrs::draw::color(.03f, .03f, .03f, 1);
+        ring(c, .62f, .07f, Pi * .15f + turn, Pi * .85f + turn, 24);
+        bar(c + glm::vec2(std::cos(Pi * .5f + turn), std::sin(Pi * .5f + turn)) * .55f, c, .05f);
+        trackrs::draw::color(.8f, .3f, .1f, 1); // top-centre marker
+        ring(c, .62f, .07f, Pi * .49f + turn, Pi * .51f + turn, 1);
+    }
+    trackrs::draw::color(1, 1, 1, 1);
 }
 
 void MainApp::renderDamageIndicatorGroup()

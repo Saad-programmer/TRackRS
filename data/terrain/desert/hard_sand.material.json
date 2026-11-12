@@ -1,0 +1,7 @@
+{
+  "name": "hard_sand",
+  "albedo": "hard_sand-albedo.ktx2",
+  "normal": "hard_sand-normal.ktx2",
+  "orm": "hard_sand-orm.ktx2",
+  "atlas": false
+}

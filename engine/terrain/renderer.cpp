@@ -129,9 +129,14 @@ Renderer::Renderer(const std::vector<float> &heights, unsigned size,
       data / "shaders/pbr/terrain.vert", data / "shaders/world/depth.frag",
       [](GLuint id) { return glGetUniformLocation(id, "uHeight") >= 0; });
   p.stream = pbr::textureStream();
-  constexpr std::array<const char *, 9> names = {"tarmac", "gravel", "dirt",
-                                                 "grass",  "sand",   "snow",
-                                                 "ice",    "mud",    "water"};
+  // Layers 0-8: the original set (data/terrain/pbr); 9-17: the desert set
+  // (data/terrain/desert, amendment A3.1). Order matches terrain_material.glsl.
+  constexpr std::array<const char *, 18> names = {
+      "pbr/tarmac",        "pbr/gravel",       "pbr/dirt",          "pbr/grass",
+      "pbr/sand",          "pbr/snow",         "pbr/ice",           "pbr/mud",
+      "pbr/water",         "desert/sand_dune", "desert/fesh_fesh",  "desert/hard_sand",
+      "desert/hamada_stone", "desert/oued_gravel", "desert/dry_lake_clay",
+      "desert/palmeraie_dirt", "desert/rock",  "desert/tarmac_n9"};
   constexpr std::array<const char *, 3> roles = {"albedo", "normal", "orm"};
   constexpr std::array<assets::Semantic, 3> semantics = {
       assets::Semantic::Albedo, assets::Semantic::Normal,
@@ -141,7 +146,7 @@ Renderer::Renderer(const std::vector<float> &heights, unsigned size,
     layers.reserve(names.size());
     for (auto name : names)
       layers.push_back(
-          assets::readFile(data / "terrain/pbr" /
+          assets::readFile(data / "terrain" /
                            (std::string(name) + "-" + roles[role] + ".ktx2")));
     p.maps[role] = p.stream->requestArray(layers, semantics[role]);
   }

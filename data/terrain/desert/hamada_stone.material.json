@@ -1,0 +1,7 @@
+{
+  "name": "hamada_stone",
+  "albedo": "hamada_stone-albedo.ktx2",
+  "normal": "hamada_stone-normal.ktx2",
+  "orm": "hamada_stone-orm.ktx2",
+  "atlas": false
+}

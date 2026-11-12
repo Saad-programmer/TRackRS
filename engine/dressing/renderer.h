@@ -23,6 +23,8 @@ void configure(Settings settings);
 Settings settings();
 /// Per-frame inputs: deterministic clock and car positions (player first).
 void setFrame(float time, const std::vector<glm::vec3> &cars);
+/// The deterministic clock last passed to setFrame (props animate with it).
+float frameTime();
 void writeReport(const std::filesystem::path &path);
 
 class Renderer {

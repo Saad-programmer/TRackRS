@@ -265,6 +265,9 @@ void main()
 
     // ---- direct lighting -----------------------------------------------------
     vec3 Lo = evalLight(normalize(uSunDir), uSunColor * sunVisibility(), N, V, NdotV, albedo, metallic, roughness, F0);
+#ifdef TERRAIN
+    Lo += uSunColor * sunVisibility() * terrainGlint(fs.worldPos, N, V, normalize(uSunDir), terrain.sparkle) * 6.0;
+#endif
 
     for (int i = 0; i < clamp(uPointLightCount, 0, MAX_POINT_LIGHTS); ++i) {            // headlights, fire, flash — keep count small
         vec3  toL  = uPointLightPos[i] - fs.worldPos;

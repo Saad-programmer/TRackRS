@@ -1,0 +1,770 @@
+{
+  "id": "sahara-lab",
+  "name": "Sahara Lab (test)",
+  "region": "procedural test terrain (not a real place)",
+  "seed": 20261,
+  "size": 1024,
+  "metres_per_px": 4,
+  "height": {
+    "kind": "procedural",
+    "relief_m": 28,
+    "base_cells": 3,
+    "wadis": {
+      "depth_m": 9,
+      "width": 0.035
+    }
+  },
+  "detail": {
+    "hummocks_m": 0.8,
+    "dune_fields": [
+      {
+        "kind": "barchan",
+        "zones": [
+          [
+            260,
+            60,
+            520,
+            380
+          ]
+        ],
+        "wind_deg": 60,
+        "wavelength_m": 150,
+        "height_m": 12
+      },
+      {
+        "kind": "star",
+        "zones": [
+          [
+            70,
+            60,
+            270,
+            240
+          ]
+        ],
+        "wind_deg": 60,
+        "wavelength_m": 220,
+        "height_m": 22
+      },
+      {
+        "kind": "linear",
+        "zones": [
+          [
+            70,
+            240,
+            270,
+            380
+          ]
+        ],
+        "wind_deg": 60,
+        "wavelength_m": 180,
+        "height_m": 10
+      }
+    ],
+    "zone_warp_px": 45
+  },
+  "route": {
+    "points": [
+      [
+        120,
+        975
+      ],
+      [
+        160,
+        860
+      ],
+      [
+        230,
+        780
+      ],
+      [
+        330,
+        720
+      ],
+      [
+        450,
+        690
+      ],
+      [
+        560,
+        600
+      ],
+      [
+        640,
+        520
+      ],
+      [
+        760,
+        450
+      ],
+      [
+        850,
+        330
+      ],
+      [
+        820,
+        200
+      ],
+      [
+        650,
+        150
+      ],
+      [
+        520,
+        220
+      ],
+      [
+        430,
+        300
+      ]
+    ],
+    "width_m": 9,
+    "type": "HardSand",
+    "colour": [
+      200,
+      160,
+      110
+    ],
+    "checkpoint_every_m": 300,
+    "profile_smooth_m": 60,
+    "shoulder_m": 7,
+    "spans": [
+      {
+        "from_m": 0,
+        "to_m": 900,
+        "type": "TarmacN9",
+        "colour": [
+          60,
+          58,
+          62
+        ]
+      },
+      {
+        "from_m": 900,
+        "to_m": 1900,
+        "type": "PalmeraieDirt",
+        "colour": [
+          140,
+          100,
+          68
+        ]
+      },
+      {
+        "from_m": 2500,
+        "to_m": 2950,
+        "type": "OuedGravel",
+        "colour": [
+          176,
+          160,
+          138
+        ]
+      },
+      {
+        "from_m": 2950,
+        "to_m": 4100,
+        "type": "HamadaStone",
+        "colour": [
+          128,
+          104,
+          86
+        ]
+      },
+      {
+        "from_m": 4100,
+        "to_m": 5500,
+        "type": "DryLakeClay",
+        "colour": [
+          210,
+          196,
+          176
+        ]
+      }
+    ]
+  },
+  "surfaces": [
+    {
+      "type": "FeshFesh",
+      "colour": [
+        232,
+        212,
+        180
+      ],
+      "zones": [
+        [
+          520,
+          300,
+          640,
+          420
+        ]
+      ],
+      "foliage": 0.3,
+      "cover": 0.05
+    },
+    {
+      "type": "SandDune",
+      "colour": [
+        222,
+        172,
+        112
+      ],
+      "zones": [
+        [
+          60,
+          50,
+          525,
+          385
+        ]
+      ],
+      "foliage": 0.3,
+      "cover": 0.08
+    },
+    {
+      "type": "Rock",
+      "colour": [
+        140,
+        116,
+        96
+      ],
+      "min_slope": 0.4
+    },
+    {
+      "type": "DryLakeClay",
+      "colour": [
+        214,
+        200,
+        180
+      ],
+      "zones": [
+        [
+          620,
+          60,
+          990,
+          320
+        ]
+      ],
+      "max_slope": 0.06
+    },
+    {
+      "type": "HamadaStone",
+      "colour": [
+        132,
+        106,
+        88
+      ],
+      "zones": [
+        [
+          560,
+          320,
+          990,
+          530
+        ]
+      ]
+    },
+    {
+      "type": "OuedGravel",
+      "colour": [
+        172,
+        156,
+        134
+      ],
+      "zones": [
+        [
+          430,
+          450,
+          720,
+          650
+        ]
+      ],
+      "foliage": 0.7,
+      "cover": 0.35
+    },
+    {
+      "type": "PalmeraieDirt",
+      "colour": [
+        128,
+        92,
+        62
+      ],
+      "zones": [
+        [
+          40,
+          630,
+          430,
+          1000
+        ]
+      ],
+      "foliage": 0.95,
+      "cover": 0.75
+    },
+    {
+      "type": "HardSand",
+      "colour": [
+        200,
+        164,
+        112
+      ],
+      "foliage": 0.3,
+      "cover": 0.25
+    }
+  ],
+  "foliage_bands": [
+    {
+      "middle": 0.95,
+      "range": 0.04,
+      "density": 0.0008,
+      "sprite": "/packs/morocco-sahara/textures/veg/sahara-date-palm-tall.png",
+      "count": 1,
+      "scale": 11
+    },
+    {
+      "middle": 0.95,
+      "range": 0.04,
+      "density": 0.0006,
+      "sprite": "/packs/morocco-sahara/textures/veg/sahara-date-palm-mid.png",
+      "count": 1,
+      "scale": 7
+    },
+    {
+      "middle": 0.95,
+      "range": 0.04,
+      "density": 0.0004,
+      "sprite": "/packs/morocco-sahara/textures/veg/sahara-date-palm-young.png",
+      "count": 1,
+      "scale": 3.5
+    },
+    {
+      "middle": 0.7,
+      "range": 0.04,
+      "density": 0.00025,
+      "sprite": "/packs/morocco-sahara/textures/veg/sahara-acacia.png",
+      "count": 1,
+      "scale": 6
+    },
+    {
+      "middle": 0.7,
+      "range": 0.04,
+      "density": 0.0003,
+      "sprite": "/packs/morocco-sahara/textures/veg/sahara-tamarisk.png",
+      "count": 1,
+      "scale": 3
+    },
+    {
+      "middle": 0.3,
+      "range": 0.04,
+      "density": 0.0016,
+      "sprite": "/packs/morocco-sahara/textures/veg/sahara-alfa-grass.png",
+      "count": 1,
+      "scale": 0.9
+    },
+    {
+      "middle": 0.3,
+      "range": 0.04,
+      "density": 0.0003,
+      "sprite": "/packs/morocco-sahara/textures/veg/sahara-dead-brush.png",
+      "count": 1,
+      "scale": 1.4
+    }
+  ],
+  "level": {
+    "comment": "Saharan world-tech test stage (M1)",
+    "description": "procedural test terrain: every desert surface, dunes, props and animals",
+    "fogcolor": "0.86, 0.78, 0.66",
+    "fogdensity": 0.0004,
+    "wind": 0.55,
+    "winddegrees": 60,
+    "heat": 0.8,
+    "dust": 0.0
+  },
+  "props": {
+    "ksar": [
+      {
+        "x": 470,
+        "y": 640,
+        "width": 14,
+        "depth": 11,
+        "yaw_deg": 8,
+        "gate_side": 3
+      }
+    ],
+    "scatter": [
+      {
+        "kind": "mud_house",
+        "x": 420,
+        "y": 610,
+        "radius": 18,
+        "count": 9,
+        "yaw_deg": 8
+      },
+      {
+        "kind": "concrete_house",
+        "x": 360,
+        "y": 660,
+        "radius": 10,
+        "count": 4,
+        "yaw_deg": 8
+      },
+      {
+        "kind": "khaima",
+        "x": 300,
+        "y": 420,
+        "radius": 12,
+        "count": 3
+      },
+      {
+        "kind": "well",
+        "x": 330,
+        "y": 440,
+        "radius": 4,
+        "count": 1
+      },
+      {
+        "kind": "cairn",
+        "x": 760,
+        "y": 380,
+        "radius": 50,
+        "count": 10
+      }
+    ],
+    "herds": [
+      {
+        "kind": "camel",
+        "x": 360,
+        "y": 470,
+        "radius": 12,
+        "count": 7
+      },
+      {
+        "kind": "goat",
+        "x": 330,
+        "y": 760,
+        "radius": 8,
+        "count": 12
+      }
+    ],
+    "line": [
+      {
+        "kind": "power_pole",
+        "from": [
+          60,
+          900
+        ],
+        "to": [
+          600,
+          560
+        ],
+        "spacing": 12
+      },
+      {
+        "kind": "seguia",
+        "from": [
+          140,
+          700
+        ],
+        "to": [
+          380,
+          860
+        ],
+        "spacing": 1.1
+      }
+    ],
+    "props": [
+      {
+        "kind": "water_tower",
+        "x": 400,
+        "y": 580,
+        "yaw_deg": 0
+      },
+      {
+        "kind": "start_arch",
+        "x": 128,
+        "y": 952,
+        "yaw_deg": -71
+      },
+      {
+        "kind": "sign_board",
+        "x": 150,
+        "y": 945,
+        "yaw_deg": -161,
+        "face": 1
+      }
+    ],
+    "tracks": [
+      {
+        "kind": "camel",
+        "points": [
+          [
+            300,
+            520
+          ],
+          [
+            330,
+            495
+          ],
+          [
+            360,
+            470
+          ],
+          [
+            395,
+            450
+          ],
+          [
+            430,
+            445
+          ],
+          [
+            470,
+            430
+          ],
+          [
+            520,
+            405
+          ]
+        ]
+      },
+      {
+        "kind": "camel",
+        "points": [
+          [
+            340,
+            500
+          ],
+          [
+            372,
+            486
+          ],
+          [
+            410,
+            470
+          ],
+          [
+            452,
+            462
+          ],
+          [
+            500,
+            452
+          ]
+        ]
+      },
+      {
+        "kind": "foot",
+        "points": [
+          [
+            470,
+            655
+          ],
+          [
+            468,
+            672
+          ],
+          [
+            462,
+            690
+          ],
+          [
+            455,
+            712
+          ],
+          [
+            452,
+            735
+          ]
+        ]
+      },
+      {
+        "kind": "foot",
+        "points": [
+          [
+            330,
+            760
+          ],
+          [
+            345,
+            742
+          ],
+          [
+            352,
+            725
+          ],
+          [
+            366,
+            712
+          ]
+        ]
+      },
+      {
+        "kind": "camel",
+        "points": [
+          [
+            509.734,
+            645.639
+          ],
+          [
+            510.743,
+            644.892
+          ],
+          [
+            511.693,
+            644.079
+          ],
+          [
+            512.569,
+            643.184
+          ],
+          [
+            513.412,
+            642.252
+          ],
+          [
+            514.29,
+            641.358
+          ],
+          [
+            515.241,
+            640.546
+          ],
+          [
+            516.251,
+            639.8
+          ],
+          [
+            517.259,
+            639.053
+          ],
+          [
+            518.207,
+            638.238
+          ],
+          [
+            519.082,
+            637.341
+          ],
+          [
+            519.926,
+            636.41
+          ],
+          [
+            520.804,
+            635.517
+          ],
+          [
+            521.757,
+            634.707
+          ],
+          [
+            522.767,
+            633.961
+          ]
+        ]
+      },
+      {
+        "kind": "foot",
+        "points": [
+          [
+            510.735,
+            646.756
+          ],
+          [
+            511.744,
+            646.009
+          ],
+          [
+            512.694,
+            645.196
+          ],
+          [
+            513.57,
+            644.301
+          ],
+          [
+            514.414,
+            643.369
+          ],
+          [
+            515.291,
+            642.475
+          ],
+          [
+            516.242,
+            641.663
+          ],
+          [
+            517.252,
+            640.917
+          ],
+          [
+            518.26,
+            640.169
+          ],
+          [
+            519.209,
+            639.355
+          ],
+          [
+            520.084,
+            638.458
+          ]
+        ]
+      },
+      {
+        "kind": "foot",
+        "points": [
+          [
+            311.683,
+            729.093
+          ],
+          [
+            312.848,
+            728.623
+          ],
+          [
+            313.971,
+            728.075
+          ],
+          [
+            315.044,
+            727.428
+          ],
+          [
+            316.095,
+            726.739
+          ],
+          [
+            317.169,
+            726.093
+          ],
+          [
+            318.293,
+            725.547
+          ],
+          [
+            319.458,
+            725.078
+          ],
+          [
+            320.622,
+            724.608
+          ],
+          [
+            321.745,
+            724.058
+          ],
+          [
+            322.817,
+            723.41
+          ]
+        ]
+      }
+    ],
+    "sign_atlas": "/packs/morocco-sahara/textures/signs/signs.png"
+  },
+  "times_of_day": [
+    "dawn",
+    "noon",
+    "golden-hour",
+    "night"
+  ],
+  "terrain_source": "procedural: ridged noise, barchan/star/linear dune fields, eroded wadis",
+  "test_only": true,
+  "zone_warp_px": 45
+}

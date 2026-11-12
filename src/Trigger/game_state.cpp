@@ -12,10 +12,14 @@ void MainApp::tick(float delta)
             requestExit();
             return;
         }
-        std::string path = "/vehicles/" + validation::run.options.vehicle + "/" +
-            validation::run.options.vehicle + ".vehicle";
+        const auto& wanted = validation::run.options.vehicle;
+        std::string path = "/vehicles/" + wanted + "/" + wanted + ".vehicle";
         if (!PHYSFS_exists(path.c_str())) // Car Definition v2
-            path = "/vehicles/" + validation::run.options.vehicle + "/car.json";
+            path = "/vehicles/" + wanted + "/car.json";
+        if (const auto colon = wanted.find(':'); colon != std::string::npos) // <pack>:<car>
+            for (const auto& pack : packCatalog.packs)
+                if (pack.enabled && pack.id == wanted.substr(0, colon))
+                    path = pack.root + "/vehicles/" + wanted.substr(colon + 1) + "/car.json";
         auto* type = game->sim->loadVehicleType(path, getSSModel());
         if (!type || !game->vehicle.empty()) {
             PUtil::outLog() << "Validation requires an available vehicle and a stage without pre-spawned vehicles\n";

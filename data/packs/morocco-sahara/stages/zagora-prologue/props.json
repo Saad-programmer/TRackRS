@@ -1,0 +1,183 @@
+{
+ "schema": "trackrs.props/1",
+ "ksar": [
+  {
+   "x": 860,
+   "y": 1112,
+   "width": 64,
+   "depth": 48,
+   "yaw_deg": 12,
+   "gate_side": 1
+  }
+ ],
+ "scatter": [
+  {
+   "kind": "mud_house",
+   "x": 700,
+   "y": 1212,
+   "radius": 88,
+   "count": 10,
+   "yaw_deg": 12
+  },
+  {
+   "kind": "concrete_house",
+   "x": 1000,
+   "y": 1332,
+   "radius": 40,
+   "count": 4,
+   "yaw_deg": 12
+  },
+  {
+   "kind": "khaima",
+   "x": 3040,
+   "y": 1052,
+   "radius": 56,
+   "count": 3
+  },
+  {
+   "kind": "well",
+   "x": 2960,
+   "y": 972,
+   "radius": 16,
+   "count": 1
+  },
+  {
+   "kind": "cairn",
+   "x": 2400,
+   "y": 1852,
+   "radius": 240,
+   "count": 12
+  }
+ ],
+ "herds": [
+  {
+   "kind": "camel",
+   "x": 3160,
+   "y": 892,
+   "radius": 56,
+   "count": 6
+  },
+  {
+   "kind": "goat",
+   "x": 1040,
+   "y": 572,
+   "radius": 36,
+   "count": 10
+  }
+ ],
+ "line": [
+  {
+   "kind": "power_pole",
+   "from": [
+    240,
+    1532
+   ],
+   "to": [
+    2240,
+    2092
+   ],
+   "spacing": 48
+  }
+ ],
+ "props": [
+  {
+   "kind": "start_arch",
+   "x": 584,
+   "y": 496,
+   "yaw_deg": 45
+  },
+  {
+   "kind": "water_tower",
+   "x": 1000,
+   "y": 1452
+  },
+  {
+   "kind": "sign_board",
+   "x": 594.0,
+   "y": 483.6,
+   "yaw_deg": 45,
+   "face": 0
+  },
+  {
+   "kind": "sign_board",
+   "x": 594.0,
+   "y": 528.4,
+   "yaw_deg": 45,
+   "face": 1
+  },
+  {
+   "kind": "sign_board",
+   "x": 1528,
+   "y": 1228,
+   "yaw_deg": 50,
+   "face": 2
+  },
+  {
+   "kind": "sign_board",
+   "x": 2152,
+   "y": 1884,
+   "yaw_deg": 90,
+   "face": 5
+  },
+  {
+   "kind": "sign_board",
+   "x": 3620,
+   "y": 652,
+   "yaw_deg": 100,
+   "face": 4
+  }
+ ],
+ "tracks": [
+  {
+   "kind": "camel",
+   "points": [
+    [
+     2800,
+     812
+    ],
+    [
+     2920,
+     892
+    ],
+    [
+     3040,
+     932
+    ],
+    [
+     3200,
+     952
+    ],
+    [
+     3360,
+     1012
+    ],
+    [
+     3520,
+     1052
+    ]
+   ]
+  },
+  {
+   "kind": "foot",
+   "points": [
+    [
+     800,
+     1012
+    ],
+    [
+     820,
+     932
+    ],
+    [
+     860,
+     832
+    ],
+    [
+     920,
+     752
+    ]
+   ]
+  }
+ ],
+ "sign_atlas": "/packs/morocco-sahara/textures/signs/signs.png"
+}

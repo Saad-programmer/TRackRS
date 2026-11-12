@@ -1,0 +1,15 @@
+{
+  "layers": [
+    "sand_dune",
+    "fesh_fesh",
+    "hard_sand",
+    "hamada_stone",
+    "oued_gravel",
+    "dry_lake_clay",
+    "palmeraie_dirt",
+    "rock",
+    "tarmac_n9"
+  ],
+  "size": 64,
+  "source": "original seeded procedural desert surfaces; CC0"
+}

@@ -78,6 +78,7 @@ struct Renderer {
   GLuint vao = 0, fbo = 0, diffuse = 0, shadow = 0;
   unsigned shadowSize = 0, shadowCount = 0;
   float bakedHour = -1, bakedOvercast = -1;
+  glm::vec2 bakedDesert{-1.f, -1.f}; // heat, dust the sky IBL was baked with
   std::filesystem::path shaders;
   explicit Renderer(const std::filesystem::path &data)
       : sky(data / "shaders/world/sky.vert", data / "shaders/world/sky.frag",
@@ -126,6 +127,7 @@ void solar(GLuint p) {
   glUniform3fv(glGetUniformLocation(p, "uSunSkyRadiance"), 1,
                glm::value_ptr(s.sun.skyRadiance));
   glUniform1f(glGetUniformLocation(p, "uOvercast"), s.settings.weather.overcast);
+  glUniform4f(glGetUniformLocation(p, "uSceneDesert"), s.settings.weather.heat, s.settings.weather.dust, 0.f, 0.f);
 }
 } // namespace
 void drawSky(const glm::mat4 &projection, const glm::mat4 &view,
@@ -179,7 +181,8 @@ void prepare(const glm::mat4 &view, const glm::mat4 &projection,
     r.bakedHour = -1;
   r.base.pump();
   if (r.base.ready() && (r.bakedHour != s.settings.hour ||
-                         r.bakedOvercast != s.settings.weather.overcast)) {
+                         r.bakedOvercast != s.settings.weather.overcast ||
+                         r.bakedDesert != glm::vec2(s.settings.weather.heat, s.settings.weather.dust))) {
     validation::PassScope timing("sky_ibl_bake");
     s.sky = 0;
     s.irradiance = 0;
@@ -217,12 +220,16 @@ void prepare(const glm::mat4 &view, const glm::mat4 &projection,
     s.environmentLod = r.environment->maxLod();
     r.bakedHour = s.settings.hour;
     r.bakedOvercast = s.settings.weather.overcast;
+    r.bakedDesert = glm::vec2(s.settings.weather.heat, s.settings.weather.dust);
   }
   const bool high =
       quality == RenderQuality::High || quality == RenderQuality::Ultra;
   auto count = high ? 4u : 3u, size = high ? 2048u : 1024u;
-  s.cascades = makeCascades({view, projection}, s.sun.direction, count, size,
-                            high ? 768.f : 512.f);
+  // Open desert (a heat climate) is seen to the horizon: stretch the cascades
+  // so dune and ksar shadows reach further (amendment A3.6). The logarithmic
+  // split keeps the first cascade tight around the car either way.
+  const float reach = (high ? 768.f : 512.f) * (s.settings.weather.heat > 0 ? 1.6f : 1.f);
+  s.cascades = makeCascades({view, projection}, s.sun.direction, count, size, reach);
   if (s.settings.csm && (r.shadowSize != size || r.shadowCount != count)) {
     glDeleteTextures(1, &r.shadow);
     glGenTextures(1, &r.shadow);
@@ -330,6 +337,15 @@ void renderShadows(const std::function<void(const glm::mat4 &)> &casters) {
     glDisable(GL_BLEND);
     glDisable(GL_SCISSOR_TEST);
     glDisable(GL_FRAMEBUFFER_SRGB);
+    // The scene pass compresses depth into [0, .999] (sky at the back); the
+    // shadow map must use the full range or every receiver reads as occluded.
+    GLfloat range[2];
+    glGetFloatv(GL_DEPTH_RANGE, range);
+    glDepthRange(0, 1);
+    struct RestoreRange {
+      GLfloat n, f;
+      ~RestoreRange() { glDepthRange(n, f); }
+    } restoreRange{range[0], range[1]};
     for (unsigned i = 0; i < s.cascades.count; ++i) {
       const auto name = "shadow_cascade_" + std::to_string(i);
       validation::PassScope timing(name.c_str());

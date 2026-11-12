@@ -24,6 +24,8 @@ already exists on `origin` (checked with `git ls-remote --tags`).
 | `phase-3b-done` | `ec087af` | [41732484993](https://github.com/Saad-programmer/TRackRS/actions/runs/41732484993) | 2026-11-03 | **no: create by hand** |
 | `phase-4a-done` | `af02f36` | [42536007052](https://github.com/Saad-programmer/TRackRS/actions/runs/42536007052) (run 109) | 2026-11-08 | **no: create by hand** |
 | `phase-4b-done` | `4049bae` | [42928713175](https://github.com/Saad-programmer/TRackRS/actions/runs/42928713175) (run 111) | 2026-11-11 | **no: create by hand** |
+| `phase-3e-done` | `aa95113` | [43189440337](https://github.com/Saad-programmer/TRackRS/actions/runs/43189440337) (run 122) | 2026-11-12 | **no: create by hand** |
+| `m0-done` | `3579bfd` | [43189440337](https://github.com/Saad-programmer/TRackRS/actions/runs/43189440337) (run 122, on descendant `aa95113`) | 2026-11-12 | **no: create by hand** |
 
 Notes:
 
@@ -35,6 +37,14 @@ Notes:
 * `phase-4b-done` belongs on commit `4049bae` (full SHA
   `4049baeb23807ec6e517edb7992e69b592f7b593`). The maintainer accepted it on
   2026-11-11. It predates the Moroccan amendment, and no rollback is needed.
+* `phase-3e-done` belongs on commit `aa95113` (full SHA
+  `aa95113e67c6e7137a15bdd258b01be3829bd93f`). Run 122 is green and includes
+  the exact golden-manifest comparison.
+* `m0-done` belongs on commit `3579bfd` (full SHA
+  `3579bfdf7e52175323e35b3b67003ce4a7efd19d`). Its own run (120) was
+  cancelled when `aa95113` superseded it. `aa95113` only adds the CI golden
+  step and docs on top, so run 122 covers M0, including the pack-lite CI
+  step.
 * The default renderer stays Legacy until the maintainer supplies real-GPU
   numbers (A0.3).
 
@@ -51,6 +61,6 @@ green `main` run of the next gate commit that contains it.
 
 ## Upcoming gates (amendment §A9 order)
 
-`phase-3e-done`, `m0-done` (pack-lite), `m1-done` (Saharan world tech),
+`m1-done` (Saharan world tech),
 `m2-done` (Zagora Prologue vertical slice). Each is added to the table
 above when it closes.

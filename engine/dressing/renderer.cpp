@@ -11,7 +11,7 @@
 namespace trackrs::dressing {
 namespace {
 Settings current;
-float frameTime = 0;
+float animationClock = 0; // deterministic animation clock (setFrame)
 std::vector<glm::vec3> frameCars;
 const Renderer *activeRenderer = nullptr;
 const void *bufferOffset(std::size_t bytes) {
@@ -38,8 +38,9 @@ vegetation::LodRanges ranges(RenderQuality q) {
 
 void configure(Settings settings) { current = settings; }
 Settings settings() { return current; }
+float frameTime() { return animationClock; }
 void setFrame(float time, const std::vector<glm::vec3> &cars) {
-  frameTime = time;
+  animationClock = time;
   frameCars.assign(cars.begin(), cars.end());
 }
 
@@ -244,7 +245,7 @@ std::size_t Renderer::draw(glm::vec3 camera, const glm::mat4 &vp, vegetation::Pa
   glUniform1f(uniform("uAlphaCutoff"), 0);
   glUniform1f(uniform("uTranslucency"), 0);
   glUniform1i(uniform("uAlbedoGamma"), 0);
-  glUniform1f(uniform("uTime"), frameTime);
+  glUniform1f(uniform("uTime"), animationClock);
   for (auto [name, unit] : {std::pair{"uAlbedoMap", 0}, {"uNormalMap", 1}, {"uMetalRoughMap", 2}, {"uIrradianceMap", 3},
                             {"uPrefilterMap", 4}, {"uBrdfLUT", 5}, {"uLocalProbe", 7}})
     glUniform1i(uniform(name), unit);
