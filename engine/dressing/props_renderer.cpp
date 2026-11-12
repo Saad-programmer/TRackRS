@@ -215,7 +215,7 @@ std::size_t PropsRenderer::draw(glm::vec3 camera, const glm::mat4 &vp, vegetatio
     };
     // Sign text: full-detail faces only, never in shadow maps (the board casts).
     if (prop.face >= 0 && p.atlas && !shadow && choice.lod < 2)
-      p.signBuckets[static_cast<std::size_t>(prop.face)].push_back(
+      p.signBuckets[static_cast<std::size_t>(static_cast<unsigned char>(prop.face))].push_back(
           {glm::vec4(pose.position, prop.scale), glm::vec4(pose.yaw, 1.f, 0.f, 0.f)});
     if (choice.next == choice.lod)
       push(choice.lod, 1.f);
