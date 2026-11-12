@@ -12,7 +12,7 @@ is a claim for a human to check against the M2 evidence images in
 
 | # | Item | What M2 contains | Status |
 |---|---|---|---|
-| 1 | No real brands, sponsors, teams or people | The event "Rallye Sahara Draâ" is fictional. The cars "Draa Raid T1" and "Erg Lite T3" are fictional, with invented figures. Liveries are plain colour schemes with no logos. The marque field reads "Rallye Sahara Draa (fictional)". | to confirm |
+| 1 | No real brands, sponsors, teams or people | The event "Rallye Sahara Draâ" is fictional. The cars "Draa Raid T1" and "Erg Lite T3" are fictional, with invented figures. Liveries are plain colour schemes with no logos. The marque field is empty (fictional), as the car validator requires. | to confirm |
 | 2 | No real event or organiser branding | No ASO, no "Dakar", no real rally name or logo anywhere. The start arch is plain painted steel. | to confirm |
 | 3 | Bilingual signage | Six fictional event signs in French and Arabic (`textures/signs/signs.json`): event name, departure, caution (race), Zagora 4 km, finish, spectator zone. Arabic is shaped with raqm in Noto Naskh Arabic. **Every Arabic line is `verified:false`**: a fluent reader must check spelling and register. Digits are Latin (A10). | **needs a fluent reviewer** |
 | 4 | Signs do not imitate official road signage | Event-style panels (cream, terracotta border), not Moroccan road-sign designs. | to confirm |
