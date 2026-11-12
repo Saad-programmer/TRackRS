@@ -52,8 +52,10 @@ Options parse(int argc, char** argv) {
         else if (key == "--render-from") o.renderFrom = number(value());
         else if (key == "--autopilot") { o.autopilotKmh = static_cast<float>(number(value())); if (o.autopilotKmh > 250) throw std::runtime_error("--autopilot must be 1..250 km/h"); }
         else if (key == "--brake-from") o.brakeFrom = number(value());
+        else if (key == "--brake-heat") { o.brakeHeat = static_cast<float>(number(value())); if (o.brakeHeat > 950) throw std::runtime_error("--brake-heat must be 0..950"); }
+        else if (key == "--brake-cycles") { o.brakeCycles = number(value()); if (o.brakeCycles < 1 || o.brakeCycles > 20) throw std::runtime_error("--brake-cycles must be 1..20"); }
         else if (key == "--pack-root") o.packRoot = value();
-        else if (key == "--camera") {o.camera=value();static const char*modes[]={"chase","bumper","side","hood","periscope","cockpit"};if(std::find(std::begin(modes),std::end(modes),o.camera)==std::end(modes))throw std::runtime_error("camera must be chase, bumper, side, hood, periscope or cockpit");}
+        else if (key == "--camera") {o.camera=value();static const char*modes[]={"chase","bumper","side","hood","periscope","cockpit","trackside"};if(std::find(std::begin(modes),std::end(modes),o.camera)==std::end(modes))throw std::runtime_error("camera must be chase, bumper, side, hood, periscope, cockpit or trackside");}
         else if (key == "--seed") o.seed = number(value());
         else if (key == "--replay") o.replay = value();
         else if (key == "--dump-state") o.dump = value();

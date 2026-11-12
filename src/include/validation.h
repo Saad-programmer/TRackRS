@@ -20,7 +20,9 @@ struct Options {
     unsigned renderFrom = 0; ///< simulate ticks [0, renderFrom) without rendering (long runs)
     float autopilotKmh = 0;  ///< > 0: follow the traced road at this speed (deterministic)
     unsigned brakeFrom = 0;  ///< > 0: full foot brake, no throttle, from this tick
-    std::string camera;      ///< chase (default), bumper, side, hood, periscope or cockpit
+    unsigned brakeCycles = 1; ///< hard stops in the brake test (the last one stops the car)
+    float brakeHeat = 0;      ///< > 0: FORCE disc temperature (°C) from brakeFrom on (glow inspection only)
+    std::string camera;      ///< chase (default), bumper, side, hood, periscope, cockpit or trackside
     std::string stage = "/maps/ahead/ahead.level", vehicle = "cordo_kitcar";
     std::string replay, dump, json, screenshot, data, renderer, quality, timeOfDay, shadows, vegetation, weather, post, crowd, cars, aa, telemetry;
 };

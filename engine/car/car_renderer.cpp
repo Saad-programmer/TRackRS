@@ -191,7 +191,8 @@ struct VehicleState {
   // Phase 3e motion vectors: this frame's main-view transforms and last frame's.
   const void *type = nullptr;
   bool drawn = false, hasPrevious = false;
-  bool observed = false; ///< wear driven per simulation tick by observe()
+  bool observed = false;
+  bool brakeForced = false; ///< --brake-heat override active ///< wear driven per simulation tick by observe()
   glm::mat4 body{1}, previousBody{1};
   std::vector<glm::mat4> wheels, previousWheels;
 };
@@ -504,6 +505,14 @@ void observe(const void *vehicle, const WearInput &input) {
   updateWear(s.wear, input);
 }
 
+void forceBrakeTemperature(const void *vehicle, float celsius) {
+  if (!cache)
+    cache = std::make_unique<Cache>();
+  auto &s = cache->vehicles[vehicle];
+  s.wear.brakeC.fill(std::clamp(celsius, 25.f, 950.f));
+  s.brakeForced = true;
+}
+
 std::size_t drawVelocity(const glm::mat4 &jittered, const glm::mat4 &current, const glm::mat4 &previous) {
   if (!cache)
     return 0;
@@ -607,7 +616,7 @@ nlohmann::json report() {
                           {"triangles", s.triangles},
                           {"dust", s.wear.dust},
                           {"mud", s.wear.mud},
-                          {"brake_c", s.wear.brakeC}});
+                          {"brake_c", s.wear.brakeC}, {"brake_forced", s.brakeForced}});
   }
   return {{"renderer", "car-v2"},
           {"enabled", current.enabled},

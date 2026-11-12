@@ -84,6 +84,7 @@ enum class CameraMode{
 	hood,
 	periscope,
 	cockpit,   // driver's eye inside the cabin, with the dashboard gauges
+	trackside, // fixed roadside TV camera that follows the car, re-placed ahead when it leaves
 	// disabled
 	//piggyback,
 	count
@@ -551,6 +552,7 @@ public:
 	void renderDamageIndicatorGroup();
 	void renderCockpitDash();   ///< M2: placeholder dashboard for CameraMode::cockpit
 	float tripMetres = 0;       ///< rally-raid tripmaster (simulation ticks)
+	vec3f tracksideAnchor; bool tracksideSet = false; ///< CameraMode::trackside position
 
 	void keyEvent(const SDL_KeyboardEvent &ke);
 	void mouseMoveEvent(int dx, int dy);

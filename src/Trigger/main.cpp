@@ -1,5 +1,6 @@
 #include "engine/renderer/renderer.h"
 #include "engine/world/state.h"
+#include "engine/car/car_renderer.h"
 #include "../../engine/application/edition_loader.h"
 // Creator: Saad AIT YAHIA - @github: Saad-programmer
 #include "exception.h"
@@ -570,9 +571,11 @@ bool MainApp::loadAll()
 
   cameraview = CameraMode::chase;
   tripMetres = 0;
+  tracksideSet = false;
   {
     static const std::pair<const char*, CameraMode> modes[] = {{"chase", CameraMode::chase}, {"bumper", CameraMode::bumper},
-        {"side", CameraMode::side}, {"hood", CameraMode::hood}, {"periscope", CameraMode::periscope}, {"cockpit", CameraMode::cockpit}};
+        {"side", CameraMode::side}, {"hood", CameraMode::hood}, {"periscope", CameraMode::periscope}, {"cockpit", CameraMode::cockpit},
+        {"trackside", CameraMode::trackside}};
     for (const auto& m : modes)
       if (validation::run.options.camera == m.first) cameraview = m.second;
   }
@@ -1065,8 +1068,19 @@ void MainApp::tickStateGame(float delta)
           vehic->ctrl.brake1 = speed > target_ms + 2.f ? std::clamp((speed - target_ms) * 0.25f, 0.f, 1.f) : 0.f;
       }
       if (opts.brakeFrom > 0 && validation::run.ticks >= opts.brakeFrom) {
-          vehic->ctrl.throttle = 0.f;
-          vehic->ctrl.brake1 = 1.f;
+          // Hard-braking test. --brake-cycles N: N-1 times brake to 30 km/h and
+          // re-accelerate to 70 km/h (steering stays on the autopilot), then a
+          // final full stop. Deterministic: depends only on the simulated speed.
+          static unsigned stops = 0;
+          static bool braking = true;
+          const vec3f lv = vehic->body->getLinearVel(); // full speed: the car may slide
+          const float kmh = std::sqrt(lv.x * lv.x + lv.y * lv.y + lv.z * lv.z) * 3.6f;
+          if (stops + 1 < opts.brakeCycles) {
+              if (braking && kmh < 30.f) { braking = false; ++stops; }
+              else if (!braking && kmh > 70.f) braking = true;
+          } else braking = true;
+          vehic->ctrl.throttle = braking ? 0.f : 1.f;
+          vehic->ctrl.brake1 = braking ? 1.f : 0.f;
       }
   }
   game->tick(delta);
@@ -1075,6 +1089,9 @@ void MainApp::tickStateGame(float delta)
   if (game->terrain)
       for (auto *car : game->vehicle)
           trackrs::Renderer::observeCar(*car, game->terrain->getRoadSurface(car->body->getPosition()), delta);
+  if (validation::run.options.brakeHeat > 0 && validation::run.options.brakeFrom > 0 &&
+      validation::run.ticks >= validation::run.options.brakeFrom)
+      trackrs::car::forceBrakeTemperature(game->vehicle[0], validation::run.options.brakeHeat);
   if (game->terrain)
       for (unsigned i = 0; i < game->vehicle.size(); ++i)
           trackrs::Renderer::observeTracks(*game->vehicle[i], i, *game->terrain);
@@ -1329,6 +1346,27 @@ void MainApp::tickStateGame(float delta)
       makevec3f(rfmat.row[0]) * -0.36f +
       makevec3f(rfmat.row[1]) * -0.15f +
       makevec3f(rfmat.row[2]) * 0.62f;
+    } break;
+
+    // Trackside: a camera on a tripod at the roadside, 9 m ahead of the car
+    // and 6 m to its right, turning to follow it; re-placed ahead once the
+    // car is more than 60 m away.
+	case CameraMode::trackside: {
+    const mat44f &rfmat = rf->getInverseOrientationMatrix();
+    const vec3f carpos = rf->getPosition();
+    if (!tracksideSet || (carpos - tracksideAnchor).length() > 60.0f) {
+      tracksideAnchor = carpos + makevec3f(rfmat.row[1]) * 9.0f + makevec3f(rfmat.row[0]) * 6.0f;
+      tracksideAnchor.z = game->terrain->getHeight(tracksideAnchor.x, tracksideAnchor.y) + 1.1f;
+      tracksideSet = true;
+    }
+    const vec3f look = carpos - tracksideAnchor;
+    quatf temp2;
+    temp2.fromZAngle(std::atan2(look.x, look.y) + camera_user_angle);
+    camori = tempo * temp2;
+    camori.normalize();
+    cammat = camori.getMatrix();
+    cammat = cammat.transpose();
+    campos = tracksideAnchor;
     } break;
 
     // Piggyback (fixed chase)
@@ -1832,7 +1870,7 @@ int main(int argc, char *argv[])
                 << "  --data-dir <data directory>\n"
                 << "  --frames <250-Hz ticks> --render-from <tick> --seed <integer> --replay <csv>\n"
                 << "  --autopilot <km/h> (follow the traced road) --brake-from <tick> (hard braking)\n"
-                << "  --camera chase|bumper|side|hood|periscope|cockpit\n"
+                << "  --camera chase|bumper|side|hood|periscope|cockpit|trackside --brake-cycles <n> (repeated hard stops: 30-70 km/h, then a full stop)\n"
                 << "  --dump-state <hash-file> --json <report.json> --screenshot <image.ppm>\n"
                 << "  --renderer legacy|pbr --quality low|medium|high|ultra --shadows blob|csm\n"
                 << "  --time-of-day dawn|noon|golden-hour|dusk|night|midnight --vegetation 3d|cards\n"
