@@ -266,6 +266,26 @@ TEST_CASE("prop placement is deterministic and never on or near the road") {
   CHECK_THROWS(placeProps(R"({"schema":"other"})", q, PropRules{}, 1));
 }
 
+TEST_CASE("event signs stand at the road edge, never on it; blank boards keep the full margin") {
+  using namespace trackrs::dressing;
+  PropQueries q;
+  q.height = [](float, float) { return 0.f; };
+  q.onRoad = [](float, float y) { return std::abs(y) < 4.f; };
+  // Board radius 1.2 m: an event sign needs |y| >= 4 + 1.7, a blank board 4 + 5.2.
+  const char *json = R"({"schema":"trackrs.props/1","props":[
+    {"kind":"sign_board","x":0,"y":6,"face":2},{"kind":"sign_board","x":10,"y":6},
+    {"kind":"sign_board","x":20,"y":4.5,"face":1},{"kind":"sign_board","x":30,"y":10}]})";
+  PlacementReport r;
+  const auto placed = placeProps(json, q, PropRules{}, 7, &r);
+  REQUIRE(placed.size() == 2);
+  CHECK(placed[0].face == 2);           // event sign at the edge: kept
+  CHECK(placed[1].face == -1);          // blank board well clear: kept
+  CHECK(placed[1].position.x == doctest::Approx(30));
+  CHECK(r.rejectedRoad == 2);           // blank board at 6 m and event sign at 4.5 m: refused
+  CHECK_THROWS(placeProps(R"({"schema":"trackrs.props/1","props":[{"kind":"well","x":0,"y":9,"face":1}]})", q,
+                          PropRules{}, 7));
+}
+
 TEST_CASE("animals graze back and forth deterministically; buildings stay put") {
   using namespace trackrs::dressing;
   Prop camel;

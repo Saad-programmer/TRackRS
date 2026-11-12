@@ -2039,7 +2039,7 @@ void MainApp::renderCockpitDash()
             bar(g.c + dir * (r * inner), g.c + dir * (r * .95f), i % 2 ? .004f : .008f);
             if (i % 2 == 0) {
                 const int label = static_cast<int>(std::lround(g.max / static_cast<float>(g.majors) * static_cast<float>(i / 2)));
-                text(std::to_string(g.max > 1000 ? label / 1000 : label), g.c + dir * (r * .62f), .028f,
+                text(std::to_string(g.max > 1000 ? label / 1000 : label), g.c + dir * (r * .6f), .021f,
                      PTEXT_HZA_CENTER | PTEXT_VTA_CENTER);
             }
         }

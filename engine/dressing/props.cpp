@@ -457,7 +457,11 @@ std::vector<Prop> placeProps(std::string_view text, const PropQueries &stage, co
     const float r = propRadius(p.kind) * p.scale;
     bool road = false;
     if (!spansRoad(p.kind)) {
-      const float reach = r + rules.roadMargin;
+      // Event signs (a sign_board showing a face) stand at the road edge, as
+      // real ones do: 0.5 m clearance instead of the full margin. They are
+      // still never on the road.
+      const bool eventSign = p.kind == PropKind::SignBoard && p.face >= 0;
+      const float reach = r + (eventSign ? .5f : rules.roadMargin);
       road = stage.onRoad(p.position.x, p.position.y);
       for (int i = 0; i < 12 && !road; ++i) {
         const float a = 2 * Pi * static_cast<float>(i) / 12.f;
