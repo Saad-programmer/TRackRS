@@ -32,6 +32,12 @@ jobs:
           ALSOFT_DRIVERS: "null"
         run: |
           xvfb-run -a -s '-screen 0 640x480x24' python3 tests/run_baselines.py --binary build/linux-release/bin/trackrs --output build/baselines
+      - name: Print the record into the log
+        # Build sessions cannot reach artifact blob storage, but can read job
+        # logs: the manifest and toolchain record are echoed between markers.
+        run: |
+          echo "=== BEGIN toolchain.txt ==="; cat build/baselines/toolchain.txt; echo "=== END toolchain.txt ==="
+          echo "=== BEGIN manifest.json ==="; cat build/baselines/manifest.json; echo "=== END manifest.json ==="
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         if: always()
         with:
