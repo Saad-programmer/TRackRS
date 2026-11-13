@@ -26,6 +26,7 @@ already exists on `origin` (checked with `git ls-remote --tags`).
 | `phase-4b-done` | `4049bae` | [42928713175](https://github.com/Saad-programmer/TRackRS/actions/runs/42928713175) (run 111) | 2026-11-11 | **no: create by hand** |
 | `phase-3e-done` | `aa95113` | [43189440337](https://github.com/Saad-programmer/TRackRS/actions/runs/43189440337) (run 122) | 2026-11-12 | **no: create by hand** |
 | `m0-done` | `3579bfd` | [43189440337](https://github.com/Saad-programmer/TRackRS/actions/runs/43189440337) (run 122, on descendant `aa95113`) | 2026-11-12 | **no: create by hand** |
+| `m1-done` | `fc8a242` | [43331156267](https://github.com/Saad-programmer/TRackRS/actions/runs/43331156267) (run 133) | 2026-11-13 | **no: create by hand** |
 
 Notes:
 
@@ -45,6 +46,12 @@ Notes:
   cancelled when `aa95113` superseded it. `aa95113` only adds the CI golden
   step and docs on top, so run 122 covers M0, including the pack-lite CI
   step.
+* `m1-done` belongs on commit `fc8a242` (full SHA
+  `fc8a24270a3954dae59095a6707eb88aa7ceb783`). Run 133 is green on all six
+  jobs. The M1 report commit `0503c80` failed on Windows (CRLF hash of the
+  desert generator, fixed in `381848a`) and in the clang lint job (two lines
+  in the sign code, fixed in `fc8a242`). The gate is the first commit with
+  everything green.
 * The default renderer stays Legacy until the maintainer supplies real-GPU
   numbers (A0.3).
 
@@ -61,6 +68,5 @@ green `main` run of the next gate commit that contains it.
 
 ## Upcoming gates (amendment §A9 order)
 
-`m1-done` (Saharan world tech),
 `m2-done` (Zagora Prologue vertical slice). Each is added to the table
 above when it closes.
