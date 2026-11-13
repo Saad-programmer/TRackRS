@@ -419,3 +419,44 @@ body. In that mode the HUD draws a screen-space dashboard: dash and
 binnacle, tachometer, speedometer, a steering-wheel rim that turns with the
 input, and a rally-raid tripmaster (distance and CAP heading). It is labelled
 a placeholder until car interiors exist.
+
+## 4c: damage visuals read the existing damage model, with a visual gain
+
+Context: Phase 4c asks for dents, decals, detachable parts, cracked glass and
+smoke, "all driven by the existing damage model". That model (PDamage) holds
+four corner values fed by contact impulses × 1e-7. Measured with
+`tests/replays/crash_rollover.csv` (14 flat-out flicks and rolls on
+`ahead`), the worst corner reached only 0.094.
+Decision:
+* **Read only.** Physics and state hashes do not change; the renderer reads
+  through a new side-effect-free `PDamage::level()`, since `getDamage(side)`
+  clears the HUD flash.
+* **Visual gain.** Visual severity is `clamp(6 × simulation damage, 0, 1)`
+  (`trackrs::car::VisualGain`), so a violent session reads as heavily
+  damaged. Reports carry both `damage_sim` and `damage_visual`.
+* **One damage field.** `engine/car/damage_visual` is a unit-tested
+  function: a smooth falloff from each corner, strongest corner wins. It is
+  mirrored by `car.vert` and `pbr.frag`. Lamps on a corner ≥ 0.8 go dark,
+  and a front above 0.55 smokes.
+* **No separate part meshes.** The borrowed fictional bodies have no
+  separate parts, so "detachable parts" is a sagging bumper end at the
+  heaviest damage. Real detachable parts need segmented models (4d sourcing).
+* **Paint damage before dirt,** so the 4b dust and mud carry over and dirt
+  clings to the scratches.
+* **Smoke only in the PBR world,** with its own RNG stream, so Legacy output
+  and dirt particles are byte-identical.
+* **Forced captures.** `--damage-visual` forces render-only severity for
+  evidence and is reported as `damage_forced`.
+
+## 4c: livery art never repaints glass, rubber or tail lamps
+
+Context: fixing the M2 cars' legacy lettering showed that a sponsor rectangle
+can overlap mudflap or window UVs in a borrowed atlas. It also showed that
+the role map, classified from the original atlas, kept white lettering as
+metal or headlamp candidates under new artwork.
+Decision:
+* Sponsor slots may take an opaque `backing`.
+* Panel and slot art is restored on glass, rubber and tail-lamp texels.
+* `repaintRoles()` marks the remaining art texels as plain paint and clears
+  their headlamp-candidate flag. Headlamp candidates are not protected: the
+  shader already limits them to the car's front.
