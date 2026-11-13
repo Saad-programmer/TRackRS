@@ -1,0 +1,70 @@
+{
+  "schema": "trackrs.livery/1",
+  "id": "prodrive_hunter_t1plus_fictional",
+  "note": "Fictional livery (placeholder model): generated sponsor marks, no team, sponsor or manufacturer scheme or logo.",
+  "primary": "#1d2f45",
+  "primary_source": "#0044aa",
+  "secondary": "#d9a441",
+  "secondary_source": "#ffff00",
+  "number": 302,
+  "number_colour": "#111111",
+  "panel_colour": "#f2f2f2",
+  "number_panels": [
+    {
+      "rect": [
+        0.398,
+        0.52,
+        0.14,
+        0.117
+      ]
+    },
+    {
+      "rect": [
+        0.461,
+        0.828,
+        0.133,
+        0.125
+      ]
+    }
+  ],
+  "sponsor_slots": [
+    {
+      "rect": [
+        0.54,
+        0.51,
+        0.32,
+        0.14
+      ],
+      "backing": "#1d2f45"
+    },
+    {
+      "rect": [
+        0.214,
+        0.82,
+        0.24,
+        0.15
+      ],
+      "backing": "#1d2f45"
+    },
+    {
+      "rect": [
+        0.762,
+        0.229,
+        0.098,
+        0.049
+      ],
+      "backing": "#1d2f45"
+    },
+    {
+      "rect": [
+        0.117,
+        0.117,
+        0.102,
+        0.254
+      ],
+      "rotation": 90,
+      "backing": "#1d2f45"
+    }
+  ],
+  "sponsor_seed": 402
+}

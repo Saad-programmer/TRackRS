@@ -1,0 +1,102 @@
+{
+  "schema": "trackrs.car/2",
+  "id": "toyota_gr_dkr_hilux_t1plus",
+  "display_name": "Toyota GR DKR Hilux T1+",
+  "marque": "Toyota",
+  "year": 2022,
+  "class": "Rally-raid T1+",
+  "era": "2022-",
+  "license": {
+    "data": "GPL-2.0-or-later",
+    "model": "",
+    "author": "TrackRS contributors",
+    "source_url": "",
+    "trademark_notice": "Toyota and GR DKR Hilux T1+ are trademarks of their respective owners. TrackRS is not affiliated with or endorsed by them; the name identifies the real car this entry stands for. No logo, badge or team livery is reproduced."
+  },
+  "verified": {
+    "mass": false,
+    "engine": false,
+    "gearbox": false,
+    "tyres": false,
+    "aero": false,
+    "brakes": false
+  },
+  "sources": [],
+  "provenance": "Class-typical placeholder figures for a Rally-raid T1+ car of its era, chosen by the TrackRS author; NOT data of this specific car. Gear ratios and final drive are synthetic. Replace each value with a cited figure, add the URL to sources and set the matching verified key.",
+  "body": {
+    "mesh": "",
+    "fallback": "cordo_super500",
+    "import_scale": 1.0,
+    "unit": "m"
+  },
+  "mass": {
+    "kerb_kg": 2000,
+    "front_weight_dist": 0.52
+  },
+  "engine": {
+    "layout": "3.5 V6 twin-turbo front-mid (restricted)",
+    "idle_rpm": 900,
+    "redline_rpm": 6500,
+    "torque_curve_nm": [
+      [
+        900.0,
+        186.0
+      ],
+      [
+        2350.0,
+        446.4
+      ],
+      [
+        3500.0,
+        620.0
+      ],
+      [
+        4250.0,
+        605.5
+      ],
+      [
+        5000.0,
+        553.9
+      ],
+      [
+        6500.0,
+        465.2
+      ]
+    ]
+  },
+  "drivetrain": {
+    "layout": "AWD",
+    "front_torque_share": 0.5,
+    "gearbox": {
+      "ratios": [
+        4.515,
+        3.661,
+        2.968,
+        2.407,
+        1.951,
+        1.582
+      ],
+      "final_drive": 4.1,
+      "reverse": 4.741,
+      "shift_time_s": 0.12,
+      "derivation": "synthetic: final drive 4.1, top gear reaches the claimed top speed at the redline, first gear traction-limited (mu 1.3), geometric spacing"
+    }
+  },
+  "tyres": {
+    "radius_m": 0.45,
+    "width_m": 0.3
+  },
+  "aero": {
+    "cd": 0.5,
+    "frontal_area_m2": 3.0,
+    "cl_front": 0.0,
+    "cl_rear": 0.0
+  },
+  "brakes": {
+    "bias_front": 0.6
+  },
+  "claims": {
+    "top_speed_kmh": 170,
+    "zero_to_100_s": 0
+  }
+}

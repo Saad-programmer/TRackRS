@@ -1,0 +1,101 @@
+{
+  "schema": "trackrs.car/2",
+  "id": "porsche_959_raid_1986",
+  "display_name": "Porsche 959 (rally-raid, 1986)",
+  "marque": "Porsche",
+  "year": 1986,
+  "class": "Heritage raid prototype",
+  "era": "1984-1986",
+  "license": {
+    "data": "GPL-2.0-or-later",
+    "model": "",
+    "author": "TrackRS contributors",
+    "source_url": "",
+    "trademark_notice": "Porsche and 959 (rally-raid, 1986) are trademarks of their respective owners. TrackRS is not affiliated with or endorsed by them; the name identifies the real car this entry stands for. No logo, badge or team livery is reproduced."
+  },
+  "verified": {
+    "mass": false,
+    "engine": false,
+    "gearbox": false,
+    "tyres": false,
+    "aero": false,
+    "brakes": false
+  },
+  "sources": [],
+  "provenance": "Class-typical placeholder figures for a Heritage raid prototype car of its era, chosen by the TrackRS author; NOT data of this specific car. Gear ratios and final drive are synthetic. Replace each value with a cited figure, add the URL to sources and set the matching verified key.",
+  "body": {
+    "mesh": "",
+    "fallback": "cordo_super500",
+    "import_scale": 1.0,
+    "unit": "m"
+  },
+  "mass": {
+    "kerb_kg": 1260,
+    "front_weight_dist": 0.42
+  },
+  "engine": {
+    "layout": "2.85 flat-6 twin-turbo rear-mounted",
+    "idle_rpm": 950,
+    "redline_rpm": 7500,
+    "torque_curve_nm": [
+      [
+        950.0,
+        150.0
+      ],
+      [
+        3200.0,
+        360.0
+      ],
+      [
+        5000.0,
+        500.0
+      ],
+      [
+        5750.0,
+        478.0
+      ],
+      [
+        6500.0,
+        426.0
+      ],
+      [
+        7500.0,
+        357.9
+      ]
+    ]
+  },
+  "drivetrain": {
+    "layout": "AWD",
+    "front_torque_share": 0.4,
+    "gearbox": {
+      "ratios": [
+        2.822,
+        2.27,
+        1.826,
+        1.469,
+        1.182
+      ],
+      "final_drive": 4.1,
+      "reverse": 2.963,
+      "shift_time_s": 0.25,
+      "derivation": "synthetic: final drive 4.1, top gear reaches the claimed top speed at the redline, first gear traction-limited (mu 1.3), geometric spacing"
+    }
+  },
+  "tyres": {
+    "radius_m": 0.36,
+    "width_m": 0.25
+  },
+  "aero": {
+    "cd": 0.38,
+    "frontal_area_m2": 2.0,
+    "cl_front": 0.0,
+    "cl_rear": 0.0
+  },
+  "brakes": {
+    "bias_front": 0.6
+  },
+  "claims": {
+    "top_speed_kmh": 210,
+    "zero_to_100_s": 0
+  }
+}

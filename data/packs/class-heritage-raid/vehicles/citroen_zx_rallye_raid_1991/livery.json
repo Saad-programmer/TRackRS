@@ -1,0 +1,70 @@
+{
+  "schema": "trackrs.livery/1",
+  "id": "citroen_zx_rallye_raid_1991_fictional",
+  "note": "Fictional livery (placeholder model): generated sponsor marks, no team, sponsor or manufacturer scheme or logo.",
+  "primary": "#d63a2b",
+  "primary_source": "#0044aa",
+  "secondary": "#f2f2ee",
+  "secondary_source": "#ffff00",
+  "number": 207,
+  "number_colour": "#111111",
+  "panel_colour": "#f2f2f2",
+  "number_panels": [
+    {
+      "rect": [
+        0.398,
+        0.52,
+        0.14,
+        0.117
+      ]
+    },
+    {
+      "rect": [
+        0.461,
+        0.828,
+        0.133,
+        0.125
+      ]
+    }
+  ],
+  "sponsor_slots": [
+    {
+      "rect": [
+        0.54,
+        0.51,
+        0.32,
+        0.14
+      ],
+      "backing": "#d63a2b"
+    },
+    {
+      "rect": [
+        0.214,
+        0.82,
+        0.24,
+        0.15
+      ],
+      "backing": "#d63a2b"
+    },
+    {
+      "rect": [
+        0.762,
+        0.229,
+        0.098,
+        0.049
+      ],
+      "backing": "#d63a2b"
+    },
+    {
+      "rect": [
+        0.117,
+        0.117,
+        0.102,
+        0.254
+      ],
+      "rotation": 90,
+      "backing": "#d63a2b"
+    }
+  ],
+  "sponsor_seed": 407
+}

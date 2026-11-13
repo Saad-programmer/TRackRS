@@ -181,3 +181,34 @@ TEST_CASE("optional damage.visual_gain parses, validates and round-trips") {
   car.damageVisualGain = .1f;
   CHECK_FALSE(validate(car).ok());
 }
+
+TEST_CASE("every content-pack car validates, is honest and shows its placeholder status") {
+  const fs::path packs = fs::path(TRACKRS_DATA_DIR) / "packs";
+  std::set<std::string> ids;
+  std::size_t count = 0;
+  for (const auto &pack : fs::directory_iterator(packs)) {
+    const auto vehicles = pack.path() / "vehicles";
+    if (!fs::is_directory(vehicles))
+      continue;
+    for (const auto &dir : fs::directory_iterator(vehicles)) {
+      const auto file = dir.path() / "car.json";
+      REQUIRE(fs::exists(file));
+      const auto car = parseCar(read(file));
+      INFO(file.string());
+      CHECK(validate(car).ok());
+      CHECK(car.id == dir.path().filename().string());
+      CHECK(ids.insert(car.id).second); // ids are unique across all packs
+      for (const auto &[key, value] : car.verified)
+        CHECK_FALSE(value);              // nothing in the packs is verified yet
+      CHECK(car.sources.empty());
+      CHECK_FALSE(car.provenance.empty());
+      if (!car.marque.empty())
+        CHECK_FALSE(car.license.trademarkNotice.empty());
+      if (car.body.mesh.empty())
+        CHECK(menuName(car).find("(placeholder model)") != std::string::npos);
+      CHECK(fs::exists(dir.path() / "livery.json"));
+      ++count;
+    }
+  }
+  CHECK(count >= 11); // morocco-sahara 2 + rally-raid 4 + heritage raid 5
+}
