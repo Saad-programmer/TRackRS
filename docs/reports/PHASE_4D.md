@@ -85,14 +85,18 @@ in [phase4d/cars.json](phase4d/cars.json).
 
 Summary: every car costs **13.38–13.53 MB**, almost all of it the borrowed
 body's 13.33 MB of textures. The 17 pack cars draw 2 036 or 2 156 triangles at LOD0, depending on the borrowed body.
-Median CPU per frame: **0.60 ms** (`cars`) and **0.62 ms** (shadows).
+Median CPU per frame: **0.60 ms** (`cars`) and **0.62 ms** (shadows). The highest is `toyota_celica_gt4_st185` at 1.41 ms: its borrowed body draws 8772 triangles.
 
-GOLDEN_REMEASURE_PLACEHOLDER
+**Warm-up outliers, remeasured.** The first two cars of the 33-car run read
+29.05 ms (Alpine A110) and 23.03 ms (Audi Quattro A2). Measured again on
+their own, they read 0.51 and 1.33 ms, so the first values were first-use
+cost of the run. The table and `cars.json` carry the remeasured values.
+
 
 | id | car | VRAM MB | of which textures MB | triangles drawn | CPU ms cars | CPU ms shadows | GPU µs (llvmpipe) |
 |---|---|---|---|---|---|---|---|
-| `alpine_a110_1800` | Alpine A110 1800 (placeholder model) | 13.38 | 13.33 | 2036 | 29.05 | 0.69 | 0.07 |
-| `audi_quattro_a2` | Audi Quattro A2 (placeholder model) | 13.53 | 13.33 | 8772 | 23.03 | 1.32 | 0.05 |
+| `alpine_a110_1800` | Alpine A110 1800 (placeholder model) | 13.38 | 13.33 | 2036 | 0.51 | 0.58 | 0.06 |
+| `audi_quattro_a2` | Audi Quattro A2 (placeholder model) | 13.53 | 13.33 | 8772 | 1.33 | 1.20 | 0.04 |
 | `bmw_m3_e30_group_a` | BMW M3 E30 Group A (placeholder model) | 13.38 | 13.33 | 2036 | 0.51 | 0.56 | 0.05 |
 | `class-heritage-raid:citroen_zx_rallye_raid_1991` | Citroen ZX Rallye-Raid (placeholder model) | 13.38 | 13.33 | 2156 | 0.64 | 0.65 | 0.08 |
 | `class-heritage-raid:mitsubishi_pajero_evolution_1998` | Mitsubishi Pajero Evolution (raid, 1998) (placeholder model) | 13.38 | 13.33 | 2156 | 0.60 | 0.75 | 0.11 |
@@ -130,3 +134,24 @@ GOLDEN_REMEASURE_PLACEHOLDER
 | `porsche_911_sc_rs` | Porsche 911 SC RS (placeholder model) | 13.38 | 13.33 | 2036 | 0.53 | 0.60 | 0.06 |
 | `subaru_impreza_wrc97` | Subaru Impreza WRC97 (placeholder model) | 13.53 | 13.33 | 8772 | 1.38 | 1.22 | 0.06 |
 | `toyota_celica_gt4_st185` | Toyota Celica GT-Four ST185 (placeholder model) | 13.53 | 13.33 | 8772 | 1.41 | 1.33 | 0.06 |
+
+## Checks
+
+| Check | Result |
+|---|---|
+| `ctest` (linux-release) | **32/32** pass, including `car-class-packs-fresh`, `car-data-overrides`, `car-mesh-checker`, `cars-md-fresh` |
+| Legacy golden manifest (`run_baselines.py --compare` against the 4c run, all **13** stages, 2 repeats) | **identical**: state hashes and framebuffers |
+| `trackrs-content validate data` | every pack PASS; no uncovered file |
+| Production clang-tidy (`core_lint.cpp`, `run_production_lint.py`) | clean |
+| CI | see [GATES.md](../GATES.md) |
+
+## Limits
+
+* **No supplied mesh yet.** Every new car borrows a fictional legacy body.
+  The loader for supplied meshes is written when the first mesh that passes
+  `check_car_mesh.py` arrives.
+* **Figures are class-typical,** not the named cars' data, until a
+  `data_overrides.json` cites them.
+* **All timings are software GL.** Hardware numbers are owed.
+* The shipped edition stays `demo` until v0.7.0 (release backlog in
+  [PROGRESS](../PROGRESS.md)).

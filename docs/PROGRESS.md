@@ -23,7 +23,7 @@ rendering (Mesa llvmpipe). Real-GPU numbers come from the maintainer.
 | M0 Pack-lite (amendment §A9.2) | Done (gate) | [PHASE_M0](reports/PHASE_M0.md), [CONTENT_PACKS](CONTENT_PACKS.md) |
 | M1 Saharan world tech (A3 1–6, test stage) | Done (gate) | [PHASE_M1](reports/PHASE_M1.md), [cultural review](reviews/CULTURAL_M1.md) |
 | M2 Zagora Prologue vertical slice | Done (gate, accepted) | [PHASE_M2](reports/PHASE_M2.md), [cultural review](reviews/CULTURAL_M2.md) |
-| 4 Real rally cars, gated 4a–4d | 4a, 4b, 4c done; 4d at its gate (awaiting review) | [PHASE_4A](reports/PHASE_4A.md), [PHASE_4B](reports/PHASE_4B.md), [PHASE_4C](reports/PHASE_4C.md), [PHASE_4D](reports/PHASE_4D.md), [CARS](CARS.md), [ASSET_SOURCING](ASSET_SOURCING.md) |
+| 4 Real rally cars, gated 4a–4d | 4a–4d done | [PHASE_4A](reports/PHASE_4A.md), [PHASE_4B](reports/PHASE_4B.md), [PHASE_4C](reports/PHASE_4C.md), [PHASE_4D](reports/PHASE_4D.md), [CARS](CARS.md), [ASSET_SOURCING](ASSET_SOURCING.md) |
 | 5 Stage dressing | 5a people done; rest planned | [PHASE_5A](reports/PHASE_5A.md) |
 | 6 Physics realism | Not started | — |
 | 7 Audio, cameras, HUD, replay, photo mode, co-driver | Not started | — |
@@ -126,6 +126,14 @@ Items already requested for M5:
   forced M2 capture as proof of the rendering only. Gate check: a measured
   (unforced) night capture with glowing discs, with its `brake_c` in the
   report.
+
+## Release backlog (v0.7.0)
+
+* **Flip the default edition to `full` at v0.7.0.** Until then the shipped
+  `data/policy/edition.json` stays `demo` (maintainer decision at the 4d
+  gate), which loads only `morocco-sahara`; the class packs
+  (`class-rally-raid`, `class-heritage-raid`) load in `full` and `dev` builds.
+  Gate check: a release build lists all 39 cars in car selection.
 
 ## Defaults
 

@@ -21,10 +21,10 @@
       "lod_drawn": 0,
       "draws": 7,
       "triangles_drawn": 2036,
-      "cars_cpu_ms": 29.05199587,
-      "cars_gpu_ms": 6.686956522e-05,
-      "shadow_cars_cpu_ms": 0.6851246087,
-      "shadow_cars_gpu_ms": 0.0001545217391,
+      "cars_cpu_ms": 0.5063507391,
+      "cars_gpu_ms": 5.904347826e-05,
+      "shadow_cars_cpu_ms": 0.5757802609,
+      "shadow_cars_gpu_ms": 0.0001514347826,
       "cabin_measured": true
     },
     "audi_quattro_a2": {
@@ -45,10 +45,10 @@
       "lod_drawn": 0,
       "draws": 7,
       "triangles_drawn": 8772,
-      "cars_cpu_ms": 23.02552709,
-      "cars_gpu_ms": 5.360869565e-05,
-      "shadow_cars_cpu_ms": 1.316266696,
-      "shadow_cars_gpu_ms": 0.0001386521739,
+      "cars_cpu_ms": 1.330467174,
+      "cars_gpu_ms": 4.469565217e-05,
+      "shadow_cars_cpu_ms": 1.19956113,
+      "shadow_cars_gpu_ms": 0.0001255652174,
       "cabin_measured": true
     },
     "bmw_m3_e30_group_a": {
@@ -940,5 +940,5 @@
       "cabin_measured": true
     }
   },
-  "note": "Measured in two runs on the same binary family: 33 cars, then the 7 cars added or renamed for the A5 table (tools/car_render_report.py --only ...)."
+  "note": "Measured in two runs on the same binary family: 33 cars, then the 7 cars added or renamed for the A5 table (tools/car_render_report.py --only ...). alpine_a110_1800 and audi_quattro_a2 were remeasured on their own: as the first two cars of the 33-car run they carried first-use cost (29.05 and 23.03 ms)."
 }

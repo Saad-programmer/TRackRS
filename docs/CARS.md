@@ -51,8 +51,8 @@
 
 | id | car | class | model | licence (data) | verified | trademark notice | VRAM MB | CPU ms cars / shadows |
 |---|---|---|---|---|---|---|---|---|
-| `alpine_a110_1800` | Alpine A110 1800 (placeholder model) | Group 4 | **placeholder model** (borrows `fox_wrc`) | GPL-2.0-or-later | 0/6 | yes | 13.38 | 29.05 / 0.69 |
-| `audi_quattro_a2` | Audi Quattro A2 (placeholder model) | Group B | **placeholder model** (borrows `evo_rally`) | GPL-2.0-or-later | 0/6 | yes | 13.53 | 23.03 / 1.32 |
+| `alpine_a110_1800` | Alpine A110 1800 (placeholder model) | Group 4 | **placeholder model** (borrows `fox_wrc`) | GPL-2.0-or-later | 0/6 | yes | 13.38 | 0.51 / 0.58 |
+| `audi_quattro_a2` | Audi Quattro A2 (placeholder model) | Group B | **placeholder model** (borrows `evo_rally`) | GPL-2.0-or-later | 0/6 | yes | 13.53 | 1.33 / 1.20 |
 | `bmw_m3_e30_group_a` | BMW M3 E30 Group A (placeholder model) | Group A | **placeholder model** (borrows `fox_wrc`) | GPL-2.0-or-later | 0/6 | yes | 13.38 | 0.51 / 0.56 |
 | `cordo_kitcar` | Cordo | Kit-Car | own legacy mesh (fictional) | GPL-2.0-or-later (legacy Trigger Rally data) | n/a (fictional legacy car) | — | 13.38 | 0.60 / 0.55 |
 | `cordo_super500` | Cordo | S500 | own legacy mesh (fictional) | GPL-2.0-or-later (legacy Trigger Rally data) | n/a (fictional legacy car) | — | 13.38 | 0.57 / 0.56 |
