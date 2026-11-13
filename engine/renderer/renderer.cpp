@@ -207,6 +207,17 @@ bool trackrs::Renderer::car(const PVehicle& vehicle, TerrainType surface, float 
         livery = liveries.emplace(&type, text).first;
     }
     car.livery = livery->second;
+    // Phase 4c: simulation damage of the body part (read only).
+    if (!vehicle.part.empty()) {
+        const auto& dmg = vehicle.part[0].damage;
+        car.damage = {dmg.level(PDamage::DamageFrontLeft), dmg.level(PDamage::DamageFrontRight),
+                      dmg.level(PDamage::DamageRearLeft), dmg.level(PDamage::DamageRearRight)};
+    }
+    // Validation only (--damage-visual): render-only override, physics untouched.
+    if (validation::run.options.damageVisual[0] >= 0.f) {
+        car.damage = validation::run.options.damageVisual;
+        car.damageIsVisual = true;
+    }
     car.body = toWorld * frame(part.ref_world, typepart.scale);
     for (std::size_t i = 0; i < typepart.wheel.size() && i < part.wheel.size(); ++i)
         car.wheels.push_back(toWorld * frame(part.wheel[i].ref_world, type.wheelscale * typepart.wheel[i].radius));

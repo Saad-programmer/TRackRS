@@ -90,6 +90,7 @@ PBR world's CarRenderer; Legacy draws the atlas as authored. Schema
 | `number`, `number_colour`, `panel_colour`, `number_panels` | race number (0–999, `-1` keeps the atlas). It is redrawn in each panel with an original stroke font. |
 | `number_panels[].rect` | `[u, v, w, h]`, normalised atlas coordinates with v measured from the top of the image; `rotation` is 0/90/180/270 |
 | `sponsor_slots`, `sponsor_seed` | rects filled with procedurally generated **fictional** logos (seeded emblem + stroke-font name) |
+| `sponsor_slots[].backing` | optional `#rrggbb`: an opaque fill under the logo that hides what the atlas had there, such as the legacy lettering of a borrowed body |
 
 Real team, sponsor or livery designs must not be used (§2.4). The 11
 placeholder real cars carry plain fictional schemes, written by

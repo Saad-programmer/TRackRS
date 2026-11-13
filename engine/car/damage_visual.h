@@ -16,14 +16,23 @@ namespace trackrs::car {
 /// Corner order matches PDamage::DamageSide.
 enum class Corner { FrontLeft = 0, FrontRight, RearLeft, RearRight };
 struct DamageState {
-  std::array<float, 4> corner{}; ///< 0..1 (simulation values above 1 clamp)
+  std::array<float, 4> corner{}; ///< visual severity 0..1
 };
+/// Simulation damage accumulates slowly (impact force × 1e-7 per contact):
+/// measured on `ahead` with tests/replays/crash_rollover.csv (14 flat-out
+/// flicks with rolls), the worst corner reached 0.094. Visual severity is
+/// therefore VisualGain × simulation damage, clamped, so such a session
+/// reads as heavily damaged. Physics keeps the raw value.
+constexpr float VisualGain = 6.f;
 /// Model-space body footprint: x left→right, y rear→front (as PDamage).
 struct BodyExtent {
   glm::vec2 min{-1}, max{1};
 };
-/// Clamps simulation damage (which can exceed 1) into a DamageState.
+/// Simulation damage (PDamage values, can exceed 1) to visual severity:
+/// clamp(VisualGain × value, 0, 1).
 DamageState fromSimulation(float fl, float fr, float rl, float rr);
+/// Visual severity given directly (validation --damage-visual), clamped 0..1.
+DamageState fromVisual(float fl, float fr, float rl, float rr);
 /// Damage felt at a model-space point (x, y): 0..1.
 float damageAt(const DamageState &d, const BodyExtent &e, glm::vec2 xy);
 /// Discrete consequences of heavy damage.

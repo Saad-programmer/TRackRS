@@ -2,6 +2,7 @@
 #define DOCTEST_CONFIG_IMPLEMENT_WITH_MAIN
 #include "engine/car/car_assets.h"
 #include "vendor/doctest/doctest.h"
+#include <algorithm>
 #include <cmath>
 #include <vector>
 using namespace trackrs::car;
@@ -94,6 +95,59 @@ TEST_CASE("livery recolours paint, keeps shading, paints numbers and sponsors") 
   auto again = atlas();
   applyLivery(again, roles, l);
   CHECK(again.rgba == im.rgba);
+}
+
+TEST_CASE("a sponsor slot backing hides the atlas underneath") {
+  const auto original = atlas();
+  auto im = original;
+  const auto roles = classifyRoles(im, nullptr);
+  Livery l;
+  Rect slot{64.f / 128, 4.f / 128, 60.f / 128, 24.f / 128, 0};
+  slot.backing = {0.f, 1.f, 0.f};
+  l.sponsorSlots.push_back(slot);
+  l.sponsorSeed = 7;
+  applyLivery(im, roles, l);
+  int kept = 0, backing = 0;
+  for (int y = 4; y < 28; ++y)
+    for (int x = 64; x < 124; ++x) {
+      const auto *a = original.at(x, y), *b = im.at(x, y);
+      kept += a[0] == b[0] && a[1] == b[1] && a[2] == b[2];
+      backing += b[0] == 0 && b[1] == 255 && b[2] == 0;
+    }
+  CHECK(kept == 0);    // nothing of the old artwork shows through
+  CHECK(backing > 0);  // the backing shows around the logo
+  const auto parsed = parseLivery(R"({"schema":"trackrs.livery/1","id":"b","sponsor_slots":[{"rect":[0,0,0.5,0.1],"backing":"#102030"}]})");
+  CHECK(parsed.sponsorSlots[0].backing.x == doctest::Approx(16.f / 255));
+  CHECK(parseLivery(R"({"schema":"trackrs.livery/1","id":"n","sponsor_slots":[{"rect":[0,0,0.5,0.1]}]})").sponsorSlots[0].backing.x < 0);
+}
+
+TEST_CASE("livery art repaints paint and metal roles but never glass, rubber or lamps") {
+  auto im = atlas();
+  const auto original = im;
+  auto roles = classifyRoles(im, nullptr);
+  const auto before = roles;
+  Livery l;
+  Rect slot{0.f, 0.f, 1.f, 1.f, 0}; // the whole atlas: every role is covered
+  slot.backing = {1.f, 0.f, 1.f};
+  l.sponsorSlots.push_back(slot);
+  applyLivery(im, roles, l);
+  repaintRoles(roles, l);
+  int paint = 0, kept = 0;
+  for (int y = 0; y < im.height; ++y)
+    for (int x = 0; x < im.width; ++x) {
+      const auto *m0 = before.map.at(x, y), *m1 = roles.map.at(x, y);
+      if (m0[1] > 127 || m0[2] > 127 || before.lights.at(x, y)[0] > 127) { // glass, rubber, tail lamp: untouched
+        CHECK(std::equal(m0, m0 + 4, m1));
+        CHECK(std::equal(original.at(x, y), original.at(x, y) + 4, im.at(x, y)));
+        ++kept;
+      } else {
+        CHECK(m1[0] == 255);                    // paint or metal: plain paint now
+        CHECK(roles.lights.at(x, y)[1] == 0);   // and no headlamp candidate
+        ++paint;
+      }
+    }
+  CHECK(kept > 0);
+  CHECK(paint > 0);
 }
 
 TEST_CASE("stroke font, sponsor logos and livery parsing") {

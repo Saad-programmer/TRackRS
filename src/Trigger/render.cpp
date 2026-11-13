@@ -1257,6 +1257,8 @@ void MainApp::renderStateGame(float eyetranslation)
 
     if (psys_dirt != nullptr) // cfg_dirteffect == false
         getSSRender().render(psys_dirt.get());
+    if (psys_smoke != nullptr)
+        getSSRender().render(psys_smoke.get());
 
     trackrs::draw::depthMask(GL_TRUE);
     trackrs::draw::blend(GL_ONE,GL_ZERO);

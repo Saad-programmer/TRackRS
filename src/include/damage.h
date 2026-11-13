@@ -27,6 +27,9 @@ public:
   void addDamage(const vec3f &crashpoint, float increment, PReferenceFrame &ref_world);
   float getDamage(DamageSide damageside);
   float getDamage(const vec3f &position);
+  /// Damage of one side clamped to 0..1, without the HUD flash side effect
+  /// of getDamage(DamageSide). For renderers (Phase 4c damage visuals).
+  float level(DamageSide side) const;
 
 private:
   // Damage of each vehicle side

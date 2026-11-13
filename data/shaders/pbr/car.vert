@@ -16,15 +16,53 @@ uniform mat3 uNormalMatrix;
 uniform int uCarPart;              // 0 body, 1 wheel, 2 interior
 uniform vec3 uTachoPivot, uSpeedPivot;
 uniform vec2 uNeedles;             // tacho, speed angles (radians, 0 = up)
+uniform vec4 uDamage;              // Phase 4c: corner damage FL, FR, RL, RR (0..1)
+uniform vec4 uBodyExtent;          // body model space: minX, maxX, minY (rear), maxY (front)
+uniform vec4 uBodyBounds;          // minZ, maxZ, frontY, wheel radius
 out VS_OUT { vec3 worldPos; vec2 uv; vec3 T; vec3 B; vec3 N; vec4 color; vec3 modelPos; vec3 modelNormal; } vs;
 vec3 rotateNeedle(vec3 p, vec3 pivot, float a) {
     // Needles lie in the dash plane (x-z), rotating about the +y axis.
     vec3 d = p - pivot; float c = cos(a), s = sin(a);
     return pivot + vec3(d.x * c + d.z * s, d.y, -d.x * s + d.z * c);
 }
+// Mirrors trackrs::car::damageAt (engine/car/damage_visual.cpp): keep in step.
+float carDamageAt(vec2 xy) {
+    vec2 size = max(uBodyExtent.yw - uBodyExtent.xz, vec2(1e-4));
+    vec2 corners[4] = vec2[4](vec2(uBodyExtent.x, uBodyExtent.w), vec2(uBodyExtent.y, uBodyExtent.w),
+                              vec2(uBodyExtent.x, uBodyExtent.z), vec2(uBodyExtent.y, uBodyExtent.z));
+    float strongest = 0.0;
+    for (int i = 0; i < 4; ++i)
+        strongest = max(strongest, uDamage[i] * (1.0 - smoothstep(0.12, 0.7, length((xy - corners[i]) / size))));
+    return strongest;
+}
+float carHash(vec3 p) { return fract(sin(dot(p, vec3(12.9898, 78.233, 37.719))) * 43758.5453); }
+float carNoise(vec3 p) {
+    vec3 i = floor(p), f = fract(p); f = f * f * (3.0 - 2.0 * f);
+    return mix(mix(mix(carHash(i), carHash(i + vec3(1, 0, 0)), f.x), mix(carHash(i + vec3(0, 1, 0)), carHash(i + vec3(1, 1, 0)), f.x), f.y),
+               mix(mix(carHash(i + vec3(0, 0, 1)), carHash(i + vec3(1, 0, 1)), f.x), mix(carHash(i + vec3(0, 1, 1)), carHash(i + vec3(1, 1, 1)), f.x), f.y), f.z);
+}
 void main() {
     vec3 p = aPosition;
     vec3 n = aNormal;
+    if (uCarPart == 0) {
+        // Crumple: push the panel in along its normal, broken up by noise so
+        // the dent is creased, not a smooth scoop. Up to ~8 % of the width
+        // (~13 cm on a 1.6 m body) at a fully smashed corner.
+        float d = carDamageAt(p.xy);
+        if (d > 0.0) {
+            float width = uBodyExtent.y - uBodyExtent.x;
+            vec3 q = p / max(width, 1e-4);
+            float crease = 0.35 + 0.65 * carNoise(q * 9.0) * carNoise(q * 23.0 + 3.1);
+            p -= normalize(n) * d * crease * 0.08 * width;
+            // A hanging bumper corner: only the bumper ends (outer 15 % of the
+            // length) and their lowest quarter sag, so sills and arches keep
+            // their shape (borrowed meshes are not watertight there).
+            float low = 1.0 - smoothstep(0.0, 0.25, (p.z - uBodyBounds.x) / max(uBodyBounds.y - uBodyBounds.x, 1e-4));
+            float along = abs((p.y - uBodyExtent.z) / max(uBodyExtent.w - uBodyExtent.z, 1e-4) * 2.0 - 1.0);
+            float bumper = smoothstep(0.7, 0.9, along);
+            p.z -= low * bumper * smoothstep(0.75, 1.0, d) * 0.05 * width;
+        }
+    }
     if (uCarPart == 2 && aUV.x > 0.6) {
         bool tacho = aUV.x > 0.9;
         float a = tacho ? uNeedles.x : uNeedles.y;

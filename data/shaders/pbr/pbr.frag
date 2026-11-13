@@ -60,6 +60,25 @@ uniform vec4  uCarLights;       // head on, tail on, brake 0..1, reverse
 uniform vec4  uDirt;            // dust, mud, scene wetness, unused
 uniform vec4  uBodyBounds;      // model-space minZ, maxZ, frontY, wheel radius
 uniform float uBrakeGlow;       // 0..1 for this wheel
+uniform vec4  uDamage;          // Phase 4c: corner damage FL, FR, RL, RR (0..1)
+uniform vec4  uBodyExtent;      // body model space: minX, maxX, minY (rear), maxY (front)
+uniform vec4  uLampsBroken;     // head left, head right, tail left, tail right (0/1)
+// Mirrors trackrs::car::damageAt and car.vert: keep in step.
+float carDamageAt(vec2 xy) {
+    vec2 size = max(uBodyExtent.yw - uBodyExtent.xz, vec2(1e-4));
+    vec2 corners[4] = vec2[4](vec2(uBodyExtent.x, uBodyExtent.w), vec2(uBodyExtent.y, uBodyExtent.w),
+                              vec2(uBodyExtent.x, uBodyExtent.z), vec2(uBodyExtent.y, uBodyExtent.z));
+    float strongest = 0.0;
+    for (int i = 0; i < 4; ++i)
+        strongest = max(strongest, uDamage[i] * (1.0 - smoothstep(0.12, 0.7, length((xy - corners[i]) / size))));
+    return strongest;
+}
+float carHash(vec3 p) { return fract(sin(dot(p, vec3(12.9898, 78.233, 37.719))) * 43758.5453); }
+float carNoise(vec3 p) {
+    vec3 i = floor(p), f = fract(p); f = f * f * (3.0 - 2.0 * f);
+    return mix(mix(mix(carHash(i), carHash(i + vec3(1, 0, 0)), f.x), mix(carHash(i + vec3(0, 1, 0)), carHash(i + vec3(1, 1, 0)), f.x), f.y),
+               mix(mix(carHash(i + vec3(0, 0, 1)), carHash(i + vec3(1, 0, 1)), f.x), mix(carHash(i + vec3(0, 1, 1)), carHash(i + vec3(1, 1, 1)), f.x), f.y), f.z);
+}
 #endif
 #ifdef VEGETATION
 uniform bool  uAlbedoGamma     = false; // legacy UNORM sprite cards: decode sRGB here
@@ -169,15 +188,26 @@ void main()
     float metallic  = clamp(mr.b * uMetallicFactor, 0.0, 1.0);
 
 #ifdef CAR
-    float carGlass = 0.0, carDirt = 0.0;
+    float carGlass = 0.0, carDirt = 0.0, carCrumple = 0.0, carScratch = 0.0, carCrack = 0.0;
     vec3 carEmissive = vec3(0.0);
     if (uCarPart != 2) {
         vec4 role = texture(uRoleMap, fs.uv);
         vec4 lamp = texture(uLightMap, fs.uv);
         carGlass = role.g;
         if (uGlassPass ? carGlass < 0.5 : carGlass > 0.5) discard;
+        vec3 mp0 = fs.modelPos;
+        float bodyWidth = max(uBodyExtent.y - uBodyExtent.x, 1e-4);
+        float carDamage = uCarPart == 0 ? carDamageAt(mp0.xy) : 0.0;
         if (carGlass > 0.5) {           // tinted rally glass: dark, mirror-smooth
             albedo = vec3(0.02, 0.025, 0.03); roughness = 0.05; metallic = 0.0;
+            // Phase 4c: crazed glass near a smashed corner (noise iso-lines read as a crack web).
+            if (carDamage > 0.3) {
+                vec3 q = mp0 / bodyWidth * 38.0;
+                float web = min(abs(carNoise(q) - 0.5), abs(carNoise(q * 2.3 + 5.0) - 0.5));
+                carCrack = (1.0 - smoothstep(0.0, 0.035, web)) * smoothstep(0.3, 0.75, carDamage);
+                albedo = mix(albedo, vec3(0.72, 0.75, 0.78), carCrack);
+                roughness = mix(roughness, 0.6, carCrack);
+            }
         } else if (role.b > 0.5) {      // tyres, rubber trim, grilles
             roughness = max(roughness, 0.88); metallic = 0.0;
         } else if (role.a > 0.5) {      // rims, chrome, bolts
@@ -187,9 +217,13 @@ void main()
         }
         // Lamps: tail/brake from the emission atlas, head from bright front texels.
         vec3 mp = fs.modelPos, mn = normalize(fs.modelNormal);
-        float tail = lamp.r * (uCarLights.y * 1.2 + uCarLights.z * 6.0);
+        // Phase 4c: a lamp on a smashed corner (>= 0.8) stays dark.
+        bool leftSide = mp.x < 0.5 * (uBodyExtent.x + uBodyExtent.y);
+        float tailAlive = 1.0 - (leftSide ? uLampsBroken.z : uLampsBroken.w);
+        float headAlive = 1.0 - (leftSide ? uLampsBroken.x : uLampsBroken.y);
+        float tail = lamp.r * (uCarLights.y * 1.2 + uCarLights.z * 6.0) * (uCarPart == 0 ? tailAlive : 1.0);
         float front = smoothstep(uBodyBounds.z - 25.0, uBodyBounds.z, mp.y) * step(0.3, mn.y);
-        float head = lamp.g * front * uCarLights.x * 9.0;
+        float head = lamp.g * front * uCarLights.x * 9.0 * (uCarPart == 0 ? headAlive : 1.0);
         carEmissive = vec3(1.0, 0.06, 0.03) * tail + vec3(1.0, 0.93, 0.8) * head;
         // Brake disc glow behind the spokes: inner radius band of the wheel.
         if (uCarPart == 1) {
@@ -197,12 +231,33 @@ void main()
             float disc = smoothstep(0.30, 0.38, r) * (1.0 - smoothstep(0.58, 0.66, r)) * (1.0 - role.b);
             carEmissive += vec3(1.0, 0.28, 0.05) * disc * uBrakeGlow * uBrakeGlow * 4.0;
         }
+        // Phase 4c: scratched paint (primer, then bare steel in the deepest
+        // gouges) and crumpled shading. Applied before dust and mud, so the
+        // 4b dirt look carries over, and dirt clings to the scratches.
+        if (carDamage > 0.02 && carGlass < 0.5 && role.b < 0.5) {
+            vec3 q = mp0 / bodyWidth;
+            // Gouges run in patches whose direction wanders with a slow noise
+            // (scrapes follow the impact, not the body axes).
+            float angle = carNoise(q * 2.0 + 11.0) * 6.2832;
+            vec3 dir = normalize(vec3(cos(angle), sin(angle), 0.35 * sin(angle * 1.7)));
+            float streak = abs(fract(dot(q, dir) * 70.0 + carNoise(q * 6.0) * 2.0) - 0.5);
+            float patch = smoothstep(0.62 - 0.3 * carDamage, 0.78 - 0.3 * carDamage, carNoise(q * 5.0 + 7.0));
+            float scratch = (1.0 - smoothstep(0.02, 0.06 + 0.05 * carDamage, streak)) * patch;
+            float scuff = smoothstep(0.66 - 0.3 * carDamage, 0.9, carNoise(q * 26.0)) * patch;
+            carScratch = clamp((scratch * 0.9 + scuff * 0.6) * smoothstep(0.1, 0.6, carDamage), 0.0, 1.0);
+            albedo = mix(albedo, vec3(0.42, 0.43, 0.42), carScratch);
+            float bare = carScratch * scratch * step(0.6, carDamage);
+            albedo = mix(albedo, vec3(0.56, 0.57, 0.58), bare);
+            metallic = mix(metallic, 0.85, bare);
+            roughness = mix(roughness, 0.55, carScratch);
+            carCrumple = smoothstep(0.2, 0.9, carDamage) * 0.85;
+        }
         // Dust/mud: low on the body, sprayed behind the wheels, broken up by noise.
         float height = clamp((mp.z - uBodyBounds.x) / max(uBodyBounds.y - uBodyBounds.x, 1e-3), 0.0, 1.0);
         float splash = 0.55 * sceneNoise(fs.worldPos.xy * 2.3) + 0.45 * sceneNoise(fs.worldPos.yz * 7.1 + fs.worldPos.x);
         float coverage = max(uDirt.x, uDirt.y);
         carDirt = clamp(coverage * 1.6 - height * 1.3 + (splash - 0.5) * 0.9, 0.0, 1.0) * (uCarPart == 1 ? 1.3 : 1.0);
-        carDirt = clamp(carDirt, 0.0, 1.0);
+        carDirt = clamp(max(carDirt, carScratch * coverage * 0.8), 0.0, 1.0);
         vec3 dirtColour = mix(vec3(0.46, 0.39, 0.29), vec3(0.17, 0.12, 0.08), uDirt.y / max(coverage, 1e-3));
         albedo = mix(albedo, dirtColour, carDirt * (carGlass > 0.5 ? 0.6 : 0.9));
         roughness = mix(roughness, mix(0.92, 0.55, uDirt.z), carDirt);
@@ -224,6 +279,13 @@ void main()
 #endif
 #ifndef VEGETATION
     if (!gl_FrontFacing) N = -N;                            // two-sided foliage / panels
+#ifdef CAR
+    if (carCrumple > 0.0) {   // Phase 4c: faceted, creased panels where the body is dented
+        vec3 facet = normalize(cross(dFdx(fs.worldPos), dFdy(fs.worldPos)));
+        if (dot(facet, N) < 0.0) facet = -facet;
+        N = normalize(mix(N, facet, carCrumple));
+    }
+#endif
 #endif                                                      // (plants use bent, view-independent normals)
     vec3 V   = normalize(uCamPos - fs.worldPos);
     float NdotV = max(dot(N, V), 1e-4);
@@ -360,7 +422,7 @@ void main()
     if(uDebugView==7)color=normalize(fs.N)*0.5+0.5;
 #endif
 #ifdef CAR
-    if (uGlassPass) { FragColor = vec4(color, 0.86); return; }   // tinted glass over the cabin
+    if (uGlassPass) { FragColor = vec4(color, mix(0.86, 0.97, carCrack)); return; }   // tinted glass; cracks scatter
 #endif
     FragColor = vec4(color, baseSample.a);
 }

@@ -1,6 +1,7 @@
 #include "engine/renderer/renderer.h"
 #include "engine/world/state.h"
 #include "engine/car/car_renderer.h"
+#include "engine/car/damage_visual.h"
 #include "../../engine/application/edition_loader.h"
 // Creator: Saad AIT YAHIA - @github: Saad-programmer
 #include "exception.h"
@@ -99,6 +100,7 @@ void MainApp::config()
 void MainApp::load()
 {
   psys_dirt = nullptr;
+  psys_smoke = nullptr;
 
   audinst_engine = nullptr;
   audinst_wind = nullptr;
@@ -600,9 +602,18 @@ bool MainApp::loadAll()
         psys_dirt->setDecay(6.0f);
         psys_dirt->setTexture(tex_dirt);
         psys_dirt->setBlend(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+        psys_smoke = std::make_unique<DirtParticleSystem>();
+        psys_smoke->setColorStart(0.62f, 0.61f, 0.6f, 0.28f); // light steam-and-oil grey
+        psys_smoke->setColorEnd(0.78f, 0.78f, 0.78f, 0.0f);
+        psys_smoke->setSize(0.35f, 2.4f);
+        psys_smoke->setDecay(0.9f);
+        psys_smoke->setTexture(tex_dirt);
+        psys_smoke->setBlend(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     }
-    else
+    else {
         psys_dirt = nullptr;
+        psys_smoke = nullptr;
+    }
 
   //
 
@@ -728,6 +739,7 @@ bool MainApp::startGame(const std::string &filename)
   grabMouse(true);
 
   effectsRng.reseed(trackrs::stageSeed(filename) ^ (validation::run.options.enabled ? validation::run.options.seed : 0), 5);
+  smokeRng.reseed(trackrs::stageSeed(filename) ^ (validation::run.options.enabled ? validation::run.options.seed : 0), 11);
   // the game
   game = std::make_unique<TriggerGame>(this);
 
@@ -1125,6 +1137,25 @@ void MainApp::tickStateGame(float delta)
     ghost.recordSample(delta, game->vehicle[0]->part[0]);
   }
 
+    // Phase 4c: a smashed front smokes from under the bonnet. PBR world only,
+    // with its own random stream, so Legacy output and dirt are unchanged.
+    if (psys_smoke && trackrs::world::state().settings.enabled && trackrs::car::settings().enabled) {
+      for (auto *car : game->vehicle) {
+        if (car->part.empty()) continue;
+        const auto& dmg = car->part[0].damage;
+        auto state = trackrs::car::fromSimulation(dmg.level(PDamage::DamageFrontLeft), dmg.level(PDamage::DamageFrontRight), 0.f, 0.f);
+        if (validation::run.options.damageVisual[0] >= 0.f)
+          state = trackrs::car::fromVisual(validation::run.options.damageVisual[0], validation::run.options.damageVisual[1], 0.f, 0.f);
+        const float smoke = trackrs::car::effects(state).smoke;
+        if (smoke <= 0.f || smokeRng.unit() > smoke * 0.3f) continue;
+        const auto &o = car->body->getOrientationMatrix();
+        const vec3f forward(o.row[0].y, o.row[1].y, o.row[2].y), up(o.row[0].z, o.row[1].z, o.row[2].z);
+        const vec3f origin = car->body->getPosition() + forward * 1.3f + up * 0.6f;
+        const vec3f drift(smokeRng.unit() - .5f, smokeRng.unit() - .5f, 1.2f + smokeRng.unit());
+        psys_smoke->addParticle(origin, car->body->getLinearVel() * 0.2f + drift);
+      }
+    }
+
     if (cfg.getDirteffect())
     {
 
@@ -1495,6 +1526,8 @@ void MainApp::tickStateGame(float delta)
 
   if (psys_dirt != nullptr)
     psys_dirt->tick(delta);
+  if (psys_smoke != nullptr)
+    psys_smoke->tick(delta);
 
 #define RAIN_START_LIFE         0.6f
 #define RAIN_POS_RANDOM         15.0f
@@ -1871,6 +1904,7 @@ int main(int argc, char *argv[])
                 << "  --frames <250-Hz ticks> --render-from <tick> --seed <integer> --replay <csv>\n"
                 << "  --autopilot <km/h> (follow the traced road) --brake-from <tick> (hard braking)\n"
                 << "  --camera chase|bumper|side|hood|periscope|cockpit|trackside --brake-cycles <n> (repeated hard stops: 30-70 km/h, then a full stop)\n"
+                << "  --brake-heat <C> / --damage-visual fl,fr,rl,rr (FORCED, render-only inspection)\n"
                 << "  --dump-state <hash-file> --json <report.json> --screenshot <image.ppm>\n"
                 << "  --renderer legacy|pbr --quality low|medium|high|ultra --shadows blob|csm\n"
                 << "  --time-of-day dawn|noon|golden-hour|dusk|night|midnight --vegetation 3d|cards\n"

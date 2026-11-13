@@ -55,6 +55,7 @@ Roles classifyRoles(const Image &albedo, const Image *emission);
 struct Rect {
   float u = 0, v = 0, w = 0, h = 0; ///< normalised atlas rect (v from the top)
   int rotation = 0;                 ///< 0, 90, 180, 270 degrees (text orientation)
+  glm::vec3 backing{-1};            ///< sponsor slots: opaque fill under the logo (<0 = none)
 };
 struct Livery {
   std::string id;
@@ -73,6 +74,11 @@ std::array<glm::vec3, 2> dominantPaint(const Image &albedo, const Roles &roles);
 /// detail (shading, panel lines) and only touches paint-role texels close to
 /// the source colour.
 void applyLivery(Image &albedo, const Roles &roles, const Livery &livery);
+/// Marks every number panel and sponsor slot as plain paint in the role map
+/// (and clears lamp flags there), so the new artwork is not shaded by what
+/// the original atlas was classified as there (e.g. white lettering read as
+/// metal). Call after applyLivery.
+void repaintRoles(Roles &roles, const Livery &livery);
 /// Original stroke-font digits; returns false for numbers outside 0..999.
 bool drawNumber(Image &image, const Rect &rect, int number, glm::vec3 colour);
 /// Original procedural fictional sponsor logo (seeded): emblem + stroke text.

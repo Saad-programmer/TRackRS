@@ -17,6 +17,7 @@
  * interior. Textures are built once per type (livery composited on the CPU).
  */
 #include "car_assets.h"
+#include <array>
 #include "engine/mesh/mesh_importer.h"
 #include <filesystem>
 #include <nlohmann/json.hpp>
@@ -43,6 +44,11 @@ struct Instance {
   bool reverse = false;
   Surface surface = Surface::Tarmac;
   bool interior = true;           ///< draw the cockpit
+  /// Phase 4c: simulation damage per corner (PDamage order FL, FR, RL, RR),
+  /// clamped 0..1. Read only: drives dents, scratches, cracked glass, broken
+  /// lamps and engine smoke.
+  std::array<float, 4> damage{};
+  bool damageIsVisual = false;    ///< damage holds visual severity (validation override), not simulation values
 };
 /// `read` loads virtual files (OBJ, MTL, PNG). Returns submitted draws.
 std::size_t draw(const Instance &car, const mesh::ReadFile &read, const glm::mat4 &viewProjection,

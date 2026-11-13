@@ -9,10 +9,14 @@ float smoothstep(float a, float b, float x) {
 }
 } // namespace
 
-DamageState fromSimulation(float fl, float fr, float rl, float rr) {
+DamageState fromVisual(float fl, float fr, float rl, float rr) {
   DamageState d;
   d.corner = {std::clamp(fl, 0.f, 1.f), std::clamp(fr, 0.f, 1.f), std::clamp(rl, 0.f, 1.f), std::clamp(rr, 0.f, 1.f)};
   return d;
+}
+
+DamageState fromSimulation(float fl, float fr, float rl, float rr) {
+  return fromVisual(fl * VisualGain, fr * VisualGain, rl * VisualGain, rr * VisualGain);
 }
 
 float damageAt(const DamageState &d, const BodyExtent &e, glm::vec2 xy) {

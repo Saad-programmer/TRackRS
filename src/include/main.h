@@ -311,6 +311,7 @@ class MainApp : public PApp {
     std::vector<std::string> packNotices;        ///< "pack X disabled: reason" for the menu
     void loadPacks();
     trackrs::Pcg32 effectsRng;
+    trackrs::Pcg32 smokeRng;    ///< Phase 4c engine smoke (own stream: dirt particles unchanged)
 private:
 	trackrs::GameStateMachine appstate;
 
@@ -422,6 +423,7 @@ private:
 	std::unordered_map<std::string, PAudioSample *> aud_codriverwords;
 
 	std::unique_ptr<DirtParticleSystem> psys_dirt;
+	std::unique_ptr<DirtParticleSystem> psys_smoke; ///< Phase 4c damaged-engine smoke (PBR world only)
 
 	// Tones
 	PAudioSample *aud_engine,

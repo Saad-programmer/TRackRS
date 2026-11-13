@@ -52,6 +52,12 @@ Options parse(int argc, char** argv) {
         else if (key == "--render-from") o.renderFrom = number(value());
         else if (key == "--autopilot") { o.autopilotKmh = static_cast<float>(number(value())); if (o.autopilotKmh > 250) throw std::runtime_error("--autopilot must be 1..250 km/h"); }
         else if (key == "--brake-from") o.brakeFrom = number(value());
+        else if (key == "--damage-visual") {
+            std::istringstream in(value()); std::string item; std::size_t i = 0;
+            while (std::getline(in, item, ',') && i < 4) o.damageVisual[i++] = std::stof(item);
+            if (i != 4) throw std::runtime_error("--damage-visual needs four values fl,fr,rl,rr in 0..1");
+            for (float v : o.damageVisual) if (!(v >= 0.f && v <= 1.f)) throw std::runtime_error("--damage-visual values must be 0..1");
+        }
         else if (key == "--brake-heat") { o.brakeHeat = static_cast<float>(number(value())); if (o.brakeHeat > 950) throw std::runtime_error("--brake-heat must be 0..950"); }
         else if (key == "--brake-cycles") { o.brakeCycles = number(value()); if (o.brakeCycles < 1 || o.brakeCycles > 20) throw std::runtime_error("--brake-cycles must be 1..20"); }
         else if (key == "--pack-root") o.packRoot = value();

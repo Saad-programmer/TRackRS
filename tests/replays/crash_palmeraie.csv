@@ -1,0 +1,8 @@
+# tick (250 Hz), throttle, steering, foot brake, handbrake
+# Phase 4c crash test: full throttle off the Zagora start, then steer hard right
+# into the palmeraie so the car hits trees (real simulation damage, no override).
+0,0,0,0,0
+1000,1,0,0,0
+1600,1,0.8,0,0
+2600,1,-0.6,0,0
+3400,1,0.8,0,0

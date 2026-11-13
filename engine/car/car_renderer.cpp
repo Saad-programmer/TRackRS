@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 #include "car_renderer.h"
+#include "damage_visual.h"
 #include "engine/pbr/ibl.h"
 #include "engine/pbr/renderer.h"
 #include "engine/render/basic.h"
@@ -148,9 +149,12 @@ Textures buildTextures(const mesh::MeshData &data, const std::string &livery) {
   if (albedo.empty())
     albedo = makeImage(4, 4, {200, 200, 200, 255});
   const Image emission = decode(material.emissive);
-  const auto roles = classifyRoles(albedo, emission.empty() ? nullptr : &emission);
-  if (!livery.empty())
-    applyLivery(albedo, roles, parseLivery(livery));
+  auto roles = classifyRoles(albedo, emission.empty() ? nullptr : &emission);
+  if (!livery.empty()) {
+    const auto l = parseLivery(livery);
+    applyLivery(albedo, roles, l);
+    repaintRoles(roles, l);
+  }
   Textures t;
   t.counts = roles.counts;
   t.albedo = upload(albedo, GL_SRGB8_ALPHA8, t.bytes);
@@ -191,8 +195,11 @@ struct VehicleState {
   // Phase 3e motion vectors: this frame's main-view transforms and last frame's.
   const void *type = nullptr;
   bool drawn = false, hasPrevious = false;
-  bool observed = false;
-  bool brakeForced = false; ///< --brake-heat override active ///< wear driven per simulation tick by observe()
+  bool observed = false;    ///< wear driven per simulation tick by observe()
+  bool brakeForced = false; ///< --brake-heat override active
+  std::array<float, 4> damage{};    ///< last drawn visual severity per corner (report)
+  std::array<float, 4> damageSim{}; ///< last simulation damage per corner (report; forced runs: n/a)
+  bool damageForced = false;        ///< --damage-visual override active
   glm::mat4 body{1}, previousBody{1};
   std::vector<glm::mat4> wheels, previousWheels;
 };
@@ -413,6 +420,16 @@ std::size_t draw(const Instance &car, const mesh::ReadFile &read, const glm::mat
   const bool lights = lit && world::headlightsOn(ws.sun, ws.settings.weather.overcast);
   glUniform4f(u("uCarLights"), lights ? 1.f : 0.f, lights ? 1.f : 0.f, std::clamp(car.brake, 0.f, 1.f), car.reverse ? 1.f : 0.f);
   glUniform4f(u("uDirt"), state.wear.dust, state.wear.mud, ws.settings.weather.wetness, 0);
+  // Phase 4c damage (simulation corners, read only) and its consequences.
+  const auto damage = car.damageIsVisual ? fromVisual(car.damage[0], car.damage[1], car.damage[2], car.damage[3])
+                                         : fromSimulation(car.damage[0], car.damage[1], car.damage[2], car.damage[3]);
+  const auto broken = effects(damage);
+  state.damage = damage.corner;
+  state.damageSim = car.damageIsVisual ? std::array<float, 4>{} : car.damage;
+  state.damageForced = car.damageIsVisual;
+  glUniform4f(u("uDamage"), damage.corner[0], damage.corner[1], damage.corner[2], damage.corner[3]);
+  glUniform4f(u("uLampsBroken"), broken.headlightBroken[0] ? 1.f : 0.f, broken.headlightBroken[1] ? 1.f : 0.f,
+              broken.taillightBroken[0] ? 1.f : 0.f, broken.taillightBroken[1] ? 1.f : 0.f);
   glEnable(GL_DEPTH_TEST);
   glDepthFunc(GL_LEQUAL);
   glDepthMask(GL_TRUE);
@@ -444,6 +461,7 @@ std::size_t draw(const Instance &car, const mesh::ReadFile &read, const glm::mat
   };
   const auto &b = a.body.lods;
   glUniform4f(u("uBodyBounds"), b.minimum.z, b.maximum.z, b.maximum.y, a.wheelRadius);
+  glUniform4f(u("uBodyExtent"), b.minimum.x, b.maximum.x, b.minimum.y, b.maximum.y);
   // Opaque: body, wheels, interior.
   bindTextures(a.bodyTextures);
   drawPart(a.body, car.body, 0, lod, false);
@@ -616,7 +634,7 @@ nlohmann::json report() {
                           {"triangles", s.triangles},
                           {"dust", s.wear.dust},
                           {"mud", s.wear.mud},
-                          {"brake_c", s.wear.brakeC}, {"brake_forced", s.brakeForced}});
+                          {"brake_c", s.wear.brakeC}, {"brake_forced", s.brakeForced}, {"damage_visual", s.damage}, {"damage_sim", s.damageSim}, {"damage_forced", s.damageForced}});
   }
   return {{"renderer", "car-v2"},
           {"enabled", current.enabled},

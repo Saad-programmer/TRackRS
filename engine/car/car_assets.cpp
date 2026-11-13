@@ -155,6 +155,8 @@ Rect parseRect(const nlohmann::json &j) {
     throw std::runtime_error("livery rect outside the atlas");
   if (r.rotation % 90)
     throw std::runtime_error("livery rotation must be a multiple of 90");
+  if (j.contains("backing"))
+    r.backing = parseColour(j["backing"]);
   return r;
 }
 } // namespace
@@ -291,6 +293,29 @@ Livery parseLivery(std::string_view text) {
   return l;
 }
 
+namespace {
+/// Glass, rubber and tail-lamp texels never take livery artwork: a panel or
+/// slot rect may overlap their UVs (mudflaps, window frames) in borrowed
+/// atlases. Headlamp flags are only candidates (bright textured whites, which
+/// include lettering; the shader limits them to the front), so they are not
+/// protected.
+bool protectedTexel(const Roles &roles, int x, int y) {
+  const auto *m = roles.map.at(x, y);
+  if (m[1] > 127 || m[2] > 127)
+    return true;
+  return !roles.lights.empty() && roles.lights.at(x, y)[0] > 127;
+}
+template <class F> void forEachTexel(const Rect &r, int width, int height, F &&f) {
+  const int x0 = static_cast<int>(r.u * static_cast<float>(width));
+  const int y0 = static_cast<int>(r.v * static_cast<float>(height));
+  const int x1 = std::min(width, x0 + std::max(1, static_cast<int>(r.w * static_cast<float>(width))));
+  const int y1 = std::min(height, y0 + std::max(1, static_cast<int>(r.h * static_cast<float>(height))));
+  for (int y = std::max(0, y0); y < y1; ++y)
+    for (int x = std::max(0, x0); x < x1; ++x)
+      f(x, y);
+}
+} // namespace
+
 void applyLivery(Image &albedo, const Roles &roles, const Livery &l) {
   if (roles.map.width != albedo.width || roles.map.height != albedo.height)
     throw std::invalid_argument("role map does not match the atlas");
@@ -316,6 +341,7 @@ void applyLivery(Image &albedo, const Roles &roles, const Livery &l) {
         const glm::vec3 recoloured = glm::clamp(targets[k] * shade, glm::vec3(0), glm::vec3(1));
         blend(albedo, x, y, recoloured, weight);
       }
+  const Image beforeArt = albedo; // protected texels are restored from this below
   for (const auto &panel : l.numberPanels) {
     const int x0 = static_cast<int>(panel.u * static_cast<float>(albedo.width)), y0 = static_cast<int>(panel.v * static_cast<float>(albedo.height));
     const int x1 = static_cast<int>((panel.u + panel.w) * static_cast<float>(albedo.width)), y1 = static_cast<int>((panel.v + panel.h) * static_cast<float>(albedo.height));
@@ -332,6 +358,12 @@ void applyLivery(Image &albedo, const Roles &roles, const Livery &l) {
     const int pw = std::max(1, static_cast<int>(slot.w * static_cast<float>(albedo.width))), ph = std::max(1, static_cast<int>(slot.h * static_cast<float>(albedo.height)));
     const bool turned = slot.rotation % 180 != 0;
     const Image logo = sponsorLogo(l.sponsorSeed + i, turned ? ph : pw, turned ? pw : ph);
+    // An opaque backing hides whatever the atlas had there (e.g. the legacy
+    // lettering of a borrowed body) before the fictional logo is drawn.
+    if (slot.backing.x >= 0)
+      for (int y = 0; y < ph; ++y)
+        for (int x = 0; x < pw; ++x)
+          blend(albedo, x0 + x, y0 + y, slot.backing, 1.f);
     for (int y = 0; y < ph; ++y)
       for (int x = 0; x < pw; ++x) {
         // Atlas pixel -> logo pixel through the slot rotation.
@@ -348,6 +380,17 @@ void applyLivery(Image &albedo, const Roles &roles, const Livery &l) {
         blend(albedo, x0 + x, y0 + y, {channel(src[0]), channel(src[1]), channel(src[2])}, channel(src[3]));
       }
   }
+  // Restore glass, rubber and lamp texels that a rect happened to cover.
+  auto restore = [&](const Rect &r) {
+    forEachTexel(r, albedo.width, albedo.height, [&](int x, int y) {
+      if (protectedTexel(roles, x, y))
+        std::copy_n(beforeArt.at(x, y), 4, albedo.at(x, y));
+    });
+  };
+  for (const auto &r : l.numberPanels)
+    restore(r);
+  for (const auto &r : l.sponsorSlots)
+    restore(r);
 }
 
 bool drawNumber(Image &image, const Rect &rect, int number, glm::vec3 colour) {
@@ -355,6 +398,24 @@ bool drawNumber(Image &image, const Rect &rect, int number, glm::vec3 colour) {
     return false;
   drawText(image, rect, std::to_string(number), colour, .7f);
   return true;
+}
+
+void repaintRoles(Roles &roles, const Livery &l) {
+  auto paint = [&](const Rect &r) {
+    forEachTexel(r, roles.map.width, roles.map.height, [&](int x, int y) {
+      if (protectedTexel(roles, x, y))
+        return; // glass, rubber and lamps keep their role
+      auto *m = roles.map.at(x, y);
+      m[0] = 255;
+      m[1] = m[2] = m[3] = 0;
+      if (!roles.lights.empty())
+        roles.lights.at(x, y)[1] = 0; // no headlamp candidate under new artwork
+    });
+  };
+  for (const auto &r : l.numberPanels)
+    paint(r);
+  for (const auto &r : l.sponsorSlots)
+    paint(r);
 }
 
 std::string sponsorName(std::uint64_t seed) {

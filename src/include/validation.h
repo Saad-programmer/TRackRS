@@ -5,6 +5,7 @@
  * one process; main-thread only. Normal interactive runs never consult replay
  * data. Hashing is allocation-free; frame samples are reserved at startup.
  */
+#include <array>
 #include <cstdint>
 #include <string>
 #include <vector>
@@ -21,6 +22,7 @@ struct Options {
     float autopilotKmh = 0;  ///< > 0: follow the traced road at this speed (deterministic)
     unsigned brakeFrom = 0;  ///< > 0: full foot brake, no throttle, from this tick
     unsigned brakeCycles = 1; ///< hard stops in the brake test (the last one stops the car)
+    std::array<float, 4> damageVisual{{-1.f, -1.f, -1.f, -1.f}}; ///< >= 0: FORCE drawn corner damage FL,FR,RL,RR (render only)
     float brakeHeat = 0;      ///< > 0: FORCE disc temperature (°C) from brakeFrom on (glow inspection only)
     std::string camera;      ///< chase (default), bumper, side, hood, periscope, cockpit or trackside
     std::string stage = "/maps/ahead/ahead.level", vehicle = "cordo_kitcar";

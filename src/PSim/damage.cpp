@@ -103,6 +103,13 @@ float PDamage::getDamage(DamageSide damageside)
   return damage[damageside];
 }
 
+float PDamage::level(DamageSide side) const
+{
+  if (side >= DamageSide::DamageSideSize)
+    return 0.0f;
+  return damage[side] < 0.0f ? 0.0f : (damage[side] > 1.0f ? 1.0f : damage[side]);
+}
+
 ///
 /// @brief Return damage closest to a local position
 /// @param position = local position
