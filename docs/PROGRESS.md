@@ -21,9 +21,9 @@ rendering (Mesa llvmpipe). Real-GPU numbers come from the maintainer.
 | 3d Post-FX: HDR target, auto-exposure, bloom, ACES, SSAO | Done (core) | [PHASE_3D](reports/PHASE_3D.md) |
 | 3e TAA + golden manifest regeneration | Done (gate) | [PHASE_3E](reports/PHASE_3E.md) |
 | M0 Pack-lite (amendment §A9.2) | Done (gate) | [PHASE_M0](reports/PHASE_M0.md), [CONTENT_PACKS](CONTENT_PACKS.md) |
-| M1 Saharan world tech (A3 1–6, test stage) | Done (gate; CI pending) | [PHASE_M1](reports/PHASE_M1.md), [cultural review](reviews/CULTURAL_M1.md) |
-| M2 Zagora Prologue vertical slice | In progress | stage, signs, two cars, cockpit camera in tree; gate report to follow |
-| 4 Real rally cars, gated 4a–4d | 4a, 4b done (gate after 4b) | [PHASE_4A](reports/PHASE_4A.md), [PHASE_4B](reports/PHASE_4B.md) |
+| M1 Saharan world tech (A3 1–6, test stage) | Done (gate) | [PHASE_M1](reports/PHASE_M1.md), [cultural review](reviews/CULTURAL_M1.md) |
+| M2 Zagora Prologue vertical slice | Done (gate, accepted) | [PHASE_M2](reports/PHASE_M2.md), [cultural review](reviews/CULTURAL_M2.md) |
+| 4 Real rally cars, gated 4a–4d | 4a, 4b done; 4c at its gate (awaiting review) | [PHASE_4A](reports/PHASE_4A.md), [PHASE_4B](reports/PHASE_4B.md), [PHASE_4C](reports/PHASE_4C.md) |
 | 5 Stage dressing | 5a people done; rest planned | [PHASE_5A](reports/PHASE_5A.md) |
 | 6 Physics realism | Not started | — |
 | 7 Audio, cameras, HUD, replay, photo mode, co-driver | Not started | — |

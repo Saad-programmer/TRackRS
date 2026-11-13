@@ -1,6 +1,7 @@
 #include "../../engine/renderer/renderer.h"
 #include "../../engine/core/interpolation.h"
 #include "validation.h"
+#include "engine/car/damage_visual.h"
 #include "engine/pbr/renderer.h"
 #include "engine/world/renderer.h"
 #include "engine/vegetation/renderer.h"
@@ -867,8 +868,19 @@ void MainApp::renderStateGame(float eyetranslation)
                 auto g = [](const vec3f &v) { return glm::vec3(v.x, v.y, v.z); };
                 const trackrs::world::BodyFrame frame{g(p), g(makevec3f(axes.row[0])), g(makevec3f(axes.row[1])),
                                                       g(makevec3f(axes.row[2]))};
-                for (const auto &lamp : trackrs::world::headlights(frame))
-                    trackrs::world::addLight(lamp);
+                // Phase 4c: a smashed front corner (>= 0.8) loses its beam too.
+                trackrs::car::DamageState state;
+                if (!vehic->part.empty()) {
+                    const auto &dmg = vehic->part.front().damage;
+                    state = trackrs::car::fromSimulation(dmg.level(PDamage::DamageFrontLeft), dmg.level(PDamage::DamageFrontRight),
+                                                         dmg.level(PDamage::DamageRearLeft), dmg.level(PDamage::DamageRearRight));
+                }
+                const auto &forced = validation::run.options.damageVisual;
+                if (forced[0] >= 0.f) state = trackrs::car::fromVisual(forced[0], forced[1], forced[2], forced[3]);
+                const auto broken = trackrs::car::effects(state).headlightBroken;
+                const auto lamps = trackrs::world::headlights(frame); // [0] left, [1] right
+                for (std::size_t side = 0; side < lamps.size(); ++side)
+                    if (!broken[side]) trackrs::world::addLight(lamps[side]);
             }
     }
     trackrs::pbr::setProbeScene([this](const glm::mat4& projection,const glm::mat4& view,const glm::vec3& center){
