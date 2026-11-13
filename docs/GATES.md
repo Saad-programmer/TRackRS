@@ -39,6 +39,7 @@ already exists on `origin` (checked with `git ls-remote --tags`).
 | `m0-done` | `3579bfd` | [43189440337](https://github.com/Saad-programmer/TRackRS/actions/runs/43189440337) (run 122, on descendant `aa95113`) | 2026-11-12 | **no: create by hand** |
 | `m1-done` | `fc8a242` | [43331156267](https://github.com/Saad-programmer/TRackRS/actions/runs/43331156267) (run 133) | 2026-11-13 | **no: create by hand** |
 | `m2-done` | `3402d06` | [43341339710](https://github.com/Saad-programmer/TRackRS/actions/runs/43341339710) (run 139) | 2026-11-13 | **no: create by hand** |
+| `phase-4c-done` | `d64cade` | [43397808869](https://github.com/Saad-programmer/TRackRS/actions/runs/43397808869) (run 143) | 2026-11-13 | **no: create by hand** |
 
 Notes:
 
@@ -71,6 +72,11 @@ Notes:
   is green on all six jobs. This commit also carries the unwired 4c
   damage-visual helper and its tests (`engine/car/damage_visual`); nothing
   calls it yet.
+* `phase-4c-done` belongs on commit `d64cade` (full SHA
+  `d64cadee6b7c25fade08397332758b3aa85eed3f`).
+  The maintainer accepted 4c. Run 143 ran on this exact SHA (pushed to the
+  feature branch) and is green on all six jobs. The production clang-tidy
+  also passed locally before the fast-forward of `main` to it.
 * The default renderer stays Legacy until the maintainer supplies real-GPU
   numbers (A0.3).
 
@@ -87,5 +93,5 @@ green `main` run of the next gate commit that contains it.
 
 ## Upcoming gates (amendment §A9 order)
 
-`phase-4c-done` (damage visuals), `phase-4d-done` (roster and sourcing).
+`phase-4d-done` (roster and sourcing).
 Each is added to the table above when it closes.

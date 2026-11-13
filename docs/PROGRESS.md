@@ -86,6 +86,17 @@ hashes and screenshots unchanged; GPU time and VRAM reported per car.
 * Signage and safety furniture (§5.1), marshals and event vehicles (§5.4),
   flags, tents and night torches, crowd audio, and VAT-animated people.
 
+## Phase 6 — physics realism (backlog items already requested)
+
+* **Damage model rebuild, then damage visuals 1:1.** Today `PDamage`
+  accumulates contact impulses × 1e-7, so real play reaches only ~0.1 per
+  corner, and the 4c visuals use a gain (`graphics.damagegain`, default ×6,
+  per-car `damage.visual_gain` in `car.json`). When Phase 6 rebuilds the
+  damage model so that its values mean severity 0..1, **switch the visuals to
+  1:1 and remove the gain**: the setting, the per-car override and
+  `trackrs::car::VisualGain`. Gate check: a real crash, with no override,
+  reads the same before and after the switch for equal severity.
+
 ## M5 — remaining Moroccan stages (backlog)
 
 The amendment's §A9.8 order: stages 1–8, one per gate, then the Draâ Sahara Cup.
