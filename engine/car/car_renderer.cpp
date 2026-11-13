@@ -200,6 +200,7 @@ struct VehicleState {
   std::array<float, 4> damage{};    ///< last drawn visual severity per corner (report)
   std::array<float, 4> damageSim{}; ///< last simulation damage per corner (report; forced runs: n/a)
   bool damageForced = false;        ///< --damage-visual override active
+  float damageGain = 0;             ///< gain in force when last drawn (report)
   glm::mat4 body{1}, previousBody{1};
   std::vector<glm::mat4> wheels, previousWheels;
 };
@@ -422,11 +423,13 @@ std::size_t draw(const Instance &car, const mesh::ReadFile &read, const glm::mat
   glUniform4f(u("uDirt"), state.wear.dust, state.wear.mud, ws.settings.weather.wetness, 0);
   // Phase 4c damage (simulation corners, read only) and its consequences.
   const auto damage = car.damageIsVisual ? fromVisual(car.damage[0], car.damage[1], car.damage[2], car.damage[3])
-                                         : fromSimulation(car.damage[0], car.damage[1], car.damage[2], car.damage[3]);
+                                         : fromSimulation(car.damage[0], car.damage[1], car.damage[2], car.damage[3],
+                                                          effectiveGain(car.damageGain, current.damageVisualGain));
   const auto broken = effects(damage);
   state.damage = damage.corner;
   state.damageSim = car.damageIsVisual ? std::array<float, 4>{} : car.damage;
   state.damageForced = car.damageIsVisual;
+  state.damageGain = car.damageIsVisual ? 0.f : effectiveGain(car.damageGain, current.damageVisualGain);
   glUniform4f(u("uDamage"), damage.corner[0], damage.corner[1], damage.corner[2], damage.corner[3]);
   glUniform4f(u("uLampsBroken"), broken.headlightBroken[0] ? 1.f : 0.f, broken.headlightBroken[1] ? 1.f : 0.f,
               broken.taillightBroken[0] ? 1.f : 0.f, broken.taillightBroken[1] ? 1.f : 0.f);
@@ -634,7 +637,7 @@ nlohmann::json report() {
                           {"triangles", s.triangles},
                           {"dust", s.wear.dust},
                           {"mud", s.wear.mud},
-                          {"brake_c", s.wear.brakeC}, {"brake_forced", s.brakeForced}, {"damage_visual", s.damage}, {"damage_sim", s.damageSim}, {"damage_forced", s.damageForced}});
+                          {"brake_c", s.wear.brakeC}, {"brake_forced", s.brakeForced}, {"damage_visual", s.damage}, {"damage_sim", s.damageSim}, {"damage_forced", s.damageForced}, {"damage_gain", s.damageGain}});
   }
   return {{"renderer", "car-v2"},
           {"enabled", current.enabled},

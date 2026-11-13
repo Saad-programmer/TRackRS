@@ -17,6 +17,7 @@
  * interior. Textures are built once per type (livery composited on the CPU).
  */
 #include "car_assets.h"
+#include "damage_visual.h"
 #include <array>
 #include "engine/mesh/mesh_importer.h"
 #include <filesystem>
@@ -26,6 +27,7 @@
 namespace trackrs::car {
 struct Settings {
   bool enabled = true; ///< PBR world only; Legacy keeps the original path
+  float damageVisualGain = DefaultVisualGain; ///< graphics.damagegain (see damage_visual.h)
 };
 void configure(Settings settings);
 Settings settings();
@@ -49,6 +51,7 @@ struct Instance {
   /// lamps and engine smoke.
   std::array<float, 4> damage{};
   bool damageIsVisual = false;    ///< damage holds visual severity (validation override), not simulation values
+  float damageGain = 0;           ///< this car's damage.visual_gain (0 = the setting)
 };
 /// `read` loads virtual files (OBJ, MTL, PNG). Returns submitted draws.
 std::size_t draw(const Instance &car, const mesh::ReadFile &read, const glm::mat4 &viewProjection,

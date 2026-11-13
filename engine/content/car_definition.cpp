@@ -115,6 +115,8 @@ CarDefinition parseCar(std::string_view source) {
     c.claimedTopSpeedKmh = number(j["claims"], "top_speed_kmh");
     c.claimedZeroTo100 = number(j["claims"], "zero_to_100_s");
   }
+  if (j.contains("damage"))
+    c.damageVisualGain = number(j["damage"], "visual_gain");
   return c;
 }
 
@@ -153,6 +155,8 @@ std::string writeCar(const CarDefinition &c) {
   j["aero"] = {{"cd", c.cd}, {"frontal_area_m2", c.frontalArea}, {"cl_front", c.clFront}, {"cl_rear", c.clRear}};
   j["brakes"] = {{"bias_front", c.brakeBiasFront}};
   j["claims"] = {{"top_speed_kmh", c.claimedTopSpeedKmh}, {"zero_to_100_s", c.claimedZeroTo100}};
+  if (c.damageVisualGain > 0) // optional: written only when set, so existing files stay byte-identical
+    j["damage"] = {{"visual_gain", c.damageVisualGain}};
   return j.dump(2) + "\n";
 }
 
@@ -237,6 +241,8 @@ Validation validate(const CarDefinition &c) {
   range("aero.cd", c.cd, .2f, .8f);
   range("aero.frontal_area_m2", c.frontalArea, 1.2f, 3.f);
   range("brakes.bias_front", c.brakeBiasFront, c.legacy ? .1f : .3f, .85f); // legacy Fox cars are rear-biased
+  if (c.damageVisualGain != 0)
+    range("damage.visual_gain", c.damageVisualGain, .5f, 20.f);
   if (v.errors.empty()) {
     const auto power = peakPowerKw(c).value;
     if (power < 30 || power > 700)

@@ -7,6 +7,7 @@
 #include "engine/post/post.h"
 #include "engine/dressing/renderer.h"
 #include "engine/car/car_renderer.h"
+#include <algorithm>
 #include "exception.h"
 #include "app.h"
 #include "pengine.h"
@@ -272,6 +273,7 @@ void PConfig::loadConfig()
         val = walk->Attribute("shadows");setCsm(!val||std::string(val)!="blob");
         val = walk->Attribute("crowd");setCrowd(!val||std::string(val)!="off");
         val = walk->Attribute("cars");setCarRenderer(!val||std::string(val)!="off");
+        {float gain=trackrs::car::DefaultVisualGain;walk->QueryFloatAttribute("damagegain",&gain);setDamageGain(gain);}
         val = walk->Attribute("post");setPostProcessing(!val||std::string(val)!="off");
         val = walk->Attribute("aa");setTemporalAA(!val||std::string(val)!="off");
         val = walk->Attribute("weatherpreset");
@@ -612,6 +614,7 @@ void PConfig::storeConfig()
       walk->SetAttribute("shadows",cfg_csm?"csm":"blob");
       walk->SetAttribute("crowd",cfg_crowd?"on":"off");
       walk->SetAttribute("cars",cfg_cars?"on":"off");
+      walk->SetAttribute("damagegain",cfg_damage_gain);
       walk->SetAttribute("post",cfg_post?"on":"off");
       walk->SetAttribute("aa",cfg_taa?"taa":"off");
       walk->SetAttribute("weatherpreset",cfg_weather_preset.c_str());
@@ -940,7 +943,8 @@ void PConfig::setTimeOfDay(const std::string &name){
   trackrs::world::configure({cfg_pbr_terrain,cfg_csm,hour});
 }
 void PConfig::setCrowd(bool enabled){cfg_crowd=enabled;trackrs::dressing::configure({enabled});}
-void PConfig::setCarRenderer(bool enabled){cfg_cars=enabled;trackrs::car::configure({enabled});}
+void PConfig::setCarRenderer(bool enabled){cfg_cars=enabled;auto s=trackrs::car::settings();s.enabled=enabled;trackrs::car::configure(s);}
+void PConfig::setDamageGain(float gain){cfg_damage_gain=std::clamp(gain,trackrs::car::MinVisualGain,trackrs::car::MaxVisualGain);auto s=trackrs::car::settings();s.damageVisualGain=cfg_damage_gain;trackrs::car::configure(s);}
 void PConfig::setPostProcessing(bool enabled){cfg_post=enabled;auto s=trackrs::post::settings();s.enabled=enabled;trackrs::post::configure(s);}
 void PConfig::setTemporalAA(bool enabled){cfg_taa=enabled;auto s=trackrs::post::settings();s.taa=enabled;trackrs::post::configure(s);}
 void PConfig::setWeatherPreset(const std::string &name){trackrs::world::selectWeather(name);cfg_weather_preset=name;}

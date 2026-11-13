@@ -1143,7 +1143,8 @@ void MainApp::tickStateGame(float delta)
       for (auto *car : game->vehicle) {
         if (car->part.empty()) continue;
         const auto& dmg = car->part[0].damage;
-        auto state = trackrs::car::fromSimulation(dmg.level(PDamage::DamageFrontLeft), dmg.level(PDamage::DamageFrontRight), 0.f, 0.f);
+        auto state = trackrs::car::fromSimulation(dmg.level(PDamage::DamageFrontLeft), dmg.level(PDamage::DamageFrontRight), 0.f, 0.f,
+            trackrs::car::effectiveGain(car->type->damageVisualGain, trackrs::car::settings().damageVisualGain));
         if (validation::run.options.damageVisual[0] >= 0.f)
           state = trackrs::car::fromVisual(validation::run.options.damageVisual[0], validation::run.options.damageVisual[1], 0.f, 0.f);
         const float smoke = trackrs::car::effects(state).smoke;

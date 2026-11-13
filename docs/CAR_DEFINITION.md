@@ -32,9 +32,16 @@ CLI accepts `--vehicle <id>` for either.
   "tyres": { "radius_m": 0.32, "width_m": 0.225 },
   "aero": { "cd": 0.36, "frontal_area_m2": 2.0, "cl_front": 0, "cl_rear": 0 },
   "brakes": { "bias_front": 0.62 },
-  "claims": { "top_speed_kmh": 210, "zero_to_100_s": 0 }   // 0 = unknown
+  "claims": { "top_speed_kmh": 210, "zero_to_100_s": 0 },  // 0 = unknown
+  "damage": { "visual_gain": 6 }          // optional, 0.5-20: overrides graphics.damagegain
 }
 ```
+
+`damage.visual_gain` (Phase 4c) overrides, for this car only, the global
+setting `graphics damagegain` (default 6): visual damage severity =
+gain × simulation damage, clamped to 1. It is written only when set. Phase 6
+backlog: it is removed when the damage model is rebuilt and the visuals go
+1:1.
 
 ## Validation (`validate()`, run at load and by `car-definition-v2`)
 

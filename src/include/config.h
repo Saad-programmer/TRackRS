@@ -119,6 +119,9 @@ public:
   void setCrowd(bool enabled);
   bool getCarRenderer() const { return cfg_cars; }
   void setCarRenderer(bool enabled);
+  /// graphics damagegain: visual damage severity = gain x simulation damage (Phase 4c).
+  float getDamageGain() const { return cfg_damage_gain; }
+  void setDamageGain(float gain);
   void setVegetationMeshes(bool enabled);
   void setCsm(bool enabled);
   bool getPbrTerrain() const { return cfg_pbr_terrain; }
@@ -199,6 +202,7 @@ private:
   bool cfg_pbr_terrain = false, cfg_csm = true, cfg_vegetation_meshes = true;
   std::string cfg_weather_preset = "level";
   bool cfg_post = true, cfg_crowd = true, cfg_cars = true, cfg_taa = true;
+  float cfg_damage_gain = 6.0f;          ///< trackrs::car::DefaultVisualGain
   std::string cfg_time_of_day = "noon";
   trackrs::RenderQuality cfg_render_quality = trackrs::RenderQuality::Medium;
   GLfloat cfg_anisotropy = 1.0f;    ///< Anisotropic filter quality.

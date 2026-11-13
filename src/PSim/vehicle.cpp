@@ -155,6 +155,7 @@ bool PVehicleType::load(const std::string &filename, PSSModel &ssModel)
         throw std::runtime_error("own car meshes are a Phase 4b feature");
       }
       const auto xml = trackrs::content::toLegacyVehicle(car, fallbackXml);
+      damageVisualGain = car.damageVisualGain;
       if (xmlfile.Parse(xml.c_str(), xml.size()) == tinyxml2::XML_SUCCESS)
         rootelem = xmlfile.FirstChildElement("vehicle");
     } catch (const std::exception &e) {

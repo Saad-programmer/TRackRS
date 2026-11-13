@@ -207,7 +207,8 @@ bool trackrs::Renderer::car(const PVehicle& vehicle, TerrainType surface, float 
         livery = liveries.emplace(&type, text).first;
     }
     car.livery = livery->second;
-    // Phase 4c: simulation damage of the body part (read only).
+    // Phase 4c: simulation damage of the body part (read only) and this car's gain.
+    car.damageGain = type.damageVisualGain;
     if (!vehicle.part.empty()) {
         const auto& dmg = vehicle.part[0].damage;
         car.damage = {dmg.level(PDamage::DamageFrontLeft), dmg.level(PDamage::DamageFrontRight),
@@ -234,7 +235,9 @@ bool trackrs::Renderer::car(const PVehicle& vehicle, TerrainType surface, float 
         trackrs::car::draw(car, readVirtual, projection * view, camera, 2.f * std::atan(.6f), time, ws.linearCapture);
     } catch (const std::exception& error) {
         PUtil::outLog() << "Car renderer: " << error.what() << ", using the legacy path" << std::endl;
-        trackrs::car::configure({false});
+        auto off = trackrs::car::settings();
+        off.enabled = false;
+        trackrs::car::configure(off);
         return false;
     }
     return true;

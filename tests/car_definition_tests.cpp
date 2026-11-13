@@ -166,3 +166,18 @@ TEST_CASE("validator rejects dishonest or broken definitions") {
   const auto again = parseCar(writeCar(car));
   CHECK(writeCar(again) == writeCar(car));
 }
+
+TEST_CASE("optional damage.visual_gain parses, validates and round-trips") {
+  const auto base = read(files("car.json").front());
+  auto car = parseCar(base);
+  CHECK(car.damageVisualGain == 0.f);                                  // absent: use the setting
+  CHECK(writeCar(car).find("\"damage\"") == std::string::npos);       // and nothing is written
+  car.damageVisualGain = 3.5f;
+  CHECK(validate(car).ok());
+  const auto again = parseCar(writeCar(car));
+  CHECK(again.damageVisualGain == doctest::Approx(3.5f));
+  car.damageVisualGain = 40.f;
+  CHECK_FALSE(validate(car).ok());
+  car.damageVisualGain = .1f;
+  CHECK_FALSE(validate(car).ok());
+}

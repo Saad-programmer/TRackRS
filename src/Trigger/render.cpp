@@ -873,7 +873,9 @@ void MainApp::renderStateGame(float eyetranslation)
                 if (!vehic->part.empty()) {
                     const auto &dmg = vehic->part.front().damage;
                     state = trackrs::car::fromSimulation(dmg.level(PDamage::DamageFrontLeft), dmg.level(PDamage::DamageFrontRight),
-                                                         dmg.level(PDamage::DamageRearLeft), dmg.level(PDamage::DamageRearRight));
+                                                         dmg.level(PDamage::DamageRearLeft), dmg.level(PDamage::DamageRearRight),
+                                                         trackrs::car::effectiveGain(vehic->type->damageVisualGain,
+                                                                                     trackrs::car::settings().damageVisualGain));
                 }
                 const auto &forced = validation::run.options.damageVisual;
                 if (forced[0] >= 0.f) state = trackrs::car::fromVisual(forced[0], forced[1], forced[2], forced[3]);

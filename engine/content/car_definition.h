@@ -54,6 +54,7 @@ struct CarDefinition {
   float cd = 0, frontalArea = 0, clFront = 0, clRear = 0;
   float brakeBiasFront = .6f;
   float claimedTopSpeedKmh = 0, claimedZeroTo100 = 0; ///< optional (0 = unknown), unverified unless sourced
+  float damageVisualGain = 0; ///< optional "damage.visual_gain" override of graphics.damagegain (0 = use the setting)
   bool legacy = false;                     ///< produced by the legacy adapter (fictional car)
   std::string legacyFile;                  ///< source .vehicle for legacy cars
 };

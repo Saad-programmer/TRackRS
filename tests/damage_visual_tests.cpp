@@ -7,13 +7,22 @@ using namespace trackrs::car;
 TEST_CASE("simulation damage is scaled by the visual gain and clamped") {
   const auto d = fromSimulation(-0.02f, 0.05f, 3.f, 0.094f);
   CHECK(d.corner[0] == 0.f);
-  CHECK(d.corner[1] == doctest::Approx(.05f * VisualGain));
+  CHECK(d.corner[1] == doctest::Approx(.05f * DefaultVisualGain));
   CHECK(d.corner[2] == 1.f);
   CHECK(d.corner[3] > .5f);             // the measured crash session reads as heavy
   const auto v = fromVisual(-1.f, .4f, 2.f, 1.f);
   CHECK(v.corner[0] == 0.f);
   CHECK(v.corner[1] == doctest::Approx(.4f));
   CHECK(v.corner[2] == 1.f);
+}
+
+TEST_CASE("the gain comes from the car's override, else the setting, clamped") {
+  CHECK(effectiveGain(0.f, 6.f) == 6.f);
+  CHECK(effectiveGain(3.5f, 6.f) == 3.5f);
+  CHECK(effectiveGain(0.f, 100.f) == MaxVisualGain);
+  CHECK(effectiveGain(0.f, 0.f) == MinVisualGain);
+  CHECK(fromSimulation(.1f, 0, 0, 0, 3.f).corner[0] == doctest::Approx(.3f));
+  CHECK(fromSimulation(.1f, 0, 0, 0, 1.f).corner[0] == doctest::Approx(.1f)); // 1:1, the Phase 6 target
 }
 
 TEST_CASE("damage is strongest at its corner and fades across the body") {

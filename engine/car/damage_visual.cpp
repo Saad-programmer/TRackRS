@@ -15,8 +15,12 @@ DamageState fromVisual(float fl, float fr, float rl, float rr) {
   return d;
 }
 
-DamageState fromSimulation(float fl, float fr, float rl, float rr) {
-  return fromVisual(fl * VisualGain, fr * VisualGain, rl * VisualGain, rr * VisualGain);
+float effectiveGain(float perCar, float setting) {
+  return std::clamp(perCar > 0.f ? perCar : setting, MinVisualGain, MaxVisualGain);
+}
+
+DamageState fromSimulation(float fl, float fr, float rl, float rr, float gain) {
+  return fromVisual(fl * gain, fr * gain, rl * gain, rr * gain);
 }
 
 float damageAt(const DamageState &d, const BodyExtent &e, glm::vec2 xy) {

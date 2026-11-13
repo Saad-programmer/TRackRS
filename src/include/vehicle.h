@@ -182,6 +182,9 @@ public:
   
   // wheel scale
   float wheelscale;
+
+  // Phase 4c: per-car damage-visual gain from car.json (0 = graphics.damagegain)
+  float damageVisualGain = 0;
   
   // wheel model
   PModel *wheelmodel;
