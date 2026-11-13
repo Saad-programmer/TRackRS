@@ -190,13 +190,17 @@ an uncovered file, so a mesh without an asset entry never loads.
 
 | Order | Class pack | Where | Cars |
 |---|---|---|---|
-| 1 | Rally-raid | `data/packs/class-rally-raid` | Toyota GR DKR Hilux T1+, Prodrive Hunter T1+, Ford Raptor T1+, Can-Am Maverick XRS (T4). The fictional `draa_raid_t1` and `erg_lite_t3` (pack `morocco-sahara`) use the same specification. |
-| 2 | Heritage raid | `data/packs/class-heritage-raid` | Porsche 959 (rally-raid, 1986), Peugeot 405 T16 Grand Raid, Citroën ZX Rallye-Raid, Mitsubishi Pajero Evolution (raid, 1998), Range Rover (raid, 1981) |
-| 3 | Existing rally roster | `data/vehicles` (kept in place: legacy paths are part of the golden hashes and of saved profiles) | the 11 real-car entries from Phase 4a, plus the 9 fictional legacy cars, which keep their own bodies |
+| 1 | Rally-raid | `data/packs/class-rally-raid` | Toyota GR DKR Hilux T1+, Prodrive Hunter T1+, Ford Ranger Raptor T1+, Mini JCW Rally T1+, Dacia Sandrider T1+, Peugeot 3008 DKR Maxi, Toyota Land Cruiser 79 (T2), Nissan Patrol (T2), Can-Am Maverick XRS (T4). The fictional `draa_raid_t1` and `erg_lite_t3` (pack `morocco-sahara`) use the same specification. |
+| 2 | Heritage raid | `data/packs/class-heritage-raid` | Peugeot 205 T16 Grand Raid, Porsche 959 (rally-raid, 1986), Peugeot 405 T16 Grand Raid, Citroën ZX Rallye-Raid, Mitsubishi Pajero Evolution (raid, 1998), Range Rover (raid, 1981) |
+| 3 | Existing rally roster | `data/vehicles` (kept in place: legacy paths are part of the golden hashes and of saved profiles) | the 11 real-car entries from Phase 4a, plus the 11 fictional legacy cars (the original 9, `evo_rally` and `lancer_evo`), which keep their own bodies |
 
 * **Performance figures** in the class packs are **class-typical
   placeholders, not the named cars' data**. All are `verified: false`; see
   each `car.json` provenance.
 * **Supplying a mesh** does not verify any figure. Figures are verified
-  separately, with a cited source in `sources` and the matching `verified`
-  key.
+  separately: put `vehicles/<id>/data_overrides.json` next to the car, with
+  an https `source` for every value, and run `tools/seed_class_packs.py`.
+  A data group turns `verified: true` only when the file covers all of it
+  ([CAR_DEFINITION.md](CAR_DEFINITION.md)).
+* **Car selection** labels these cars "approximate class figures" (any
+  group unverified) and "placeholder model" (no mesh).

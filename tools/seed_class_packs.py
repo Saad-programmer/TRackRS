@@ -20,6 +20,11 @@ Not modelled: electric rally-raid prototypes (single-speed, range extender)
 need the Phase 6 powertrain, so none is listed. 37-inch tyres exceed the
 validator's 0.45 m radius limit; such cars use 0.45 m.
 
+Cited values: an optional vehicles/<id>/data_overrides.json next to a car
+replaces generated values with sourced ones (see apply_overrides below and
+docs/CAR_DEFINITION.md). A verified group becomes true only when the file
+covers every value of that group, each with an https:// source.
+
 Usage: tools/seed_class_packs.py [--check]
 """
 import argparse
@@ -60,9 +65,24 @@ PACK_CARS = {
         ('prodrive_hunter_t1plus', 'Prodrive Hunter T1+', 'Prodrive', 2021, 'Rally-raid T1+', '2021-',
          '3.5 V6 twin-turbo front-mid (restricted)', 'AWD', .5, 2000, .52, 620, 3500, 290, 5000, 900, 6500, 6, 170,
          .45, .30, .5, 3.0, 'cordo_super500', True, '#1d2f45', '#d9a441', 302),
-        ('ford_raptor_t1plus', 'Ford Raptor T1+', 'Ford', 2024, 'Rally-raid T1+', '2024-',
+        ('ford_ranger_raptor_t1plus', 'Ford Ranger Raptor T1+', 'Ford', 2024, 'Rally-raid T1+', '2024-',
          '3.5 V6 twin-turbo front-mid (restricted)', 'AWD', .5, 2050, .53, 620, 3500, 290, 5000, 900, 6500, 6, 170,
          .45, .30, .52, 3.0, 'cordo_super500', True, '#e6e2d6', '#2b5d3a', 303),
+        ('mini_jcw_rally_t1plus', 'Mini John Cooper Works Rally', 'Mini', 2023, 'Rally-raid T1+', '2023-',
+         'restricted T1+ engine (class-typical)', 'AWD', .5, 2000, .52, 620, 3500, 290, 5000, 900, 6500, 6, 170,
+         .45, .30, .5, 3.0, 'cordo_super500', True, '#2a3f2e', '#e8e3d4', 304),
+        ('dacia_sandrider_t1plus', 'Dacia Sandrider', 'Dacia', 2025, 'Rally-raid T1+', '2025-',
+         'restricted T1+ engine (class-typical)', 'AWD', .5, 2000, .52, 620, 3500, 290, 5000, 900, 6500, 6, 170,
+         .45, .30, .5, 3.0, 'cordo_super500', True, '#5c6b3a', '#d8c9a3', 305),
+        ('peugeot_3008_dkr_maxi', 'Peugeot 3008 DKR Maxi', 'Peugeot', 2018, 'Rally-raid T1 2WD buggy', '2017-2018',
+         'restricted T1 buggy engine (class-typical)', 'RWD', 0.0, 1800, .45, 700, 2500, 250, 4000, 800, 5500, 6, 170,
+         .45, .32, .45, 2.6, 'cordo_super500', True, '#e9e7e1', '#26324d', 306),
+        ('toyota_land_cruiser_79_t2', 'Toyota Land Cruiser 79 (T2)', 'Toyota', 2020, 'Rally-raid T2 production', '2007-',
+         'production diesel engine (class-typical)', 'AWD', .45, 2400, .55, 430, 2000, 150, 3600, 700, 4200, 5, 165,
+         .42, .27, .62, 3.0, 'cordo_super500', True, '#ece9e0', '#b3472c', 307),
+        ('nissan_patrol_t2', 'Nissan Patrol (T2)', 'Nissan', 2020, 'Rally-raid T2 production', '2010-',
+         'production engine (class-typical)', 'AWD', .45, 2450, .55, 550, 4000, 260, 5800, 700, 6200, 6, 180,
+         .42, .28, .6, 3.0, 'cordo_super500', False, '#2d3a4a', '#d9a441', 308),
         ('canam_maverick_xrs_t4', 'Can-Am Maverick XRS (T4)', 'Can-Am', 2023, 'Rally-raid T4 SSV', '2021-',
          '0.9 three-cylinder turbo mid (CVT approximated by 5 ratios)', 'AWD', .4, 900, .42, 190, 6000, 145, 7250,
          1200, 8500, 5, 140, .41, .26, .55, 1.9, 'fox_kitcar', True, '#f0c419', '#202020', -1),
@@ -71,6 +91,9 @@ PACK_CARS = {
         ('porsche_959_raid_1986', 'Porsche 959 (rally-raid, 1986)', 'Porsche', 1986, 'Heritage raid prototype',
          '1984-1986', '2.85 flat-6 twin-turbo rear-mounted', 'AWD', .4, 1260, .42, 500, 5000, 290, 6500, 950,
          7500, 5, 210, .36, .25, .38, 2.0, 'cordo_super500', True, '#efefea', '#2c4f9e', 185),
+        ('peugeot_205_t16_gr_1987', 'Peugeot 205 T16 Grand Raid', 'Peugeot', 1987, 'Heritage raid prototype',
+         '1987-1988', '1.8 I4 turbo mid-mounted', 'AWD', .4, 1150, .43, 450, 4500, 270, 7000, 1000, 8000, 5, 200,
+         .36, .25, .42, 2.0, 'cordo_super500', True, '#f4f3ef', '#1f3e8a', 203),
         ('peugeot_405_t16_gr_1988', 'Peugeot 405 T16 Grand Raid', 'Peugeot', 1988, 'Heritage raid prototype',
          '1988-1990', '1.9 I4 turbo mid-mounted', 'AWD', .45, 1280, .45, 480, 4500, 290, 6500, 1000, 7500, 5, 200,
          .37, .25, .42, 2.2, 'cordo_super500', True, '#f2f2ee', '#1c1c1c', 205),
@@ -121,6 +144,62 @@ def build(row):
         'brakes': {'bias_front': 0.6},
         'claims': {'top_speed_kmh': top, 'zero_to_100_s': 0},
     }
+
+
+# Cited overrides (data_overrides.json). Each verified group lists the values it
+# covers; a group becomes verified only when ALL its values carry a source.
+OVERRIDE_GROUPS = {
+    'mass': ['mass.kerb_kg', 'mass.front_weight_dist'],
+    'engine': ['engine.idle_rpm', 'engine.redline_rpm', 'engine.torque_curve_nm'],
+    'gearbox': ['drivetrain.gearbox.ratios', 'drivetrain.gearbox.final_drive', 'drivetrain.gearbox.reverse'],
+    'tyres': ['tyres.radius_m', 'tyres.width_m'],
+    'aero': ['aero.cd', 'aero.frontal_area_m2'],
+    'brakes': ['brakes.bias_front'],
+}
+OVERRIDE_UNGROUPED = ['drivetrain.front_torque_share', 'aero.cl_front', 'aero.cl_rear', 'claims.top_speed_kmh',
+                      'claims.zero_to_100_s']
+
+
+class OverrideError(ValueError):
+    pass
+
+
+def apply_overrides(car, overrides, where='data_overrides.json'):
+    """Return a copy of `car` with cited values applied, sources listed and the
+    fully covered verified groups set to true. Raises OverrideError on an
+    unknown path, a missing or non-https source, or a wrong schema."""
+    if overrides.get('schema') != 'trackrs.car-overrides/1':
+        raise OverrideError(f'{where}: schema must be trackrs.car-overrides/1')
+    known = {p for paths in OVERRIDE_GROUPS.values() for p in paths} | set(OVERRIDE_UNGROUPED)
+    car = json.loads(json.dumps(car))
+    sources, covered = [], set()
+    for path, entry in sorted(overrides.get('values', {}).items()):
+        if path not in known:
+            raise OverrideError(f'{where}: unknown value "{path}"')
+        if not isinstance(entry, dict) or 'value' not in entry:
+            raise OverrideError(f'{where}: "{path}" needs {{"value": ..., "source": "https://..."}}')
+        source = entry.get('source', '')
+        if not isinstance(source, str) or not source.startswith('https://'):
+            raise OverrideError(f'{where}: "{path}" needs an https:// source')
+        node = car
+        *parents, leaf = path.split('.')
+        for key in parents:
+            node = node[key]
+        node[leaf] = entry['value']
+        covered.add(path)
+        if source not in sources:
+            sources.append(source)
+    if not covered:
+        return car
+    car['sources'] = sources
+    verified = [g for g, paths in OVERRIDE_GROUPS.items() if all(p in covered for p in paths)]
+    for group in verified:
+        car['verified'][group] = True
+    if 'gearbox' in verified:
+        car['drivetrain']['gearbox']['derivation'] = 'sourced'
+    car['provenance'] = (car['provenance'] + ' Cited in data_overrides.json: ' + ', '.join(sorted(covered)) +
+                         ('; verified groups: ' + ', '.join(verified) if verified else '; no group fully covered') + '.')
+    return car
 
 
 def livery(row, seed):
@@ -184,7 +263,12 @@ def files():
         out[root / 'README.md'] = readme(pack_id, cars)
         for row in cars:
             seed += 1
-            out[root / 'vehicles' / row[0] / 'car.json'] = json.dumps(build(row), indent=2) + '\n'
+            car = build(row)
+            overrides = root / 'vehicles' / row[0] / 'data_overrides.json'
+            if overrides.exists():
+                car = apply_overrides(car, json.loads(overrides.read_text(encoding='utf-8')),
+                                      str(overrides.relative_to(ROOT)))
+            out[root / 'vehicles' / row[0] / 'car.json'] = json.dumps(car, indent=2) + '\n'
             out[root / 'vehicles' / row[0] / 'livery.json'] = json.dumps(livery(row, seed), indent=2) + '\n'
     return out
 

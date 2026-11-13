@@ -484,7 +484,7 @@ Decision:
 
 ## 4d: the existing rally roster stays in data/vehicles
 
-Context: the third class pack is the existing roster (9 fictional legacy
+Context: the third class pack is the existing roster (11 fictional legacy
 cars and the 11 real-car entries from 4a).
 Decision: the cars stay where they are. `/vehicles/<id>` paths are part of
 the golden replays and hashes, of the calibration tests and of saved
@@ -502,3 +502,26 @@ supplied asset can be checked before the loader for supplied meshes is
 written. Separate part nodes (bumpers, mirrors, wheels) are required, so
 that real detachable parts (Phase 4c follow-up) become possible. The loader
 is written when the first conforming mesh arrives.
+
+## 4d: cited values enter through data_overrides.json, per value
+
+Context: the maintainer accepted class-typical figures with `verified:
+false` for the class packs, and asked for a way to verify individual values.
+Decision: `tools/seed_class_packs.py` reads an optional
+`vehicles/<id>/data_overrides.json` (`trackrs.car-overrides/1`). Every value
+carries its own https `source`. A data group (mass, engine, gearbox, tyres,
+aero, brakes) turns `verified: true` only when the file covers every path of
+that group, so one cited figure never verifies its neighbours. The sources
+join the car's `sources` list and the provenance names the overridden paths.
+Unknown paths, a missing or non-https source, or a wrong schema stop the
+generator. Tested by `car-data-overrides`.
+
+## 4d: the car selection screen says when figures are approximate
+
+Context: unverified class figures must not read as the named car's data.
+Decision: the car selection screen prints "approximate class figures" under
+the stats of any Car v2 car with an unverified group, and "placeholder model"
+when it has no mesh. The "Engine (BHP)" line shows the car's peak power from
+its `car.json` torque curve instead of the legacy empirical estimate, which
+read 71 BHP for a 150 kW Land Cruiser. Legacy `.vehicle` cars keep the old
+formula, so legacy content and hashes do not change.

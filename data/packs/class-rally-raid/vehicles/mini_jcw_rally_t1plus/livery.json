@@ -1,0 +1,70 @@
+{
+  "schema": "trackrs.livery/1",
+  "id": "mini_jcw_rally_t1plus_fictional",
+  "note": "Fictional livery (placeholder model): generated sponsor marks, no team, sponsor or manufacturer scheme or logo.",
+  "primary": "#2a3f2e",
+  "primary_source": "#0044aa",
+  "secondary": "#e8e3d4",
+  "secondary_source": "#ffff00",
+  "number": 304,
+  "number_colour": "#111111",
+  "panel_colour": "#f2f2f2",
+  "number_panels": [
+    {
+      "rect": [
+        0.398,
+        0.52,
+        0.14,
+        0.117
+      ]
+    },
+    {
+      "rect": [
+        0.461,
+        0.828,
+        0.133,
+        0.125
+      ]
+    }
+  ],
+  "sponsor_slots": [
+    {
+      "rect": [
+        0.54,
+        0.51,
+        0.32,
+        0.14
+      ],
+      "backing": "#2a3f2e"
+    },
+    {
+      "rect": [
+        0.214,
+        0.82,
+        0.24,
+        0.15
+      ],
+      "backing": "#2a3f2e"
+    },
+    {
+      "rect": [
+        0.762,
+        0.229,
+        0.098,
+        0.049
+      ],
+      "backing": "#2a3f2e"
+    },
+    {
+      "rect": [
+        0.117,
+        0.117,
+        0.102,
+        0.254
+      ],
+      "rotation": 90,
+      "backing": "#2a3f2e"
+    }
+  ],
+  "sponsor_seed": 404
+}

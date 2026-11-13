@@ -23,7 +23,7 @@ rendering (Mesa llvmpipe). Real-GPU numbers come from the maintainer.
 | M0 Pack-lite (amendment §A9.2) | Done (gate) | [PHASE_M0](reports/PHASE_M0.md), [CONTENT_PACKS](CONTENT_PACKS.md) |
 | M1 Saharan world tech (A3 1–6, test stage) | Done (gate) | [PHASE_M1](reports/PHASE_M1.md), [cultural review](reviews/CULTURAL_M1.md) |
 | M2 Zagora Prologue vertical slice | Done (gate, accepted) | [PHASE_M2](reports/PHASE_M2.md), [cultural review](reviews/CULTURAL_M2.md) |
-| 4 Real rally cars, gated 4a–4d | 4a, 4b done; 4c at its gate (awaiting review) | [PHASE_4A](reports/PHASE_4A.md), [PHASE_4B](reports/PHASE_4B.md), [PHASE_4C](reports/PHASE_4C.md) |
+| 4 Real rally cars, gated 4a–4d | 4a, 4b, 4c done; 4d at its gate (awaiting review) | [PHASE_4A](reports/PHASE_4A.md), [PHASE_4B](reports/PHASE_4B.md), [PHASE_4C](reports/PHASE_4C.md), [PHASE_4D](reports/PHASE_4D.md), [CARS](CARS.md), [ASSET_SOURCING](ASSET_SOURCING.md) |
 | 5 Stage dressing | 5a people done; rest planned | [PHASE_5A](reports/PHASE_5A.md) |
 | 6 Physics realism | Not started | — |
 | 7 Audio, cameras, HUD, replay, photo mode, co-driver | Not started | — |
@@ -96,6 +96,21 @@ hashes and screenshots unchanged; GPU time and VRAM reported per car.
   1:1 and remove the gain**: the setting, the per-car override and
   `trackrs::car::VisualGain`. Gate check: a real crash, with no override,
   reads the same before and after the switch for equal severity.
+
+## Cars after 4d (backlog, amendment §A5)
+
+* **Electric and hybrid raid prototypes** (Audi RS Q e-tron hybrid): wait for
+  Phase 6, which adds an electric/hybrid powertrain to the physics. Car v2
+  describes combustion engines only.
+* **Raid physics as data (§A5.5):** long-travel suspension, locking centre
+  differential, ground clearance, fuel capacity and restricted-power rules.
+  Phase 6; calibration tests stay report-only until then.
+* **Fictional Moroccan teams and liveries (§A5.4):** desert palettes and
+  zellige-style geometric decals for the livery generator, with invented team
+  names and numbers. Needs a cultural review before shipping.
+* **Trucks (§A5.6):** out of scope for 0.7.
+* **Supplied meshes:** the glTF car loader (part nodes, LODs, needles) is
+  written when the first mesh that passes `tools/check_car_mesh.py` arrives.
 
 ## M5 — remaining Moroccan stages (backlog)
 

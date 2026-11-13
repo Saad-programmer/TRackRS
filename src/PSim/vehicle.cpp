@@ -4,6 +4,7 @@
 #include "render.h"
 #include "engine/content/car_definition.h"
 #include <physfs.h>
+#include <algorithm>
 
 // default vehicle type values
 #define DEF_VEHICLE_NAME "Vehicle"
@@ -156,6 +157,9 @@ bool PVehicleType::load(const std::string &filename, PSSModel &ssModel)
       }
       const auto xml = trackrs::content::toLegacyVehicle(car, fallbackXml);
       damageVisualGain = car.damageVisualGain;
+      definitionPowerBhp = trackrs::content::peakPowerKw(car).value * 1.341f; // mechanical hp from the torque curve
+      approximateFigures = std::any_of(car.verified.begin(), car.verified.end(), [](const auto &v) { return !v.second; });
+      placeholderModel = trackrs::content::isPlaceholder(car);
       if (xmlfile.Parse(xml.c_str(), xml.size()) == tinyxml2::XML_SUCCESS)
         rootelem = xmlfile.FirstChildElement("vehicle");
     } catch (const std::exception &e) {
@@ -560,6 +564,9 @@ bool PVehicleType::load(const std::string &filename, PSSModel &ssModel)
 	}
 	pstat_enginepower.pop_back();
   }
+  // Car v2: show the definition's real peak power, not the legacy empirical formula.
+  if (definitionPowerBhp > 0)
+    pstat_enginepower = std::to_string(static_cast<int>(definitionPowerBhp + .5f));
   
   // assign pstat of driving wheels
   std::vector<float> wheels_drive;

@@ -1,0 +1,944 @@
+{
+  "renderer": "GL timer queries under llvmpipe (software); CPU = submission wall time",
+  "frames": 24,
+  "time_of_day": "noon",
+  "cars": {
+    "alpine_a110_1800": {
+      "name": "Alpine A110 1800 (placeholder model)",
+      "gpu_bytes": 14034468,
+      "texture_bytes": 13981012,
+      "body_triangles_per_lod": [
+        634,
+        316,
+        302
+      ],
+      "wheel_triangles_per_lod": [
+        144,
+        72,
+        72
+      ],
+      "interior_triangles": 192,
+      "lod_drawn": 0,
+      "draws": 7,
+      "triangles_drawn": 2036,
+      "cars_cpu_ms": 29.05199587,
+      "cars_gpu_ms": 6.686956522e-05,
+      "shadow_cars_cpu_ms": 0.6851246087,
+      "shadow_cars_gpu_ms": 0.0001545217391,
+      "cabin_measured": true
+    },
+    "audi_quattro_a2": {
+      "name": "Audi Quattro A2 (placeholder model)",
+      "gpu_bytes": 14184072,
+      "texture_bytes": 13981012,
+      "body_triangles_per_lod": [
+        2946,
+        1472,
+        437
+      ],
+      "wheel_triangles_per_lod": [
+        672,
+        336,
+        336
+      ],
+      "interior_triangles": 192,
+      "lod_drawn": 0,
+      "draws": 7,
+      "triangles_drawn": 8772,
+      "cars_cpu_ms": 23.02552709,
+      "cars_gpu_ms": 5.360869565e-05,
+      "shadow_cars_cpu_ms": 1.316266696,
+      "shadow_cars_gpu_ms": 0.0001386521739,
+      "cabin_measured": true
+    },
+    "bmw_m3_e30_group_a": {
+      "name": "BMW M3 E30 Group A (placeholder model)",
+      "gpu_bytes": 14034468,
+      "texture_bytes": 13981012,
+      "body_triangles_per_lod": [
+        634,
+        316,
+        302
+      ],
+      "wheel_triangles_per_lod": [
+        144,
+        72,
+        72
+      ],
+      "interior_triangles": 192,
+      "lod_drawn": 0,
+      "draws": 7,
+      "triangles_drawn": 2036,
+      "cars_cpu_ms": 0.5127401304,
+      "cars_gpu_ms": 4.808695652e-05,
+      "shadow_cars_cpu_ms": 0.5624422174,
+      "shadow_cars_gpu_ms": 0.0001440869565,
+      "cabin_measured": true
+    },
+    "class-heritage-raid:citroen_zx_rallye_raid_1991": {
+      "name": "Citroen ZX Rallye-Raid (placeholder model)",
+      "gpu_bytes": 14033096,
+      "texture_bytes": 13981012,
+      "body_triangles_per_lod": [
+        694,
+        347,
+        150
+      ],
+      "wheel_triangles_per_lod": [
+        144,
+        72,
+        72
+      ],
+      "interior_triangles": 192,
+      "lod_drawn": 0,
+      "draws": 7,
+      "triangles_drawn": 2156,
+      "cars_cpu_ms": 0.6372147391,
+      "cars_gpu_ms": 8.02173913e-05,
+      "shadow_cars_cpu_ms": 0.6452743478,
+      "shadow_cars_gpu_ms": 0.0001702608696,
+      "cabin_measured": true
+    },
+    "class-heritage-raid:mitsubishi_pajero_evolution_1998": {
+      "name": "Mitsubishi Pajero Evolution (raid, 1998) (placeholder model)",
+      "gpu_bytes": 14033096,
+      "texture_bytes": 13981012,
+      "body_triangles_per_lod": [
+        694,
+        347,
+        150
+      ],
+      "wheel_triangles_per_lod": [
+        144,
+        72,
+        72
+      ],
+      "interior_triangles": 192,
+      "lod_drawn": 0,
+      "draws": 7,
+      "triangles_drawn": 2156,
+      "cars_cpu_ms": 0.5959163043,
+      "cars_gpu_ms": 0.0001131304348,
+      "shadow_cars_cpu_ms": 0.7528328261,
+      "shadow_cars_gpu_ms": 0.0001900869565,
+      "cabin_measured": true
+    },
+    "class-heritage-raid:peugeot_205_t16_gr_1987": {
+      "name": "Peugeot 205 T16 Grand Raid (placeholder model)",
+      "gpu_bytes": 14033096,
+      "texture_bytes": 13981012,
+      "body_triangles_per_lod": [
+        694,
+        347,
+        150
+      ],
+      "wheel_triangles_per_lod": [
+        144,
+        72,
+        72
+      ],
+      "interior_triangles": 192,
+      "lod_drawn": 0,
+      "draws": 7,
+      "triangles_drawn": 2156,
+      "cars_cpu_ms": 0.6411928261,
+      "cars_gpu_ms": 5.934782609e-05,
+      "shadow_cars_cpu_ms": 0.611738,
+      "shadow_cars_gpu_ms": 0.0001763478261,
+      "cabin_measured": true
+    },
+    "class-heritage-raid:peugeot_405_t16_gr_1988": {
+      "name": "Peugeot 405 T16 Grand Raid (placeholder model)",
+      "gpu_bytes": 14033096,
+      "texture_bytes": 13981012,
+      "body_triangles_per_lod": [
+        694,
+        347,
+        150
+      ],
+      "wheel_triangles_per_lod": [
+        144,
+        72,
+        72
+      ],
+      "interior_triangles": 192,
+      "lod_drawn": 0,
+      "draws": 7,
+      "triangles_drawn": 2156,
+      "cars_cpu_ms": 0.6165721739,
+      "cars_gpu_ms": 8.504347826e-05,
+      "shadow_cars_cpu_ms": 0.6882466522,
+      "shadow_cars_gpu_ms": 0.0001791304348,
+      "cabin_measured": true
+    },
+    "class-heritage-raid:porsche_959_raid_1986": {
+      "name": "Porsche 959 (rally-raid, 1986) (placeholder model)",
+      "gpu_bytes": 14033096,
+      "texture_bytes": 13981012,
+      "body_triangles_per_lod": [
+        694,
+        347,
+        150
+      ],
+      "wheel_triangles_per_lod": [
+        144,
+        72,
+        72
+      ],
+      "interior_triangles": 192,
+      "lod_drawn": 0,
+      "draws": 7,
+      "triangles_drawn": 2156,
+      "cars_cpu_ms": 0.591777913,
+      "cars_gpu_ms": 9.543478261e-05,
+      "shadow_cars_cpu_ms": 0.6718984348,
+      "shadow_cars_gpu_ms": 0.0001684782609,
+      "cabin_measured": true
+    },
+    "class-heritage-raid:range_rover_classic_raid_1981": {
+      "name": "Range Rover (raid, 1981) (placeholder model)",
+      "gpu_bytes": 14033096,
+      "texture_bytes": 13981012,
+      "body_triangles_per_lod": [
+        694,
+        347,
+        150
+      ],
+      "wheel_triangles_per_lod": [
+        144,
+        72,
+        72
+      ],
+      "interior_triangles": 192,
+      "lod_drawn": 0,
+      "draws": 7,
+      "triangles_drawn": 2156,
+      "cars_cpu_ms": 0.6600132609,
+      "cars_gpu_ms": 5.439130435e-05,
+      "shadow_cars_cpu_ms": 0.6039886087,
+      "shadow_cars_gpu_ms": 0.0001606086957,
+      "cabin_measured": true
+    },
+    "class-rally-raid:canam_maverick_xrs_t4": {
+      "name": "Can-Am Maverick XRS (T4) (placeholder model)",
+      "gpu_bytes": 14034468,
+      "texture_bytes": 13981012,
+      "body_triangles_per_lod": [
+        634,
+        316,
+        302
+      ],
+      "wheel_triangles_per_lod": [
+        144,
+        72,
+        72
+      ],
+      "interior_triangles": 192,
+      "lod_drawn": 0,
+      "draws": 7,
+      "triangles_drawn": 2036,
+      "cars_cpu_ms": 0.908559087,
+      "cars_gpu_ms": 7.126086957e-05,
+      "shadow_cars_cpu_ms": 0.6488822609,
+      "shadow_cars_gpu_ms": 0.0001436956522,
+      "cabin_measured": true
+    },
+    "class-rally-raid:dacia_sandrider_t1plus": {
+      "name": "Dacia Sandrider (placeholder model)",
+      "gpu_bytes": 14033096,
+      "texture_bytes": 13981012,
+      "body_triangles_per_lod": [
+        694,
+        347,
+        150
+      ],
+      "wheel_triangles_per_lod": [
+        144,
+        72,
+        72
+      ],
+      "interior_triangles": 192,
+      "lod_drawn": 0,
+      "draws": 7,
+      "triangles_drawn": 2156,
+      "cars_cpu_ms": 0.5663564348,
+      "cars_gpu_ms": 5.382608696e-05,
+      "shadow_cars_cpu_ms": 0.6203124348,
+      "shadow_cars_gpu_ms": 0.000144826087,
+      "cabin_measured": true
+    },
+    "class-rally-raid:ford_ranger_raptor_t1plus": {
+      "name": "Ford Ranger Raptor T1+ (placeholder model)",
+      "gpu_bytes": 14033096,
+      "texture_bytes": 13981012,
+      "body_triangles_per_lod": [
+        694,
+        347,
+        150
+      ],
+      "wheel_triangles_per_lod": [
+        144,
+        72,
+        72
+      ],
+      "interior_triangles": 192,
+      "lod_drawn": 0,
+      "draws": 7,
+      "triangles_drawn": 2156,
+      "cars_cpu_ms": 0.5659101739,
+      "cars_gpu_ms": 5.960869565e-05,
+      "shadow_cars_cpu_ms": 0.6204581304,
+      "shadow_cars_gpu_ms": 0.0001466956522,
+      "cabin_measured": true
+    },
+    "class-rally-raid:mini_jcw_rally_t1plus": {
+      "name": "Mini John Cooper Works Rally (placeholder model)",
+      "gpu_bytes": 14033096,
+      "texture_bytes": 13981012,
+      "body_triangles_per_lod": [
+        694,
+        347,
+        150
+      ],
+      "wheel_triangles_per_lod": [
+        144,
+        72,
+        72
+      ],
+      "interior_triangles": 192,
+      "lod_drawn": 0,
+      "draws": 7,
+      "triangles_drawn": 2156,
+      "cars_cpu_ms": 0.5567761304,
+      "cars_gpu_ms": 5.569565217e-05,
+      "shadow_cars_cpu_ms": 0.6092196957,
+      "shadow_cars_gpu_ms": 0.0001466086957,
+      "cabin_measured": true
+    },
+    "class-rally-raid:nissan_patrol_t2": {
+      "name": "Nissan Patrol (T2) (placeholder model)",
+      "gpu_bytes": 14033096,
+      "texture_bytes": 13981012,
+      "body_triangles_per_lod": [
+        694,
+        347,
+        150
+      ],
+      "wheel_triangles_per_lod": [
+        144,
+        72,
+        72
+      ],
+      "interior_triangles": 192,
+      "lod_drawn": 0,
+      "draws": 7,
+      "triangles_drawn": 2156,
+      "cars_cpu_ms": 0.5704555217,
+      "cars_gpu_ms": 7.195652174e-05,
+      "shadow_cars_cpu_ms": 0.6247614783,
+      "shadow_cars_gpu_ms": 0.0001475652174,
+      "cabin_measured": true
+    },
+    "class-rally-raid:peugeot_3008_dkr_maxi": {
+      "name": "Peugeot 3008 DKR Maxi (placeholder model)",
+      "gpu_bytes": 14033096,
+      "texture_bytes": 13981012,
+      "body_triangles_per_lod": [
+        694,
+        347,
+        150
+      ],
+      "wheel_triangles_per_lod": [
+        144,
+        72,
+        72
+      ],
+      "interior_triangles": 192,
+      "lod_drawn": 0,
+      "draws": 7,
+      "triangles_drawn": 2156,
+      "cars_cpu_ms": 0.5841336957,
+      "cars_gpu_ms": 5.065217391e-05,
+      "shadow_cars_cpu_ms": 0.6246619565,
+      "shadow_cars_gpu_ms": 0.0001473913043,
+      "cabin_measured": true
+    },
+    "class-rally-raid:prodrive_hunter_t1plus": {
+      "name": "Prodrive Hunter T1+ (placeholder model)",
+      "gpu_bytes": 14033096,
+      "texture_bytes": 13981012,
+      "body_triangles_per_lod": [
+        694,
+        347,
+        150
+      ],
+      "wheel_triangles_per_lod": [
+        144,
+        72,
+        72
+      ],
+      "interior_triangles": 192,
+      "lod_drawn": 0,
+      "draws": 7,
+      "triangles_drawn": 2156,
+      "cars_cpu_ms": 0.6407057391,
+      "cars_gpu_ms": 6.317391304e-05,
+      "shadow_cars_cpu_ms": 0.6632070435,
+      "shadow_cars_gpu_ms": 0.0001521304348,
+      "cabin_measured": true
+    },
+    "class-rally-raid:toyota_gr_dkr_hilux_t1plus": {
+      "name": "Toyota GR DKR Hilux T1+ (placeholder model)",
+      "gpu_bytes": 14033096,
+      "texture_bytes": 13981012,
+      "body_triangles_per_lod": [
+        694,
+        347,
+        150
+      ],
+      "wheel_triangles_per_lod": [
+        144,
+        72,
+        72
+      ],
+      "interior_triangles": 192,
+      "lod_drawn": 0,
+      "draws": 7,
+      "triangles_drawn": 2156,
+      "cars_cpu_ms": 0.577385913,
+      "cars_gpu_ms": 7.017391304e-05,
+      "shadow_cars_cpu_ms": 0.5947923913,
+      "shadow_cars_gpu_ms": 0.0001673043478,
+      "cabin_measured": true
+    },
+    "class-rally-raid:toyota_land_cruiser_79_t2": {
+      "name": "Toyota Land Cruiser 79 (T2) (placeholder model)",
+      "gpu_bytes": 14033096,
+      "texture_bytes": 13981012,
+      "body_triangles_per_lod": [
+        694,
+        347,
+        150
+      ],
+      "wheel_triangles_per_lod": [
+        144,
+        72,
+        72
+      ],
+      "interior_triangles": 192,
+      "lod_drawn": 0,
+      "draws": 7,
+      "triangles_drawn": 2156,
+      "cars_cpu_ms": 0.5874187391,
+      "cars_gpu_ms": 7e-05,
+      "shadow_cars_cpu_ms": 0.5767057391,
+      "shadow_cars_gpu_ms": 0.0001605217391,
+      "cabin_measured": true
+    },
+    "cordo_kitcar": {
+      "name": "Cordo",
+      "gpu_bytes": 14033096,
+      "texture_bytes": 13981012,
+      "body_triangles_per_lod": [
+        694,
+        347,
+        150
+      ],
+      "wheel_triangles_per_lod": [
+        144,
+        72,
+        72
+      ],
+      "interior_triangles": 192,
+      "lod_drawn": 0,
+      "draws": 7,
+      "triangles_drawn": 2156,
+      "cars_cpu_ms": 0.5999877391,
+      "cars_gpu_ms": 6.12173913e-05,
+      "shadow_cars_cpu_ms": 0.5503886957,
+      "shadow_cars_gpu_ms": 0.0001462173913,
+      "cabin_measured": true
+    },
+    "cordo_super500": {
+      "name": "Cordo",
+      "gpu_bytes": 14033096,
+      "texture_bytes": 13981012,
+      "body_triangles_per_lod": [
+        694,
+        347,
+        150
+      ],
+      "wheel_triangles_per_lod": [
+        144,
+        72,
+        72
+      ],
+      "interior_triangles": 192,
+      "lod_drawn": 0,
+      "draws": 7,
+      "triangles_drawn": 2156,
+      "cars_cpu_ms": 0.5729342609,
+      "cars_gpu_ms": 5.886956522e-05,
+      "shadow_cars_cpu_ms": 0.5620086522,
+      "shadow_cars_gpu_ms": 0.0001377826087,
+      "cabin_measured": true
+    },
+    "cordo_wrc": {
+      "name": "Cordo",
+      "gpu_bytes": 14033096,
+      "texture_bytes": 13981012,
+      "body_triangles_per_lod": [
+        694,
+        347,
+        150
+      ],
+      "wheel_triangles_per_lod": [
+        144,
+        72,
+        72
+      ],
+      "interior_triangles": 192,
+      "lod_drawn": 0,
+      "draws": 7,
+      "triangles_drawn": 2156,
+      "cars_cpu_ms": 0.5200993478,
+      "cars_gpu_ms": 5.852173913e-05,
+      "shadow_cars_cpu_ms": 0.5603703478,
+      "shadow_cars_gpu_ms": 0.0001633043478,
+      "cabin_measured": true
+    },
+    "evo_kitcar": {
+      "name": "Zaibatsu",
+      "gpu_bytes": 14034212,
+      "texture_bytes": 13981224,
+      "body_triangles_per_lod": [
+        616,
+        308,
+        265
+      ],
+      "wheel_triangles_per_lod": [
+        144,
+        72,
+        72
+      ],
+      "interior_triangles": 192,
+      "lod_drawn": 0,
+      "draws": 7,
+      "triangles_drawn": 2000,
+      "cars_cpu_ms": 0.6807271304,
+      "cars_gpu_ms": 5.691304348e-05,
+      "shadow_cars_cpu_ms": 0.5969156957,
+      "shadow_cars_gpu_ms": 0.002012652174,
+      "cabin_measured": true
+    },
+    "evo_rally": {
+      "name": "Evo Rally",
+      "gpu_bytes": 14184072,
+      "texture_bytes": 13981012,
+      "body_triangles_per_lod": [
+        2946,
+        1472,
+        437
+      ],
+      "wheel_triangles_per_lod": [
+        672,
+        336,
+        336
+      ],
+      "interior_triangles": 192,
+      "lod_drawn": 0,
+      "draws": 7,
+      "triangles_drawn": 8772,
+      "cars_cpu_ms": 1.387032,
+      "cars_gpu_ms": 5.447826087e-05,
+      "shadow_cars_cpu_ms": 1.406735261,
+      "shadow_cars_gpu_ms": 0.0008481304348,
+      "cabin_measured": true
+    },
+    "evo_super500": {
+      "name": "Zaibatsu",
+      "gpu_bytes": 14034212,
+      "texture_bytes": 13981224,
+      "body_triangles_per_lod": [
+        616,
+        308,
+        265
+      ],
+      "wheel_triangles_per_lod": [
+        144,
+        72,
+        72
+      ],
+      "interior_triangles": 192,
+      "lod_drawn": 0,
+      "draws": 7,
+      "triangles_drawn": 2000,
+      "cars_cpu_ms": 0.6174056087,
+      "cars_gpu_ms": 5.404347826e-05,
+      "shadow_cars_cpu_ms": 0.6335574348,
+      "shadow_cars_gpu_ms": 0.0001401304348,
+      "cabin_measured": true
+    },
+    "evo_wrc": {
+      "name": "Zaibatsu",
+      "gpu_bytes": 14034212,
+      "texture_bytes": 13981224,
+      "body_triangles_per_lod": [
+        616,
+        308,
+        265
+      ],
+      "wheel_triangles_per_lod": [
+        144,
+        72,
+        72
+      ],
+      "interior_triangles": 192,
+      "lod_drawn": 0,
+      "draws": 7,
+      "triangles_drawn": 2000,
+      "cars_cpu_ms": 0.5441005217,
+      "cars_gpu_ms": 6.156521739e-05,
+      "shadow_cars_cpu_ms": 0.5858906087,
+      "shadow_cars_gpu_ms": 0.0001543478261,
+      "cabin_measured": true
+    },
+    "ford_escort_rs_cosworth": {
+      "name": "Ford Escort RS Cosworth (placeholder model)",
+      "gpu_bytes": 14184072,
+      "texture_bytes": 13981012,
+      "body_triangles_per_lod": [
+        2946,
+        1472,
+        437
+      ],
+      "wheel_triangles_per_lod": [
+        672,
+        336,
+        336
+      ],
+      "interior_triangles": 192,
+      "lod_drawn": 0,
+      "draws": 7,
+      "triangles_drawn": 8772,
+      "cars_cpu_ms": 1.315562,
+      "cars_gpu_ms": 8.291304348e-05,
+      "shadow_cars_cpu_ms": 1.277791304,
+      "shadow_cars_gpu_ms": 0.0006785217391,
+      "cabin_measured": true
+    },
+    "fox_kitcar": {
+      "name": "Fox",
+      "gpu_bytes": 14034468,
+      "texture_bytes": 13981012,
+      "body_triangles_per_lod": [
+        634,
+        316,
+        302
+      ],
+      "wheel_triangles_per_lod": [
+        144,
+        72,
+        72
+      ],
+      "interior_triangles": 192,
+      "lod_drawn": 0,
+      "draws": 7,
+      "triangles_drawn": 2036,
+      "cars_cpu_ms": 0.554048913,
+      "cars_gpu_ms": 6.37826087e-05,
+      "shadow_cars_cpu_ms": 0.5889818261,
+      "shadow_cars_gpu_ms": 0.000155,
+      "cabin_measured": true
+    },
+    "fox_super500": {
+      "name": "Fox",
+      "gpu_bytes": 14034468,
+      "texture_bytes": 13981012,
+      "body_triangles_per_lod": [
+        634,
+        316,
+        302
+      ],
+      "wheel_triangles_per_lod": [
+        144,
+        72,
+        72
+      ],
+      "interior_triangles": 192,
+      "lod_drawn": 0,
+      "draws": 7,
+      "triangles_drawn": 2036,
+      "cars_cpu_ms": 0.5577253043,
+      "cars_gpu_ms": 6.595652174e-05,
+      "shadow_cars_cpu_ms": 0.612798,
+      "shadow_cars_gpu_ms": 0.0001527826087,
+      "cabin_measured": true
+    },
+    "fox_wrc": {
+      "name": "Fox",
+      "gpu_bytes": 14034468,
+      "texture_bytes": 13981012,
+      "body_triangles_per_lod": [
+        634,
+        316,
+        302
+      ],
+      "wheel_triangles_per_lod": [
+        144,
+        72,
+        72
+      ],
+      "interior_triangles": 192,
+      "lod_drawn": 0,
+      "draws": 7,
+      "triangles_drawn": 2036,
+      "cars_cpu_ms": 0.5458236522,
+      "cars_gpu_ms": 7.773913043e-05,
+      "shadow_cars_cpu_ms": 0.5964545217,
+      "shadow_cars_gpu_ms": 0.0001487826087,
+      "cabin_measured": true
+    },
+    "lancer_evo": {
+      "name": "Lancer Evo",
+      "gpu_bytes": 14153724,
+      "texture_bytes": 13981012,
+      "body_triangles_per_lod": [
+        1906,
+        953,
+        411
+      ],
+      "wheel_triangles_per_lod": [
+        1136,
+        596,
+        596
+      ],
+      "interior_triangles": 192,
+      "lod_drawn": 0,
+      "draws": 7,
+      "triangles_drawn": 8548,
+      "cars_cpu_ms": 1.398704826,
+      "cars_gpu_ms": 4.947826087e-05,
+      "shadow_cars_cpu_ms": 1.406005913,
+      "shadow_cars_gpu_ms": 0.0001401304348,
+      "cabin_measured": true
+    },
+    "lancia_delta_hf_integrale": {
+      "name": "Lancia Delta HF Integrale (placeholder model)",
+      "gpu_bytes": 14184072,
+      "texture_bytes": 13981012,
+      "body_triangles_per_lod": [
+        2946,
+        1472,
+        437
+      ],
+      "wheel_triangles_per_lod": [
+        672,
+        336,
+        336
+      ],
+      "interior_triangles": 192,
+      "lod_drawn": 0,
+      "draws": 7,
+      "triangles_drawn": 8772,
+      "cars_cpu_ms": 1.384063609,
+      "cars_gpu_ms": 4.726086957e-05,
+      "shadow_cars_cpu_ms": 1.273910348,
+      "shadow_cars_gpu_ms": 0.0001416956522,
+      "cabin_measured": true
+    },
+    "lancia_stratos_hf": {
+      "name": "Lancia Stratos HF (placeholder model)",
+      "gpu_bytes": 14034468,
+      "texture_bytes": 13981012,
+      "body_triangles_per_lod": [
+        634,
+        316,
+        302
+      ],
+      "wheel_triangles_per_lod": [
+        144,
+        72,
+        72
+      ],
+      "interior_triangles": 192,
+      "lod_drawn": 0,
+      "draws": 7,
+      "triangles_drawn": 2036,
+      "cars_cpu_ms": 0.542012913,
+      "cars_gpu_ms": 7.260869565e-05,
+      "shadow_cars_cpu_ms": 0.5763832609,
+      "shadow_cars_gpu_ms": 0.0001501304348,
+      "cabin_measured": true
+    },
+    "morocco-sahara:draa_raid_t1": {
+      "name": "Draa Raid T1 (placeholder model)",
+      "gpu_bytes": 14033096,
+      "texture_bytes": 13981012,
+      "body_triangles_per_lod": [
+        694,
+        347,
+        150
+      ],
+      "wheel_triangles_per_lod": [
+        144,
+        72,
+        72
+      ],
+      "interior_triangles": 192,
+      "lod_drawn": 0,
+      "draws": 7,
+      "triangles_drawn": 2156,
+      "cars_cpu_ms": 0.566242913,
+      "cars_gpu_ms": 5.813043478e-05,
+      "shadow_cars_cpu_ms": 0.6522765652,
+      "shadow_cars_gpu_ms": 0.001953086957,
+      "cabin_measured": true
+    },
+    "morocco-sahara:erg_lite_t3": {
+      "name": "Erg Lite T3 (placeholder model)",
+      "gpu_bytes": 14034468,
+      "texture_bytes": 13981012,
+      "body_triangles_per_lod": [
+        634,
+        316,
+        302
+      ],
+      "wheel_triangles_per_lod": [
+        144,
+        72,
+        72
+      ],
+      "interior_triangles": 192,
+      "lod_drawn": 0,
+      "draws": 7,
+      "triangles_drawn": 2036,
+      "cars_cpu_ms": 0.6115388261,
+      "cars_gpu_ms": 7.582608696e-05,
+      "shadow_cars_cpu_ms": 0.6950062174,
+      "shadow_cars_gpu_ms": 0.0001639130435,
+      "cabin_measured": true
+    },
+    "peugeot_205_t16_e2": {
+      "name": "Peugeot 205 T16 E2 (placeholder model)",
+      "gpu_bytes": 14184072,
+      "texture_bytes": 13981012,
+      "body_triangles_per_lod": [
+        2946,
+        1472,
+        437
+      ],
+      "wheel_triangles_per_lod": [
+        672,
+        336,
+        336
+      ],
+      "interior_triangles": 192,
+      "lod_drawn": 0,
+      "draws": 7,
+      "triangles_drawn": 8772,
+      "cars_cpu_ms": 1.402748957,
+      "cars_gpu_ms": 6.108695652e-05,
+      "shadow_cars_cpu_ms": 1.294843696,
+      "shadow_cars_gpu_ms": 0.0001468695652,
+      "cabin_measured": true
+    },
+    "peugeot_206_wrc": {
+      "name": "Peugeot 206 WRC (placeholder model)",
+      "gpu_bytes": 14184072,
+      "texture_bytes": 13981012,
+      "body_triangles_per_lod": [
+        2946,
+        1472,
+        437
+      ],
+      "wheel_triangles_per_lod": [
+        672,
+        336,
+        336
+      ],
+      "interior_triangles": 192,
+      "lod_drawn": 0,
+      "draws": 7,
+      "triangles_drawn": 8772,
+      "cars_cpu_ms": 1.366953348,
+      "cars_gpu_ms": 5.717391304e-05,
+      "shadow_cars_cpu_ms": 1.25680313,
+      "shadow_cars_gpu_ms": 0.0001476521739,
+      "cabin_measured": true
+    },
+    "porsche_911_sc_rs": {
+      "name": "Porsche 911 SC RS (placeholder model)",
+      "gpu_bytes": 14034468,
+      "texture_bytes": 13981012,
+      "body_triangles_per_lod": [
+        634,
+        316,
+        302
+      ],
+      "wheel_triangles_per_lod": [
+        144,
+        72,
+        72
+      ],
+      "interior_triangles": 192,
+      "lod_drawn": 0,
+      "draws": 7,
+      "triangles_drawn": 2036,
+      "cars_cpu_ms": 0.5271309565,
+      "cars_gpu_ms": 5.669565217e-05,
+      "shadow_cars_cpu_ms": 0.5977766957,
+      "shadow_cars_gpu_ms": 0.0001407391304,
+      "cabin_measured": true
+    },
+    "subaru_impreza_wrc97": {
+      "name": "Subaru Impreza WRC97 (placeholder model)",
+      "gpu_bytes": 14184072,
+      "texture_bytes": 13981012,
+      "body_triangles_per_lod": [
+        2946,
+        1472,
+        437
+      ],
+      "wheel_triangles_per_lod": [
+        672,
+        336,
+        336
+      ],
+      "interior_triangles": 192,
+      "lod_drawn": 0,
+      "draws": 7,
+      "triangles_drawn": 8772,
+      "cars_cpu_ms": 1.384869304,
+      "cars_gpu_ms": 6.247826087e-05,
+      "shadow_cars_cpu_ms": 1.223834391,
+      "shadow_cars_gpu_ms": 0.0001786521739,
+      "cabin_measured": true
+    },
+    "toyota_celica_gt4_st185": {
+      "name": "Toyota Celica GT-Four ST185 (placeholder model)",
+      "gpu_bytes": 14184072,
+      "texture_bytes": 13981012,
+      "body_triangles_per_lod": [
+        2946,
+        1472,
+        437
+      ],
+      "wheel_triangles_per_lod": [
+        672,
+        336,
+        336
+      ],
+      "interior_triangles": 192,
+      "lod_drawn": 0,
+      "draws": 7,
+      "triangles_drawn": 8772,
+      "cars_cpu_ms": 1.413976087,
+      "cars_gpu_ms": 6.339130435e-05,
+      "shadow_cars_cpu_ms": 1.326181435,
+      "shadow_cars_gpu_ms": 0.000135826087,
+      "cabin_measured": true
+    }
+  },
+  "note": "Measured in two runs on the same binary family: 33 cars, then the 7 cars added or renamed for the A5 table (tools/car_render_report.py --only ...)."
+}

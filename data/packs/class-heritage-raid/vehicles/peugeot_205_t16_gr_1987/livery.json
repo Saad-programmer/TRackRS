@@ -1,0 +1,70 @@
+{
+  "schema": "trackrs.livery/1",
+  "id": "peugeot_205_t16_gr_1987_fictional",
+  "note": "Fictional livery (placeholder model): generated sponsor marks, no team, sponsor or manufacturer scheme or logo.",
+  "primary": "#f4f3ef",
+  "primary_source": "#0044aa",
+  "secondary": "#1f3e8a",
+  "secondary_source": "#ffff00",
+  "number": 203,
+  "number_colour": "#111111",
+  "panel_colour": "#f2f2f2",
+  "number_panels": [
+    {
+      "rect": [
+        0.398,
+        0.52,
+        0.14,
+        0.117
+      ]
+    },
+    {
+      "rect": [
+        0.461,
+        0.828,
+        0.133,
+        0.125
+      ]
+    }
+  ],
+  "sponsor_slots": [
+    {
+      "rect": [
+        0.54,
+        0.51,
+        0.32,
+        0.14
+      ],
+      "backing": "#f4f3ef"
+    },
+    {
+      "rect": [
+        0.214,
+        0.82,
+        0.24,
+        0.15
+      ],
+      "backing": "#f4f3ef"
+    },
+    {
+      "rect": [
+        0.762,
+        0.229,
+        0.098,
+        0.049
+      ],
+      "backing": "#f4f3ef"
+    },
+    {
+      "rect": [
+        0.117,
+        0.117,
+        0.102,
+        0.254
+      ],
+      "rotation": 90,
+      "backing": "#f4f3ef"
+    }
+  ],
+  "sponsor_seed": 411
+}

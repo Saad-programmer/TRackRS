@@ -1,12 +1,12 @@
 {
   "schema": "trackrs.livery/1",
-  "id": "ford_raptor_t1plus_fictional",
+  "id": "peugeot_3008_dkr_maxi_fictional",
   "note": "Fictional livery (placeholder model): generated sponsor marks, no team, sponsor or manufacturer scheme or logo.",
-  "primary": "#e6e2d6",
+  "primary": "#e9e7e1",
   "primary_source": "#0044aa",
-  "secondary": "#2b5d3a",
+  "secondary": "#26324d",
   "secondary_source": "#ffff00",
-  "number": 303,
+  "number": 306,
   "number_colour": "#111111",
   "panel_colour": "#f2f2f2",
   "number_panels": [
@@ -35,7 +35,7 @@
         0.32,
         0.14
       ],
-      "backing": "#e6e2d6"
+      "backing": "#e9e7e1"
     },
     {
       "rect": [
@@ -44,7 +44,7 @@
         0.24,
         0.15
       ],
-      "backing": "#e6e2d6"
+      "backing": "#e9e7e1"
     },
     {
       "rect": [
@@ -53,7 +53,7 @@
         0.098,
         0.049
       ],
-      "backing": "#e6e2d6"
+      "backing": "#e9e7e1"
     },
     {
       "rect": [
@@ -63,8 +63,8 @@
         0.254
       ],
       "rotation": 90,
-      "backing": "#e6e2d6"
+      "backing": "#e9e7e1"
     }
   ],
-  "sponsor_seed": 403
+  "sponsor_seed": 406
 }

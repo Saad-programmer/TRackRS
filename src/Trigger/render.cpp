@@ -750,6 +750,21 @@ trackrs::draw::matrix(trackrs::draw::Projection);
     getSSRender().drawText(vtype->pstat_roadholding, PTEXT_HZA_LEFT | PTEXT_VTA_CENTER);
     trackrs::draw::pop(); // 1
 
+    // Phase 4d: honesty labels for Car Definition v2 entries.
+    {
+      std::string label;
+      if (vtype->approximateFigures) label = "approximate class figures";
+      if (vtype->placeholderModel) label += std::string(label.empty() ? "" : " - ") + "placeholder model";
+      if (!label.empty()) {
+        trackrs::draw::push(); // 1
+        trackrs::draw::translate(500.0f, 72.0f, 0.0f);
+        trackrs::draw::scale(16.0f, 16.0f, 1.0f);
+        trackrs::draw::color(gwc.weak.x, gwc.weak.y, gwc.weak.z, gwc.weak.w);
+        getSSRender().drawText(label, PTEXT_HZA_CENTER | PTEXT_VTA_CENTER);
+        trackrs::draw::pop(); // 1
+      }
+    }
+
     std::string racename;
 
     if (lss.state == AM_TOP_EVT_PREP || lss.state == AM_TOP_PRAC_SEL_PREP)

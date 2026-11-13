@@ -2,6 +2,7 @@
 #define DOCTEST_CONFIG_IMPLEMENT_WITH_MAIN
 #include "engine/content/car_definition.h"
 #include "vendor/doctest/doctest.h"
+#include <algorithm>
 #include <cmath>
 #include <filesystem>
 #include <fstream>
@@ -198,9 +199,8 @@ TEST_CASE("every content-pack car validates, is honest and shows its placeholder
       CHECK(validate(car).ok());
       CHECK(car.id == dir.path().filename().string());
       CHECK(ids.insert(car.id).second); // ids are unique across all packs
-      for (const auto &[key, value] : car.verified)
-        CHECK_FALSE(value);              // nothing in the packs is verified yet
-      CHECK(car.sources.empty());
+      const bool anyVerified = std::any_of(car.verified.begin(), car.verified.end(), [](const auto &v) { return v.second; });
+      CHECK(anyVerified == !car.sources.empty()); // verified only through cited data_overrides.json
       CHECK_FALSE(car.provenance.empty());
       if (!car.marque.empty())
         CHECK_FALSE(car.license.trademarkNotice.empty());

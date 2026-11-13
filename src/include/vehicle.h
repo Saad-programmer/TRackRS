@@ -185,6 +185,11 @@ public:
 
   // Phase 4c: per-car damage-visual gain from car.json (0 = graphics.damagegain)
   float damageVisualGain = 0;
+
+  // Phase 4d: shown on the car-selection screen
+  bool approximateFigures = false; ///< car.json with any verified=false group
+  bool placeholderModel = false;   ///< car.json without its own mesh (borrowed fictional body)
+  float definitionPowerBhp = 0;    ///< car.json peak power in hp (0 = legacy .vehicle)
   
   // wheel model
   PModel *wheelmodel;
