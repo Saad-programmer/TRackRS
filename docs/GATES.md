@@ -38,6 +38,7 @@ already exists on `origin` (checked with `git ls-remote --tags`).
 | `phase-3e-done` | `aa95113` | [43189440337](https://github.com/Saad-programmer/TRackRS/actions/runs/43189440337) (run 122) | 2026-11-12 | **no: create by hand** |
 | `m0-done` | `3579bfd` | [43189440337](https://github.com/Saad-programmer/TRackRS/actions/runs/43189440337) (run 122, on descendant `aa95113`) | 2026-11-12 | **no: create by hand** |
 | `m1-done` | `fc8a242` | [43331156267](https://github.com/Saad-programmer/TRackRS/actions/runs/43331156267) (run 133) | 2026-11-13 | **no: create by hand** |
+| `m2-done` | `3402d06` | [43341339710](https://github.com/Saad-programmer/TRackRS/actions/runs/43341339710) (run 139) | 2026-11-13 | **no: create by hand** |
 
 Notes:
 
@@ -63,6 +64,13 @@ Notes:
   desert generator, fixed in `381848a`) and in the clang lint job (two lines
   in the sign code, fixed in `fc8a242`). The gate is the first commit with
   everything green.
+* `m2-done` belongs on commit `3402d06` (full SHA
+  `3402d0695ed2d11e245445482e330a2f2708d37a`). The maintainer accepted M2
+  with the forced brake-glow capture counted as proof of the rendering only;
+  normal-run glow is an M5 backlog item (Lake Iriki braking zone). Run 139
+  is green on all six jobs. This commit also carries the unwired 4c
+  damage-visual helper and its tests (`engine/car/damage_visual`); nothing
+  calls it yet.
 * The default renderer stays Legacy until the maintainer supplies real-GPU
   numbers (A0.3).
 
@@ -79,5 +87,5 @@ green `main` run of the next gate commit that contains it.
 
 ## Upcoming gates (amendment §A9 order)
 
-`m2-done` (Zagora Prologue vertical slice). Each is added to the table
-above when it closes.
+`phase-4c-done` (damage visuals), `phase-4d-done` (roster and sourcing).
+Each is added to the table above when it closes.
