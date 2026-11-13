@@ -460,3 +460,45 @@ Decision:
 * `repaintRoles()` marks the remaining art texels as plain paint and clears
   their headlamp-candidate flag. Headlamp candidates are not protected: the
   shader already limits them to the car's front.
+
+## 4d: class packs carry class-typical placeholder figures, not recalled specs
+
+Context: 4d asks for class packs (rally-raid first, then heritage raid, then
+the existing rally roster) with full licence and verified metadata, and no
+invented sources. No reference for these cars was consulted in this
+session.
+Decision:
+* Each class-pack car names a real car (with a trademark notice), but its
+  physics figures are **class-typical placeholders for its class and era**,
+  and its provenance says exactly that. This is stricter than the 4a seeds,
+  which were labelled "recalled".
+* Every `verified` key is false and `sources` is empty. A supplied mesh does
+  not verify any figure.
+* Electric rally-raid prototypes are left out: single-speed drive with a
+  range extender needs the Phase 6 powertrain, and the validator's 3–8
+  gears would misrepresent them.
+* 37-inch tyres exceed the validator's 0.45 m radius, so those cars use
+  0.45 m.
+* `tools/seed_class_packs.py` generates the packs, and CTest checks they are
+  fresh, as `seed_real_cars.py` does for 4a.
+
+## 4d: the existing rally roster stays in data/vehicles
+
+Context: the third class pack is the existing roster (9 fictional legacy
+cars and the 11 real-car entries from 4a).
+Decision: the cars stay where they are. `/vehicles/<id>` paths are part of
+the golden replays and hashes, of the calibration tests and of saved
+profiles. The roster is documented as a class (in `CARS.md` and
+`ASSET_SOURCING.md`) and keeps its metadata in each `car.json` or `.vehicle`.
+Moving it into a pack would only rename paths.
+
+## 4d: a mesh checker before any mesh loader
+
+Context: no car mesh exists yet, and the Car v2 loader still refuses own
+meshes.
+Decision: `docs/ASSET_SOURCING.md` defines the exact mesh contract, and
+`tools/check_car_mesh.py` (stdlib only) enforces it on a `.glb`, so a
+supplied asset can be checked before the loader for supplied meshes is
+written. Separate part nodes (bumpers, mirrors, wheels) are required, so
+that real detachable parts (Phase 4c follow-up) become possible. The loader
+is written when the first conforming mesh arrives.

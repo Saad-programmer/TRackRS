@@ -19,12 +19,17 @@ ROOT = pathlib.Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / 'tests'))
 
 def vehicles():
+    """Every car: data/vehicles/<id> (legacy .vehicle or car.json) and the
+    content packs' cars as <pack>:<id> (Phase 4d)."""
     out = []
     for d in sorted((ROOT / 'data/vehicles').iterdir()):
         if d.name == 'pbr_test':
             continue
         if (d / 'car.json').exists() or (d / f'{d.name}.vehicle').exists():
             out.append(d.name)
+    for pack in sorted((ROOT / 'data/packs').iterdir()):
+        for d in sorted((pack / 'vehicles').glob('*/car.json')) if (pack / 'vehicles').is_dir() else []:
+            out.append(f'{pack.name}:{d.parent.name}')
     return out
 
 def main():
@@ -39,13 +44,14 @@ def main():
     env = dict(os.environ, LIBGL_ALWAYS_SOFTWARE=os.environ.get('LIBGL_ALWAYS_SOFTWARE', '1'), ALSOFT_DRIVERS='null')
     rows, data = [], {}
     for car in (a.only or vehicles()):
-        target = (a.output / f'{car}.json').resolve()
+        stem = car.replace(':', '__')  # pack:id -> file-safe name
+        target = (a.output / f'{stem}.json').resolve()
         cmd = [str(a.binary.resolve()), '--headless', '--data-dir', str(ROOT / 'data'), '--renderer', 'pbr', '--quality', 'medium',
                '--width', '640', '--height', '480', '--time-of-day', a.time_of_day, '--shadows', 'csm', '--stage', 'ahead',
                '--vehicle', car, '--frames', str(a.frames), '--replay', str(ROOT / 'tests/replays/baseline.csv'), '--json', str(target),
                '--screenshot', str(target.with_suffix('.ppm'))]
         with tempfile.TemporaryDirectory(prefix='trackrs-cars-') as profile:
-            log = a.output / f'{car}.log'
+            log = a.output / f'{stem}.log'
             with log.open('w') as stream:
                 r = subprocess.run(cmd, env=dict(env, XDG_DATA_HOME=profile), stdout=stream, stderr=subprocess.STDOUT, timeout=900)
         if r.returncode:
